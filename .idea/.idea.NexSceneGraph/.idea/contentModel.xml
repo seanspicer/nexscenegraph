@@ -19,10 +19,14 @@
       <e p="NexSceneGraph.sln" t="IncludeFlat" />
       <e p="Nsg.Core" t="IncludeRecursive">
         <e p="bin" t="ExcludeRecursive" />
+        <e p="Config.cs" t="Include" />
         <e p="Edge.cs" t="Include" />
         <e p="Geometry.cs" t="Include" />
         <e p="Interfaces" t="Include">
+          <e p="IBackend.cs" t="Include" />
           <e p="IGeometry.cs" t="Include" />
+          <e p="IViewerFactory.cs" t="Include" />
+          <e p="IViewerImpl.cs" t="Include" />
         </e>
         <e p="Node.cs" t="Include" />
         <e p="Nsg.Core.csproj" t="IncludeRecursive" />
@@ -33,29 +37,23 @@
             </e>
           </e>
         </e>
+        <e p="Viewer" t="Include">
+          <e p="SimpleViewer.cs" t="Include" />
+        </e>
       </e>
       <e p="Nsg.VeldridBackend" t="IncludeRecursive">
+        <e p="Backend.cs" t="Include" />
         <e p="bin" t="ExcludeRecursive" />
         <e p="Nsg.VeldridBackend.csproj" t="IncludeRecursive" />
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
-            <e p="netstandard2.0" t="Include">
+            <e p="netcoreapp2.1" t="Include">
               <e p="Nsg.VeldridBackend.AssemblyInfo.cs" t="Include" />
             </e>
           </e>
         </e>
-      </e>
-      <e p="Nsg.Viewer" t="IncludeRecursive">
-        <e p="bin" t="ExcludeRecursive" />
-        <e p="Nsg.Viewer.csproj" t="IncludeRecursive" />
-        <e p="obj" t="ExcludeRecursive">
-          <e p="Debug" t="Include">
-            <e p="netcoreapp2.1" t="Include">
-              <e p="Nsg.Viewer.AssemblyInfo.cs" t="Include" />
-            </e>
-          </e>
-        </e>
-        <e p="SimpleViewer.cs" t="Include" />
+        <e p="ViewerFactory.cs" t="Include" />
+        <e p="ViewerImpl.cs" t="Include" />
       </e>
       <e p="packages" t="ExcludeRecursive" />
     </e>

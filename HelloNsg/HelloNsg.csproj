@@ -5,6 +5,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Nsg.Core\Nsg.Core.csproj" />
-    <ProjectReference Include="..\Nsg.Viewer\Nsg.Viewer.csproj" />
+    <ProjectReference Include="..\Nsg.VeldridBackend\Nsg.VeldridBackend.csproj" />
   </ItemGroup>
 </Project>

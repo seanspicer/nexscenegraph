@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Numerics;
-using Nsg.Viewer;
+using Nsg.Core.Viewer;
 using Nsg.Core;
 
 namespace HelloNsg
