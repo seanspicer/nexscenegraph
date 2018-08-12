@@ -7,5 +7,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Composition" Version="1.2.0" />
+    <PackageReference Include="Veldrid" Version="4.3.3" />
+    <PackageReference Include="Veldrid.SDL2" Version="4.3.3" />
+    <PackageReference Include="Veldrid.StartupUtilities" Version="4.3.3" />
   </ItemGroup>
 </Project>
