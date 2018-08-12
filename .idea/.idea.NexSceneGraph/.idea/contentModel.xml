@@ -19,10 +19,16 @@
       <e p="NexSceneGraph.sln" t="IncludeFlat" />
       <e p="Nsg.Core" t="IncludeRecursive">
         <e p="bin" t="ExcludeRecursive" />
+        <e p="Edge.cs" t="Include" />
+        <e p="Geometry.cs" t="Include" />
+        <e p="Interfaces" t="Include">
+          <e p="IGeometry.cs" t="Include" />
+        </e>
+        <e p="Node.cs" t="Include" />
         <e p="Nsg.Core.csproj" t="IncludeRecursive" />
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
-            <e p="netstandard2.0" t="Include">
+            <e p="netcoreapp2.1" t="Include">
               <e p="Nsg.Core.AssemblyInfo.cs" t="Include" />
             </e>
           </e>
@@ -44,11 +50,12 @@
         <e p="Nsg.Viewer.csproj" t="IncludeRecursive" />
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
-            <e p="netstandard2.0" t="Include">
+            <e p="netcoreapp2.1" t="Include">
               <e p="Nsg.Viewer.AssemblyInfo.cs" t="Include" />
             </e>
           </e>
         </e>
+        <e p="SimpleViewer.cs" t="Include" />
       </e>
       <e p="packages" t="ExcludeRecursive" />
     </e>
