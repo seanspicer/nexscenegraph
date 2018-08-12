@@ -19,7 +19,6 @@
       <e p="NexSceneGraph.sln" t="IncludeFlat" />
       <e p="Nsg.Core" t="IncludeRecursive">
         <e p="bin" t="ExcludeRecursive" />
-        <e p="Class1.cs" t="Include" />
         <e p="Nsg.Core.csproj" t="IncludeRecursive" />
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
@@ -31,7 +30,6 @@
       </e>
       <e p="Nsg.VeldridBackend" t="IncludeRecursive">
         <e p="bin" t="ExcludeRecursive" />
-        <e p="Class1.cs" t="Include" />
         <e p="Nsg.VeldridBackend.csproj" t="IncludeRecursive" />
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
@@ -43,7 +41,6 @@
       </e>
       <e p="Nsg.Viewer" t="IncludeRecursive">
         <e p="bin" t="ExcludeRecursive" />
-        <e p="Class1.cs" t="Include" />
         <e p="Nsg.Viewer.csproj" t="IncludeRecursive" />
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
