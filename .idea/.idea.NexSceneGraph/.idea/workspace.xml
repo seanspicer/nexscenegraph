@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2903370a-a285-4cda-b0dc-f6d7b7bfa9dd" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/Nsg.VeldridBackend/Nsg.VeldridBackend.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Nsg.VeldridBackend/Nsg.VeldridBackend.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Nsg.VeldridBackend/ViewerImpl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Nsg.VeldridBackend/ViewerImpl.cs" afterDir="false" />
-    </list>
+    <list default="true" id="2903370a-a285-4cda-b0dc-f6d7b7bfa9dd" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -59,7 +56,7 @@
       <file leaf-file-name="ViewerImpl.cs" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Nsg.VeldridBackend/ViewerImpl.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="448">
+            <state relative-caret-position="630">
               <caret line="42" column="15" selection-start-line="42" selection-start-column="15" selection-end-line="42" selection-end-column="15" />
               <folding>
                 <marker date="1534090847160" expanded="true" signature="6:93" ph="..." />
@@ -326,12 +323,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1534079882539</updated>
-      <workItem from="1534079884431" duration="8710000" />
+      <workItem from="1534079884431" duration="8892000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="8710000" />
+    <option name="totallyTimeSpent" value="8892000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -351,13 +348,13 @@
       <window_info anchor="bottom" id="Event Log" side_tool="true" />
       <window_info anchor="bottom" id="Unit Tests" />
       <window_info anchor="bottom" id="Database Changes" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.32900944" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32900944" />
       <window_info anchor="bottom" id="Version Control" />
       <window_info anchor="bottom" id="Terminal" />
       <window_info anchor="bottom" id="NuGet" weight="0.3231132" />
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.3298611" />
       <window_info anchor="bottom" id="Docker" show_stripe_button="false" />
-      <window_info active="true" anchor="bottom" id="Build" visible="true" weight="0.2476415" />
+      <window_info anchor="bottom" id="Build" weight="0.2476415" />
       <window_info anchor="right" id="Database" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
@@ -541,7 +538,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Nsg.VeldridBackend/ViewerImpl.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="448">
+        <state relative-caret-position="630">
           <caret line="42" column="15" selection-start-line="42" selection-start-column="15" selection-end-line="42" selection-end-column="15" />
           <folding>
             <marker date="1534090847160" expanded="true" signature="6:93" ph="..." />
