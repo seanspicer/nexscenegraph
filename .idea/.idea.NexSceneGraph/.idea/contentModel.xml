@@ -24,7 +24,9 @@
         <e p="Geometry.cs" t="Include" />
         <e p="Interfaces" t="Include">
           <e p="IBackend.cs" t="Include" />
+          <e p="IDeviceBuffer.cs" t="Include" />
           <e p="IGeometry.cs" t="Include" />
+          <e p="IShader.cs" t="Include" />
           <e p="IViewerFactory.cs" t="Include" />
           <e p="IViewerImpl.cs" t="Include" />
         </e>

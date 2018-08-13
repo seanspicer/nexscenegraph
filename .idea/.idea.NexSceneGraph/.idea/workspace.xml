@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2903370a-a285-4cda-b0dc-f6d7b7bfa9dd" name="Default" comment="" />
+    <list default="true" id="2903370a-a285-4cda-b0dc-f6d7b7bfa9dd" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/Nsg.Core/Interfaces/IDeviceBuffer.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Nsg.Core/Interfaces/IShader.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Nsg.Core/Geometry.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Nsg.Core/Geometry.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Nsg.VeldridBackend/ViewerImpl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Nsg.VeldridBackend/ViewerImpl.cs" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -44,30 +49,61 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Nsg.Core.csproj" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Nsg.Core/Nsg.Core.csproj">
+      <file leaf-file-name="ViewerImpl.cs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Nsg.VeldridBackend/ViewerImpl.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="90">
-              <caret line="7" column="14" selection-start-line="7" selection-start-column="14" selection-end-line="7" selection-end-column="14" />
+            <state relative-caret-position="277">
+              <caret line="30" column="9" selection-start-line="30" selection-start-column="9" selection-end-line="30" selection-end-column="9" />
+              <folding>
+                <marker date="1534125496844" expanded="true" signature="6:93" ph="..." />
+                <marker date="1534125496844" expanded="true" signature="123:1089" ph="{...}" />
+                <marker date="1534125496844" expanded="true" signature="167:1087" ph="{...}" />
+                <marker date="1534125496844" expanded="true" signature="302:335" ph="{...}" />
+                <marker date="1534125496844" expanded="true" signature="371:629" ph="{...}" />
+                <marker date="1534125496844" expanded="true" signature="441:618" ph="{...}" />
+                <marker date="1534125496844" expanded="true" signature="657:973" ph="{...}" />
+                <marker date="1534125496844" expanded="true" signature="865:930" ph="{...}" />
+                <marker date="1534125496844" expanded="true" signature="1022:1081" ph="{...}" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ViewerImpl.cs" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Nsg.VeldridBackend/ViewerImpl.cs">
+      <file leaf-file-name="Geometry.cs" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Nsg.Core/Geometry.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="630">
-              <caret line="42" column="15" selection-start-line="42" selection-start-column="15" selection-end-line="42" selection-end-column="15" />
+            <state relative-caret-position="180">
+              <caret line="12" column="8" selection-start-line="12" selection-start-column="8" selection-end-line="12" selection-end-column="8" />
               <folding>
-                <marker date="1534090847160" expanded="true" signature="6:93" ph="..." />
-                <marker date="1534090847160" expanded="true" signature="123:1097" ph="{...}" />
-                <marker date="1534090847160" expanded="true" signature="167:1095" ph="{...}" />
-                <marker date="1534090847160" expanded="true" signature="302:335" ph="{...}" />
-                <marker date="1534090847160" expanded="true" signature="371:637" ph="{...}" />
-                <marker date="1534090847160" expanded="true" signature="441:626" ph="{...}" />
-                <marker date="1534090847160" expanded="true" signature="665:981" ph="{...}" />
-                <marker date="1534090847160" expanded="true" signature="873:938" ph="{...}" />
-                <marker date="1534090847160" expanded="true" signature="1030:1089" ph="{...}" />
+                <marker date="1534126935689" expanded="true" signature="6:49" ph="..." />
+                <marker date="1534126935689" expanded="true" signature="69:349" ph="{...}" />
+                <marker date="1534126935689" expanded="true" signature="104:347" ph="{...}" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="IShader.cs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IShader.cs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="60">
+              <caret line="4" column="8" selection-start-line="4" selection-start-column="8" selection-end-line="4" selection-end-column="8" />
+              <folding>
+                <marker date="1534126646442" expanded="true" signature="29:83" ph="{...}" />
+                <marker date="1534126646442" expanded="true" signature="60:81" ph="{...}" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="IDeviceBuffer.cs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IDeviceBuffer.cs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="60">
+              <caret line="4" column="8" selection-start-line="4" selection-start-column="8" selection-end-line="4" selection-end-column="8" />
+              <folding>
+                <marker date="1534126464821" expanded="true" signature="29:89" ph="{...}" />
+                <marker date="1534126464821" expanded="true" signature="66:87" ph="{...}" />
               </folding>
             </state>
           </provider>
@@ -130,27 +166,20 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="IViewerFactory.cs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IViewerFactory.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="15">
-              <caret line="1" column="26" selection-start-line="1" selection-start-column="26" selection-end-line="1" selection-end-column="26" />
-            </state>
-          </provider>
-        </entry>
-      </file>
     </leaf>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/Nsg.Core/Geometry.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Core/Geometry.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IGeometry.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Nsg.VeldridBackend/ViewerImpl.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Nsg.VeldridBackend/ViewerFactory.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Nsg.Core/Edge.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Nsg.Core/Viewer/SimpleViewer.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IDeviceBuffer.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IShader.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/HelloNsg/Program.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IBackend.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Nsg.VeldridBackend/Backend.cs" root0="FORCE_HIGHLIGHTING" />
@@ -168,7 +197,6 @@
         <option value="$PROJECT_DIR$/Nsg.Core/Interfaces/IGeometry.cs" />
         <option value="$PROJECT_DIR$/Nsg.Core/Edge.cs" />
         <option value="$PROJECT_DIR$/Nsg.Viewer/Viewer.cs" />
-        <option value="$PROJECT_DIR$/Nsg.Core/Geometry.cs" />
         <option value="$PROJECT_DIR$/Nsg.VeldridBackend/Foo.cs" />
         <option value="$PROJECT_DIR$/Nsg.Core/Node.cs" />
         <option value="$PROJECT_DIR$/Nsg.Viewer/IViewerImpl.cs" />
@@ -184,6 +212,9 @@
         <option value="$PROJECT_DIR$/Nsg.Core/Config.cs" />
         <option value="$PROJECT_DIR$/Nsg.VeldridBackend/Backend.cs" />
         <option value="$PROJECT_DIR$/Nsg.VeldridBackend/ViewerImpl.cs" />
+        <option value="$PROJECT_DIR$/Nsg.Core/Interfaces/IDeviceBuffer.cs" />
+        <option value="$PROJECT_DIR$/Nsg.Core/Interfaces/IShader.cs" />
+        <option value="$PROJECT_DIR$/Nsg.Core/Geometry.cs" />
       </list>
     </option>
   </component>
@@ -323,12 +354,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1534079882539</updated>
-      <workItem from="1534079884431" duration="8892000" />
+      <workItem from="1534079884431" duration="11492000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="8892000" />
+    <option name="totallyTimeSpent" value="11492000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -348,11 +379,11 @@
       <window_info anchor="bottom" id="Event Log" side_tool="true" />
       <window_info anchor="bottom" id="Unit Tests" />
       <window_info anchor="bottom" id="Database Changes" show_stripe_button="false" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32900944" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.32900944" />
       <window_info anchor="bottom" id="Version Control" />
       <window_info anchor="bottom" id="Terminal" />
       <window_info anchor="bottom" id="NuGet" weight="0.3231132" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.3298611" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.3298611" />
       <window_info anchor="bottom" id="Docker" show_stripe_button="false" />
       <window_info anchor="bottom" id="Build" weight="0.2476415" />
       <window_info anchor="right" id="Database" />
@@ -389,13 +420,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="60">
           <caret line="4" column="8" selection-start-line="4" selection-start-column="8" selection-end-line="4" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Nsg.Core/Geometry.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="8" column="1" selection-start-line="8" selection-start-column="1" selection-end-line="8" selection-end-column="1" />
         </state>
       </provider>
     </entry>
@@ -538,18 +562,52 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Nsg.VeldridBackend/ViewerImpl.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="630">
-          <caret line="42" column="15" selection-start-line="42" selection-start-column="15" selection-end-line="42" selection-end-column="15" />
+        <state relative-caret-position="277">
+          <caret line="30" column="9" selection-start-line="30" selection-start-column="9" selection-end-line="30" selection-end-column="9" />
           <folding>
-            <marker date="1534090847160" expanded="true" signature="6:93" ph="..." />
-            <marker date="1534090847160" expanded="true" signature="123:1097" ph="{...}" />
-            <marker date="1534090847160" expanded="true" signature="167:1095" ph="{...}" />
-            <marker date="1534090847160" expanded="true" signature="302:335" ph="{...}" />
-            <marker date="1534090847160" expanded="true" signature="371:637" ph="{...}" />
-            <marker date="1534090847160" expanded="true" signature="441:626" ph="{...}" />
-            <marker date="1534090847160" expanded="true" signature="665:981" ph="{...}" />
-            <marker date="1534090847160" expanded="true" signature="873:938" ph="{...}" />
-            <marker date="1534090847160" expanded="true" signature="1030:1089" ph="{...}" />
+            <marker date="1534125496844" expanded="true" signature="6:93" ph="..." />
+            <marker date="1534125496844" expanded="true" signature="123:1089" ph="{...}" />
+            <marker date="1534125496844" expanded="true" signature="167:1087" ph="{...}" />
+            <marker date="1534125496844" expanded="true" signature="302:335" ph="{...}" />
+            <marker date="1534125496844" expanded="true" signature="371:629" ph="{...}" />
+            <marker date="1534125496844" expanded="true" signature="441:618" ph="{...}" />
+            <marker date="1534125496844" expanded="true" signature="657:973" ph="{...}" />
+            <marker date="1534125496844" expanded="true" signature="865:930" ph="{...}" />
+            <marker date="1534125496844" expanded="true" signature="1022:1081" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IDeviceBuffer.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="4" column="8" selection-start-line="4" selection-start-column="8" selection-end-line="4" selection-end-column="8" />
+          <folding>
+            <marker date="1534126464821" expanded="true" signature="29:89" ph="{...}" />
+            <marker date="1534126464821" expanded="true" signature="66:87" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IShader.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="4" column="8" selection-start-line="4" selection-start-column="8" selection-end-line="4" selection-end-column="8" />
+          <folding>
+            <marker date="1534126646442" expanded="true" signature="29:83" ph="{...}" />
+            <marker date="1534126646442" expanded="true" signature="60:81" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Nsg.Core/Geometry.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" column="8" selection-start-line="12" selection-start-column="8" selection-end-line="12" selection-end-column="8" />
+          <folding>
+            <marker date="1534126935689" expanded="true" signature="6:49" ph="..." />
+            <marker date="1534126935689" expanded="true" signature="69:349" ph="{...}" />
+            <marker date="1534126935689" expanded="true" signature="104:347" ph="{...}" />
           </folding>
         </state>
       </provider>

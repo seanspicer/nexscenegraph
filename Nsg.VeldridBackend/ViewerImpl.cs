@@ -23,7 +23,7 @@ namespace Nsg.VeldridBackend
                 Y = 100,
                 WindowWidth = 960,
                 WindowHeight = 540,
-                WindowTitle = "Veldrid Tutorial"
+                WindowTitle = "HelloNsg"
             };
         }
 
