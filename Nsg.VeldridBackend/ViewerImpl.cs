@@ -1,4 +1,5 @@
 ﻿using Nsg.Core.Interfaces;
+using Nsg.Core.Viewer;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
@@ -9,11 +10,18 @@ namespace Nsg.VeldridBackend
     {
         private WindowCreateInfo _windowCI;
         private GraphicsDevice _graphicsDevice;
+        private GraphicsDeviceWrapper _graphicsDeviceWrapper = null;
+        private Sdl2Window _window;
+        private SimpleViewer _viewer;
+        private DrawVisitor _drawVisitor;
         
-        public ViewerImpl()
+        public ViewerImpl(SimpleViewer viewer)
         {
-            
+            _viewer = viewer;
         }
+
+        public IGraphicsDevice GraphicsDevice => _graphicsDeviceWrapper;
+        public IResourceFactory ResourceFactory => _graphicsDeviceWrapper.ResourceFactory;
 
         public void CreateWindow()
         {
@@ -25,16 +33,23 @@ namespace Nsg.VeldridBackend
                 WindowHeight = 540,
                 WindowTitle = "HelloNsg"
             };
+            
+            _window = VeldridStartup.CreateWindow(ref _windowCI);
+            _graphicsDevice = VeldridStartup.CreateGraphicsDevice(_window, GraphicsBackend.Vulkan);
+            _graphicsDeviceWrapper = new GraphicsDeviceWrapper(_graphicsDevice);
         }
 
         public void Show()
         {
-            Sdl2Window window = VeldridStartup.CreateWindow(ref _windowCI);
-            _graphicsDevice = VeldridStartup.CreateGraphicsDevice(window);
-            
-            while (window.Exists)
+            _drawVisitor = new DrawVisitor(_graphicsDevice);
+            while (_window.Exists)
             {
-                window.PumpEvents();
+                _window.PumpEvents();
+                
+                if (_window.Exists)
+                {
+                    _viewer.Draw(_drawVisitor);
+                }
             }
 
             DisposeResources();
@@ -43,6 +58,7 @@ namespace Nsg.VeldridBackend
         private void DisposeResources()
         {
             _graphicsDevice.Dispose();
+            _drawVisitor.DisposeResources();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Nsg.Core.Interfaces;
 
 namespace Nsg.Core
 {
@@ -24,6 +25,14 @@ namespace Nsg.Core
         {
             node.Parent = this;
             Children.Add(node);
+        }
+
+        public virtual void Accept(IDrawVisitor drawVisitor)
+        {
+            foreach (var child in Children)
+            {
+                child.Accept(drawVisitor);
+            }
         }
     }
 }

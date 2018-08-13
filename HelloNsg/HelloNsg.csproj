@@ -7,4 +7,12 @@
     <ProjectReference Include="..\Nsg.Core\Nsg.Core.csproj" />
     <ProjectReference Include="..\Nsg.VeldridBackend\Nsg.VeldridBackend.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="Shaders\Fragment.spv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Shaders\Vertex.spv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

@@ -1,7 +1,10 @@
-﻿namespace Nsg.Core.Interfaces
+﻿using System;
+
+namespace Nsg.Core.Interfaces
 {
-    public interface IDeviceBuffer
+    public interface IDeviceBuffer : IDisposable
     {
-        
+        string Name { get; set; }
+        uint SizeInBytes { get; }
     }
 }
