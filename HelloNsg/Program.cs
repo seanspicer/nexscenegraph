@@ -4,6 +4,7 @@ using System.Numerics;
 using Nsg.Core.Viewer;
 using Nsg.Core;
 using Nsg.Core.Interfaces;
+using Veldrid;
 
 namespace HelloNsg
 {
@@ -42,6 +43,10 @@ namespace HelloNsg
             ushort[] quadIndices = { 0, 1, 2, 3 };
             geometry.IndexData = quadIndices;
 
+            geometry.VertexLayout = new VertexLayoutDescription(
+                new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float2),
+                new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
+            
             geometry.Topology = PrimitiveTopolgy.TriangleStrip;
             
             var vsPath = Path.Combine(System.AppContext.BaseDirectory, "Shaders", "Vertex.spv");

@@ -2,7 +2,7 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Nsg.Core.Interfaces;
-
+using Veldrid;
 
 namespace Nsg.Core
 {
@@ -28,6 +28,8 @@ namespace Nsg.Core
 
         public PrimitiveTopolgy Topology { get; set; }
 
+        public VertexLayoutDescription VertexLayout { get; set; }
+            
         public Geometry()
         {
             Topology = PrimitiveTopolgy.TriangleList;

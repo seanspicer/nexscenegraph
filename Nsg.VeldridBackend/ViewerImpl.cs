@@ -48,7 +48,9 @@ namespace Nsg.VeldridBackend
                 
                 if (_window.Exists)
                 {
+                    _drawVisitor.BeginDraw();
                     _viewer.Draw(_drawVisitor);
+                    _drawVisitor.EndDraw();
                 }
             }
 

@@ -24,10 +24,22 @@ namespace Nsg.VeldridBackend
         private Dictionary<Guid, DrawInfo> DrawInfoDictionary { get; }
         
         private GraphicsDevice GraphicsDevice { get; set; }
+        private CommandList CommandList { get; set; }
         internal DrawVisitor(GraphicsDevice graphicsDevice)
         {
             GraphicsDevice = graphicsDevice;
             DrawInfoDictionary = new Dictionary<Guid, DrawInfo>();
+            CommandList = GraphicsDevice.ResourceFactory.CreateCommandList();
+        }
+
+        public void BeginDraw()
+        {
+            // Begin() must be called before commands can be issued.
+            CommandList.Begin();
+
+            // We want to render directly to the output window.
+            CommandList.SetFramebuffer(GraphicsDevice.SwapchainFramebuffer);
+            CommandList.ClearColorTarget(0, RgbaFloat.Black);
         }
         
         // Draw a Geometry
@@ -39,36 +51,31 @@ namespace Nsg.VeldridBackend
                 drawInfo = SetupDrawInfo(geometry);
                 DrawInfoDictionary.Add(geometry.Id, drawInfo);
             }
-            
-            // Begin() must be called before commands can be issued.
-            drawInfo.CommandList.Begin();
-
-            // We want to render directly to the output window.
-            drawInfo.CommandList.SetFramebuffer(GraphicsDevice.SwapchainFramebuffer);
-            drawInfo.CommandList.ClearColorTarget(0, RgbaFloat.Black);
 
             // Set all relevant state to draw our quad.
-            drawInfo.CommandList.SetVertexBuffer(0, drawInfo.VertexBuffer);
-            drawInfo.CommandList.SetIndexBuffer(drawInfo.IndexBuffer, IndexFormat.UInt16);
-            drawInfo.CommandList.SetPipeline(drawInfo.PipeLine);
+            CommandList.SetVertexBuffer(0, drawInfo.VertexBuffer);
+            CommandList.SetIndexBuffer(drawInfo.IndexBuffer, IndexFormat.UInt16);
+            CommandList.SetPipeline(drawInfo.PipeLine);
             // Issue a Draw command for a single instance with 4 indices.
-            drawInfo.CommandList.DrawIndexed(
+            CommandList.DrawIndexed(
                 indexCount: 4,
                 instanceCount: 1,
                 indexStart: 0,
                 vertexOffset: 0,
                 instanceStart: 0);
+        }
 
+        public void EndDraw()
+        {
             // End() must be called before commands can be submitted for execution.
-            drawInfo.CommandList.End();
+            CommandList.End();
             
-            GraphicsDevice.SubmitCommands(drawInfo.CommandList);
+            GraphicsDevice.SubmitCommands(CommandList);
 
             // Once commands have been submitted, the rendered image can be presented to the application window.
             GraphicsDevice.SwapBuffers();
-   
         }
-
+        
         private DrawInfo SetupDrawInfo<T>(Geometry<T> geometry) where T : struct
         {
             var drawInfo = new DrawInfo();
@@ -108,21 +115,9 @@ namespace Nsg.VeldridBackend
                 scissorTestEnabled: false);
             pipelineDescription.PrimitiveTopology = PrimitiveTopology.TriangleStrip;
             pipelineDescription.ResourceLayouts = System.Array.Empty<ResourceLayout>();
-            
-            // 
-            // KLUDGE - KLUDGE - KLUDGE 
-            // 
-            // This really needs to come from the geometry...
-            // 
-            VertexLayoutDescription vertexLayout = new VertexLayoutDescription(
-                new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float2),
-                new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
-            // 
-            // KLUDGE - KLUDGE - KLUDGE 
-            //
-            
+              
             pipelineDescription.ShaderSet = new ShaderSetDescription(
-                vertexLayouts: new VertexLayoutDescription[] { vertexLayout },
+                vertexLayouts: new VertexLayoutDescription[] { geometry.VertexLayout },
                 shaders: new Shader[] { drawInfo.VertexShader, drawInfo.FragmentShader });
             pipelineDescription.Outputs = GraphicsDevice.SwapchainFramebuffer.OutputDescription;
 
@@ -140,11 +135,10 @@ namespace Nsg.VeldridBackend
                 drawInfo.PipeLine.Dispose();
                 drawInfo.VertexShader.Dispose();
                 drawInfo.FragmentShader.Dispose();
-                drawInfo.CommandList.Dispose();
                 drawInfo.VertexBuffer.Dispose();
                 drawInfo.IndexBuffer.Dispose();
             }
-            
+            CommandList.Dispose();
         }
     }
 }
