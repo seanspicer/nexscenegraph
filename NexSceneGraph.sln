@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nsg.VeldridBackend", "Nsg.V
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloNsg", "HelloNsg\HelloNsg.csproj", "{56046B5B-D92E-40D6-8FBF-AA2524B51271}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nsg.Viewer", "Nsg.Viewer\Nsg.Viewer.csproj", "{CEDF4674-722E-4B45-B586-F216B60E2B88}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,10 @@ Global
 		{56046B5B-D92E-40D6-8FBF-AA2524B51271}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{56046B5B-D92E-40D6-8FBF-AA2524B51271}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{56046B5B-D92E-40D6-8FBF-AA2524B51271}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEDF4674-722E-4B45-B586-F216B60E2B88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEDF4674-722E-4B45-B586-F216B60E2B88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEDF4674-722E-4B45-B586-F216B60E2B88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEDF4674-722E-4B45-B586-F216B60E2B88}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{56046B5B-D92E-40D6-8FBF-AA2524B51271} = {8F0457B3-E205-44CF-AFAA-5EB8B8967399}

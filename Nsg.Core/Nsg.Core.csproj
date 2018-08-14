@@ -6,5 +6,9 @@
     <PackageReference Include="System.Composition" Version="1.2.0" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
     <PackageReference Include="Veldrid" Version="4.3.3" />
+    <PackageReference Include="Vk" Version="1.0.21" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Nsg.Viewer\Nsg.Viewer.csproj" />
   </ItemGroup>
 </Project>

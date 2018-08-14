@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ContentModelStore">
-    <e p="$USER_HOME$/Library/Caches/Rider2018.1/resharper-host/local/Transient/ReSharperHost/v12/SolutionCaches/_NexSceneGraph.-1150631461.00" t="ExcludeRecursive" />
-    <e p="$PROJECT_DIR$" t="IncludeFlat">
+    <e p="C:\Users\SeanSpicer\.Rider2018.1\system\resharper-host\local\Transient\ReSharperHost\v12\SolutionCaches\_NexSceneGraph.243610105.00" t="ExcludeRecursive" />
+    <e p="D:\work\nexscenegraph" t="IncludeFlat">
       <e p="Examples" t="Include" />
       <e p="HelloNsg" t="IncludeRecursive">
         <e p="bin" t="ExcludeRecursive" />
@@ -69,6 +69,42 @@
         <e p="ResourceFactoryWrapper.cs" t="Include" />
         <e p="ViewerFactory.cs" t="Include" />
         <e p="ViewerImpl.cs" t="Include" />
+      </e>
+      <e p="Nsg.Viewer" t="IncludeRecursive">
+        <e p="BasicViewer.cs" t="Include" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="Internal" t="Include">
+          <e p="Camera.cs" t="Include" />
+          <e p="FixedArray.cs" t="Include" />
+          <e p="FixedUtf8String.cs" t="Include" />
+          <e p="FrameTimeAverager.cs" t="Include" />
+          <e p="Initializers.cs" t="Include" />
+          <e p="KTXFile.cs" t="Include" />
+          <e p="MtlParser.cs" t="Include" />
+          <e p="NativeList.cs" t="Include" />
+          <e p="ObjParser.cs" t="Include" />
+          <e p="Semaphores.cs" t="Include" />
+          <e p="Settings.cs" t="Include" />
+          <e p="Strings.cs" t="Include" />
+          <e p="Tools.cs" t="Include" />
+          <e p="UnsafeEx.cs" t="Include" />
+          <e p="Util.cs" t="Include" />
+          <e p="Version.cs" t="Include" />
+          <e p="VertexPositionNormalTexture.cs" t="Include" />
+          <e p="VkPhysicalDeviceMemoryPropertiesEx.cs" t="Include" />
+          <e p="vksBuffer.cs" t="Include" />
+          <e p="vksTexture.cs" t="Include" />
+          <e p="VulkanDevice.cs" t="Include" />
+          <e p="VulkanSwapchain.cs" t="Include" />
+        </e>
+        <e p="Nsg.Viewer.csproj" t="IncludeRecursive" />
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netcoreapp2.1" t="Include">
+              <e p="Nsg.Viewer.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
       </e>
       <e p="packages" t="ExcludeRecursive" />
     </e>

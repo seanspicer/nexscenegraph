@@ -1,13 +1,15 @@
 ﻿using System;
 using System.IO;
 using System.Numerics;
-using Nsg.Core.Viewer;
-using Nsg.Core;
-using Nsg.Core.Interfaces;
-using Veldrid;
+using Nsg.Viewer;
+//using Nsg.Core.Viewer;
+//using Nsg.Core;
+//using Nsg.Core.Interfaces;
+//using Veldrid;
 
 namespace HelloNsg
 {
+    /*
     struct VertexPositionColor
     {
         public const uint SizeInBytes = 24;
@@ -19,13 +21,15 @@ namespace HelloNsg
             Color = color;
         }
     }
+    */
     
     class Program
     {
         static void Main(string[] args)
         {
-            var viewer = new SimpleViewer();
+            var viewer = new BasicViewer();
 
+            /*
             var root = new Node();
             
             var geometry = new Geometry<VertexPositionColor>();
@@ -57,7 +61,7 @@ namespace HelloNsg
             
             root.Add(geometry);
 
-            viewer.Root = root;
+            viewer.Root = root;*/
 
             viewer.Show();
 
