@@ -59,8 +59,8 @@ namespace Nsg.VeldridBackend
         
         private void DisposeResources()
         {
-            _graphicsDevice.Dispose();
             _drawVisitor.DisposeResources();
+            _graphicsDevice.Dispose();
         }
     }
 }
