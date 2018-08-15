@@ -1,7 +1,7 @@
-﻿namespace Vk.Samples
+﻿namespace Nsg.Viewer.Internal
 {
     // Taken from Game Engine code
-    public class FrameTimeAverager
+    internal class FrameTimeAverager
     {
         private readonly double _timeLimit = 666;
 
