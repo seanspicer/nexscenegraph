@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ContentModelStore">
-    <e p="C:\Users\SeanSpicer\.Rider2018.1\system\resharper-host\local\Transient\ReSharperHost\v12\SolutionCaches\_NexSceneGraph.243610105.00" t="ExcludeRecursive" />
-    <e p="D:\work\nexscenegraph" t="IncludeFlat">
+    <e p="$USER_HOME$/Library/Caches/Rider2018.1/resharper-host/local/Transient/ReSharperHost/v12/SolutionCaches/_NexSceneGraph.-1150631461.00" t="ExcludeRecursive" />
+    <e p="$PROJECT_DIR$" t="IncludeFlat">
       <e p="Examples" t="Include" />
       <e p="HelloNsg" t="IncludeRecursive">
         <e p="bin" t="ExcludeRecursive" />

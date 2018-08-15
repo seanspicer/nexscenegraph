@@ -188,6 +188,10 @@ namespace Nsg.Viewer
             {
                 instanceExtensions.Add(Strings.VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
             }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                instanceExtensions.Add(Strings.VK_MVK_MACOS_SURFACE_EXTENSION_NAME);
+            }
             else
             {
                 throw new PlatformNotSupportedException();
@@ -210,7 +214,7 @@ namespace Nsg.Viewer
             if (enableValidation)
             {
                 NativeList<IntPtr> enabledLayerNames = new NativeList<IntPtr>(1);
-                enabledLayerNames.Add(Strings.StandardValidationLayeName);
+                enabledLayerNames.Add(Strings.StandardValidationLayerName);
                 instanceCreateInfo.enabledLayerCount = enabledLayerNames.Count;
                 instanceCreateInfo.ppEnabledLayerNames = (byte**)enabledLayerNames.Data;
             }

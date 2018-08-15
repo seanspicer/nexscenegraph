@@ -2,33 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2903370a-a285-4cda-b0dc-f6d7b7bfa9dd" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/Nsg.Viewer/BasicViewer.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Nsg.Viewer/Internal/Camera.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Nsg.Viewer/Internal/FixedArray.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Nsg.Viewer/Internal/FrameTimeAverager.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Nsg.Viewer/Internal/Initializers.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Nsg.Viewer/Internal/KTXFile.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Nsg.Viewer/Internal/MtlParser.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Nsg.Viewer/Internal/NativeList.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Nsg.Viewer/Internal/ObjParser.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Nsg.Viewer/Internal/Semaphores.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Nsg.Viewer/Internal/Settings.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Nsg.Viewer/Internal/Strings.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Nsg.Viewer/Internal/Tools.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Nsg.Viewer/Internal/UnsafeEx.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Nsg.Viewer/Internal/Util.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Nsg.Viewer/Internal/Version.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Nsg.Viewer/Internal/VertexPositionNormalTexture.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Nsg.Viewer/Internal/VkPhysicalDeviceMemoryPropertiesEx.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Nsg.Viewer/Internal/VulkanDevice.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Nsg.Viewer/Internal/VulkanSwapchain.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Nsg.Viewer/Internal/vksBuffer.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Nsg.Viewer/Internal/vksTexture.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.NexSceneGraph/.idea/contentModel.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.NexSceneGraph/.idea/contentModel.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.NexSceneGraph/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.NexSceneGraph/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HelloNsg/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/HelloNsg/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NexSceneGraph.sln" beforeDir="false" afterPath="$PROJECT_DIR$/NexSceneGraph.sln" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Nsg.Core/Nsg.Core.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Nsg.Core/Nsg.Core.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Nsg.Viewer/BasicViewer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Nsg.Viewer/BasicViewer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Nsg.Viewer/Internal/Strings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Nsg.Viewer/Internal/Strings.cs" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -39,165 +15,36 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="vksTexture.cs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/vksTexture.cs">
+      <file leaf-file-name="SimpleViewer.cs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Nsg.Core/Viewer/SimpleViewer.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="15">
-              <caret line="31" column="41" selection-start-line="31" selection-start-column="41" selection-end-line="31" selection-end-column="41" />
+            <state relative-caret-position="225">
+              <caret line="16" column="9" selection-start-line="16" selection-start-column="9" selection-end-line="16" selection-end-column="9" />
               <folding>
-                <marker date="1534266367815" expanded="true" signature="0:285" ph="/* This code has been adapted from the &quot;Vulkan&quot; C++ example repository, by Sascha Willems: https://github.com/Sas ... */" />
-                <marker date="1534266367815" expanded="true" signature="287:475" ph="/* Vulkan Example base class ... */" />
-                <marker date="1534266367815" expanded="true" signature="483:620" ph="..." />
-                <marker date="1534266367815" expanded="true" signature="651:16492" ph="{...}" />
-                <marker date="1534266367815" expanded="true" signature="683:1013" ph="{...}" />
-                <marker date="1534266367815" expanded="true" signature="1066:16490" ph="{...}" />
-                <marker date="1534266367815" expanded="true" signature="1122:1846" ph="/* Load a 2D texture including all mip levels ... */" />
-                <marker date="1534266367815" expanded="true" signature="2195:16173" ph="{...}" />
-                <marker date="1534266367815" expanded="true" signature="2285:2362" ph="{...}" />
-                <marker date="1534266367815" expanded="true" signature="2829:3179" ph="/* Only use linear tiling if requested (and supported by the device) ... */" />
-                <marker date="1534266367815" expanded="true" signature="3546:9958" ph="{...}" />
-                <marker date="1534266367815" expanded="true" signature="5255:5373" ph="{...}" />
-                <marker date="1534266367815" expanded="true" signature="5696:6553" ph="{...}" />
-                <marker date="1534266367815" expanded="true" signature="7499:7611" ph="{...}" />
-                <marker date="1534266367815" expanded="true" signature="8543:8660" ph="/* Image barrier for optimal image (target) ... */" />
-                <marker date="1534266367815" expanded="true" signature="9975:13748" ph="{...}" />
-                <marker date="1534266367815" expanded="true" signature="10059:13734" ph="/* Prefer using optimal tiling, as linear tiling ... */" />
-                <marker date="1534266367815" expanded="true" signature="14922:15129" ph="/* Create image view ... */" />
-                <marker date="1534266367815" expanded="true" signature="15687:15798" ph="/* Linear tiling usually won't support mip maps ... */" />
-                <marker date="1534266367815" expanded="true" signature="16296:16449" ph="{...}" />
+                <marker date="1534209741451" expanded="false" signature="6:42" ph="..." />
+                <marker date="1534209741451" expanded="true" signature="101:703" ph="{...}" />
+                <marker date="1534209741451" expanded="true" signature="685:697" ph="{...}" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="KTXFile.cs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/KTXFile.cs">
+      <file leaf-file-name="ViewerImpl.cs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Nsg.VeldridBackend/ViewerImpl.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="195">
-              <caret line="13" column="5" selection-start-line="13" selection-start-column="5" selection-end-line="13" selection-end-column="5" />
+            <state relative-caret-position="477">
+              <caret line="62" column="38" selection-start-line="62" selection-start-column="38" selection-end-line="62" selection-end-column="38" />
               <folding>
-                <marker date="1534266367864" expanded="true" signature="6:186" ph="..." />
-                <marker date="1534266367864" expanded="true" signature="217:8585" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="224:333" ph="/* A ridiculously bad KTX file parser. ... */" />
-                <marker date="1534266367864" expanded="true" signature="358:6469" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="593:712" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="782:3434" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="850:3424" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="1013:1656" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="1248:1585" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="1677:1827" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="2033:2142" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="2234:3342" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="2576:3176" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="2956:3077" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="3538:4855" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="4046:4247" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="4106:4169" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="4636:4706" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="4919:5187" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="5064:5134" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="5280:5420" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="5334:5410" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="5457:5888" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="5588:5847" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="5674:5833" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="5931:6463" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="6091:6425" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="6196:6411" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="6503:6714" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="6638:6708" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="6792:7487" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="7513:8148" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="7791:7955" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="8006:8142" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="8176:8583" ph="{...}" />
-                <marker date="1534266367864" expanded="true" signature="8411:8577" ph="{...}" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="VulkanDevice.cs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/VulkanDevice.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="22" column="12" selection-start-line="22" selection-start-column="4" selection-end-line="22" selection-end-column="12" />
-              <folding>
-                <marker date="1534265087855" expanded="true" signature="0:284" ph="/* This code has been adapted from the &quot;Vulkan&quot; C++ example repository, by Sascha Willems: https://github.com/Sas ... */" />
-                <marker date="1534265087855" expanded="true" signature="286:474" ph="/* Vulkan Example base class ... */" />
-                <marker date="1534265087855" expanded="true" signature="482:636" ph="..." />
-                <marker date="1534265087855" expanded="true" signature="667:22242" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="711:22240" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="1625:4046" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="1758:1921" ph="/* Store Properties features, limits and properties of the physical device for later use ... */" />
-                <marker date="1534265087855" expanded="true" signature="3422:4036" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="3670:4022" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="3744:4004" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="3840:3982" ph="/* supportedExtensions.push_back(ext.extensionName); ... */" />
-                <marker date="1534265087855" expanded="true" signature="4328:9329" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="4351:4606" ph="/* Desired queues need to be requested upon logical device creation ... */" />
-                <marker date="1534265087855" expanded="true" signature="4724:9319" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="4896:5421" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="5442:5537" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="5652:6429" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="5818:6411" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="6450:6596" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="6713:7538" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="6925:7520" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="7559:7706" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="7871:9305" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="7927:8219" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="8633:8876" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="9044:9251" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="9396:11151" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="9419:9536" ph="/* Dedicated queue for compute ... */" />
-                <marker date="1534265087855" expanded="true" signature="9594:9984" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="9679:9970" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="9874:9952" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="9998:10129" ph="/* Dedicated queue for transfer ... */" />
-                <marker date="1534265087855" expanded="true" signature="10188:10671" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="10273:10657" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="10561:10639" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="10872:11043" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="10963:11029" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="11332:11680" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="11690:12349" ph="/* Create a buffer on the device ... */" />
-                <marker date="1534265087855" expanded="true" signature="12509:14203" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="13809:13984" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="14462:15215" ph="/* Create a buffer on the device ... */" />
-                <marker date="1534265087855" expanded="true" signature="15399:17404" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="16422:17215" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="16804:17146" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="17595:17844" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="17944:18699" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="18461:18658" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="18709:19188" ph="/* Finish command buffer recording and submit it to a queue ... */" />
-                <marker date="1534265087855" expanded="true" signature="19291:20462" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="19353:19405" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="20338:20452" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="20472:21129" ph="/* Get the index of a memory type that has all the requested property bits set ... */" />
-                <marker date="1534265087855" expanded="true" signature="21239:22071" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="21321:21790" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="21376:21744" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="21496:21726" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="21568:21670" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="21829:21922" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="21939:22061" ph="{...}" />
-                <marker date="1534265087855" expanded="true" signature="22113:22234" ph="{...}" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="VkPhysicalDeviceMemoryPropertiesEx.cs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/VkPhysicalDeviceMemoryPropertiesEx.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="12" selection-start-line="12" selection-end-line="12" />
-              <folding>
-                <marker date="1534265899576" expanded="true" signature="44:326" ph="{...}" />
-                <marker date="1534265899576" expanded="true" signature="114:324" ph="{...}" />
-                <marker date="1534265899576" expanded="true" signature="237:318" ph="{...}" />
+                <marker date="1534213913345" expanded="false" signature="6:116" ph="..." />
+                <marker date="1534213913345" expanded="true" signature="146:1929" ph="{...}" />
+                <marker date="1534213913345" expanded="true" signature="190:1927" ph="{...}" />
+                <marker date="1534213913345" expanded="true" signature="529:579" ph="{...}" />
+                <marker date="1534213913345" expanded="true" signature="780:1298" ph="{...}" />
+                <marker date="1534213913345" expanded="true" signature="850:1027" ph="{...}" />
+                <marker date="1534213913345" expanded="true" signature="1326:1768" ph="{...}" />
+                <marker date="1534213913345" expanded="true" signature="1432:1725" ph="{...}" />
+                <marker date="1534213913345" expanded="true" signature="1537:1711" ph="{...}" />
+                <marker date="1534213913345" expanded="true" signature="1817:1921" ph="{...}" />
               </folding>
             </state>
           </provider>
@@ -206,202 +53,130 @@
       <file leaf-file-name="BasicViewer.cs" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Nsg.Viewer/BasicViewer.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="135">
-              <caret line="43" column="9" selection-start-line="43" selection-start-column="9" selection-end-line="43" selection-end-column="9" />
+            <state relative-caret-position="205">
+              <caret line="208" column="74" selection-start-line="208" selection-start-column="74" selection-end-line="208" selection-end-column="74" />
               <folding>
-                <marker date="1534266364061" expanded="true" signature="6:172" ph="..." />
-                <marker date="1534266364061" expanded="true" signature="194:9927" ph="{...}" />
-                <marker date="1534266364061" expanded="true" signature="233:9924" ph="{...}" />
-                <marker date="1534266364061" expanded="true" signature="268:377" ph="{...}" />
-                <marker date="1534266364061" expanded="true" signature="2037:2115" ph="{...}" />
-                <marker date="1534266364061" expanded="true" signature="2144:2323" ph="{...}" />
-                <marker date="1534266364061" expanded="true" signature="2238:2312" ph="{...}" />
-                <marker date="1534266364061" expanded="true" signature="2359:7449" ph="{...}" />
-                <marker date="1534266364061" expanded="true" signature="2481:2616" ph="{...}" />
-                <marker date="1534266364061" expanded="true" signature="2668:2697" ph="{...}" />
-                <marker date="1534266364061" expanded="true" signature="3134:3256" ph="{...}" />
-                <marker date="1534266364061" expanded="true" signature="3270:3436" ph="/* GPU selection ... */" />
-                <marker date="1534266364061" expanded="true" signature="3621:3788" ph="/* Store properties (including limits) and features of the phyiscal Device ... */" />
-                <marker date="1534266364061" expanded="true" signature="4436:4790" ph="/* Derived examples can override this to set actual features (based on above readings) to enable for logical devi ... */" />
-                <marker date="1534266364061" expanded="true" signature="4992:5108" ph="{...}" />
-                <marker date="1534266364061" expanded="true" signature="5836:5999" ph="/* Create a semaphore used to synchronize image presentation ... */" />
-                <marker date="1534266364061" expanded="true" signature="6135:6302" ph="/* Create a semaphore used to synchronize command submission ... */" />
-                <marker date="1534266364061" expanded="true" signature="6437:6724" ph="/* Create a semaphore used to synchronize command submission ... */" />
-                <marker date="1534266364061" expanded="true" signature="6865:7038" ph="/* Set up submit info structure ... */" />
-                <marker date="1534266364061" expanded="true" signature="7487:7700" ph="{...}" />
-                <marker date="1534266364061" expanded="true" signature="7774:9917" ph="{...}" />
-                <marker date="1534266364061" expanded="true" signature="7915:8151" ph="{...}" />
-                <marker date="1534266364061" expanded="true" signature="8376:8489" ph="{...}" />
-                <marker date="1534266364061" expanded="true" signature="8561:8673" ph="{...}" />
-                <marker date="1534266364061" expanded="true" signature="8690:8777" ph="{...}" />
-                <marker date="1534266364061" expanded="true" signature="8967:9336" ph="{...}" />
-                <marker date="1534266364061" expanded="true" signature="9019:9143" ph="{...}" />
-                <marker date="1534266364061" expanded="true" signature="9372:9726" ph="{...}" />
+                <marker date="1534295315604" expanded="true" signature="6:172" ph="..." />
+                <marker date="1534295315604" expanded="true" signature="194:10111" ph="{...}" />
+                <marker date="1534295315604" expanded="true" signature="233:10108" ph="{...}" />
+                <marker date="1534295315604" expanded="true" signature="268:377" ph="{...}" />
+                <marker date="1534295315604" expanded="true" signature="2037:2115" ph="{...}" />
+                <marker date="1534295315604" expanded="true" signature="2144:2323" ph="{...}" />
+                <marker date="1534295315604" expanded="true" signature="2238:2312" ph="{...}" />
+                <marker date="1534295315604" expanded="true" signature="2359:7449" ph="{...}" />
+                <marker date="1534295315604" expanded="true" signature="2481:2616" ph="{...}" />
+                <marker date="1534295315604" expanded="true" signature="2668:2697" ph="{...}" />
+                <marker date="1534295315604" expanded="true" signature="3134:3256" ph="{...}" />
+                <marker date="1534295315604" expanded="true" signature="3270:3436" ph="/* GPU selection ... */" />
+                <marker date="1534295315604" expanded="true" signature="3621:3788" ph="/* Store properties (including limits) and features of the phyiscal Device ... */" />
+                <marker date="1534295315604" expanded="true" signature="4436:4790" ph="/* Derived examples can override this to set actual features (based on above readings) to enable for logical devi ... */" />
+                <marker date="1534295315604" expanded="true" signature="4992:5108" ph="{...}" />
+                <marker date="1534295315604" expanded="true" signature="5836:5999" ph="/* Create a semaphore used to synchronize image presentation ... */" />
+                <marker date="1534295315604" expanded="true" signature="6135:6302" ph="/* Create a semaphore used to synchronize command submission ... */" />
+                <marker date="1534295315604" expanded="true" signature="6437:6724" ph="/* Create a semaphore used to synchronize command submission ... */" />
+                <marker date="1534295315604" expanded="true" signature="6865:7038" ph="/* Set up submit info structure ... */" />
+                <marker date="1534295315604" expanded="true" signature="7487:7700" ph="{...}" />
+                <marker date="1534295315604" expanded="true" signature="7774:10101" ph="{...}" />
+                <marker date="1534295315604" expanded="true" signature="7915:8151" ph="{...}" />
+                <marker date="1534295315604" expanded="true" signature="8376:8489" ph="{...}" />
+                <marker date="1534295315604" expanded="true" signature="8561:8673" ph="{...}" />
+                <marker date="1534295315604" expanded="true" signature="8743:8856" ph="{...}" />
+                <marker date="1534295315604" expanded="true" signature="8873:8960" ph="{...}" />
+                <marker date="1534295315604" expanded="true" signature="9150:9519" ph="{...}" />
+                <marker date="1534295315604" expanded="true" signature="9202:9326" ph="{...}" />
+                <marker date="1534295315604" expanded="true" signature="9555:9910" ph="{...}" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="vksBuffer.cs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/vksBuffer.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="284">
-              <caret line="23" column="5" selection-start-line="23" selection-start-column="5" selection-end-line="23" selection-end-column="5" />
-              <folding>
-                <marker date="1534265192453" expanded="true" signature="0:284" ph="/* This code has been adapted from the &quot;Vulkan&quot; C++ example repository, by Sascha Willems: https://github.com/Sas ... */" />
-                <marker date="1534265192453" expanded="true" signature="286:474" ph="/* Vulkan Example base class ... */" />
-                <marker date="1534265192453" expanded="true" signature="482:638" ph="..." />
-                <marker date="1534265192453" expanded="true" signature="669:5780" ph="{...}" />
-                <marker date="1534265192453" expanded="true" signature="707:5778" ph="{...}" />
-                <marker date="1534265192453" expanded="true" signature="722:892" ph="/* @brief Encapsulates access to a Vulkan buffer backed up by device memory ... */" />
-                <marker date="1534265192453" expanded="true" signature="1519:1892" ph="/* Map a memory range of this buffer. If successful, mapped points to the specified buffer range. ... */" />
-                <marker date="1534265192453" expanded="true" signature="1976:2173" ph="{...}" />
-                <marker date="1534265192453" expanded="true" signature="2183:2314" ph="/* Unmap a mapped memory range ... */" />
-                <marker date="1534265192453" expanded="true" signature="2342:2500" ph="{...}" />
-                <marker date="1534265192453" expanded="true" signature="2384:2490" ph="{...}" />
-                <marker date="1534265192453" expanded="true" signature="2510:2759" ph="/* Attach the allocated memory block to the buffer ... */" />
-                <marker date="1534265192453" expanded="true" signature="2813:2904" ph="{...}" />
-                <marker date="1534265192453" expanded="true" signature="2914:3141" ph="/* Setup the default descriptor for this buffer ... */" />
-                <marker date="1534265192453" expanded="true" signature="3233:3370" ph="{...}" />
-                <marker date="1534265192453" expanded="true" signature="3380:3586" ph="/* Copies the specified data to the mapped buffer ... */" />
-                <marker date="1534265192453" expanded="true" signature="3644:3811" ph="{...}" />
-                <marker date="1534265192453" expanded="true" signature="3821:4224" ph="/* Flush a memory range of the buffer to make it visible to the device ... */" />
-                <marker date="1534265192453" expanded="true" signature="4310:4593" ph="{...}" />
-                <marker date="1534265192453" expanded="true" signature="4603:5023" ph="/* Invalidate a memory range of the buffer to make it visible to the host ... */" />
-                <marker date="1534265192453" expanded="true" signature="5114:5402" ph="{...}" />
-                <marker date="1534265192453" expanded="true" signature="5412:5486" ph="/* Release all Vulkan resources held by this buffer ... */" />
-                <marker date="1534265192453" expanded="true" signature="5516:5771" ph="{...}" />
-                <marker date="1534265192453" expanded="true" signature="5562:5645" ph="{...}" />
-                <marker date="1534265192453" expanded="true" signature="5681:5761" ph="{...}" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Camera.cs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/Camera.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="315">
-              <caret line="21" column="26" selection-start-line="21" selection-start-column="26" selection-end-line="21" selection-end-column="26" />
-              <folding>
-                <marker date="1534266367848" expanded="true" signature="0:278" ph="/* This code has been adapted from the &quot;Vulkan&quot; C++ example repository, by Sascha Willems: https://github.com/Sas ... */" />
-                <marker date="1534266367848" expanded="true" signature="280:468" ph="/* Vulkan Example base class ... */" />
-                <marker date="1534266367848" expanded="true" signature="476:506" ph="..." />
-                <marker date="1534266367848" expanded="true" signature="537:7050" ph="{...}" />
-                <marker date="1534266367848" expanded="true" signature="565:7048" ph="{...}" />
-                <marker date="1534266367848" expanded="true" signature="657:1308" ph="{...}" />
-                <marker date="1534266367848" expanded="true" signature="1211:1298" ph="/* else ... */" />
-                <marker date="1534266367848" expanded="true" signature="1834:1922" ph="{...}" />
-                <marker date="1534266367848" expanded="true" signature="2008:2242" ph="{...}" />
-                <marker date="1534266367848" expanded="true" signature="2295:2439" ph="{...}" />
-                <marker date="1534266367848" expanded="true" signature="2490:2580" ph="{...}" />
-                <marker date="1534266367848" expanded="true" signature="2631:2721" ph="{...}" />
-                <marker date="1534266367848" expanded="true" signature="2764:2852" ph="{...}" />
-                <marker date="1534266367848" expanded="true" signature="2909:3002" ph="{...}" />
-                <marker date="1534266367848" expanded="true" signature="3048:3136" ph="{...}" />
-                <marker date="1534266367848" expanded="true" signature="3181:4404" ph="{...}" />
-                <marker date="1534266367848" expanded="true" signature="3239:4394" ph="{...}" />
-                <marker date="1534266367848" expanded="true" signature="3283:4380" ph="{...}" />
-                <marker date="1534266367848" expanded="true" signature="4414:4528" ph="/* Update camera passing separate axis data (gamepad) ... */" />
-                <marker date="1534266367848" expanded="true" signature="4605:7042" ph="{...}" />
-                <marker date="1534266367848" expanded="true" signature="4697:6799" ph="{...}" />
-                <marker date="1534266367848" expanded="true" signature="4728:4818" ph="/* Use the common console thumbstick layout ... */" />
-                <marker date="1534266367848" expanded="true" signature="5568:5813" ph="{...}" />
-                <marker date="1534266367848" expanded="true" signature="5866:6176" ph="{...}" />
-                <marker date="1534266367848" expanded="true" signature="6257:6494" ph="{...}" />
-                <marker date="1534266367848" expanded="true" signature="6548:6785" ph="{...}" />
-                <marker date="1534266367848" expanded="true" signature="6816:6915" ph="{...}" />
-                <marker date="1534266367848" expanded="true" signature="6940:7004" ph="{...}" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Util.cs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/Util.cs">
+      <file leaf-file-name="Strings.cs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/Strings.cs">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="255">
-              <caret line="18" column="9" selection-start-line="18" selection-start-column="9" selection-end-line="18" selection-end-column="9" />
+              <caret line="17" column="1" selection-start-line="17" selection-start-column="1" selection-end-line="17" selection-end-column="1" />
               <folding>
-                <marker date="1534265378765" expanded="false" signature="6:27" ph="..." />
-                <marker date="1534265378765" expanded="true" signature="58:463" ph="{...}" />
-                <marker date="1534265378765" expanded="true" signature="91:461" ph="{...}" />
-                <marker date="1534265378765" expanded="true" signature="153:314" ph="{...}" />
-                <marker date="1534265378765" expanded="true" signature="207:304" ph="{...}" />
-                <marker date="1534265378765" expanded="true" signature="383:455" ph="{...}" />
+                <marker date="1534295288539" expanded="true" signature="29:1317" ph="{...}" />
+                <marker date="1534295288539" expanded="true" signature="65:1315" ph="{...}" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="VulkanSwapchain.cs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/VulkanSwapchain.cs">
+      <file leaf-file-name="Geometry.cs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Nsg.Core/Geometry.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="315">
-              <caret line="21" column="29" selection-start-line="21" selection-start-column="29" selection-end-line="21" selection-end-column="29" />
+            <state relative-caret-position="240">
+              <caret line="20" column="48" selection-start-line="20" selection-start-column="48" selection-end-line="20" selection-end-column="48" />
               <folding>
-                <marker date="1534266367831" expanded="true" signature="0:287" ph="/* This code has been adapted from the &quot;Vulkan&quot; C++ example repository, by Sascha Willems: https://github.com/Sas ... */" />
-                <marker date="1534266367831" expanded="true" signature="289:477" ph="/* Vulkan Example base class ... */" />
-                <marker date="1534266367831" expanded="true" signature="485:663" ph="..." />
-                <marker date="1534266367831" expanded="true" signature="694:20599" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="738:20487" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="1579:1706" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="1764:9241" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="2021:2140" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="2224:2879" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="2938:3493" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="3510:3645" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="3982:9231" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="4203:4412" ph="/* Iterate over each queue to learn whether it supports presenting: ... */" />
-                <marker date="1534266367831" expanded="true" signature="4549:4692" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="4710:4840" ph="/* Search for a graphics and a present queue in the array of queue ... */" />
-                <marker date="1534266367831" expanded="true" signature="5015:5608" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="5114:5590" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="5205:5313" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="5370:5568" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="5669:6148" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="5708:5830" ph="/* If there's no queue that supports both present and graphics ... */" />
-                <marker date="1534266367831" expanded="true" signature="5888:6130" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="5966:6108" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="6337:6484" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="6635:6794" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="7272:9217" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="7584:7755" ph="/* If the Surface format list only includes one entry with VK_FORMAT_UNDEFINED, ... */" />
-                <marker date="1534266367831" expanded="true" signature="7851:8024" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="8049:9199" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="8096:8230" ph="/* iterate over the list of available Surface format and ... */" />
-                <marker date="1534266367831" expanded="true" signature="8359:8790" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="8465:8764" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="8816:8935" ph="/* in case VK_FORMAT_B8G8R8A8_UNORM is not available ... */" />
-                <marker date="1534266367831" expanded="true" signature="8986:9177" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="9251:9728" ph="/* Create the swapchain and get it's Images with given width and height ... */" />
-                <marker date="1534266367831" expanded="true" signature="9802:18347" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="10558:18337" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="11078:11353" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="11117:11229" ph="/* If the Surface size is undefined, the size is set to ... */" />
-                <marker date="1534266367831" expanded="true" signature="11374:11678" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="11697:11897" ph="/* Select a present mode for the swapchain ... */" />
-                <marker date="1534266367831" expanded="true" signature="11997:12132" ph="/* If v-sync is not requested, try to find a mailbox mode ... */" />
-                <marker date="1534266367831" expanded="true" signature="12160:12818" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="12242:12800" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="12340:12507" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="12644:12778" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="13062:13175" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="13389:13557" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="13578:13676" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="15240:15353" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="15595:15731" ph="/* If an existing swap chain is re-created, destroy the old swap chain ... */" />
-                <marker date="1534266367831" expanded="true" signature="15777:16061" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="15853:15972" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="16801:18323" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="17212:17434" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="18357:18850" ph="/* Acquires the next image in the swap chain ... */" />
-                <marker date="1534266367831" expanded="true" signature="18950:19302" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="18973:19158" ph="/* By setting timeout to UINT64_MAX we will always wait until the next image has been acquired or an actual error ... */" />
-                <marker date="1534266367831" expanded="true" signature="19312:19724" ph="/* Queue an image for presentation ... */" />
-                <marker date="1534266367831" expanded="true" signature="19840:20481" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="20270:20412" ph="{...}" />
-                <marker date="1534266367831" expanded="true" signature="20522:20597" ph="{...}" />
+                <marker date="1534209741447" expanded="false" signature="6:136" ph="..." />
+                <marker date="1534209741447" expanded="true" signature="156:1107" ph="{...}" />
+                <marker date="1534209741447" expanded="true" signature="198:312" ph="{...}" />
+                <marker date="1534209741447" expanded="true" signature="380:1105" ph="{...}" />
+                <marker date="1534209741447" expanded="true" signature="817:891" ph="{...}" />
+                <marker date="1534209741447" expanded="true" signature="962:1099" ph="{...}" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="IShader.cs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IShader.cs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="60">
+              <caret line="4" column="8" selection-start-line="4" selection-start-column="8" selection-end-line="4" selection-end-column="8" />
+              <folding>
+                <marker date="1534126646442" expanded="true" signature="60:81" ph="{...}" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="IDeviceBuffer.cs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IDeviceBuffer.cs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="105">
+              <caret line="7" column="33" selection-start-line="7" selection-start-column="33" selection-end-line="7" selection-end-column="33" />
+              <folding>
+                <marker date="1534209741446" expanded="true" signature="169:175" ph="{...}" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Program.cs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/HelloNsg/Program.cs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="600">
+              <caret line="40" column="43" selection-start-line="40" selection-start-column="43" selection-end-line="40" selection-end-column="43" />
+              <folding>
+                <marker date="1534294598146" expanded="true" signature="6:27" ph="..." />
+                <marker date="1534294598146" expanded="true" signature="2218:2257" ph="{...}" />
+                <marker date="1534294598146" expanded="true" signature="2218:2263" ph="{...}" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ViewerFactory.cs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Nsg.VeldridBackend/ViewerFactory.cs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <folding>
+                <marker date="1534209741452" expanded="true" signature="244:256" ph="{...}" />
+                <marker date="1534209741452" expanded="true" signature="244:262" ph="{...}" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="IBackend.cs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IBackend.cs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="90">
+              <caret line="6" column="1" selection-start-line="6" selection-start-column="1" selection-end-line="6" selection-end-column="1" />
+              <folding>
+                <marker date="1534089608045" expanded="true" signature="61:119" ph="{...}" />
               </folding>
             </state>
           </provider>
@@ -418,55 +193,54 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/NativeList.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IResourceFactory.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IGraphicsDevice.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IDrawVisitor.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/KTXFile.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/Semaphores.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/Settings.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/Initializers.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/vksBuffer.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/HelloNsg/Program.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/VkPhysicalDeviceMemoryPropertiesEx.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IBackend.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/VulkanDevice.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.VeldridBackend/Backend.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IViewerImpl.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/Version.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Nsg.Core/Config.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Class1.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Nsg.Core/Node.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IViewerFactory.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Nsg.Core/Geometry.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IGeometry.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.VeldridBackend/ViewerImpl.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/BasicViewer.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/Util.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.VeldridBackend/ViewerFactory.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/FixedUtf8String.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Core/Edge.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/VulkanSwapchain.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Core/Viewer/SimpleViewer.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Class1.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/FrameTimeAverager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/vksTexture.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/FixedArray.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/Camera.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/VertexPositionNormalTexture.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/Strings.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/UnsafeEx.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IDeviceBuffer.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IShader.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.VeldridBackend/DrawVisitor.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.VeldridBackend/GraphicsDeviceWrapper.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.VeldridBackend/ResourceFactoryWrapper.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.VeldridBackend/DeviceBufferWrapper.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/Tools.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Nsg.Core/BufferUsage.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Nsg.Core/BufferDescription.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Core/Edge.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/BasicViewer.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Core/Viewer/SimpleViewer.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IShader.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IGeometry.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IDrawVisitor.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IViewerImpl.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/Settings.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IDeviceBuffer.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IViewerFactory.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IBackend.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IGraphicsDevice.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Core/Interfaces/IResourceFactory.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.VeldridBackend/ViewerFactory.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.VeldridBackend/DrawVisitor.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.VeldridBackend/ViewerImpl.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.VeldridBackend/GraphicsDeviceWrapper.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.VeldridBackend/Backend.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.VeldridBackend/DeviceBufferWrapper.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/NativeList.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.VeldridBackend/ResourceFactoryWrapper.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/Strings.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/FixedUtf8String.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/Util.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/Version.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/VulkanDevice.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/vksBuffer.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/Camera.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/FixedArray.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/FrameTimeAverager.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/Initializers.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/KTXFile.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/MtlParser.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/ObjParser.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/Tools.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/UnsafeEx.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/VertexPositionNormalTexture.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/vksTexture.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/VulkanSwapchain.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/85F3C067-FF9A-4923-AE78-36AA4C5534E7/7e/cf747af5/VkPhysicalDeviceMemoryProperties.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/VkPhysicalDeviceMemoryPropertiesEx.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/Semaphores.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/HelloNsg/Program.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/MtlParser.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -505,7 +279,6 @@
         <option value="$PROJECT_DIR$/Nsg.Viewer/FixedUtf8String.cs" />
         <option value="$PROJECT_DIR$/Nsg.Viewer/Internal/FixedUtf8String.cs" />
         <option value="$PROJECT_DIR$/Nsg.Viewer/Internal/Settings.cs" />
-        <option value="$PROJECT_DIR$/Nsg.Viewer/Internal/Strings.cs" />
         <option value="$PROJECT_DIR$/Nsg.Viewer/Internal/NativeList.cs" />
         <option value="$PROJECT_DIR$/Nsg.Viewer/Internal/VulkanUtils.cs" />
         <option value="$PROJECT_DIR$/Nsg.Viewer/Internal/Version.cs" />
@@ -521,6 +294,7 @@
         <option value="$PROJECT_DIR$/Nsg.Viewer/Internal/VulkanDevice.cs" />
         <option value="$PROJECT_DIR$/Nsg.Viewer/Internal/VkPhysicalDeviceMemoryPropertiesEx.cs" />
         <option value="$PROJECT_DIR$/Nsg.Viewer/Internal/Semaphores.cs" />
+        <option value="$PROJECT_DIR$/Nsg.Viewer/Internal/Strings.cs" />
         <option value="$PROJECT_DIR$/Nsg.Viewer/BasicViewer.cs" />
       </list>
     </option>
@@ -556,71 +330,7 @@
             <path>
               <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
               <item name="NexSceneGraph (4 projects)" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Examples" type="977d5f41:SolutionExplorerNodeRider" />
-            </path>
-            <path>
-              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-              <item name="NexSceneGraph (4 projects)" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Examples" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="HelloNsg" type="977d5f41:SolutionExplorerNodeRider" />
-            </path>
-            <path>
-              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-              <item name="NexSceneGraph (4 projects)" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Nsg.Core" type="977d5f41:SolutionExplorerNodeRider" />
-            </path>
-            <path>
-              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-              <item name="NexSceneGraph (4 projects)" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Nsg.Core" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Dependencies" type="977d5f41:SolutionExplorerNodeRider" />
-            </path>
-            <path>
-              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-              <item name="NexSceneGraph (4 projects)" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Nsg.Core" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Dependencies" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name=".NETCoreApp 2.1" type="977d5f41:SolutionExplorerNodeRider" />
-            </path>
-            <path>
-              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-              <item name="NexSceneGraph (4 projects)" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Nsg.Core" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Viewer" type="977d5f41:SolutionExplorerNodeRider" />
-            </path>
-            <path>
-              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-              <item name="NexSceneGraph (4 projects)" type="977d5f41:SolutionExplorerNodeRider" />
               <item name="Nsg.Viewer" type="977d5f41:SolutionExplorerNodeRider" />
-            </path>
-            <path>
-              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-              <item name="NexSceneGraph (4 projects)" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Nsg.Viewer" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Dependencies" type="977d5f41:SolutionExplorerNodeRider" />
-            </path>
-            <path>
-              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-              <item name="NexSceneGraph (4 projects)" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Nsg.Viewer" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Dependencies" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name=".NETCoreApp 2.1" type="977d5f41:SolutionExplorerNodeRider" />
-            </path>
-            <path>
-              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-              <item name="NexSceneGraph (4 projects)" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Nsg.Viewer" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Dependencies" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name=".NETCoreApp 2.1" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Packages" type="977d5f41:SolutionExplorerNodeRider" />
-            </path>
-            <path>
-              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-              <item name="NexSceneGraph (4 projects)" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Nsg.Viewer" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Dependencies" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name=".NETCoreApp 2.1" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="SDK" type="977d5f41:SolutionExplorerNodeRider" />
             </path>
             <path>
               <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
@@ -695,7 +405,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="36980000" />
+    <option name="totallyTimeSpent" value="37672000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -707,7 +417,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="2576" height="1416" extended-state="6" />
+    <frame x="28" y="23" width="1412" height="877" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -715,24 +425,40 @@
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Unit Tests" order="7" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.38431975" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.38480696" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Terminal" order="7" />
-      <window_info anchor="bottom" id="NuGet" order="7" weight="0.36126056" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.19296876" />
+      <window_info anchor="bottom" id="NuGet" order="7" weight="0.122213684" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.19334278" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Build" order="7" weight="0.24750192" />
+      <window_info active="true" anchor="bottom" id="Build" order="7" visible="true" weight="0.24657534" />
       <window_info anchor="right" id="Database" order="3" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3985056" />
       <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="NuGet" order="7" weight="0.36126056" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.19296876" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Version Control" order="7" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.38431975" />
+      <window_info anchor="bottom" id="Unit Tests" order="7" />
+      <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
+      <window_info anchor="right" id="Errors In Solution" order="3" />
+      <window_info anchor="right" id="Database" order="3" />
       <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.3985056" />
+      <window_info anchor="bottom" id="Build" order="7" weight="0.24750192" />
       <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Terminal" order="7" />
+      <window_info id="Favorites" order="2" side_tool="true" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -745,7 +471,7 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="3" />
+      <option name="time" value="4" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
@@ -760,6 +486,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="435">
           <caret line="29" column="64" selection-start-line="29" selection-start-column="64" selection-end-line="29" selection-end-column="64" />
+          <folding>
+            <marker date="1534090379975" expanded="true" signature="6:190" ph="..." />
+            <marker date="1534090379975" expanded="true" signature="243:1330" ph="{...}" />
+            <marker date="1534090379975" expanded="true" signature="531:574" ph="{...}" />
+            <marker date="1534090379975" expanded="true" signature="614:1315" ph="{...}" />
+            <marker date="1534090379975" expanded="true" signature="1218:1305" ph="{...}" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -767,6 +500,11 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="225">
           <caret line="15" column="1" selection-start-line="15" selection-start-column="1" selection-end-line="15" selection-end-column="1" />
+          <folding>
+            <marker date="1534090409510" expanded="true" signature="6:52" ph="..." />
+            <marker date="1534090409510" expanded="true" signature="154:327" ph="{...}" />
+            <marker date="1534090409510" expanded="true" signature="252:321" ph="{...}" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -774,6 +512,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="60">
           <caret line="4" column="8" selection-start-line="4" selection-start-column="8" selection-end-line="4" selection-end-column="8" />
+          <folding>
+            <marker date="1534126646442" expanded="true" signature="60:81" ph="{...}" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -781,6 +522,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
           <caret line="7" column="33" selection-start-line="7" selection-start-column="33" selection-end-line="7" selection-end-column="33" />
+          <folding>
+            <marker date="1534209741446" expanded="true" signature="169:175" ph="{...}" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -832,6 +576,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
           <caret line="6" column="1" selection-start-line="6" selection-start-column="1" selection-end-line="6" selection-end-column="1" />
+          <folding>
+            <marker date="1534089608045" expanded="true" signature="61:119" ph="{...}" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -843,7 +590,14 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Nsg.VeldridBackend/ViewerFactory.cs">
-      <provider selected="true" editor-type-id="text-editor" />
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <marker date="1534209741452" expanded="true" signature="244:256" ph="{...}" />
+            <marker date="1534209741452" expanded="true" signature="244:262" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Nsg.Core/Node.cs">
       <provider selected="true" editor-type-id="text-editor">
@@ -875,8 +629,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Nsg.Core/Geometry.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
+        <state relative-caret-position="240">
           <caret line="20" column="48" selection-start-line="20" selection-start-column="48" selection-end-line="20" selection-end-column="48" />
+          <folding>
+            <marker date="1534209741447" expanded="false" signature="6:136" ph="..." />
+            <marker date="1534209741447" expanded="true" signature="156:1107" ph="{...}" />
+            <marker date="1534209741447" expanded="true" signature="198:312" ph="{...}" />
+            <marker date="1534209741447" expanded="true" signature="380:1105" ph="{...}" />
+            <marker date="1534209741447" expanded="true" signature="817:891" ph="{...}" />
+            <marker date="1534209741447" expanded="true" signature="962:1099" ph="{...}" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -884,20 +646,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="840">
           <caret line="89" column="39" selection-start-line="89" selection-start-column="27" selection-end-line="89" selection-end-column="39" />
-          <folding>
-            <marker date="1534199321129" expanded="false" signature="6:199" ph="..." />
-            <marker date="1534199321129" expanded="true" signature="229:5856" ph="{...}" />
-            <marker date="1534199321129" expanded="true" signature="260:602" ph="{...}" />
-            <marker date="1534199321129" expanded="true" signature="653:5854" ph="{...}" />
-            <marker date="1534199321129" expanded="true" signature="913:1123" ph="{...}" />
-            <marker date="1534199321129" expanded="true" signature="1156:1482" ph="{...}" />
-            <marker date="1534199321129" expanded="true" signature="1585:2392" ph="{...}" />
-            <marker date="1534199321129" expanded="true" signature="1702:1845" ph="{...}" />
-            <marker date="1534199321129" expanded="true" signature="2423:2783" ph="{...}" />
-            <marker date="1534199321129" expanded="true" signature="2873:5409" ph="{...}" />
-            <marker date="1534199321129" expanded="true" signature="5459:5848" ph="{...}" />
-            <marker date="1534199321129" expanded="true" signature="5533:5803" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -910,19 +658,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Nsg.VeldridBackend/ViewerImpl.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="690">
+        <state relative-caret-position="477">
           <caret line="62" column="38" selection-start-line="62" selection-start-column="38" selection-end-line="62" selection-end-column="38" />
           <folding>
-            <marker date="1534251416054" expanded="false" signature="6:116" ph="..." />
-            <marker date="1534251416054" expanded="true" signature="146:1929" ph="{...}" />
-            <marker date="1534251416054" expanded="true" signature="190:1927" ph="{...}" />
-            <marker date="1534251416054" expanded="true" signature="529:579" ph="{...}" />
-            <marker date="1534251416054" expanded="true" signature="780:1298" ph="{...}" />
-            <marker date="1534251416054" expanded="true" signature="850:1027" ph="{...}" />
-            <marker date="1534251416054" expanded="true" signature="1326:1768" ph="{...}" />
-            <marker date="1534251416054" expanded="true" signature="1432:1725" ph="{...}" />
-            <marker date="1534251416054" expanded="true" signature="1537:1711" ph="{...}" />
-            <marker date="1534251416054" expanded="true" signature="1817:1921" ph="{...}" />
+            <marker date="1534213913345" expanded="false" signature="6:116" ph="..." />
+            <marker date="1534213913345" expanded="true" signature="146:1929" ph="{...}" />
+            <marker date="1534213913345" expanded="true" signature="190:1927" ph="{...}" />
+            <marker date="1534213913345" expanded="true" signature="529:579" ph="{...}" />
+            <marker date="1534213913345" expanded="true" signature="780:1298" ph="{...}" />
+            <marker date="1534213913345" expanded="true" signature="850:1027" ph="{...}" />
+            <marker date="1534213913345" expanded="true" signature="1326:1768" ph="{...}" />
+            <marker date="1534213913345" expanded="true" signature="1432:1725" ph="{...}" />
+            <marker date="1534213913345" expanded="true" signature="1537:1711" ph="{...}" />
+            <marker date="1534213913345" expanded="true" signature="1817:1921" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -931,10 +679,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="120">
           <caret line="8" column="1" selection-start-line="8" selection-start-column="1" selection-end-line="8" selection-end-column="1" />
-          <folding>
-            <marker date="1534264139720" expanded="true" signature="29:230" ph="{...}" />
-            <marker date="1534264139720" expanded="true" signature="59:228" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -942,114 +686,29 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="281">
           <caret line="449" selection-start-line="449" selection-end-line="449" />
-          <folding>
-            <marker date="1534264139806" expanded="true" signature="6:190" ph="..." />
-            <marker date="1534264139806" expanded="true" signature="218:15094" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="307:12713" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="684:736" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="790:869" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="924:1101" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="1129:1273" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="1155:1263" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="1300:1828" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="1326:1420" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="1436:1818" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="1531:1771" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="1867:2267" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="1893:2257" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="2305:2732" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="2331:2722" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="2792:2910" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="2992:3315" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="3390:3486" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="3576:3868" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="3661:3758" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="3901:4190" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="3986:4083" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="4245:4623" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="4382:4469" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="4663:4892" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="4789:4854" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="4991:5274" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="5303:5378" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="5435:5853" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="5592:5816" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="5733:5802" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="5906:6324" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="6063:6287" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="6204:6273" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="6370:6692" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="6739:6942" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="6861:6932" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="6992:7234" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="7028:7172" ph="/* TODO: DHetermine if the structure type contains references and throw if it does. ... */" />
-            <marker date="1534264139806" expanded="true" signature="7286:7471" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="7521:7679" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="7758:8000" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="7824:7964" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="7880:7950" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="8106:8283" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="8434:8678" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="8709:8844" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="8877:9081" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="8921:9071" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="9131:9235" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="9430:10429" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="9639:9809" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="9939:10245" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="9998:10200" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="10278:10380" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="10515:12707" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="10718:10780" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="10931:11348" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="10965:11334" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="11648:12697" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="11851:12010" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="12171:12478" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="12243:12425" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="12515:12640" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="12794:15092" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="13003:13104" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="13139:13466" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="13165:13456" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="13500:13860" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="13526:13850" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="14123:15086" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="14321:14463" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="14605:14891" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="14684:14846" ph="{...}" />
-            <marker date="1534264139806" expanded="true" signature="14924:15037" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/HelloNsg/Program.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="480">
-          <caret line="32" column="34" selection-start-line="32" selection-start-column="34" selection-end-line="32" selection-end-column="34" />
+        <state relative-caret-position="600">
+          <caret line="40" column="43" selection-start-line="40" selection-start-column="43" selection-end-line="40" selection-end-column="43" />
           <folding>
-            <marker date="1534261412047" expanded="true" signature="6:71" ph="..." />
-            <marker date="1534261412047" expanded="true" signature="72:160" ph="/* using Nsg.Core.Viewer; ... */" />
-            <marker date="1534261412047" expanded="true" signature="180:2265" ph="{...}" />
-            <marker date="1534261412047" expanded="true" signature="187:494" ph="/* struct VertexPositionColor ... */" />
-            <marker date="1534261412047" expanded="true" signature="517:2263" ph="{...}" />
-            <marker date="1534261412047" expanded="true" signature="563:2257" ph="{...}" />
-            <marker date="1534261412047" expanded="true" signature="631:2218" ph="/* var root = new Node(); ... */" />
+            <marker date="1534294598146" expanded="true" signature="6:27" ph="..." />
+            <marker date="1534294598146" expanded="true" signature="2218:2257" ph="{...}" />
+            <marker date="1534294598146" expanded="true" signature="2218:2263" ph="{...}" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Nsg.Core/Viewer/SimpleViewer.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
+        <state relative-caret-position="225">
           <caret line="16" column="9" selection-start-line="16" selection-start-column="9" selection-end-line="16" selection-end-column="9" />
           <folding>
-            <marker date="1534194646672" expanded="true" signature="6:42" ph="..." />
-            <marker date="1534194646672" expanded="true" signature="69:705" ph="{...}" />
-            <marker date="1534194646672" expanded="true" signature="101:703" ph="{...}" />
-            <marker date="1534194646672" expanded="true" signature="378:505" ph="{...}" />
-            <marker date="1534194646672" expanded="true" signature="541:586" ph="{...}" />
-            <marker date="1534194646672" expanded="true" signature="638:697" ph="{...}" />
+            <marker date="1534209741451" expanded="false" signature="6:42" ph="..." />
+            <marker date="1534209741451" expanded="true" signature="101:703" ph="{...}" />
+            <marker date="1534209741451" expanded="true" signature="685:697" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -1058,28 +717,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="479">
           <caret line="41" column="9" lean-forward="true" selection-start-line="41" selection-start-column="9" selection-end-line="41" selection-end-column="9" />
-          <folding>
-            <marker date="1534263693884" expanded="false" signature="6:70" ph="..." />
-            <marker date="1534263693884" expanded="true" signature="101:1641" ph="{...}" />
-            <marker date="1534263693884" expanded="true" signature="159:1639" ph="{...}" />
-            <marker date="1534263693884" expanded="true" signature="357:654" ph="{...}" />
-            <marker date="1534263693884" expanded="true" signature="394:482" ph="{...}" />
-            <marker date="1534263693884" expanded="true" signature="693:1018" ph="{...}" />
-            <marker date="1534263693884" expanded="true" signature="730:818" ph="{...}" />
-            <marker date="1534263693884" expanded="true" signature="1054:1145" ph="{...}" />
-            <marker date="1534263693884" expanded="true" signature="1176:1224" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/Strings.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="13" column="1" selection-start-line="13" selection-start-column="1" selection-end-line="13" selection-end-column="1" />
-          <folding>
-            <marker date="1534264139757" expanded="true" signature="29:810" ph="{...}" />
-            <marker date="1534264139757" expanded="true" signature="65:808" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1087,12 +724,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="330">
           <caret line="22" column="1" selection-start-line="22" selection-start-column="1" selection-end-line="22" selection-end-column="1" />
-          <folding>
-            <marker date="1534263944137" expanded="true" signature="29:519" ph="{...}" />
-            <marker date="1534263944137" expanded="true" signature="59:517" ph="{...}" />
-            <marker date="1534263944137" expanded="true" signature="164:239" ph="{...}" />
-            <marker date="1534263944137" expanded="true" signature="457:511" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1118,54 +749,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="195">
           <caret line="33" column="9" selection-start-line="33" selection-start-column="9" selection-end-line="33" selection-end-column="9" />
-          <folding>
-            <marker date="1534265903342" expanded="true" signature="0:290" ph="/* This code has been adapted from the &quot;Vulkan&quot; C++ example repository, by Sascha Willems: https://github.com/Sas ... */" />
-            <marker date="1534265903342" expanded="true" signature="292:480" ph="/* Vulkan Example base class ... */" />
-            <marker date="1534265903342" expanded="false" signature="488:543" ph="..." />
-            <marker date="1534265903342" expanded="true" signature="574:19321" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="622:19319" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="694:916" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="965:1133" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="1320:1768" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="1841:2069" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="2137:2282" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="2489:2934" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="3174:3811" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="3985:4338" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="4495:4871" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="5063:5421" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="5628:6269" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="6450:6850" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="7027:7386" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="7582:7987" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="8158:8588" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="8710:9008" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="9199:9631" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="9809:10139" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="10336:10731" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="10978:11397" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="11642:12059" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="12215:12502" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="12561:12690" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="12755:12953" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="13015:13142" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="13264:13471" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="13534:13671" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="13738:13883" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="14034:14293" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="14432:14687" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="14784:14989" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="15169:15490" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="15623:15874" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="16096:16467" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="16538:16691" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="16861:17182" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="17343:17642" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="17705:17842" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="18050:18434" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="18568:18878" ph="{...}" />
-            <marker date="1534265903342" expanded="true" signature="19031:19313" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1173,41 +756,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-15">
           <caret line="21" column="31" selection-start-line="21" selection-start-column="31" selection-end-line="21" selection-end-column="31" />
-          <folding>
-            <marker date="1534266205177" expanded="true" signature="0:285" ph="/* This code has been adapted from the &quot;Vulkan&quot; C++ example repository, by Sascha Willems: https://github.com/Sas ... */" />
-            <marker date="1534266205177" expanded="true" signature="287:475" ph="/* Vulkan Example base class ... */" />
-            <marker date="1534266205177" expanded="false" signature="483:589" ph="..." />
-            <marker date="1534266205177" expanded="true" signature="620:9666" ph="{...}" />
-            <marker date="1534266205177" expanded="true" signature="654:9664" ph="{...}" />
-            <marker date="1534266205177" expanded="true" signature="767:1791" ph="{...}" />
-            <marker date="1534266205177" expanded="true" signature="790:942" ph="/* Since all depth formats may be optional, we need to find a suitable depth format to use ... */" />
-            <marker date="1534266205177" expanded="true" signature="1018:1228" ph="{...}" />
-            <marker date="1534266205177" expanded="true" signature="1284:1754" ph="{...}" />
-            <marker date="1534266205177" expanded="true" signature="1628:1740" ph="{...}" />
-            <marker date="1534266205177" expanded="true" signature="1900:2698" ph="{...}" />
-            <marker date="1534266205177" expanded="true" signature="1963:2031" ph="{...}" />
-            <marker date="1534266205177" expanded="true" signature="2194:2688" ph="{...}" />
-            <marker date="1534266205177" expanded="true" signature="3158:3563" ph="{...}" />
-            <marker date="1534266205177" expanded="true" signature="3573:3749" ph="/* Create an image memory barrier for changing the layout of ... */" />
-            <marker date="1534266205177" expanded="true" signature="4204:9658" ph="{...}" />
-            <marker date="1534266205177" expanded="true" signature="4595:4776" ph="/* Source layouts (old) ... */" />
-            <marker date="1534266205177" expanded="true" signature="4812:7077" ph="{...}" />
-            <marker date="1534266205177" expanded="true" signature="4893:5065" ph="/* Image layout is undefined (or does not matter) ... */" />
-            <marker date="1534266205177" expanded="true" signature="5223:5410" ph="/* Image is preinitialized ... */" />
-            <marker date="1534266205177" expanded="true" signature="5598:5711" ph="/* Image is a color attachment ... */" />
-            <marker date="1534266205177" expanded="true" signature="5917:6046" ph="/* Image is a depth/stencil attachment ... */" />
-            <marker date="1534266205177" expanded="true" signature="6248:6355" ph="/* Image is a transfer source ... */" />
-            <marker date="1534266205177" expanded="true" signature="6542:6652" ph="/* Image is a transfer destination ... */" />
-            <marker date="1534266205177" expanded="true" signature="6843:6955" ph="/* Image is read by a shader ... */" />
-            <marker date="1534266205177" expanded="true" signature="7091:7202" ph="/* Target layouts (new) ... */" />
-            <marker date="1534266205177" expanded="true" signature="7238:9361" ph="{...}" />
-            <marker date="1534266205177" expanded="true" signature="7328:7451" ph="/* Image will be used as a transfer destination ... */" />
-            <marker date="1534266205177" expanded="true" signature="7639:7772" ph="/* Image will be used as a transfer source ... */" />
-            <marker date="1534266205177" expanded="true" signature="8081:8207" ph="/* Image will be used as a color attachment ... */" />
-            <marker date="1534266205177" expanded="true" signature="8496:8641" ph="/* Image layout will be used as a depth/stencil attachment ... */" />
-            <marker date="1534266205177" expanded="true" signature="8881:9018" ph="/* Image will be read in a shader (sampler, input attachment) ... */" />
-            <marker date="1534266205177" expanded="true" signature="9081:9239" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1215,70 +763,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="315">
           <caret line="21" column="29" selection-start-line="21" selection-start-column="29" selection-end-line="21" selection-end-column="29" />
-          <folding>
-            <marker date="1534266367831" expanded="true" signature="0:287" ph="/* This code has been adapted from the &quot;Vulkan&quot; C++ example repository, by Sascha Willems: https://github.com/Sas ... */" />
-            <marker date="1534266367831" expanded="true" signature="289:477" ph="/* Vulkan Example base class ... */" />
-            <marker date="1534266367831" expanded="true" signature="485:663" ph="..." />
-            <marker date="1534266367831" expanded="true" signature="694:20599" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="738:20487" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="1579:1706" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="1764:9241" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="2021:2140" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="2224:2879" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="2938:3493" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="3510:3645" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="3982:9231" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="4203:4412" ph="/* Iterate over each queue to learn whether it supports presenting: ... */" />
-            <marker date="1534266367831" expanded="true" signature="4549:4692" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="4710:4840" ph="/* Search for a graphics and a present queue in the array of queue ... */" />
-            <marker date="1534266367831" expanded="true" signature="5015:5608" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="5114:5590" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="5205:5313" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="5370:5568" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="5669:6148" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="5708:5830" ph="/* If there's no queue that supports both present and graphics ... */" />
-            <marker date="1534266367831" expanded="true" signature="5888:6130" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="5966:6108" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="6337:6484" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="6635:6794" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="7272:9217" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="7584:7755" ph="/* If the Surface format list only includes one entry with VK_FORMAT_UNDEFINED, ... */" />
-            <marker date="1534266367831" expanded="true" signature="7851:8024" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="8049:9199" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="8096:8230" ph="/* iterate over the list of available Surface format and ... */" />
-            <marker date="1534266367831" expanded="true" signature="8359:8790" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="8465:8764" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="8816:8935" ph="/* in case VK_FORMAT_B8G8R8A8_UNORM is not available ... */" />
-            <marker date="1534266367831" expanded="true" signature="8986:9177" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="9251:9728" ph="/* Create the swapchain and get it's Images with given width and height ... */" />
-            <marker date="1534266367831" expanded="true" signature="9802:18347" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="10558:18337" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="11078:11353" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="11117:11229" ph="/* If the Surface size is undefined, the size is set to ... */" />
-            <marker date="1534266367831" expanded="true" signature="11374:11678" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="11697:11897" ph="/* Select a present mode for the swapchain ... */" />
-            <marker date="1534266367831" expanded="true" signature="11997:12132" ph="/* If v-sync is not requested, try to find a mailbox mode ... */" />
-            <marker date="1534266367831" expanded="true" signature="12160:12818" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="12242:12800" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="12340:12507" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="12644:12778" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="13062:13175" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="13389:13557" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="13578:13676" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="15240:15353" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="15595:15731" ph="/* If an existing swap chain is re-created, destroy the old swap chain ... */" />
-            <marker date="1534266367831" expanded="true" signature="15777:16061" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="15853:15972" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="16801:18323" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="17212:17434" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="18357:18850" ph="/* Acquires the next image in the swap chain ... */" />
-            <marker date="1534266367831" expanded="true" signature="18950:19302" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="18973:19158" ph="/* By setting timeout to UINT64_MAX we will always wait until the next image has been acquired or an actual error ... */" />
-            <marker date="1534266367831" expanded="true" signature="19312:19724" ph="/* Queue an image for presentation ... */" />
-            <marker date="1534266367831" expanded="true" signature="19840:20481" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="20270:20412" ph="{...}" />
-            <marker date="1534266367831" expanded="true" signature="20522:20597" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1286,44 +770,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="195">
           <caret line="13" column="5" selection-start-line="13" selection-start-column="5" selection-end-line="13" selection-end-column="5" />
-          <folding>
-            <marker date="1534266367864" expanded="true" signature="6:186" ph="..." />
-            <marker date="1534266367864" expanded="true" signature="217:8585" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="224:333" ph="/* A ridiculously bad KTX file parser. ... */" />
-            <marker date="1534266367864" expanded="true" signature="358:6469" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="593:712" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="782:3434" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="850:3424" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="1013:1656" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="1248:1585" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="1677:1827" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="2033:2142" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="2234:3342" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="2576:3176" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="2956:3077" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="3538:4855" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="4046:4247" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="4106:4169" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="4636:4706" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="4919:5187" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="5064:5134" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="5280:5420" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="5334:5410" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="5457:5888" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="5588:5847" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="5674:5833" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="5931:6463" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="6091:6425" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="6196:6411" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="6503:6714" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="6638:6708" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="6792:7487" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="7513:8148" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="7791:7955" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="8006:8142" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="8176:8583" ph="{...}" />
-            <marker date="1534266367864" expanded="true" signature="8411:8577" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1331,28 +777,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="15">
           <caret line="31" column="41" selection-start-line="31" selection-start-column="41" selection-end-line="31" selection-end-column="41" />
-          <folding>
-            <marker date="1534266367815" expanded="true" signature="0:285" ph="/* This code has been adapted from the &quot;Vulkan&quot; C++ example repository, by Sascha Willems: https://github.com/Sas ... */" />
-            <marker date="1534266367815" expanded="true" signature="287:475" ph="/* Vulkan Example base class ... */" />
-            <marker date="1534266367815" expanded="true" signature="483:620" ph="..." />
-            <marker date="1534266367815" expanded="true" signature="651:16492" ph="{...}" />
-            <marker date="1534266367815" expanded="true" signature="683:1013" ph="{...}" />
-            <marker date="1534266367815" expanded="true" signature="1066:16490" ph="{...}" />
-            <marker date="1534266367815" expanded="true" signature="1122:1846" ph="/* Load a 2D texture including all mip levels ... */" />
-            <marker date="1534266367815" expanded="true" signature="2195:16173" ph="{...}" />
-            <marker date="1534266367815" expanded="true" signature="2285:2362" ph="{...}" />
-            <marker date="1534266367815" expanded="true" signature="2829:3179" ph="/* Only use linear tiling if requested (and supported by the device) ... */" />
-            <marker date="1534266367815" expanded="true" signature="3546:9958" ph="{...}" />
-            <marker date="1534266367815" expanded="true" signature="5255:5373" ph="{...}" />
-            <marker date="1534266367815" expanded="true" signature="5696:6553" ph="{...}" />
-            <marker date="1534266367815" expanded="true" signature="7499:7611" ph="{...}" />
-            <marker date="1534266367815" expanded="true" signature="8543:8660" ph="/* Image barrier for optimal image (target) ... */" />
-            <marker date="1534266367815" expanded="true" signature="9975:13748" ph="{...}" />
-            <marker date="1534266367815" expanded="true" signature="10059:13734" ph="/* Prefer using optimal tiling, as linear tiling ... */" />
-            <marker date="1534266367815" expanded="true" signature="14922:15129" ph="/* Create image view ... */" />
-            <marker date="1534266367815" expanded="true" signature="15687:15798" ph="/* Linear tiling usually won't support mip maps ... */" />
-            <marker date="1534266367815" expanded="true" signature="16296:16449" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1360,14 +784,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="255">
           <caret line="18" column="9" selection-start-line="18" selection-start-column="9" selection-end-line="18" selection-end-column="9" />
-          <folding>
-            <marker date="1534265378765" expanded="false" signature="6:27" ph="..." />
-            <marker date="1534265378765" expanded="true" signature="58:463" ph="{...}" />
-            <marker date="1534265378765" expanded="true" signature="91:461" ph="{...}" />
-            <marker date="1534265378765" expanded="true" signature="153:314" ph="{...}" />
-            <marker date="1534265378765" expanded="true" signature="207:304" ph="{...}" />
-            <marker date="1534265378765" expanded="true" signature="383:455" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1375,96 +791,22 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="315">
           <caret line="21" column="26" selection-start-line="21" selection-start-column="26" selection-end-line="21" selection-end-column="26" />
-          <folding>
-            <marker date="1534266367848" expanded="true" signature="0:278" ph="/* This code has been adapted from the &quot;Vulkan&quot; C++ example repository, by Sascha Willems: https://github.com/Sas ... */" />
-            <marker date="1534266367848" expanded="true" signature="280:468" ph="/* Vulkan Example base class ... */" />
-            <marker date="1534266367848" expanded="true" signature="476:506" ph="..." />
-            <marker date="1534266367848" expanded="true" signature="537:7050" ph="{...}" />
-            <marker date="1534266367848" expanded="true" signature="565:7048" ph="{...}" />
-            <marker date="1534266367848" expanded="true" signature="657:1308" ph="{...}" />
-            <marker date="1534266367848" expanded="true" signature="1211:1298" ph="/* else ... */" />
-            <marker date="1534266367848" expanded="true" signature="1834:1922" ph="{...}" />
-            <marker date="1534266367848" expanded="true" signature="2008:2242" ph="{...}" />
-            <marker date="1534266367848" expanded="true" signature="2295:2439" ph="{...}" />
-            <marker date="1534266367848" expanded="true" signature="2490:2580" ph="{...}" />
-            <marker date="1534266367848" expanded="true" signature="2631:2721" ph="{...}" />
-            <marker date="1534266367848" expanded="true" signature="2764:2852" ph="{...}" />
-            <marker date="1534266367848" expanded="true" signature="2909:3002" ph="{...}" />
-            <marker date="1534266367848" expanded="true" signature="3048:3136" ph="{...}" />
-            <marker date="1534266367848" expanded="true" signature="3181:4404" ph="{...}" />
-            <marker date="1534266367848" expanded="true" signature="3239:4394" ph="{...}" />
-            <marker date="1534266367848" expanded="true" signature="3283:4380" ph="{...}" />
-            <marker date="1534266367848" expanded="true" signature="4414:4528" ph="/* Update camera passing separate axis data (gamepad) ... */" />
-            <marker date="1534266367848" expanded="true" signature="4605:7042" ph="{...}" />
-            <marker date="1534266367848" expanded="true" signature="4697:6799" ph="{...}" />
-            <marker date="1534266367848" expanded="true" signature="4728:4818" ph="/* Use the common console thumbstick layout ... */" />
-            <marker date="1534266367848" expanded="true" signature="5568:5813" ph="{...}" />
-            <marker date="1534266367848" expanded="true" signature="5866:6176" ph="{...}" />
-            <marker date="1534266367848" expanded="true" signature="6257:6494" ph="{...}" />
-            <marker date="1534266367848" expanded="true" signature="6548:6785" ph="{...}" />
-            <marker date="1534266367848" expanded="true" signature="6816:6915" ph="{...}" />
-            <marker date="1534266367848" expanded="true" signature="6940:7004" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/VulkanModel.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="283">
-          <caret line="392" column="42" selection-start-line="392" selection-start-column="42" selection-end-line="392" selection-end-column="42" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/VulkanModel.cs" />
     <entry file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/vksBuffer.cs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="284">
           <caret line="23" column="5" selection-start-line="23" selection-start-column="5" selection-end-line="23" selection-end-column="5" />
-          <folding>
-            <marker date="1534265192453" expanded="true" signature="0:284" ph="/* This code has been adapted from the &quot;Vulkan&quot; C++ example repository, by Sascha Willems: https://github.com/Sas ... */" />
-            <marker date="1534265192453" expanded="true" signature="286:474" ph="/* Vulkan Example base class ... */" />
-            <marker date="1534265192453" expanded="true" signature="482:638" ph="..." />
-            <marker date="1534265192453" expanded="true" signature="669:5780" ph="{...}" />
-            <marker date="1534265192453" expanded="true" signature="707:5778" ph="{...}" />
-            <marker date="1534265192453" expanded="true" signature="722:892" ph="/* @brief Encapsulates access to a Vulkan buffer backed up by device memory ... */" />
-            <marker date="1534265192453" expanded="true" signature="1519:1892" ph="/* Map a memory range of this buffer. If successful, mapped points to the specified buffer range. ... */" />
-            <marker date="1534265192453" expanded="true" signature="1976:2173" ph="{...}" />
-            <marker date="1534265192453" expanded="true" signature="2183:2314" ph="/* Unmap a mapped memory range ... */" />
-            <marker date="1534265192453" expanded="true" signature="2342:2500" ph="{...}" />
-            <marker date="1534265192453" expanded="true" signature="2384:2490" ph="{...}" />
-            <marker date="1534265192453" expanded="true" signature="2510:2759" ph="/* Attach the allocated memory block to the buffer ... */" />
-            <marker date="1534265192453" expanded="true" signature="2813:2904" ph="{...}" />
-            <marker date="1534265192453" expanded="true" signature="2914:3141" ph="/* Setup the default descriptor for this buffer ... */" />
-            <marker date="1534265192453" expanded="true" signature="3233:3370" ph="{...}" />
-            <marker date="1534265192453" expanded="true" signature="3380:3586" ph="/* Copies the specified data to the mapped buffer ... */" />
-            <marker date="1534265192453" expanded="true" signature="3644:3811" ph="{...}" />
-            <marker date="1534265192453" expanded="true" signature="3821:4224" ph="/* Flush a memory range of the buffer to make it visible to the device ... */" />
-            <marker date="1534265192453" expanded="true" signature="4310:4593" ph="{...}" />
-            <marker date="1534265192453" expanded="true" signature="4603:5023" ph="/* Invalidate a memory range of the buffer to make it visible to the host ... */" />
-            <marker date="1534265192453" expanded="true" signature="5114:5402" ph="{...}" />
-            <marker date="1534265192453" expanded="true" signature="5412:5486" ph="/* Release all Vulkan resources held by this buffer ... */" />
-            <marker date="1534265192453" expanded="true" signature="5516:5771" ph="{...}" />
-            <marker date="1534265192453" expanded="true" signature="5562:5645" ph="{...}" />
-            <marker date="1534265192453" expanded="true" signature="5681:5761" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/85F3C067-FF9A-4923-AE78-36AA4C5534E7/7e/cf747af5/VkPhysicalDeviceMemoryProperties.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-124">
-          <caret line="8" column="16" selection-start-line="8" selection-start-column="16" selection-end-line="8" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/85F3C067-FF9A-4923-AE78-36AA4C5534E7/7e/cf747af5/VkPhysicalDeviceMemoryProperties.cs" />
     <entry file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/VkPhysicalDeviceMemoryPropertiesEx.cs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
           <caret line="12" selection-start-line="12" selection-end-line="12" />
-          <folding>
-            <marker date="1534265899576" expanded="true" signature="44:326" ph="{...}" />
-            <marker date="1534265899576" expanded="true" signature="114:324" ph="{...}" />
-            <marker date="1534265899576" expanded="true" signature="237:318" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1472,69 +814,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="170">
           <caret line="22" column="12" selection-start-line="22" selection-start-column="4" selection-end-line="22" selection-end-column="12" />
-          <folding>
-            <marker date="1534265087855" expanded="true" signature="0:284" ph="/* This code has been adapted from the &quot;Vulkan&quot; C++ example repository, by Sascha Willems: https://github.com/Sas ... */" />
-            <marker date="1534265087855" expanded="true" signature="286:474" ph="/* Vulkan Example base class ... */" />
-            <marker date="1534265087855" expanded="true" signature="482:636" ph="..." />
-            <marker date="1534265087855" expanded="true" signature="667:22242" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="711:22240" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="1625:4046" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="1758:1921" ph="/* Store Properties features, limits and properties of the physical device for later use ... */" />
-            <marker date="1534265087855" expanded="true" signature="3422:4036" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="3670:4022" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="3744:4004" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="3840:3982" ph="/* supportedExtensions.push_back(ext.extensionName); ... */" />
-            <marker date="1534265087855" expanded="true" signature="4328:9329" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="4351:4606" ph="/* Desired queues need to be requested upon logical device creation ... */" />
-            <marker date="1534265087855" expanded="true" signature="4724:9319" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="4896:5421" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="5442:5537" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="5652:6429" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="5818:6411" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="6450:6596" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="6713:7538" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="6925:7520" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="7559:7706" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="7871:9305" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="7927:8219" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="8633:8876" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="9044:9251" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="9396:11151" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="9419:9536" ph="/* Dedicated queue for compute ... */" />
-            <marker date="1534265087855" expanded="true" signature="9594:9984" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="9679:9970" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="9874:9952" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="9998:10129" ph="/* Dedicated queue for transfer ... */" />
-            <marker date="1534265087855" expanded="true" signature="10188:10671" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="10273:10657" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="10561:10639" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="10872:11043" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="10963:11029" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="11332:11680" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="11690:12349" ph="/* Create a buffer on the device ... */" />
-            <marker date="1534265087855" expanded="true" signature="12509:14203" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="13809:13984" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="14462:15215" ph="/* Create a buffer on the device ... */" />
-            <marker date="1534265087855" expanded="true" signature="15399:17404" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="16422:17215" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="16804:17146" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="17595:17844" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="17944:18699" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="18461:18658" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="18709:19188" ph="/* Finish command buffer recording and submit it to a queue ... */" />
-            <marker date="1534265087855" expanded="true" signature="19291:20462" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="19353:19405" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="20338:20452" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="20472:21129" ph="/* Get the index of a memory type that has all the requested property bits set ... */" />
-            <marker date="1534265087855" expanded="true" signature="21239:22071" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="21321:21790" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="21376:21744" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="21496:21726" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="21568:21670" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="21829:21922" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="21939:22061" ph="{...}" />
-            <marker date="1534265087855" expanded="true" signature="22113:22234" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1542,46 +821,54 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="150">
           <caret line="10" column="1" lean-forward="true" selection-start-line="10" selection-start-column="1" selection-end-line="10" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Nsg.Viewer/Internal/Strings.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="17" column="1" selection-start-line="17" selection-start-column="1" selection-end-line="17" selection-end-column="1" />
           <folding>
-            <marker date="1534266223573" expanded="true" signature="44:224" ph="{...}" />
-            <marker date="1534266223573" expanded="true" signature="75:222" ph="{...}" />
+            <marker date="1534295288539" expanded="true" signature="29:1317" ph="{...}" />
+            <marker date="1534295288539" expanded="true" signature="65:1315" ph="{...}" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Nsg.Viewer/BasicViewer.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="43" column="9" selection-start-line="43" selection-start-column="9" selection-end-line="43" selection-end-column="9" />
+        <state relative-caret-position="205">
+          <caret line="208" column="74" selection-start-line="208" selection-start-column="74" selection-end-line="208" selection-end-column="74" />
           <folding>
-            <marker date="1534266364061" expanded="true" signature="6:172" ph="..." />
-            <marker date="1534266364061" expanded="true" signature="194:9927" ph="{...}" />
-            <marker date="1534266364061" expanded="true" signature="233:9924" ph="{...}" />
-            <marker date="1534266364061" expanded="true" signature="268:377" ph="{...}" />
-            <marker date="1534266364061" expanded="true" signature="2037:2115" ph="{...}" />
-            <marker date="1534266364061" expanded="true" signature="2144:2323" ph="{...}" />
-            <marker date="1534266364061" expanded="true" signature="2238:2312" ph="{...}" />
-            <marker date="1534266364061" expanded="true" signature="2359:7449" ph="{...}" />
-            <marker date="1534266364061" expanded="true" signature="2481:2616" ph="{...}" />
-            <marker date="1534266364061" expanded="true" signature="2668:2697" ph="{...}" />
-            <marker date="1534266364061" expanded="true" signature="3134:3256" ph="{...}" />
-            <marker date="1534266364061" expanded="true" signature="3270:3436" ph="/* GPU selection ... */" />
-            <marker date="1534266364061" expanded="true" signature="3621:3788" ph="/* Store properties (including limits) and features of the phyiscal Device ... */" />
-            <marker date="1534266364061" expanded="true" signature="4436:4790" ph="/* Derived examples can override this to set actual features (based on above readings) to enable for logical devi ... */" />
-            <marker date="1534266364061" expanded="true" signature="4992:5108" ph="{...}" />
-            <marker date="1534266364061" expanded="true" signature="5836:5999" ph="/* Create a semaphore used to synchronize image presentation ... */" />
-            <marker date="1534266364061" expanded="true" signature="6135:6302" ph="/* Create a semaphore used to synchronize command submission ... */" />
-            <marker date="1534266364061" expanded="true" signature="6437:6724" ph="/* Create a semaphore used to synchronize command submission ... */" />
-            <marker date="1534266364061" expanded="true" signature="6865:7038" ph="/* Set up submit info structure ... */" />
-            <marker date="1534266364061" expanded="true" signature="7487:7700" ph="{...}" />
-            <marker date="1534266364061" expanded="true" signature="7774:9917" ph="{...}" />
-            <marker date="1534266364061" expanded="true" signature="7915:8151" ph="{...}" />
-            <marker date="1534266364061" expanded="true" signature="8376:8489" ph="{...}" />
-            <marker date="1534266364061" expanded="true" signature="8561:8673" ph="{...}" />
-            <marker date="1534266364061" expanded="true" signature="8690:8777" ph="{...}" />
-            <marker date="1534266364061" expanded="true" signature="8967:9336" ph="{...}" />
-            <marker date="1534266364061" expanded="true" signature="9019:9143" ph="{...}" />
-            <marker date="1534266364061" expanded="true" signature="9372:9726" ph="{...}" />
+            <marker date="1534295315604" expanded="true" signature="6:172" ph="..." />
+            <marker date="1534295315604" expanded="true" signature="194:10111" ph="{...}" />
+            <marker date="1534295315604" expanded="true" signature="233:10108" ph="{...}" />
+            <marker date="1534295315604" expanded="true" signature="268:377" ph="{...}" />
+            <marker date="1534295315604" expanded="true" signature="2037:2115" ph="{...}" />
+            <marker date="1534295315604" expanded="true" signature="2144:2323" ph="{...}" />
+            <marker date="1534295315604" expanded="true" signature="2238:2312" ph="{...}" />
+            <marker date="1534295315604" expanded="true" signature="2359:7449" ph="{...}" />
+            <marker date="1534295315604" expanded="true" signature="2481:2616" ph="{...}" />
+            <marker date="1534295315604" expanded="true" signature="2668:2697" ph="{...}" />
+            <marker date="1534295315604" expanded="true" signature="3134:3256" ph="{...}" />
+            <marker date="1534295315604" expanded="true" signature="3270:3436" ph="/* GPU selection ... */" />
+            <marker date="1534295315604" expanded="true" signature="3621:3788" ph="/* Store properties (including limits) and features of the phyiscal Device ... */" />
+            <marker date="1534295315604" expanded="true" signature="4436:4790" ph="/* Derived examples can override this to set actual features (based on above readings) to enable for logical devi ... */" />
+            <marker date="1534295315604" expanded="true" signature="4992:5108" ph="{...}" />
+            <marker date="1534295315604" expanded="true" signature="5836:5999" ph="/* Create a semaphore used to synchronize image presentation ... */" />
+            <marker date="1534295315604" expanded="true" signature="6135:6302" ph="/* Create a semaphore used to synchronize command submission ... */" />
+            <marker date="1534295315604" expanded="true" signature="6437:6724" ph="/* Create a semaphore used to synchronize command submission ... */" />
+            <marker date="1534295315604" expanded="true" signature="6865:7038" ph="/* Set up submit info structure ... */" />
+            <marker date="1534295315604" expanded="true" signature="7487:7700" ph="{...}" />
+            <marker date="1534295315604" expanded="true" signature="7774:10101" ph="{...}" />
+            <marker date="1534295315604" expanded="true" signature="7915:8151" ph="{...}" />
+            <marker date="1534295315604" expanded="true" signature="8376:8489" ph="{...}" />
+            <marker date="1534295315604" expanded="true" signature="8561:8673" ph="{...}" />
+            <marker date="1534295315604" expanded="true" signature="8743:8856" ph="{...}" />
+            <marker date="1534295315604" expanded="true" signature="8873:8960" ph="{...}" />
+            <marker date="1534295315604" expanded="true" signature="9150:9519" ph="{...}" />
+            <marker date="1534295315604" expanded="true" signature="9202:9326" ph="{...}" />
+            <marker date="1534295315604" expanded="true" signature="9555:9910" ph="{...}" />
           </folding>
         </state>
       </provider>
