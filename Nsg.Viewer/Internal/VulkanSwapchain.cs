@@ -14,6 +14,7 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using Nsg.Viewer.OSXWindow;
 using Vulkan;
 using Veldrid.Sdl2;
 using static Vulkan.VulkanNative;
@@ -75,6 +76,14 @@ namespace Nsg.Viewer.Internal
                 VkSurfaceKHR surface;
                 err = vkCreateXlibSurfaceKHR(Instance, &surfaceCreateInfo, null, out surface);
                 Surface = surface;
+            } 
+            else if (sysWmInfo.subsystem == SysWMType.Cocoa)
+            {
+                CocoaWindowInfo cocoaInfo = Unsafe.Read<CocoaWindowInfo>(&sysWmInfo.info);
+                IntPtr nsWindow = cocoaInfo.Window;
+                
+                // 
+                Surface = OSXUtils.CreateNSWindow(Instance, nsWindow);
             }
             else
             {

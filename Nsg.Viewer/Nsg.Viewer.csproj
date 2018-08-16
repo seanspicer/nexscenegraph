@@ -15,4 +15,7 @@
     <PackageReference Include="Veldrid.SDL2" Version="4.3.3" />
     <PackageReference Include="Vk" Version="1.0.21" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="OSXWindow\Veldrid.MetalBindings.csproj" />
+  </ItemGroup>
 </Project>
