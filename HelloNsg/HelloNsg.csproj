@@ -4,15 +4,14 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Nsg.Core\Nsg.Core.csproj" />
-    <ProjectReference Include="..\Nsg.VeldridBackend\Nsg.VeldridBackend.csproj" />
-  </ItemGroup>
-  <ItemGroup>
     <None Update="Shaders\Fragment.spv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Shaders\Vertex.spv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Veldrid.SceneGraph\Veldrid.SceneGraph.csproj" />
   </ItemGroup>
 </Project>

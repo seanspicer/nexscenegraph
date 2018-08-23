@@ -21,194 +21,25 @@
         </e>
       </e>
       <e p="NexSceneGraph.sln" t="IncludeFlat" />
-      <e p="Nsg.Core" t="IncludeRecursive">
+      <e p="packages" t="ExcludeRecursive" />
+      <e p="Veldrid.SceneGraph" t="IncludeRecursive">
         <e p="bin" t="ExcludeRecursive" />
-        <e p="BufferDescription.cs" t="Include" />
-        <e p="BufferUsage.cs" t="Include" />
-        <e p="Config.cs" t="Include" />
+        <e p="DrawVisitor.cs" t="Include" />
         <e p="Edge.cs" t="Include" />
         <e p="Geometry.cs" t="Include" />
-        <e p="Interfaces" t="Include">
-          <e p="IBackend.cs" t="Include" />
-          <e p="IDeviceBuffer.cs" t="Include" />
-          <e p="IDrawVisitor.cs" t="Include" />
-          <e p="IGeometry.cs" t="Include" />
-          <e p="IGraphicsDevice.cs" t="Include" />
-          <e p="IResourceFactory.cs" t="Include" />
-          <e p="IShader.cs" t="Include" />
-          <e p="IViewerFactory.cs" t="Include" />
-          <e p="IViewerImpl.cs" t="Include" />
-        </e>
         <e p="Node.cs" t="Include" />
-        <e p="Nsg.Core.csproj" t="IncludeRecursive" />
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
             <e p="netcoreapp2.1" t="Include">
-              <e p="Nsg.Core.AssemblyInfo.cs" t="Include" />
+              <e p="Veldrid.SceneGraph.AssemblyInfo.cs" t="Include" />
             </e>
           </e>
         </e>
+        <e p="Veldrid.SceneGraph.csproj" t="IncludeRecursive" />
         <e p="Viewer" t="Include">
           <e p="SimpleViewer.cs" t="Include" />
         </e>
       </e>
-      <e p="Nsg.VeldridBackend" t="IncludeRecursive">
-        <e p="Backend.cs" t="Include" />
-        <e p="bin" t="ExcludeRecursive" />
-        <e p="DeviceBufferWrapper.cs" t="Include" />
-        <e p="DrawVisitor.cs" t="Include" />
-        <e p="GraphicsDeviceWrapper.cs" t="Include" />
-        <e p="Nsg.VeldridBackend.csproj" t="IncludeRecursive" />
-        <e p="obj" t="ExcludeRecursive">
-          <e p="Debug" t="Include">
-            <e p="netcoreapp2.1" t="Include">
-              <e p="Nsg.VeldridBackend.AssemblyInfo.cs" t="Include" />
-            </e>
-          </e>
-        </e>
-        <e p="ResourceFactoryWrapper.cs" t="Include" />
-        <e p="ViewerFactory.cs" t="Include" />
-        <e p="ViewerImpl.cs" t="Include" />
-      </e>
-      <e p="Nsg.Viewer" t="IncludeRecursive">
-        <e p="BasicViewer.cs" t="Include" />
-        <e p="bin" t="ExcludeRecursive" />
-        <e p="Internal" t="Include">
-          <e p="Camera.cs" t="Include" />
-          <e p="DepthStencil.cs" t="Include" />
-          <e p="FixedArray.cs" t="Include" />
-          <e p="FixedUtf8String.cs" t="Include" />
-          <e p="FrameTimeAverager.cs" t="Include" />
-          <e p="Initializers.cs" t="Include" />
-          <e p="KTXFile.cs" t="Include" />
-          <e p="MtlParser.cs" t="Include" />
-          <e p="NativeList.cs" t="Include" />
-          <e p="ObjParser.cs" t="Include" />
-          <e p="Semaphores.cs" t="Include" />
-          <e p="Settings.cs" t="Include" />
-          <e p="Strings.cs" t="Include" />
-          <e p="Tools.cs" t="Include" />
-          <e p="UnsafeEx.cs" t="Include" />
-          <e p="Util.cs" t="Include" />
-          <e p="Version.cs" t="Include" />
-          <e p="VertexPositionNormalTexture.cs" t="Include" />
-          <e p="VkPhysicalDeviceMemoryPropertiesEx.cs" t="Include" />
-          <e p="vksBuffer.cs" t="Include" />
-          <e p="vksTexture.cs" t="Include" />
-          <e p="VulkanDevice.cs" t="Include" />
-          <e p="VulkanSwapchain.cs" t="Include" />
-        </e>
-        <e p="Nsg.Viewer.csproj" t="IncludeRecursive" />
-        <e p="obj" t="ExcludeRecursive">
-          <e p="Debug" t="Include">
-            <e p="netcoreapp2.1" t="Include">
-              <e p="Nsg.Viewer.AssemblyInfo.cs" t="Include" />
-            </e>
-          </e>
-        </e>
-        <e p="OSXWindow" t="Include">
-          <e p="Bool8.cs" t="Include" />
-          <e p="CALayer.cs" t="Include" />
-          <e p="CAMetalDrawable.cs" t="Include" />
-          <e p="CAMetalLayer.cs" t="Include" />
-          <e p="CGFloat.cs" t="Include" />
-          <e p="CGPoint.cs" t="Include" />
-          <e p="CGRect.cs" t="Include" />
-          <e p="CGSize.cs" t="Include" />
-          <e p="Dispatch.cs" t="Include" />
-          <e p="FixedUtf8String.cs" t="Include" />
-          <e p="MTLBlendFactor.cs" t="Include" />
-          <e p="MTLBlendOperation.cs" t="Include" />
-          <e p="MTLBlitCommandEncoder.cs" t="Include" />
-          <e p="MTLBuffer.cs" t="Include" />
-          <e p="MTLClearColor.cs" t="Include" />
-          <e p="MTLCommandBuffer.cs" t="Include" />
-          <e p="MTLCommandBufferHandler.cs" t="Include" />
-          <e p="MTLCommandBufferStatus.cs" t="Include" />
-          <e p="MTLCommandQueue.cs" t="Include" />
-          <e p="MTLCompareFunction.cs" t="Include" />
-          <e p="MTLCompileOptions.cs" t="Include" />
-          <e p="MTLComputeCommandEncoder.cs" t="Include" />
-          <e p="MTLComputePipelineDescriptor.cs" t="Include" />
-          <e p="MTLComputePipelineState.cs" t="Include" />
-          <e p="MTLCPUCacheMode.cs" t="Include" />
-          <e p="MTLCullMode.cs" t="Include" />
-          <e p="MTLDataType.cs" t="Include" />
-          <e p="MTLDepthClipMode.cs" t="Include" />
-          <e p="MTLDepthStencilDescriptor.cs" t="Include" />
-          <e p="MTLDepthStencilState.cs" t="Include" />
-          <e p="MTLDevice.cs" t="Include" />
-          <e p="MTLFeatureSet.cs" t="Include" />
-          <e p="MTLFunction.cs" t="Include" />
-          <e p="MTLFunctionConstantValues.cs" t="Include" />
-          <e p="MTLIndexType.cs" t="Include" />
-          <e p="MTLLanguageVersion.cs" t="Include" />
-          <e p="MTLLibrary.cs" t="Include" />
-          <e p="MTLLoadAction.cs" t="Include" />
-          <e p="MTLMutability.cs" t="Include" />
-          <e p="MTLOrigin.cs" t="Include" />
-          <e p="MTLPipelineBufferDescriptor.cs" t="Include" />
-          <e p="MTLPipelineBufferDescriptorArray.cs" t="Include" />
-          <e p="MTLPixelFormat.cs" t="Include" />
-          <e p="MTLPrimitiveType.cs" t="Include" />
-          <e p="MTLRegion.cs" t="Include" />
-          <e p="MTLRenderCommandEncoder.cs" t="Include" />
-          <e p="MTLRenderPassColorAttachmentDescriptor.cs" t="Include" />
-          <e p="MTLRenderPassColorAttachmentDescriptorArray.cs" t="Include" />
-          <e p="MTLRenderPassDepthAttachmentDescriptor.cs" t="Include" />
-          <e p="MTLRenderPassDescriptor.cs" t="Include" />
-          <e p="MTLRenderPassStencilAttachmentDescriptor.cs" t="Include" />
-          <e p="MTLRenderPipelineColorAttachmentDescriptor.cs" t="Include" />
-          <e p="MTLRenderPipelineColorAttachmentDescriptorArray.cs" t="Include" />
-          <e p="MTLRenderPipelineDescriptor.cs" t="Include" />
-          <e p="MTLRenderPipelineState.cs" t="Include" />
-          <e p="MTLResourceOptions.cs" t="Include" />
-          <e p="MTLSamplerAddressMode.cs" t="Include" />
-          <e p="MTLSamplerBorderColor.cs" t="Include" />
-          <e p="MTLSamplerDescriptor.cs" t="Include" />
-          <e p="MTLSamplerMinMagFilter.cs" t="Include" />
-          <e p="MTLSamplerMipFilter.cs" t="Include" />
-          <e p="MTLSamplerState.cs" t="Include" />
-          <e p="MTLScissorRect.cs" t="Include" />
-          <e p="MTLSize.cs" t="Include" />
-          <e p="MTLStencilDescriptor.cs" t="Include" />
-          <e p="MTLStencilOperation.cs" t="Include" />
-          <e p="MTLStorageMode.cs" t="Include" />
-          <e p="MTLStoreAction.cs" t="Include" />
-          <e p="MTLTexture.cs" t="Include" />
-          <e p="MTLTextureDescriptor.cs" t="Include" />
-          <e p="MTLTextureType.cs" t="Include" />
-          <e p="MTLTextureUsage.cs" t="Include" />
-          <e p="MTLTriangleFillmode.cs" t="Include" />
-          <e p="MTLUtil.cs" t="Include" />
-          <e p="MTLVertexAttributeDescriptor.cs" t="Include" />
-          <e p="MTLVertexAttributeDescriptorArray.cs" t="Include" />
-          <e p="MTLVertexBufferLayoutDescriptor.cs" t="Include" />
-          <e p="MTLVertexBufferLayoutDescriptorArray.cs" t="Include" />
-          <e p="MTLVertexDescriptor.cs" t="Include" />
-          <e p="MTLVertexFormat.cs" t="Include" />
-          <e p="MTLVertexStepFunction.cs" t="Include" />
-          <e p="MTLViewport.cs" t="Include" />
-          <e p="MTLWinding.cs" t="Include" />
-          <e p="NSArray.cs" t="Include" />
-          <e p="NSAutoreleasePool.cs" t="Include" />
-          <e p="NSDictionary.cs" t="Include" />
-          <e p="NSError.cs" t="Include" />
-          <e p="NSRange.cs" t="Include" />
-          <e p="NSString.cs" t="Include" />
-          <e p="NSView.cs" t="Include" />
-          <e p="NSWindow.cs" t="Include" />
-          <e p="ObjCClass.cs" t="Include" />
-          <e p="ObjectiveCMethod.cs" t="Include" />
-          <e p="ObjectiveCRuntime.cs" t="Include" />
-          <e p="OSXUtils.cs" t="Include" />
-          <e p="Selector.cs" t="Include" />
-          <e p="Selectors.cs" t="Include" />
-          <e p="UIView.cs" t="Include" />
-          <e p="Veldrid.MetalBindings.csproj" t="Include" />
-        </e>
-      </e>
-      <e p="packages" t="ExcludeRecursive" />
     </e>
   </component>
 </project>
