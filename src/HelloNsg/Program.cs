@@ -46,7 +46,7 @@ namespace HelloNsg
     {
         static void Main(string[] args)
         {
-            var viewer = new SimpleViewer();
+            var viewer = new SimpleViewer("Hello Veldrid Scene Graph");
 
             var root = new Node();
             
@@ -81,7 +81,7 @@ namespace HelloNsg
 
             viewer.Root = root;
 
-            viewer.Show();
+            viewer.Run();
 
         }
     }
