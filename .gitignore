@@ -35,6 +35,9 @@ ipch/
 *.bak.*
 *.bak
 
+#Rider stuff
+.idea/
+
 #Tools
 _ReSharper.*
 _ReSharper*/
