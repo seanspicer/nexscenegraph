@@ -22,10 +22,12 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.Utilities;
 using Veldrid.StartupUtilities;
+using static Veldrid.Sdl2.Sdl2Native;
 
 namespace Veldrid.SceneGraph.Viewer
 {
@@ -54,7 +56,7 @@ namespace Veldrid.SceneGraph.Viewer
         public event Action Resized;
         public event Action<KeyEvent> KeyPressed;
         
-        public SimpleViewer(string title)
+        public unsafe SimpleViewer(string title)
         {
             var wci = new WindowCreateInfo()
             {
@@ -66,11 +68,35 @@ namespace Veldrid.SceneGraph.Viewer
             };
             
             _window = VeldridStartup.CreateWindow(ref wci);
+            
+            //SDL_AddEventWatch(ResizingEventWatcher, null);
+            
             _window.Resized += () =>
             {
+                Console.WriteLine("Window Resized");
                 _windowResized = true;
             };
             _window.KeyDown += OnKeyDown;
+        }
+
+        private unsafe int ResizingEventWatcher(void *data, SDL_Event *@event) 
+        {
+            if (@event->type == SDL_EventType.WindowEvent)
+            {
+                var windowEvent = Unsafe.Read<SDL_WindowEvent>(@event);
+                if (windowEvent.@event == SDL_WindowEventID.Resized)
+                {
+                    Console.WriteLine("ResizeEvent...");
+                    _windowResized = true;
+
+                    if (null != _drawVisitor)
+                    {
+                        Draw(_drawVisitor); // Need to marshal this to the GUI Thread ?
+                    }
+                }
+            }
+
+            return 0;
         }
         
         public void Run(GraphicsBackend preferredBackend = GraphicsBackend.Vulkan)
