@@ -23,7 +23,10 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Threading;
 using Veldrid;
+using Veldrid.OpenGLBinding;
 using Veldrid.Sdl2;
 using Veldrid.Utilities;
 using Veldrid.StartupUtilities;
@@ -68,17 +71,37 @@ namespace Veldrid.SceneGraph.Viewer
             };
             
             _window = VeldridStartup.CreateWindow(ref wci);
-            
-            //SDL_AddEventWatch(ResizingEventWatcher, null);
-            
+
+            //
+            // TODO: Get Eric to Review
+            // This is a "trick" to get continuous resize behavior
+            // On Windows.  This should probably be integrated into
+            // Veldrid.SDL2
+            //
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                SDL_AddEventWatch(ResizingEventWatcher, null);
+            }
+
             _window.Resized += () =>
             {
-                Console.WriteLine("Window Resized");
                 _windowResized = true;
+                if (null != _drawVisitor && null != _graphicsDevice)
+                {
+                    RenderFrame();
+                }
             };
+
+
             _window.KeyDown += OnKeyDown;
         }
 
+        //
+        // TODO: Get Eric to Review
+        // This is a "trick" to get continuous resize behavior
+        // On Windows.  This should probably be integrated into
+        // Veldrid.SDL2
+        //
         private unsafe int ResizingEventWatcher(void *data, SDL_Event *@event) 
         {
             if (@event->type == SDL_EventType.WindowEvent)
@@ -86,13 +109,8 @@ namespace Veldrid.SceneGraph.Viewer
                 var windowEvent = Unsafe.Read<SDL_WindowEvent>(@event);
                 if (windowEvent.@event == SDL_WindowEventID.Resized)
                 {
-                    Console.WriteLine("ResizeEvent...");
-                    _windowResized = true;
-
-                    if (null != _drawVisitor)
-                    {
-                        Draw(_drawVisitor); // Need to marshal this to the GUI Thread ?
-                    }
+                    var inputSnapshot = _window.PumpEvents();
+                    InputTracker.UpdateFrameInput(inputSnapshot);
                 }
             }
 
@@ -125,29 +143,32 @@ namespace Veldrid.SceneGraph.Viewer
                 
                 InputSnapshot inputSnapshot = _window.PumpEvents();
                 InputTracker.UpdateFrameInput(inputSnapshot);
-
-                _window.PumpEvents();
                 
                 if (_window.Exists)
                 {
                     previousElapsed = newElapsed;
-                    
-                    if (_windowResized)
-                    {
-                        _windowResized = false;
-                        _graphicsDevice.ResizeMainWindow((uint)_window.Width, (uint)_window.Height);
-                        Resized?.Invoke();
-                    }
-                    
-                    _drawVisitor.BeginDraw();
-                    Draw(_drawVisitor);
-                    _drawVisitor.EndDraw();
+
+                    RenderFrame();
                     
                     Rendering?.Invoke(deltaSeconds);
                 }
             }
 
             DisposeResources();
+        }
+
+        private void RenderFrame()
+        {
+            if (_windowResized)
+            {
+                _windowResized = false;
+                _graphicsDevice.ResizeMainWindow((uint)_window.Width, (uint)_window.Height);
+                Resized?.Invoke();
+            }
+                    
+            _drawVisitor.BeginDraw();
+            Draw(_drawVisitor);
+            _drawVisitor.EndDraw();
         }
 
         internal void Draw(DrawVisitor drawVisitor)
