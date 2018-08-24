@@ -36,29 +36,64 @@ namespace Veldrid.SceneGraph.Viewer
 {
     public class SimpleViewer : IViewer
     {
-        private GraphicsDevice _graphicsDevice;
-        private DisposeCollectorResourceFactory _factory;
-        private readonly Sdl2Window _window;
-        private DrawVisitor _drawVisitor;
-        private bool _windowResized = true;
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //
+        // PUBLIC Properties
+        //
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        public uint Width => (uint)_window.Width;
-        public uint Height => (uint)_window.Height;
-        
-        public Node Root { get; set; }
+        #region PUBLIC_PROPERTIES
 
+        public uint Width => (uint) _window.Width;
+        public uint Height => (uint) _window.Height;
+        public Node SceneData { get; set; }
         public ResourceFactory ResourceFactory => ResourceFactory;
-
-        public GraphicsDevice GraphicsDevice => 
-            GraphicsDevice;
-        
+        public GraphicsDevice GraphicsDevice => GraphicsDevice;
         public Platform PlatformType { get; }
         public event Action<float> Rendering;
         public event Action<GraphicsDevice, ResourceFactory, Swapchain> GraphicsDeviceCreated;
         public event Action GraphicsDeviceDestroyed;
         public event Action Resized;
         public event Action<KeyEvent> KeyPressed;
-        
+
+        #endregion
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //
+        // PRIVATE Properties
+        //
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        #region PRIVATE_PROPERTIES
+
+        private GraphicsDevice _graphicsDevice;
+        private DisposeCollectorResourceFactory _factory;
+        private readonly Sdl2Window _window;
+        private DrawVisitor _drawVisitor;
+        private bool _windowResized = true;
+        private bool _firstFrame = true;
+        private Stopwatch _stopwatch = null;
+        private double _previousElapsed = 0;
+        private GraphicsBackend _preferredBackend = GraphicsBackend.Vulkan;
+
+        #endregion
+
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //
+        // PUBLIC Methods
+        //
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        #region PUBLIC_METHODS
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="title"></param>
+        //
+        // TODO: remove unsafe once Veldrid.SDL2 implements resize fix.
+        //
         public unsafe SimpleViewer(string title)
         {
             var wci = new WindowCreateInfo()
@@ -69,7 +104,7 @@ namespace Veldrid.SceneGraph.Viewer
                 WindowHeight = 540,
                 WindowTitle = title
             };
-            
+
             _window = VeldridStartup.CreateWindow(ref wci);
 
             //
@@ -86,15 +121,76 @@ namespace Veldrid.SceneGraph.Viewer
             _window.Resized += () =>
             {
                 _windowResized = true;
-                if (null != _drawVisitor && null != _graphicsDevice)
-                {
-                    RenderFrame();
-                }
+                Frame();
             };
 
 
             _window.KeyDown += OnKeyDown;
         }
+
+        /// <summary>
+        /// Run the viewer
+        /// </summary>
+        /// <param name="preferredBackend"></param>
+        //
+        // TODO: This runs continuously, probably shoudl have a mode that runs one-frame-at-a-time.
+        // 
+        public void Run(GraphicsBackend preferredBackend = GraphicsBackend.Vulkan)
+        {
+            _preferredBackend = preferredBackend;
+
+            while (_window.Exists)
+            {
+                var inputSnapshot = _window.PumpEvents();
+                InputTracker.UpdateFrameInput(inputSnapshot);
+
+                Frame();
+            }
+
+            DisposeResources();
+        }
+
+        #endregion
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //
+        // PROTECTED Methods
+        //
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        #region PROTECTED_METHODS
+
+        //
+        // Dispose Properly
+        // 
+        protected void DisposeResources()
+        {
+            _graphicsDevice.WaitForIdle();
+            _factory.DisposeCollector.DisposeAll();
+            _drawVisitor.DisposeResources();
+            _graphicsDevice.Dispose();
+            _graphicsDevice = null;
+            GraphicsDeviceDestroyed?.Invoke();
+        }
+
+        // 
+        // Invoke Keyboard events.
+        //
+        protected void OnKeyDown(KeyEvent keyEvent)
+        {
+            KeyPressed?.Invoke(keyEvent);
+        }
+
+        #endregion
+
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //
+        // PRIVATE Methods
+        //
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        #region PRIVATE_METHODS
 
         //
         // TODO: Get Eric to Review
@@ -102,7 +198,7 @@ namespace Veldrid.SceneGraph.Viewer
         // On Windows.  This should probably be integrated into
         // Veldrid.SDL2
         //
-        private unsafe int ResizingEventWatcher(void *data, SDL_Event *@event) 
+        private unsafe int ResizingEventWatcher(void* data, SDL_Event* @event)
         {
             if (@event->type == SDL_EventType.WindowEvent)
             {
@@ -116,10 +212,14 @@ namespace Veldrid.SceneGraph.Viewer
 
             return 0;
         }
-        
-        public void Run(GraphicsBackend preferredBackend = GraphicsBackend.Vulkan)
+
+
+        // 
+        // Initialize the viewer
+        //
+        private void ViewerInit()
         {
-            GraphicsDeviceOptions options = new GraphicsDeviceOptions(
+            var options = new GraphicsDeviceOptions(
                 debug: false,
                 swapchainDepthFormat: PixelFormat.R16_UNorm,
                 syncToVerticalBlank: true,
@@ -127,70 +227,63 @@ namespace Veldrid.SceneGraph.Viewer
 #if DEBUG
             options.Debug = true;
 #endif
-            _graphicsDevice = VeldridStartup.CreateGraphicsDevice(_window, options, preferredBackend);
+            _graphicsDevice = VeldridStartup.CreateGraphicsDevice(_window, options, _preferredBackend);
             _factory = new DisposeCollectorResourceFactory(_graphicsDevice.ResourceFactory);
             GraphicsDeviceCreated?.Invoke(_graphicsDevice, _factory, _graphicsDevice.MainSwapchain);
-            
+
             _drawVisitor = new DrawVisitor(_graphicsDevice);
-            
-            var sw = Stopwatch.StartNew();
-            var previousElapsed = sw.Elapsed.TotalSeconds;
 
-            while (_window.Exists)
-            {
-                var newElapsed = sw.Elapsed.TotalSeconds;
-                var deltaSeconds = (float)(newElapsed - previousElapsed);
-                
-                InputSnapshot inputSnapshot = _window.PumpEvents();
-                InputTracker.UpdateFrameInput(inputSnapshot);
-                
-                if (_window.Exists)
-                {
-                    previousElapsed = newElapsed;
-
-                    RenderFrame();
-                    
-                    Rendering?.Invoke(deltaSeconds);
-                }
-            }
-
-            DisposeResources();
+            _stopwatch = Stopwatch.StartNew();
+            _previousElapsed = _stopwatch.Elapsed.TotalSeconds;
         }
 
-        private void RenderFrame()
+        // 
+        // Draw a frame
+        // 
+        private void Frame()
+        {
+            if (_firstFrame)
+            {
+                ViewerInit();
+                _firstFrame = false;
+            }
+
+            if (!_window.Exists) return;
+
+            var newElapsed = _stopwatch.Elapsed.TotalSeconds;
+            var deltaSeconds = (float) (newElapsed - _previousElapsed);
+
+            _previousElapsed = newElapsed;
+
+            if (null == _graphicsDevice) return;
+
+            RenderingTraversals();
+
+            Rendering?.Invoke(deltaSeconds);
+        }
+
+        //
+        // Run the traversals.
+        //
+        private void RenderingTraversals()
         {
             if (_windowResized)
             {
                 _windowResized = false;
-                _graphicsDevice.ResizeMainWindow((uint)_window.Width, (uint)_window.Height);
+                _graphicsDevice.ResizeMainWindow((uint) _window.Width, (uint) _window.Height);
                 Resized?.Invoke();
             }
-                    
+
+            // TODO: Implement Update Traversal
+            // TODO: Implement Update Uniforms Traversal
+            // TODO: Implement Cull Traversal
+
+            // TODO: Rethink draw visitor...pass state ?
             _drawVisitor.BeginDraw();
-            Draw(_drawVisitor);
+            SceneData?.Accept(_drawVisitor);
             _drawVisitor.EndDraw();
         }
 
-        internal void Draw(DrawVisitor drawVisitor)
-        {
-            Root?.Accept(drawVisitor);
-        }
-        
-        protected void DisposeResources()
-        {
-            _graphicsDevice.WaitForIdle();
-            _factory.DisposeCollector.DisposeAll();
-            _drawVisitor.DisposeResources();
-            _graphicsDevice.Dispose();
-            GraphicsDeviceDestroyed?.Invoke();
-        }
-        
-        protected void OnKeyDown(KeyEvent keyEvent)
-        {
-            KeyPressed?.Invoke(keyEvent);
-        }
-
-
-
+        #endregion
     }
 }

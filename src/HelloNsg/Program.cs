@@ -79,7 +79,7 @@ namespace HelloNsg
             
             root.Add(geometry);
 
-            viewer.Root = root;
+            viewer.SceneData = root;
 
             viewer.Run();
 
