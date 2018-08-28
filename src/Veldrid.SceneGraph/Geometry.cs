@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -56,12 +57,10 @@ namespace Veldrid.SceneGraph
             Topology = PrimitiveTopolgy.TriangleList;
         }
         
-        internal override void Accept(NodeVisitor visitor)
+        // Required for double-dispatch
+        public override void Accept(NodeVisitor visitor)
         {
-            // Do my thing...
             visitor.Apply(this);
-            
-            base.Accept(visitor);
         }
     }
 }

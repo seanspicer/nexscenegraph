@@ -42,6 +42,12 @@ namespace Veldrid.SceneGraph
         {
             ReferenceFrame = ReferenceFrameType.Relative;
         }
+        
+        // Required for double-dispatch
+        public override void Accept(NodeVisitor visitor)
+        {
+            visitor.Apply(this);
+        }
 
         public virtual bool computeLocalToWorldMatrix(ref Matrix4x4 matrix, NodeVisitor visitor)
         {

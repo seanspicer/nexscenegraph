@@ -94,6 +94,7 @@ namespace Veldrid.SceneGraph
             GraphicsDevice.SubmitCommands(CommandList);
 
             // Once commands have been submitted, the rendered image can be presented to the application window.
+            // TODO - perhaps swapbuffers should be elsewhere (like in the viewer) as this may be called on a thread
             GraphicsDevice.SwapBuffers();
         }
         
