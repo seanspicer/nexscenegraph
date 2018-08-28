@@ -116,6 +116,9 @@
             };
 
             _window = VeldridStartup.CreateWindow(ref wci);
+            DisplaySettings.Instance.ScreenWidth = wci.WindowWidth;
+            DisplaySettings.Instance.ScreenHeight = wci.WindowHeight;
+            DisplaySettings.Instance.ScreenDistance = 100.0f;
 
             //
             // TODO: Get Eric to Review
@@ -280,6 +283,8 @@
             {
                 _windowResized = false;
                 _graphicsDevice.ResizeMainWindow((uint) _window.Width, (uint) _window.Height);
+                DisplaySettings.Instance.ScreenWidth = _window.Width;
+                DisplaySettings.Instance.ScreenHeight = _window.Height;
                 Resized?.Invoke();
             }
 
