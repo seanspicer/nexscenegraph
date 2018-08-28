@@ -43,17 +43,18 @@ namespace Veldrid.SceneGraph
     {
         private Dictionary<Guid, DrawInfo> DrawInfoDictionary { get; }
         
-        private GraphicsDevice GraphicsDevice { get; set; }
+        public GraphicsDevice GraphicsDevice { get; set; }
         private CommandList CommandList { get; set; }
-        internal DrawVisitor(GraphicsDevice graphicsDevice)
+        internal DrawVisitor()
         {
-            GraphicsDevice = graphicsDevice;
             DrawInfoDictionary = new Dictionary<Guid, DrawInfo>();
-            CommandList = GraphicsDevice.ResourceFactory.CreateCommandList();
         }
 
         public void BeginDraw()
         {
+            // TODO: Question - is this inefficient? Get from pool?
+            CommandList = GraphicsDevice.ResourceFactory.CreateCommandList();
+            
             // Begin() must be called before commands can be issued.
             CommandList.Begin();
 
