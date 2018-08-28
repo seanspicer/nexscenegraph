@@ -39,7 +39,7 @@ namespace Veldrid.SceneGraph
         
     }
     
-    internal class DrawVisitor 
+    internal class DrawVisitor : NodeVisitor
     {
         private Dictionary<Guid, DrawInfo> DrawInfoDictionary { get; }
         
@@ -64,7 +64,7 @@ namespace Veldrid.SceneGraph
         }
         
         // Draw a Geometry
-        public void Draw<T>(Geometry<T> geometry) where T : struct
+        public override void Apply<T>(Geometry<T> geometry)
         {
             DrawInfo drawInfo;
             if (!DrawInfoDictionary.TryGetValue(geometry.Id, out drawInfo))

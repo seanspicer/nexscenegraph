@@ -49,7 +49,15 @@ namespace Veldrid.SceneGraph
         {
             TraversalMode = TraversalModeType.TraverseNone;
         }
+        
+        //
+        // Default implementation for Geometry Node
+        // 
+        public virtual void Apply<T>(Geometry<T> geometry) where T : struct {}
 
+        // 
+        // Default implementation for Transform node
+        // 
         public virtual void Apply(Transform node)
         {
             throw new NotImplementedException();

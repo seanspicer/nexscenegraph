@@ -56,12 +56,12 @@ namespace Veldrid.SceneGraph
             Topology = PrimitiveTopolgy.TriangleList;
         }
         
-        internal override void Accept(DrawVisitor drawVisitor)
+        internal override void Accept(NodeVisitor visitor)
         {
             // Do my thing...
-            drawVisitor.Draw(this);
+            visitor.Apply(this);
             
-            base.Accept(drawVisitor);
+            base.Accept(visitor);
         }
     }
 }

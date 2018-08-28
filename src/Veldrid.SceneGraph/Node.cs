@@ -48,11 +48,11 @@ namespace Veldrid.SceneGraph
             Children.Add(node);
         }
 
-        internal virtual void Accept(DrawVisitor drawVisitor)
+        internal virtual void Accept(NodeVisitor visitor)
         {
             foreach (var child in Children)
             {
-                child.Accept(drawVisitor);
+                child.Accept(visitor);
             }
         }
     }
