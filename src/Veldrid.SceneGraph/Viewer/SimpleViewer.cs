@@ -82,8 +82,9 @@
                 private double _previousElapsed = 0;
                 private GraphicsBackend _preferredBackend = GraphicsBackend.Vulkan;
                 private View _view ;
-                private List<Action<GraphicsDevice>> _graphicsDeviceOperations;
 
+                private event EventHandler<GraphicsDevice> GraphicsDeviceOperations;
+                
         #endregion
 
 
@@ -103,9 +104,7 @@
         // TODO: remove unsafe once Veldrid.SDL2 implements resize fix.
         //
         public unsafe SimpleViewer(string title)
-        {
-            _graphicsDeviceOperations = new List<Action<GraphicsDevice>>();
-            
+        {      
             var wci = new WindowCreateInfo()
             {
                 X = 100,
@@ -140,7 +139,7 @@
 
             _window.KeyDown += OnKeyDown;
             _view = new View();
-            _graphicsDeviceOperations.Add(_view.Camera.Renderer.Perform);
+            GraphicsDeviceOperations += _view.Camera.Renderer.HandleOperation;
         }
 
         /// <summary>
@@ -293,10 +292,7 @@
             // TODO: Implement Cull Traversal
 
             // Get the view, the associated camera, its renderer, and draw.
-            foreach (var operation in _graphicsDeviceOperations)
-            {
-                operation(_graphicsDevice);
-            }
+            GraphicsDeviceOperations?.Invoke(this, _graphicsDevice);
         }
 
         #endregion

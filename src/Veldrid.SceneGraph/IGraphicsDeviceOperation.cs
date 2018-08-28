@@ -19,10 +19,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
+
+using System;
+
 namespace Veldrid.SceneGraph
 {
     public interface IGraphicsDeviceOperation
     {
-        void Perform(GraphicsDevice device);
+        void HandleOperation(object sender, GraphicsDevice device);
     }
 }

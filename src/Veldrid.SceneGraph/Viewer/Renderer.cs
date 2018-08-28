@@ -51,7 +51,7 @@ namespace Veldrid.SceneGraph.Viewer
             _drawVisitor.EndDraw();
         }
 
-        public void Perform(GraphicsDevice device)
+        public void HandleOperation(object sender, GraphicsDevice device)
         {
             Draw(device);
         }
