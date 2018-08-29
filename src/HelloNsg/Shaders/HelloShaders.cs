@@ -10,8 +10,8 @@ namespace HelloNsg.Shaders
         public struct FragmentInput
         {
             [SystemPositionSemantic]
-            public Vector2 Position;
-            [ColorTargetSemantic]
+            public Vector4 Position;
+            [ColorSemantic]
             public Vector4 Color;
         }
 
@@ -19,8 +19,7 @@ namespace HelloNsg.Shaders
         public FragmentInput VS(HelloNsg.VertexPositionColor input)
         {
             FragmentInput output;
-            output.Position = input.Position;
-            output.Position.Y = -output.Position.Y;
+            output.Position = new Vector4(input.Position.X, input.Position.Y, 0, 1);
             output.Color = input.Color;
 
             return output;

@@ -32,7 +32,6 @@ namespace Veldrid.SceneGraph.Viewer
         private DeviceBuffer _projectionBuffer;
         private DeviceBuffer _viewBuffer;
         private DeviceBuffer _worldBuffer;
-        private DeviceBuffer _vertexBuffer;
         private CommandList _commandList;
         
         private bool _initialized = false;
@@ -51,9 +50,7 @@ namespace Veldrid.SceneGraph.Viewer
             _worldBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
             
             _commandList = factory.CreateCommandList();
-            
 
-            
             _initialized = true;
         }
         

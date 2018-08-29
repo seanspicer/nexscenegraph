@@ -44,6 +44,7 @@ namespace Veldrid.SceneGraph.Util
         
         public static byte[] LoadShaderBytes(GraphicsBackend backend, Assembly assembly, string set, ShaderStages stage)
         {
+            var allNames = assembly.GetManifestResourceNames();
             var name = $"{set}-{stage.ToString().ToLower()}.{GetExtension(backend)}";
             return ReadEmbeddedAssetBytes(name, assembly);
         }
@@ -68,7 +69,7 @@ namespace Veldrid.SceneGraph.Util
             return (backendType == GraphicsBackend.Direct3D11)
                 ? "hlsl.bytes"
                 : (backendType == GraphicsBackend.Vulkan)
-                    ? "450.glsl"
+                    ? "450.glsl.spv"
                     : (backendType == GraphicsBackend.Metal)
 					    ? isMacOS ? "metallib" : "ios.metallib"
                         : (backendType == GraphicsBackend.OpenGL)

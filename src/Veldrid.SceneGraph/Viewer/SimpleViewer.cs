@@ -181,8 +181,8 @@
         protected void DisposeResources()
         {
             _graphicsDevice.WaitForIdle();
-            _factory.DisposeCollector.DisposeAll();
             _view.Dispose();
+            _factory.DisposeCollector.DisposeAll();
             _graphicsDevice.Dispose();
             _graphicsDevice = null;
             GraphicsDeviceDestroyed?.Invoke();

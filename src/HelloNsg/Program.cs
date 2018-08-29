@@ -81,21 +81,21 @@ namespace HelloNsg
             
             geometry.Topology = PrimitiveTopolgy.TriangleStrip;
 
-//            geometry.VertexShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
-//                typeof(Program).Assembly,
-//                "HelloShaders", ShaderStages.Vertex);
+            geometry.VertexShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+                typeof(Program).Assembly,
+                "HelloShaders", ShaderStages.Vertex);
             geometry.VertexShaderEntryPoint = "VS";
-//
-//            geometry.FragmentShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
-//                typeof(Program).Assembly,
-//                "HelloShaders", ShaderStages.Fragment);
+
+            geometry.FragmentShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+                typeof(Program).Assembly,
+                "HelloShaders", ShaderStages.Fragment);
             geometry.FragmentShaderEntryPoint = "FS";
             
-            var vsPath = Path.Combine(System.AppContext.BaseDirectory, "Shaders", "Vertex.spv");
-            geometry.VertexShader = File.ReadAllBytes(vsPath);
+            //var vsPath = Path.Combine(System.AppContext.BaseDirectory, "Shaders", "Vertex.spv");
+            //geometry.VertexShader = File.ReadAllBytes(vsPath);
             
-            var fsPath = Path.Combine(System.AppContext.BaseDirectory, "Shaders", "Fragment.spv");
-            geometry.FragmentShader = File.ReadAllBytes(fsPath);
+            //var fsPath = Path.Combine(System.AppContext.BaseDirectory, "Shaders", "Fragment.spv");
+            //geometry.FragmentShader = File.ReadAllBytes(fsPath);
             
             root.Add(geometry);
 
