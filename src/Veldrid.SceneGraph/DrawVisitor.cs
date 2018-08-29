@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using Veldrid;
+using Veldrid.SceneGraph.Util;
 using BufferDescription = Veldrid.BufferDescription;
 using BufferUsage = Veldrid.BufferUsage;
 
@@ -44,7 +45,7 @@ namespace Veldrid.SceneGraph
         private Dictionary<Guid, DrawInfo> DrawInfoDictionary { get; }
         
         public GraphicsDevice GraphicsDevice { get; set; }
-        private CommandList CommandList { get; set; }
+        public CommandList CommandList { get; set; }
         internal DrawVisitor()
         {
             DrawInfoDictionary = new Dictionary<Guid, DrawInfo>();
@@ -52,15 +53,6 @@ namespace Veldrid.SceneGraph
 
         public void BeginDraw()
         {
-            // TODO: Question - is this inefficient? Get from pool?
-            CommandList = GraphicsDevice.ResourceFactory.CreateCommandList();
-            
-            // Begin() must be called before commands can be issued.
-            CommandList.Begin();
-
-            // We want to render directly to the output window.
-            CommandList.SetFramebuffer(GraphicsDevice.SwapchainFramebuffer);
-            CommandList.ClearColorTarget(0, RgbaFloat.Black);
         }
         
         // Draw a Geometry
@@ -88,14 +80,6 @@ namespace Veldrid.SceneGraph
 
         public void EndDraw()
         {
-            // End() must be called before commands can be submitted for execution.
-            CommandList.End();
-            
-            GraphicsDevice.SubmitCommands(CommandList);
-
-            // Once commands have been submitted, the rendered image can be presented to the application window.
-            // TODO - perhaps swapbuffers should be elsewhere (like in the viewer) as this may be called on a thread
-            GraphicsDevice.SwapBuffers();
         }
         
         private DrawInfo SetupDrawInfo<T>(Geometry<T> geometry) where T : struct
@@ -118,10 +102,12 @@ namespace Veldrid.SceneGraph
             drawInfo.IndexBuffer = factory.CreateBuffer(ibDescription);
             GraphicsDevice.UpdateBuffer(drawInfo.IndexBuffer, 0, geometry.IndexData);
 
+            // TODO - maybe make a class for this stuff <ShaderProgram> ?
             drawInfo.VertexShader =
-                factory.CreateShader(new ShaderDescription(ShaderStages.Vertex, geometry.VertexShader, "VS"));
+                factory.CreateShader(new ShaderDescription(ShaderStages.Vertex, geometry.VertexShader, geometry.VertexShaderEntryPoint));
             drawInfo.FragmentShader =
-                factory.CreateShader(new ShaderDescription(ShaderStages.Fragment, geometry.FragmentShader, "FS"));
+                factory.CreateShader(new ShaderDescription(ShaderStages.Fragment, geometry.FragmentShader, geometry.FragmentShaderEntryPoint));
+
             
             var pipelineDescription = new GraphicsPipelineDescription();
             pipelineDescription.BlendState = BlendStateDescription.SingleOverrideBlend;
@@ -160,7 +146,7 @@ namespace Veldrid.SceneGraph
                 drawInfo.VertexBuffer.Dispose();
                 drawInfo.IndexBuffer.Dispose();
             }
-            CommandList.Dispose();
+            
         }
     }
 }

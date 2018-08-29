@@ -56,6 +56,7 @@
                 
                 public ResourceFactory ResourceFactory => ResourceFactory;
                 public GraphicsDevice GraphicsDevice => GraphicsDevice;
+                public GraphicsBackend Backend => GraphicsDevice.ResourceFactory.BackendType;
                 public Platform PlatformType { get; }
                 public event Action<float> Rendering;
                 public event Action<GraphicsDevice, ResourceFactory, Swapchain> GraphicsDeviceCreated;
@@ -181,7 +182,7 @@
         {
             _graphicsDevice.WaitForIdle();
             _factory.DisposeCollector.DisposeAll();
-            //_drawVisitor.DisposeResources();
+            _view.Dispose();
             _graphicsDevice.Dispose();
             _graphicsDevice = null;
             GraphicsDeviceDestroyed?.Invoke();

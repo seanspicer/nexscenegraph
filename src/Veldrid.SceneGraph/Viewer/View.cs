@@ -19,16 +19,47 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
+
+using System;
+
 namespace Veldrid.SceneGraph.Viewer
 {
-    public class View : Veldrid.SceneGraph.View
+    public class View : Veldrid.SceneGraph.View, IDisposable
     {
         public Node SceneData { get; set; }
 
         public View()
         {
             Camera.Renderer = new Renderer(Camera);
-            
         }
+
+        #region IDisposable
+        //
+        // IDisposable Pattern
+        //
+        private void ReleaseUnmanagedResources()
+        {
+            Camera.Renderer.Dispose();
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            ReleaseUnmanagedResources();
+            if (disposing)
+            {
+            }
+        }
+        
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~View()
+        {
+            Dispose(false);
+        }
+        #endregion
     }
 }

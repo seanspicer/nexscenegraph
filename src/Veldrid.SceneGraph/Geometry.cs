@@ -41,7 +41,9 @@ namespace Veldrid.SceneGraph
         where T : struct 
     {
         public byte[] VertexShader { get; set; }
+        public string VertexShaderEntryPoint { get; set; }
         public byte[] FragmentShader { get; set; }
+        public string FragmentShaderEntryPoint { get; set; }
 
         public T[] VertexData { get; set; }
         public int SizeOfVertexData => Marshal.SizeOf(default(T));

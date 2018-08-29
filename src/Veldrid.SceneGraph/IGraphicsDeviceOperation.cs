@@ -24,7 +24,7 @@ using System;
 
 namespace Veldrid.SceneGraph
 {
-    public interface IGraphicsDeviceOperation
+    public interface IGraphicsDeviceOperation : IDisposable
     {
         void HandleOperation(object sender, GraphicsDevice device);
     }

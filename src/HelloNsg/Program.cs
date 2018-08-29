@@ -23,18 +23,24 @@
 using System;
 using System.IO;
 using System.Numerics;
+using ShaderGen;
 using Veldrid;
 using Veldrid.SceneGraph;
+using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Viewer;
 
 namespace HelloNsg
 {
     
-    struct VertexPositionColor
+    public struct VertexPositionColor
     {
         public const uint SizeInBytes = 24;
+        
+        [PositionSemantic]
         public Vector2 Position;
+        [ColorSemantic]
         public Vector4 Color;
+        
         public VertexPositionColor(Vector2 position, Vector4 color)
         {
             Position = position;
@@ -46,6 +52,10 @@ namespace HelloNsg
     {
         static void Main(string[] args)
         {
+            var asm = typeof(Program).Assembly;
+            
+            var allNames = asm.GetManifestResourceNames();
+            
             var viewer = new SimpleViewer("Hello Veldrid Scene Graph");
 
             var root = new Node();
@@ -70,6 +80,16 @@ namespace HelloNsg
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
             
             geometry.Topology = PrimitiveTopolgy.TriangleStrip;
+
+//            geometry.VertexShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+//                typeof(Program).Assembly,
+//                "HelloShaders", ShaderStages.Vertex);
+            geometry.VertexShaderEntryPoint = "VS";
+//
+//            geometry.FragmentShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+//                typeof(Program).Assembly,
+//                "HelloShaders", ShaderStages.Fragment);
+            geometry.FragmentShaderEntryPoint = "FS";
             
             var vsPath = Path.Combine(System.AppContext.BaseDirectory, "Shaders", "Vertex.spv");
             geometry.VertexShader = File.ReadAllBytes(vsPath);
