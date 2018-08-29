@@ -14,14 +14,23 @@ namespace HelloNsg.Shaders
             [ColorSemantic]
             public Vector4 Color;
         }
+        
+        public Matrix4x4 Projection;
+        public Matrix4x4 View;
 
         [VertexShader]
         public FragmentInput VS(HelloNsg.VertexPositionColor input)
         {
             FragmentInput output;
-            output.Position = new Vector4(input.Position.X, input.Position.Y, 0, 1);
+            //output.Position = new Vector4(input.Position.X, input.Position.Y, 0, 1);
             output.Color = input.Color;
 
+            output.Position = Vector4.Transform(
+                Vector4.Transform(
+                    new Vector4(input.Position.X, input.Position.Y, 0, 1),
+                    View),
+                Projection);
+            
             return output;
         }
 
