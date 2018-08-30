@@ -54,8 +54,8 @@
                     set => _view.SceneData = value;
                 }
                 
-                public ResourceFactory ResourceFactory => ResourceFactory;
-                public GraphicsDevice GraphicsDevice => GraphicsDevice;
+                public ResourceFactory ResourceFactory => _factory;
+                public GraphicsDevice GraphicsDevice => _graphicsDevice;
                 public GraphicsBackend Backend => GraphicsDevice.ResourceFactory.BackendType;
                 public Platform PlatformType { get; }
                 public event Action<float> Rendering;
@@ -84,7 +84,7 @@
                 private GraphicsBackend _preferredBackend = GraphicsBackend.Vulkan;
                 private View _view ;
 
-                private event EventHandler<GraphicsDevice> GraphicsDeviceOperations;
+                private event Action<GraphicsDevice, ResourceFactory> GraphicsDeviceOperations;
                 
         #endregion
 
@@ -111,7 +111,7 @@
                 X = 100,
                 Y = 100,
                 WindowWidth = 960,
-                WindowHeight = 540,
+                WindowHeight = 960,
                 WindowTitle = title
             };
 
@@ -181,7 +181,6 @@
         protected void DisposeResources()
         {
             _graphicsDevice.WaitForIdle();
-            _view.Dispose();
             _factory.DisposeCollector.DisposeAll();
             _graphicsDevice.Dispose();
             _graphicsDevice = null;
@@ -293,7 +292,7 @@
             // TODO: Implement Cull Traversal
 
             // Get the view, the associated camera, its renderer, and draw.
-            GraphicsDeviceOperations?.Invoke(this, _graphicsDevice);
+            GraphicsDeviceOperations?.Invoke(_graphicsDevice, _factory);
         }
 
         #endregion

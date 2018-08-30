@@ -35,6 +35,7 @@ namespace Veldrid.SceneGraph
         internal DeviceBuffer IndexBuffer { get; set; }
         internal Shader VertexShader { get; set; }
         internal Shader FragmentShader { get; set; }
+        internal ResourceSet ResourceSet { get; set; }
         internal CommandList CommandList { get; set; }
         internal Pipeline PipeLine { get; set; }
         
@@ -45,7 +46,11 @@ namespace Veldrid.SceneGraph
         private Dictionary<Guid, DrawInfo> DrawInfoDictionary { get; }
         
         public GraphicsDevice GraphicsDevice { get; set; }
+        public ResourceFactory ResourceFactory { get; set; }
         public CommandList CommandList { get; set; }
+        public ResourceLayout ResourceLayout { get; set; }
+        public ResourceSet ResourceSet { get; set; }
+        
         internal DrawVisitor()
         {
             DrawInfoDictionary = new Dictionary<Guid, DrawInfo>();
@@ -64,11 +69,17 @@ namespace Veldrid.SceneGraph
                 drawInfo = SetupDrawInfo(geometry);
                 DrawInfoDictionary.Add(geometry.Id, drawInfo);
             }
+            
+            // Set pipeline
+            CommandList.SetPipeline(drawInfo.PipeLine);
 
+            // Set the resources
+            CommandList.SetGraphicsResourceSet(0, ResourceSet);
+            
             // Set all relevant state to draw our quad.
             CommandList.SetVertexBuffer(0, drawInfo.VertexBuffer);
-            CommandList.SetIndexBuffer(drawInfo.IndexBuffer, IndexFormat.UInt16);
-            CommandList.SetPipeline(drawInfo.PipeLine);
+            CommandList.SetIndexBuffer(drawInfo.IndexBuffer, IndexFormat.UInt16); // Problem child
+            
             // Issue a Draw command for a single instance with 4 indices.
             CommandList.DrawIndexed(
                 indexCount: 4,
@@ -86,28 +97,25 @@ namespace Veldrid.SceneGraph
         {
             var drawInfo = new DrawInfo();
 
-            var factory = GraphicsDevice.ResourceFactory;
-
             var vbDescription = new BufferDescription(
                 (uint) (geometry.VertexData.Length * geometry.SizeOfVertexData),
                 BufferUsage.VertexBuffer);
 
-            drawInfo.VertexBuffer = factory.CreateBuffer(vbDescription);
+            drawInfo.VertexBuffer = ResourceFactory.CreateBuffer(vbDescription);
             GraphicsDevice.UpdateBuffer(drawInfo.VertexBuffer, 0, geometry.VertexData);
             
             var ibDescription = new BufferDescription(
                 (uint) geometry.IndexData.Length * sizeof(ushort),
                 BufferUsage.IndexBuffer);
 
-            drawInfo.IndexBuffer = factory.CreateBuffer(ibDescription);
+            drawInfo.IndexBuffer = ResourceFactory.CreateBuffer(ibDescription);
             GraphicsDevice.UpdateBuffer(drawInfo.IndexBuffer, 0, geometry.IndexData);
 
             // TODO - maybe make a class for this stuff <ShaderProgram> ?
             drawInfo.VertexShader =
-                factory.CreateShader(new ShaderDescription(ShaderStages.Vertex, geometry.VertexShader, geometry.VertexShaderEntryPoint));
+                ResourceFactory.CreateShader(new ShaderDescription(ShaderStages.Vertex, geometry.VertexShader, geometry.VertexShaderEntryPoint));
             drawInfo.FragmentShader =
-                factory.CreateShader(new ShaderDescription(ShaderStages.Fragment, geometry.FragmentShader, geometry.FragmentShaderEntryPoint));
-
+                ResourceFactory.CreateShader(new ShaderDescription(ShaderStages.Fragment, geometry.FragmentShader, geometry.FragmentShaderEntryPoint));
             
             var pipelineDescription = new GraphicsPipelineDescription();
             pipelineDescription.BlendState = BlendStateDescription.SingleOverrideBlend;
@@ -122,31 +130,19 @@ namespace Veldrid.SceneGraph
                 depthClipEnabled: true,
                 scissorTestEnabled: false);
             pipelineDescription.PrimitiveTopology = PrimitiveTopology.TriangleStrip;
-            pipelineDescription.ResourceLayouts = System.Array.Empty<ResourceLayout>();
+
+            pipelineDescription.ResourceLayouts = new[] {ResourceLayout};
               
             pipelineDescription.ShaderSet = new ShaderSetDescription(
                 vertexLayouts: new VertexLayoutDescription[] { geometry.VertexLayout },
                 shaders: new Shader[] { drawInfo.VertexShader, drawInfo.FragmentShader });
-            pipelineDescription.Outputs = GraphicsDevice.SwapchainFramebuffer.OutputDescription;
-
-            drawInfo.PipeLine = factory.CreateGraphicsPipeline(pipelineDescription);
-
-            drawInfo.CommandList = factory.CreateCommandList();
             
+            pipelineDescription.Outputs = GraphicsDevice.SwapchainFramebuffer.OutputDescription;
+            
+            drawInfo.PipeLine = ResourceFactory.CreateGraphicsPipeline(pipelineDescription);
+
             return drawInfo;
         }
         
-        internal void DisposeResources()
-        {
-            foreach (var drawInfo in DrawInfoDictionary.Values)
-            {
-                drawInfo.PipeLine.Dispose();
-                drawInfo.VertexShader.Dispose();
-                drawInfo.FragmentShader.Dispose();
-                drawInfo.VertexBuffer.Dispose();
-                drawInfo.IndexBuffer.Dispose();
-            }
-            
-        }
     }
 }

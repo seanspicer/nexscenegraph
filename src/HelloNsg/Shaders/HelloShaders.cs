@@ -24,10 +24,11 @@ namespace HelloNsg.Shaders
             FragmentInput output;
             //output.Position = new Vector4(input.Position.X, input.Position.Y, 0, 1);
             output.Color = input.Color;
+            //output.Position = new Vector4(input.Position, 0.5f, 1);
 
             output.Position = Vector4.Transform(
                 Vector4.Transform(
-                    new Vector4(input.Position.X, input.Position.Y, 0, 1),
+                    new Vector4(input.Position.X, input.Position.Y, 0.5f, 1f),
                     View),
                 Projection);
             

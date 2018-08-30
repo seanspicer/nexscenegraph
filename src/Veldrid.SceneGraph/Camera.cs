@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+using System.Data;
 using System.Numerics;
 
 namespace Veldrid.SceneGraph
@@ -31,12 +32,37 @@ namespace Veldrid.SceneGraph
         public Matrix4x4 ProjectionMatrix { get; set; }
         public Matrix4x4 ViewMatrix { get; set; }
 
+        // Perspective info
+        private float _fov = 1f;
+        private float _near = 0.1f;
+        private float _far = 10000.0f;
+        private float _dist = 5.0f;
+        private float _windowWidth;
+        private float _windowHeight;
+        
+        private float _yaw = 0.45f;
+        private float _pitch = -0.55f;
+        
+        // View info
+        private Vector3 _position = new Vector3(0, 0, 5.0f);
+        private Vector3 _lookDirection = Vector3.UnitZ;
+        private Vector3 _upDirection = Vector3.UnitY;
+        private float _moveSpeed = 10.0f;
+        
+        public float Yaw { get => _yaw; set { _yaw = value; UpdateViewMatrix(); } }
+        public float Pitch { get => _pitch; set { _pitch = value; UpdateViewMatrix(); } }
+        
         public IGraphicsDeviceOperation Renderer { get; set; }
         
-        public Camera()
+        public Camera(float width, float height)
         {
+            _windowWidth = width;
+            _windowHeight = height;
             ProjectionMatrix = Matrix4x4.Identity;
             ViewMatrix = Matrix4x4.Identity;
+            UpdateProjectionMatrix();
+            UpdateViewMatrix();
+
         }
 
         /// <summary>
@@ -49,8 +75,30 @@ namespace Veldrid.SceneGraph
         public void SetProjectionMatrixAsPerspective(float vfov, float aspectRatio, float zNear, float zFar)
         {
             ProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(vfov, aspectRatio, zNear, zFar);
+            //ProjectionMatrix = Matrix4x4.Identity;
         }
         
-        
+        private Vector3 GetLookDir()
+        {
+            Quaternion lookRotation = Quaternion.CreateFromYawPitchRoll(Yaw, Pitch, 0f);
+            Vector3 lookDir = Vector3.Transform(-Vector3.UnitZ, lookRotation);
+            return lookDir;
+        }
+
+        private void UpdateViewMatrix()
+        {
+            //Vector3 lookDir = GetLookDir();
+            //_lookDirection = lookDir;
+            
+            ViewMatrix = Matrix4x4.CreateLookAt(_position, new Vector3(0, 0, 0), _upDirection);
+            //ViewMatrix = Matrix4x4.Identity;
+        }
+
+        private void UpdateProjectionMatrix()
+        {
+            ProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(_fov, _windowWidth/_windowHeight, _near, _far);
+            //ProjectionMatrix = Matrix4x4.CreateOrthographic(2, 2, 0.1f, 100);
+            //ProjectionMatrix = Matrix4x4.Identity;
+        }
     }
 }

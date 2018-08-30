@@ -24,7 +24,7 @@ using System;
 
 namespace Veldrid.SceneGraph.Viewer
 {
-    public class View : Veldrid.SceneGraph.View, IDisposable
+    public class View : Veldrid.SceneGraph.View
     {
         public Node SceneData { get; set; }
 
@@ -32,34 +32,5 @@ namespace Veldrid.SceneGraph.Viewer
         {
             Camera.Renderer = new Renderer(Camera);
         }
-
-        #region IDisposable
-        //
-        // IDisposable Pattern
-        //
-        private void ReleaseUnmanagedResources()
-        {
-            Camera.Renderer.Dispose();
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            ReleaseUnmanagedResources();
-            if (disposing)
-            {
-            }
-        }
-        
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~View()
-        {
-            Dispose(false);
-        }
-        #endregion
     }
 }

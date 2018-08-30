@@ -30,15 +30,15 @@ namespace Veldrid.SceneGraph
 
         public View()
         {
-            Camera = new Camera();
+            Camera = new Camera(DisplaySettings.Instance.ScreenWidth, DisplaySettings.Instance.ScreenHeight);
             Camera.View = this;
 
             var height = DisplaySettings.Instance.ScreenHeight;
             var width = DisplaySettings.Instance.ScreenWidth;
             var dist = DisplaySettings.Instance.ScreenDistance;
-            var vfov = (float) Math.Atan2(height / 2.0f, dist) * 2.0f;
+            var vfov = 1f; // (float) Math.Atan2(height / 2.0f, dist) * 2.0f;
 
-            Camera.SetProjectionMatrixAsPerspective(vfov, width / height, 1.0f, 10000.0f);
+            Camera.SetProjectionMatrixAsPerspective(vfov, width / height, 0.1f, 100f);
         }
     }
 }
