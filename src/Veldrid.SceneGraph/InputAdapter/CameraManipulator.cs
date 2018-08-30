@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) 2018 Sean Spicer
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,28 +19,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-
-using System;
-
-namespace Veldrid.SceneGraph
+namespace Veldrid.SceneGraph.GuiAdapter
 {
-    public class View
+    public class CameraManipulator
     {
-        public Camera Camera { get; set; }
-
-        public View()
-        {
-            Camera = new Camera(DisplaySettings.Instance.ScreenWidth, DisplaySettings.Instance.ScreenHeight);
-            Camera.View = this;
-
-            var height = DisplaySettings.Instance.ScreenHeight;
-            var width = DisplaySettings.Instance.ScreenWidth;
-            var dist = DisplaySettings.Instance.ScreenDistance;
-            
-            // TODO: This is tricky - need to fix when ViewAll implemented
-            var vfov = (float) Math.Atan2(height / 2.0f, dist) * 2.0f; 
-
-            Camera.SetProjectionMatrixAsPerspective(vfov, width / height, 0.1f, 100f);
-        }
+        
     }
 }

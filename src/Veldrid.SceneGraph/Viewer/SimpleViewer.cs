@@ -1,91 +1,91 @@
 ﻿//
-        // Copyright (c) 2018 Sean Spicer
+// Copyright (c) 2018 Sean Spicer
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+//
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Threading;
+using Veldrid;
+using Veldrid.OpenGLBinding;
+using Veldrid.Sdl2;
+using Veldrid.Utilities;
+using Veldrid.StartupUtilities;
+using static Veldrid.Sdl2.Sdl2Native;
+
+namespace Veldrid.SceneGraph.Viewer
+{
+    public class SimpleViewer : IViewer
+    {
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         //
-        // Permission is hereby granted, free of charge, to any person obtaining a copy
-        // of this software and associated documentation files (the "Software"), to deal
-        // in the Software without restriction, including without limitation the rights
-        // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-        // copies of the Software, and to permit persons to whom the Software is
-        // furnished to do so, subject to the following conditions:
+        // PUBLIC Properties
         //
-        // The above copyright notice and this permission notice shall be included in all
-        // copies or substantial portions of the Software.
-        //
-        // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-        // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-        // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-        // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-        // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-        // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-        // SOFTWARE.
-        //
-        
-        using System;
-        using System.Collections.Generic;
-        using System.Diagnostics;
-        using System.Runtime.CompilerServices;
-        using System.Runtime.InteropServices;
-        using System.Threading;
-        using Veldrid;
-        using Veldrid.OpenGLBinding;
-        using Veldrid.Sdl2;
-        using Veldrid.Utilities;
-        using Veldrid.StartupUtilities;
-        using static Veldrid.Sdl2.Sdl2Native;
-        
-        namespace Veldrid.SceneGraph.Viewer
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        #region PUBLIC_PROPERTIES
+
+        public uint Width => (uint) _window.Width;
+        public uint Height => (uint) _window.Height;
+
+        public Node SceneData
         {
-            public class SimpleViewer : IViewer
-            {
-                //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                //
-                // PUBLIC Properties
-                //
-                //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        
-                #region PUBLIC_PROPERTIES
-        
-                public uint Width => (uint) _window.Width;
-                public uint Height => (uint) _window.Height;
+            get => _view?.SceneData;
+            set => _view.SceneData = value;
+        }
 
-                public Node SceneData
-                {
-                    get => _view?.SceneData;
-                    set => _view.SceneData = value;
-                }
-                
-                public ResourceFactory ResourceFactory => _factory;
-                public GraphicsDevice GraphicsDevice => _graphicsDevice;
-                public GraphicsBackend Backend => GraphicsDevice.ResourceFactory.BackendType;
-                public Platform PlatformType { get; }
-                public event Action<float> Rendering;
-                public event Action<GraphicsDevice, ResourceFactory, Swapchain> GraphicsDeviceCreated;
-                public event Action GraphicsDeviceDestroyed;
-                public event Action Resized;
-                public event Action<KeyEvent> KeyPressed;
-        
-                #endregion
-        
-                //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                //
-                // PRIVATE Properties
-                //
-                //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        
-                #region PRIVATE_PROPERTIES
-        
-                private GraphicsDevice _graphicsDevice;
-                private DisposeCollectorResourceFactory _factory;
-                private readonly Sdl2Window _window;
-                private bool _windowResized = true;
-                private bool _firstFrame = true;
-                private Stopwatch _stopwatch = null;
-                private double _previousElapsed = 0;
-                private GraphicsBackend _preferredBackend = GraphicsBackend.Vulkan;
-                private View _view ;
+        public ResourceFactory ResourceFactory => _factory;
+        public GraphicsDevice GraphicsDevice => _graphicsDevice;
+        public GraphicsBackend Backend => GraphicsDevice.ResourceFactory.BackendType;
+        public Platform PlatformType { get; }
+        public event Action<float> Rendering;
+        public event Action<GraphicsDevice, ResourceFactory, Swapchain> GraphicsDeviceCreated;
+        public event Action GraphicsDeviceDestroyed;
+        public event Action Resized;
+        public event Action<KeyEvent> KeyPressed;
 
-                private event Action<GraphicsDevice, ResourceFactory> GraphicsDeviceOperations;
-                
+        #endregion
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //
+        // PRIVATE Properties
+        //
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        #region PRIVATE_PROPERTIES
+
+        private GraphicsDevice _graphicsDevice;
+        private DisposeCollectorResourceFactory _factory;
+        private readonly Sdl2Window _window;
+        private bool _windowResized = true;
+        private bool _firstFrame = true;
+        private Stopwatch _stopwatch = null;
+        private double _previousElapsed = 0;
+        private GraphicsBackend _preferredBackend = GraphicsBackend.Vulkan;
+        private View _view;
+
+        private event Action<GraphicsDevice, ResourceFactory> GraphicsDeviceOperations;
+
         #endregion
 
 
@@ -105,20 +105,20 @@
         // TODO: remove unsafe once Veldrid.SDL2 implements resize fix.
         //
         public unsafe SimpleViewer(string title)
-        {      
+        {
             var wci = new WindowCreateInfo()
             {
                 X = 100,
                 Y = 100,
                 WindowWidth = 960,
-                WindowHeight = 960,
+                WindowHeight = 540,
                 WindowTitle = title
             };
 
             _window = VeldridStartup.CreateWindow(ref wci);
             DisplaySettings.Instance.ScreenWidth = wci.WindowWidth;
             DisplaySettings.Instance.ScreenHeight = wci.WindowHeight;
-            DisplaySettings.Instance.ScreenDistance = 100.0f;
+            DisplaySettings.Instance.ScreenDistance = 1000.0f;
 
             //
             // TODO: Get Eric to Review

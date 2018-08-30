@@ -1,0 +1,25 @@
+Overall
+~~~~~~~
++ Review Copyright Notices
++ Review Public API surface
+
+SceneGraph
+~~~~~~~~~~
+
++ Implement Transform node
++ Implement Noop Cull Traversal
++ Implement RenderGraph instead of DrawVisitor
++ Implement Update/Update Uniforms visitor
++ Code Review Visitor implementation & double-dispatch
+
+Viewer
+~~~~~~
++ Implement Gui Action Adapter
++ Implement Trackball manipulator
++ Improve Separation of Concerns using delegates and Action<>s
++ Implement ViewAll
+
+
+Demos - Hello NSG
+~~~~~~~~~~~~~~~~~
++ Fix/Figure out [WarningEXT] (BufferEXT)  [ UNASSIGNED-CoreValidation-MemTrack-InvalidAliasing ]
