@@ -20,10 +20,33 @@
 // SOFTWARE.
 //
 
+using System;
+using System.Numerics;
+
 namespace Veldrid.SceneGraph.InputAdapter
 {
-    public interface IInputEventHandler
+    public class OrbitManipulator : CameraManipulator
     {
-        void HandleInput(InputStateSnapshot snapshot);
+        protected bool VerticalAxisFixed { get; set; } = true;
+        protected float MinimumDistance { get; set; } = 0.05f;
+        protected float WheelZoomFactor { get; set; } = 0.01f;
+
+        private float _distance = 1.0f;
+        private float _trackballSize = 0.8f;
+        
+        public OrbitManipulator()
+        {
+            
+        }
+
+        protected virtual void RotateTrackball(float px0, float py0, float px1, float py1, float scale)
+        {
+            throw new NotImplementedException();
+        }
+        
+        private void Trackball( Vector3 axis, float angle, float p1x, float p1y, float p2x, float p2y )
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -22,8 +22,11 @@
 
 namespace Veldrid.SceneGraph.InputAdapter
 {
-    public interface IInputEventHandler
+    public class TrackballManipulator : OrbitManipulator
     {
-        void HandleInput(InputStateSnapshot snapshot);
+        public TrackballManipulator() : base()
+        {
+            VerticalAxisFixed = false;
+        }
     }
 }

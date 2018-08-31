@@ -28,6 +28,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Veldrid;
 using Veldrid.OpenGLBinding;
+using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.Sdl2;
 using Veldrid.Utilities;
 using Veldrid.StartupUtilities;
@@ -91,7 +92,7 @@ namespace Veldrid.SceneGraph.Viewer
 
         private event Action<GraphicsDevice, ResourceFactory> GraphicsDeviceOperations;
 
-        private event Action<InputSnapshot> InputSnapshotEvent;
+        private event Action<InputStateSnapshot> InputSnapshotEvent;
         
         #endregion
 
@@ -169,7 +170,7 @@ namespace Veldrid.SceneGraph.Viewer
                 // TODO: Can remove InputTracker?
                 InputTracker.UpdateFrameInput(inputSnapshot);
                 
-                InputSnapshotEvent?.Invoke(inputSnapshot);
+                InputSnapshotEvent?.Invoke(new InputStateSnapshot(inputSnapshot, _window.Width, _window.Height));
                 
                 Frame();
             }

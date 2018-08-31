@@ -26,14 +26,82 @@ namespace Veldrid.SceneGraph.InputAdapter
 {
     public class CameraManipulator : IInputEventHandler
     {
+        protected InputStateTracker _inputStateTracker = new InputStateTracker();
+
+        public event Action RequestRedraw;
+        
         public CameraManipulator()
         {
             
         }
         
-        public void HandleInput(InputSnapshot snapshot)
+        public void HandleInput(InputStateSnapshot snapshot)
         {
-            Console.WriteLine("Mouse X: {0}, Mouse Y: {1}", snapshot.MousePosition.X, snapshot.MousePosition.Y);
+            
+            _inputStateTracker.UpdateFrameInput(snapshot);
+
+            if (_inputStateTracker.IsMouseButtonPushed())
+            {
+                HandleMouseButtonPushed();
+            }
+
+            if (_inputStateTracker.IsMouseButtonReleased())
+            {
+                HandleMouseButtonReleased();
+            }
+            
+            if (_inputStateTracker.IsMouseButtonDown() && _inputStateTracker.IsMouseMove())
+            {
+                HandleDrag();
+            }
+            
+            else if (_inputStateTracker.IsMouseMove())
+            {
+                HandleMouseMove();
+            }
+        }
+
+        protected virtual void HandleDrag()
+        {
+            if (PerformMovement())
+            {
+                RequestRedraw?.Invoke();
+            }
+        }
+
+        protected virtual void HandleMouseMove()
+        {
+            Console.WriteLine("Move Event!");
+        }
+
+        protected virtual void HandleMouseButtonPushed()
+        {
+            Console.WriteLine("Button Pushed!");
+        }
+
+        protected virtual void HandleMouseButtonReleased()
+        {
+            Console.WriteLine("Button Released!");
+        }
+
+        protected virtual bool PerformMovement()
+        {
+            var dx = (_inputStateTracker.MousePosition?.X - _inputStateTracker.LastMousePosition?.X)/_inputStateTracker.FrameSnapshot.WindowWidth;
+            var dy = (_inputStateTracker.MousePosition?.Y - _inputStateTracker.LastMousePosition?.Y)/_inputStateTracker.FrameSnapshot.WindowHeight;
+
+            if (dx == 0 && dy == 0) return false;
+
+            if (_inputStateTracker.GetMouseButton(MouseButton.Left))
+            {
+                return PerformMovementLeftMouseButton(dx.Value, dy.Value); 
+            }
+
+            return true;
+        }
+
+        protected virtual bool PerformMovementLeftMouseButton(float dx, float dy)
+        {
+            return false;
         }
     }
 }
