@@ -26,6 +26,7 @@ using System.Numerics;
 using ShaderGen;
 using Veldrid;
 using Veldrid.SceneGraph;
+using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Viewer;
 
@@ -57,6 +58,7 @@ namespace HelloNsg
             var allNames = asm.GetManifestResourceNames();
             
             var viewer = new SimpleViewer("Hello Veldrid Scene Graph");
+            viewer.View.CameraManipulator = new CameraManipulator();
 
             var root = new Node();
             

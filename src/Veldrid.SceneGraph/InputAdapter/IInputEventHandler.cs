@@ -24,6 +24,6 @@ namespace Veldrid.SceneGraph.InputAdapter
 {
     public interface IInputEventHandler
     {
-        bool HandleInput(InputSnapshot snapshot);
+        void HandleInput(InputSnapshot snapshot);
     }
 }

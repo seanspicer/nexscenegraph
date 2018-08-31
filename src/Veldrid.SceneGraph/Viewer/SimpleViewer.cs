@@ -53,6 +53,11 @@ namespace Veldrid.SceneGraph.Viewer
             get => _view?.SceneData;
             set => _view.SceneData = value;
         }
+        
+        public View View
+        {
+            get => _view;
+        }
 
         public ResourceFactory ResourceFactory => _factory;
         public GraphicsDevice GraphicsDevice => _graphicsDevice;
@@ -86,6 +91,8 @@ namespace Veldrid.SceneGraph.Viewer
 
         private event Action<GraphicsDevice, ResourceFactory> GraphicsDeviceOperations;
 
+        private event Action<InputSnapshot> InputSnapshotEvent;
+        
         #endregion
 
 
@@ -141,6 +148,7 @@ namespace Veldrid.SceneGraph.Viewer
             _window.KeyDown += OnKeyDown;
             _view = new View();
             GraphicsDeviceOperations += _view.Camera.Renderer.HandleOperation;
+            InputSnapshotEvent += _view.OnInputEvent;
         }
 
         /// <summary>
@@ -157,8 +165,12 @@ namespace Veldrid.SceneGraph.Viewer
             while (_window.Exists)
             {
                 var inputSnapshot = _window.PumpEvents();
+                
+                // TODO: Can remove InputTracker?
                 InputTracker.UpdateFrameInput(inputSnapshot);
-
+                
+                InputSnapshotEvent?.Invoke(inputSnapshot);
+                
                 Frame();
             }
 

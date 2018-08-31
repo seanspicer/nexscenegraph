@@ -21,6 +21,7 @@
 //
 
 using System;
+using Veldrid.SceneGraph.InputAdapter;
 
 namespace Veldrid.SceneGraph.Viewer
 {
@@ -28,9 +29,31 @@ namespace Veldrid.SceneGraph.Viewer
     {
         public Node SceneData { get; set; }
 
+        private Action<InputSnapshot> HandleInputSnapshot;
+        
+        private CameraManipulator _cameraManipulator;
+        public CameraManipulator CameraManipulator
+        {
+            get => _cameraManipulator;
+            set
+            {
+                if (null != _cameraManipulator)
+                {
+                    HandleInputSnapshot = null; // Clear delegates
+                }
+                _cameraManipulator = value;
+                HandleInputSnapshot += _cameraManipulator.HandleInput;
+            }
+        }
+    
         public View()
         {
             Camera.Renderer = new Renderer(Camera);
+        }
+
+        public void OnInputEvent(InputSnapshot snapshot)
+        {
+            HandleInputSnapshot?.Invoke(snapshot);
         }
     }
 }

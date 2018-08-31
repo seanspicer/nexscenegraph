@@ -19,10 +19,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-namespace Veldrid.SceneGraph.GuiAdapter
+
+using System;
+
+namespace Veldrid.SceneGraph.InputAdapter
 {
-    public class CameraManipulator
+    public class CameraManipulator : IInputEventHandler
     {
+        public CameraManipulator()
+        {
+            
+        }
         
+        public void HandleInput(InputSnapshot snapshot)
+        {
+            Console.WriteLine("Mouse X: {0}, Mouse Y: {1}", snapshot.MousePosition.X, snapshot.MousePosition.Y);
+        }
     }
 }
