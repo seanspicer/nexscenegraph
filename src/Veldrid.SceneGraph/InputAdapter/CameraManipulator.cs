@@ -21,18 +21,27 @@
 //
 
 using System;
+using System.Numerics;
 
 namespace Veldrid.SceneGraph.InputAdapter
 {
-    public class CameraManipulator : IInputEventHandler
+    public abstract class CameraManipulator : IInputEventHandler
     {
         protected InputStateTracker _inputStateTracker = new InputStateTracker();
 
         public event Action RequestRedraw;
         
+        protected abstract Matrix4x4 InverseMatrix { get; }
+        
         public CameraManipulator()
         {
             
+        }
+
+        // Update a camera
+        public virtual void UpdateCamera(Camera camera)
+        {
+            camera.ViewMatrix = InverseMatrix;
         }
         
         public void HandleInput(InputStateSnapshot snapshot)

@@ -30,8 +30,8 @@ namespace Veldrid.SceneGraph.Viewer
         public Node SceneData { get; set; }
 
         private Action<InputStateSnapshot> HandleInputSnapshot;
-        
-        private CameraManipulator _cameraManipulator;
+
+        private CameraManipulator _cameraManipulator = null;
         public CameraManipulator CameraManipulator
         {
             get => _cameraManipulator;
@@ -54,6 +54,9 @@ namespace Veldrid.SceneGraph.Viewer
         public void OnInputEvent(InputStateSnapshot snapshot)
         {
             HandleInputSnapshot?.Invoke(snapshot);
+
+            // Update the camera on input
+            _cameraManipulator?.UpdateCamera(Camera);
         }
     }
 }

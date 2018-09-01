@@ -40,6 +40,7 @@ namespace Veldrid.SceneGraph.InputAdapter
         public System.Nullable<Vector2> LastMousePosition = null;
         
         
+        
         public InputStateSnapshot FrameSnapshot { get; private set; }
         
 

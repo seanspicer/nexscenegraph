@@ -58,7 +58,7 @@ namespace HelloNsg
             var allNames = asm.GetManifestResourceNames();
             
             var viewer = new SimpleViewer("Hello Veldrid Scene Graph");
-            viewer.View.CameraManipulator = new CameraManipulator();
+            viewer.View.CameraManipulator = new TrackballManipulator();
 
             var root = new Node();
             
