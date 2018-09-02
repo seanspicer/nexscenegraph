@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloNsg", "HelloNsg\HelloN
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veldrid.SceneGraph", "Veldrid.SceneGraph\Veldrid.SceneGraph.csproj", "{A088AD02-92C8-48CA-877C-EF2A749CB6FD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColoredCube", "ColoredCube\ColoredCube.csproj", "{21BD4287-DDCB-446C-9DB7-975F31999586}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,8 +22,13 @@ Global
 		{A088AD02-92C8-48CA-877C-EF2A749CB6FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A088AD02-92C8-48CA-877C-EF2A749CB6FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A088AD02-92C8-48CA-877C-EF2A749CB6FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21BD4287-DDCB-446C-9DB7-975F31999586}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21BD4287-DDCB-446C-9DB7-975F31999586}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21BD4287-DDCB-446C-9DB7-975F31999586}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21BD4287-DDCB-446C-9DB7-975F31999586}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{56046B5B-D92E-40D6-8FBF-AA2524B51271} = {8F0457B3-E205-44CF-AFAA-5EB8B8967399}
+		{21BD4287-DDCB-446C-9DB7-975F31999586} = {8F0457B3-E205-44CF-AFAA-5EB8B8967399}
 	EndGlobalSection
 EndGlobal

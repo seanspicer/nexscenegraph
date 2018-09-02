@@ -33,6 +33,7 @@ namespace Veldrid.SceneGraph
     {
         internal DeviceBuffer VertexBuffer { get; set; }
         internal DeviceBuffer IndexBuffer { get; set; }
+        internal uint NumIndices { get; set; }
         internal Shader VertexShader { get; set; }
         internal Shader FragmentShader { get; set; }
         internal ResourceSet ResourceSet { get; set; }
@@ -82,7 +83,7 @@ namespace Veldrid.SceneGraph
             
             // Issue a Draw command for a single instance with 4 indices.
             CommandList.DrawIndexed(
-                indexCount: 4,
+                indexCount: drawInfo.NumIndices,
                 instanceCount: 1,
                 indexStart: 0,
                 vertexOffset: 0,
@@ -108,6 +109,7 @@ namespace Veldrid.SceneGraph
                 (uint) geometry.IndexData.Length * sizeof(ushort),
                 BufferUsage.IndexBuffer);
 
+            drawInfo.NumIndices = (uint) geometry.IndexData.Length;
             drawInfo.IndexBuffer = ResourceFactory.CreateBuffer(ibDescription);
             GraphicsDevice.UpdateBuffer(drawInfo.IndexBuffer, 0, geometry.IndexData);
 

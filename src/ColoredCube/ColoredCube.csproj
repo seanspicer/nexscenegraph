@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp2.1</TargetFramework>
+        <ShaderOutputPath>$(BaseIntermediateOutputPath)Shaders</ShaderOutputPath>
+        <ShaderContentIncludePath>Shaders</ShaderContentIncludePath>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Veldrid.SceneGraph\Veldrid.SceneGraph.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="ShaderGen.Build" Version="1.2.0-beta2" />
+      <PackageReference Include="ShaderGen.Primitives" Version="1.2.0-beta2" />
+    </ItemGroup>
+
+    <Target Name="IncludeGeneratedShaderEmbeddedResource" AfterTargets="AssignTargetPaths" Condition="'$(ShaderContentIncludePath)' != ''">
+        <ItemGroup>
+            <EmbeddedResource Include="@(GeneratedShader)">
+                <LogicalName>%(FileName)%(Extension)</LogicalName>
+            </EmbeddedResource>
+        </ItemGroup>
+    </Target>
+    
+</Project>
