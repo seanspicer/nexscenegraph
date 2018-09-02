@@ -81,7 +81,7 @@ namespace HelloNsg
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float2),
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
             
-            geometry.Topology = PrimitiveTopolgy.TriangleStrip;
+            geometry.PrimitiveTopology = PrimitiveTopology.TriangleStrip;
 
             geometry.VertexShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
                 typeof(Program).Assembly,

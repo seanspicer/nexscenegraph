@@ -131,7 +131,7 @@ namespace Veldrid.SceneGraph
                 frontFace: FrontFace.Clockwise,
                 depthClipEnabled: true,
                 scissorTestEnabled: false);
-            pipelineDescription.PrimitiveTopology = PrimitiveTopology.TriangleStrip;
+            pipelineDescription.PrimitiveTopology = geometry.PrimitiveTopology;
 
             pipelineDescription.ResourceLayouts = new[] {ResourceLayout};
               

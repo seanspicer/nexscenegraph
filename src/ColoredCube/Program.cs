@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using ColoredCube.Shaders;
 using ShaderGen;
@@ -64,28 +65,64 @@ namespace ColoredCube
             var geometry = new Geometry<VertexPositionColor>();
 
             // TODO - make this a color index cube
-            VertexPositionColor[] cubeVertices =
+            Vector3[] cubeVertices =
             {
-                new VertexPositionColor(new Vector3( 1.0f, 1.0f,-1.0f), new Vector4(1.0f, 0.0f, 0.0f, 1.0f)),  // (0) Back top right  
-                new VertexPositionColor(new Vector3(-1.0f, 1.0f,-1.0f), new Vector4(1.0f, 1.0f, 0.0f, 1.0f)),  // (1) Back top left
-                new VertexPositionColor(new Vector3( 1.0f, 1.0f, 1.0f), new Vector4(0.0f, 1.0f, 0.0f, 1.0f)),  // (2) Front top right
-                new VertexPositionColor(new Vector3(-1.0f, 1.0f, 1.0f), new Vector4(0.0f, 1.0f, 1.0f, 1.0f)),  // (3) Front top left
-                new VertexPositionColor(new Vector3( 1.0f,-1.0f,-1.0f), new Vector4(0.0f, 0.0f, 1.0f, 1.0f)),  // (4) Back bottom right
-                new VertexPositionColor(new Vector3(-1.0f,-1.0f,-1.0f), new Vector4(1.0f, 0.0f, 1.0f, 1.0f)),  // (5) Back bottom left
-                new VertexPositionColor(new Vector3( 1.0f,-1.0f, 1.0f), new Vector4(1.0f, 1.0f, 1.0f, 1.0f)),  // (6) Front bottom right
-                new VertexPositionColor(new Vector3(-1.0f,-1.0f, 1.0f), new Vector4(0.5f, 0.5f, 0.5f, 1.0f)),  // (7) Front bottom left
+                new Vector3( 1.0f, 1.0f,-1.0f), // (0) Back top right  
+                new Vector3(-1.0f, 1.0f,-1.0f), // (1) Back top left
+                new Vector3( 1.0f, 1.0f, 1.0f), // (2) Front top right
+                new Vector3(-1.0f, 1.0f, 1.0f), // (3) Front top left
+                new Vector3( 1.0f,-1.0f,-1.0f), // (4) Back bottom right
+                new Vector3(-1.0f,-1.0f,-1.0f), // (5) Back bottom left
+                new Vector3( 1.0f,-1.0f, 1.0f), // (6) Front bottom right
+                new Vector3(-1.0f,-1.0f, 1.0f)  // (7) Front bottom left
             };
 
-            geometry.VertexData = cubeVertices;
+            Vector4[] faceColors =
+            {
+                new Vector4(1.0f, 0.0f, 0.0f, 1.0f),
+                new Vector4(1.0f, 1.0f, 0.0f, 1.0f),
+                new Vector4(0.0f, 1.0f, 0.0f, 1.0f),
+                new Vector4(0.0f, 1.0f, 1.0f, 1.0f),
+                new Vector4(0.0f, 0.0f, 1.0f, 1.0f),
+                new Vector4(1.0f, 0.0f, 1.0f, 1.0f),
+                new Vector4(0.1f, 0.1f, 0.1f, 1.0f) 
+            };
 
-            ushort[] cubeIndices = {3, 2, 7, 6, 4, 2, 0, 3, 1, 7, 5, 4, 1, 0};
-            geometry.IndexData = cubeIndices;
+            ushort[] cubeIndices   = {3, 2, 7, 6, 4, 2, 0, 3, 1, 7, 5, 4, 1, 0};
+            ushort[] colorIndices = {0, 0, 4, 1, 1, 2, 2, 3, 3, 4, 5, 5};
+            
+            var cubeTriangleVertices = new List<VertexPositionColor>();
+            var cubeTriangleIndices = new List<ushort>();
+
+            for (var i = 0; i < cubeIndices.Length-2; ++i)
+            {
+                if (0 == (i % 2))
+                {
+                    cubeTriangleVertices.Add(new VertexPositionColor(cubeVertices[cubeIndices[i]],   faceColors[colorIndices[i]]));
+                    cubeTriangleVertices.Add(new VertexPositionColor(cubeVertices[cubeIndices[i+1]], faceColors[colorIndices[i]]));
+                    cubeTriangleVertices.Add(new VertexPositionColor(cubeVertices[cubeIndices[i+2]], faceColors[colorIndices[i]]));
+                }
+                else
+                {
+                    cubeTriangleVertices.Add(new VertexPositionColor(cubeVertices[cubeIndices[i+1]], faceColors[colorIndices[i]]));
+                    cubeTriangleVertices.Add(new VertexPositionColor(cubeVertices[cubeIndices[i]],   faceColors[colorIndices[i]]));
+                    cubeTriangleVertices.Add(new VertexPositionColor(cubeVertices[cubeIndices[i+2]], faceColors[colorIndices[i]]));
+                }
+                
+                cubeTriangleIndices.Add((ushort) (3 * i));
+                cubeTriangleIndices.Add((ushort) (3 * i + 1));
+                cubeTriangleIndices.Add((ushort) (3 * i + 2));
+            }
+
+            geometry.VertexData = cubeTriangleVertices.ToArray();
+
+            geometry.IndexData = cubeTriangleIndices.ToArray();
 
             geometry.VertexLayout = new VertexLayoutDescription(
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
             
-            geometry.Topology = PrimitiveTopolgy.TriangleStrip;
+            geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;
 
             geometry.VertexShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
                 typeof(Program).Assembly,

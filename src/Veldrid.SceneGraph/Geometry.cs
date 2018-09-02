@@ -27,16 +27,7 @@ using System.Runtime.InteropServices;
 using Veldrid;
 
 namespace Veldrid.SceneGraph
-{
-    public enum PrimitiveTopolgy : byte
-    {
-        LineList, 
-        LineStrip, 
-        PointList,
-        TriangleList,
-        TriangleStrip
-    }
-    
+{    
     public class Geometry<T> : Node 
         where T : struct 
     {
@@ -50,13 +41,13 @@ namespace Veldrid.SceneGraph
         
         public ushort[] IndexData { get; set; }
 
-        public PrimitiveTopolgy Topology { get; set; }
+        public PrimitiveTopology PrimitiveTopology { get; set; }
 
         public VertexLayoutDescription VertexLayout { get; set; }
             
         public Geometry()
         {
-            Topology = PrimitiveTopolgy.TriangleList;
+            PrimitiveTopology = PrimitiveTopology.TriangleList;
         }
         
         // Required for double-dispatch
