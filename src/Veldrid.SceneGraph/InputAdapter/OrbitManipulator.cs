@@ -56,12 +56,12 @@ namespace Veldrid.SceneGraph.InputAdapter
 
             {
                 var xNorm = 2.0f*(_inputStateTracker.MousePosition.Value.X / _inputStateTracker.FrameSnapshot.WindowWidth)-1.0f;
-                var yNorm = 2.0f*(_inputStateTracker.MousePosition.Value.Y / _inputStateTracker.FrameSnapshot.WindowHeight)-1.0f;
+                var yNorm = -2.0f*(_inputStateTracker.MousePosition.Value.Y / _inputStateTracker.FrameSnapshot.WindowHeight)+1.0f;
                 
                 var xNormLast = 2.0f*(_inputStateTracker.LastMousePosition.Value.X / _inputStateTracker.FrameSnapshot.WindowWidth)-1.0f;
-                var yNormLast = 2.0f*(_inputStateTracker.LastMousePosition.Value.Y / _inputStateTracker.FrameSnapshot.WindowHeight)-1.0f;
+                var yNormLast = -2.0f*(_inputStateTracker.LastMousePosition.Value.Y / _inputStateTracker.FrameSnapshot.WindowHeight)+1.0f;
 
-                RotateTrackball(xNorm, yNormLast, xNormLast, yNorm, 1.0f);
+                RotateTrackball(xNorm, yNorm, xNormLast, yNormLast, 1.0f);
             }
                 
             return true;
@@ -70,13 +70,12 @@ namespace Veldrid.SceneGraph.InputAdapter
         protected virtual void RotateTrackball(float px0, float py0, float px1, float py1, float scale)
         {
             Trackball( out var axis, out var angle, px0 + (px1-px0)*scale, py0 + (py1-py0)*scale, px0, py0 );
-
-            _rotation = _rotation * Quaternion.CreateFromAxisAngle(axis, angle);
+            
+            _rotation = Quaternion.Multiply(Quaternion.CreateFromAxisAngle(axis, angle), _rotation);
         }
         
         private void Trackball( out Vector3 axis, out float angle, float p1x, float p1y, float p2x, float p2y )
         {
-            var rotationMatrix = Matrix4x4.CreateFromQuaternion(_rotation);
             var uv = Vector3.Transform(Vector3.UnitY, _rotation);
             var sv = Vector3.Transform(Vector3.UnitX, _rotation);
             var lv = Vector3.Transform(-Vector3.UnitZ, _rotation);
@@ -86,7 +85,7 @@ namespace Veldrid.SceneGraph.InputAdapter
             
             // Compute normalized cross-product.
             axis = Vector3.Normalize(Vector3.Cross(p2,p1));
-
+            
             var t = (p2 - p1).Length() / (2.0 * _trackballSize);
 
             // Avoid problems with out-of-control values.
@@ -105,7 +104,6 @@ namespace Veldrid.SceneGraph.InputAdapter
             if (d < r * 0.70710678118654752440)
             {
                 z = Math.Sqrt(r*r - d*d);
-                
             } 
             
             /* On hyperbola */
