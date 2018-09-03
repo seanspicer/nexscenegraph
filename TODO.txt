@@ -14,8 +14,8 @@ SceneGraph
 
 Viewer
 ~~~~~~
-+ Implement Gui Action Adapter
-+ Implement Trackball manipulator
++ Implement Gui Action Adapter [DONE(ish)]
++ Implement Trackball manipulator [DONE(ish)]
 + Improve Separation of Concerns using delegates and Action<>s
 + Implement ViewAll
 
