@@ -49,7 +49,7 @@ namespace Veldrid.SceneGraph
             }
         }
     }
-    
+   
     public abstract class Node
     {
         public Guid Id { get; private set; }
@@ -59,7 +59,20 @@ namespace Veldrid.SceneGraph
 
         private List<Group> _parents;
         private bool _boundingSphereComputed = false;
-        
+        private BoundingSphere _boundingSphere;
+
+        private BoundingSphere _initialBound = new BoundingSphere();
+        public BoundingSphere InitialBound
+        {
+            get { return _initialBound; }
+            set
+            {
+                _initialBound = value;
+                DirtyBound();
+            }
+        } 
+
+        public event Func<Node, BoundingSphere> ComputeBoundCallback;
         
         public Node()
         {
@@ -82,16 +95,43 @@ namespace Veldrid.SceneGraph
         /// Mark this node's bounding sphere dirty.  Forcing it to be computed on the next call
         /// to GetBound();
         /// </summary>
-        protected void DirtyBound()
+        public void DirtyBound()
         {
-            if (_boundingSphereComputed)
+            if (!_boundingSphereComputed) return;
+            
+            _boundingSphereComputed = false;
+                
+            foreach (var parent in _parents)
             {
-                foreach (var parent in _parents)
-                {
-                    parent.DirtyBound();
-                }
+                parent.DirtyBound();
             }
-        } 
+        }
+
+        /// <summary>
+        /// Get the bounding sphere for this node.
+        /// </summary>
+        /// <returns></returns>
+        public BoundingSphere GetBound()
+        {
+            if (_boundingSphereComputed) return _boundingSphere;
+            
+            _boundingSphere = _initialBound;
+
+            _boundingSphere.ExpandBy(null != ComputeBoundCallback ? ComputeBoundCallback(this) : ComputeBound());
+
+            _boundingSphereComputed = true;
+
+            return _boundingSphere;
+        }
+
+        /// <summary>
+        /// Compute the bounding sphere of this geometry
+        /// </summary>
+        /// <returns></returns>
+        public virtual BoundingSphere ComputeBound()
+        {
+            return new BoundingSphere();
+        }
         
         public virtual void Accept(NodeVisitor nv)
         {
@@ -115,7 +155,7 @@ namespace Veldrid.SceneGraph
         // Traverse downward - call children's accept method with Node Visitor
         public virtual void Traverse(NodeVisitor nv)
         {
-            
+            // Do nothing by default
         }
        
     }
