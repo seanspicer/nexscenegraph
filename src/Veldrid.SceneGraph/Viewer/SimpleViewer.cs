@@ -49,7 +49,7 @@ namespace Veldrid.SceneGraph.Viewer
         public uint Width => (uint) _window.Width;
         public uint Height => (uint) _window.Height;
 
-        public Node SceneData
+        public Group SceneData
         {
             get => _view?.SceneData;
             set => _view.SceneData = value;

@@ -60,7 +60,7 @@ namespace ColoredCube
             var viewer = new SimpleViewer("Colored Cube Scene Graph");
             viewer.View.CameraManipulator = new TrackballManipulator();
 
-            var root = new Node();
+            var root = new Group();
             
             var geometry = new Geometry<VertexPositionColor>();
 
@@ -134,7 +134,7 @@ namespace ColoredCube
                 "ColoredCubeShader", ShaderStages.Fragment);
             geometry.FragmentShaderEntryPoint = "FS";
           
-            root.Add(geometry);
+            root.AddChild(geometry);
 
             viewer.SceneData = root;
 

@@ -25,40 +25,98 @@ using System.Collections.Generic;
 
 namespace Veldrid.SceneGraph
 {
-    public class Node
+    public class CollectParentPaths : NodeVisitor
+    {
+        private Node _haltTraversalAtNode;
+        private List<LinkedList<Node>> _nodePaths;
+        
+        public CollectParentPaths(Node haltTraversalAtNode = null) :
+            base(TraversalModeType.TraverseParents)
+        {
+            _haltTraversalAtNode = haltTraversalAtNode;
+            _nodePaths = new List<LinkedList<Node>>();
+        }
+
+        public override void Apply(Node node)
+        {
+            if (node.NumParents == 0 || node == _haltTraversalAtNode)
+            {
+                _nodePaths.Add(NodePath);
+            }
+            else
+            {
+                Traverse(node);
+            }
+        }
+    }
+    
+    public abstract class Node
     {
         public Guid Id { get; private set; }
+        public uint NodeMask { get; set; } = 0xffffffff;
+        
+        public int NumParents => _parents.Count;
 
-        private Node Parent { get; set; }
-        private List<Node> Children;
-
-        public Node(Node parent = null)
+        private List<Group> _parents;
+        private bool _boundingSphereComputed = false;
+        
+        
+        public Node()
         {
             Id = Guid.NewGuid();
 
-            Parent = parent;
-            Children = new List<Node>();
-            
-            parent?.Children.Add(this);
+            _parents = new List<Group>();
         }
 
-        public void Add(Node node)
+        protected internal void AddParent(Group parent)
         {
-            node.Parent = this;
-            Children.Add(node);
+            _parents.Add(parent);
         }
 
-        public virtual void Accept(NodeVisitor visitor)
+        protected internal void RemoveParent(Group parent)
         {
-            visitor.Apply(this);
+            _parents.RemoveAll(x => x.Id == parent.Id);
         }
-
-        public void Traverse(NodeVisitor visitor)
+ 
+        /// <summary>
+        /// Mark this node's bounding sphere dirty.  Forcing it to be computed on the next call
+        /// to GetBound();
+        /// </summary>
+        protected void DirtyBound()
         {
-            foreach (var child in Children)
+            if (_boundingSphereComputed)
             {
-                child.Accept(visitor);
+                foreach (var parent in _parents)
+                {
+                    parent.DirtyBound();
+                }
+            }
+        } 
+        
+        public virtual void Accept(NodeVisitor nv)
+        {
+
+            if (nv.ValidNodeMask(this))
+            {
+                nv.PushOntoNodePath(this);
+                nv.Apply(this);
+                nv.PopFromNodePath(this);
+            };
+        }
+
+        public virtual void Ascend(NodeVisitor nv)
+        {
+            foreach (var parent in _parents)
+            {
+                parent.Accept(nv);
             }
         }
+
+        // Traverse downward - call children's accept method with Node Visitor
+        public virtual void Traverse(NodeVisitor nv)
+        {
+            
+        }
+       
     }
 }

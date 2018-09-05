@@ -54,6 +54,7 @@ namespace Veldrid.SceneGraph
         
         internal DrawVisitor()
         {
+            TraversalMode = TraversalModeType.TraverseActiveChildren;
             DrawInfoDictionary = new Dictionary<Guid, DrawInfo>();
         }
 

@@ -60,7 +60,7 @@ namespace HelloNsg
             var viewer = new SimpleViewer("Hello Veldrid Scene Graph");
             viewer.View.CameraManipulator = new TrackballManipulator();
 
-            var root = new Node();
+            var root = new Group();
             
             var geometry = new Geometry<VertexPositionColor>();
             
@@ -99,7 +99,7 @@ namespace HelloNsg
             //var fsPath = Path.Combine(System.AppContext.BaseDirectory, "Shaders", "Fragment.spv");
             //geometry.FragmentShader = File.ReadAllBytes(fsPath);
             
-            root.Add(geometry);
+            root.AddChild(geometry);
 
             viewer.SceneData = root;
 
