@@ -114,5 +114,45 @@ namespace Veldrid.SceneGraph.InputAdapter
             }
             return (float)z;
         }
+        
+        protected override void HandleWheelDelta()
+        {
+            ZoomModel(WheelZoomFactor *_inputStateTracker.FrameSnapshot.WheelDelta, true);
+            RequestRedraw();
+        }
+        
+        void ZoomModel(float dy, bool pushForwardIfNeeded )
+        {
+            // scale
+            var scale = 1.0f + dy;
+
+            // minimum distance
+            float minDist = MinimumDistance;
+            
+            // TODO - Implement below
+            //if( getRelativeFlag( _minimumDistanceFlagIndex ) )
+            //    minDist *= _modelSize;
+
+            if( _distance*scale > minDist )
+            {
+                // regular zoom
+                _distance *= scale;
+            }
+            else
+            {
+                if( pushForwardIfNeeded )
+                {
+                    // push the camera forward
+                    float yscale = -_distance;
+                    var dv = Vector3.Transform(new Vector3( 0.0f, 0.0f, -1.0f ), _rotation) * (dy * yscale);
+                    _center += dv;
+                }
+                else
+                {
+                    // set distance on its minimum value
+                    _distance = minDist;
+                }
+            }
+        }
     }
 }

@@ -29,7 +29,7 @@ namespace Veldrid.SceneGraph.InputAdapter
     {
         protected InputStateTracker _inputStateTracker = new InputStateTracker();
 
-        public event Action RequestRedraw;
+        public event Action RequestRedrawAction;
         
         protected abstract Matrix4x4 InverseMatrix { get; }
         
@@ -68,13 +68,23 @@ namespace Veldrid.SceneGraph.InputAdapter
             {
                 HandleMouseMove();
             }
+
+            if (_inputStateTracker.FrameSnapshot.WheelDelta != 0)
+            {
+                HandleWheelDelta();
+            }
         }
 
+        protected void RequestRedraw()
+        {
+            RequestRedrawAction?.Invoke();
+        }
+        
         protected virtual void HandleDrag()
         {
             if (PerformMovement())
             {
-                RequestRedraw?.Invoke();
+                RequestRedraw();
             }
         }
 
@@ -91,6 +101,11 @@ namespace Veldrid.SceneGraph.InputAdapter
         protected virtual void HandleMouseButtonReleased()
         {
             Console.WriteLine("Button Released!");
+        }
+
+        protected virtual void HandleWheelDelta()
+        {
+            Console.WriteLine("Wheel Delta");
         }
 
         protected virtual bool PerformMovement()
