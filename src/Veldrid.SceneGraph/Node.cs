@@ -57,6 +57,11 @@ namespace Veldrid.SceneGraph
         
         public int NumParents => _parents.Count;
 
+        public bool CullingActive { get; set; } = true;
+        public int NumChildrenWithCullingDisabled { get; set; } = 0;
+
+        public bool IsCullingActive => NumChildrenWithCullingDisabled == 0 && CullingActive && GetBound().Valid();
+
         private List<Group> _parents;
         protected bool _boundingSphereComputed = false;
         protected BoundingSphere _boundingSphere;

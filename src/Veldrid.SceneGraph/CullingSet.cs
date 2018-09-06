@@ -38,7 +38,8 @@ namespace Veldrid.SceneGraph
 
         }
         
-        enum MaskValues : uint
+        [Flags]
+        enum MaskValues
         {
             NoCulling                = 0x0,
             ViewFrustumSidesCulling  = 0x1,
@@ -57,12 +58,33 @@ namespace Veldrid.SceneGraph
                                        ShadowOcclusionCulling
         };
 
-        private uint _mask = (uint) MaskValues.DefaultCulling;
+        private MaskValues _mask = MaskValues.DefaultCulling;
         private Polytope _frustum = new Polytope();
         private List<StateFrustumPair>    _stateFrustumList = new List<StateFrustumPair>();
         private Vector4 _pixelSizeVector = Vector4.Zero;
         private float _smallFeatureCullingPixelSize = 0;
 
         public CullingSet() {}
+
+        public bool IsCulled(BoundingBox bb)
+        {
+            if (0 != (_mask & MaskValues.ViewFrustumCulling))
+            {
+                // Check outside view frustum
+                if (!_frustum.Contains(bb)) return true;
+            }
+
+            if (0 != (_mask & MaskValues.SmallFeatureCulling))
+            {
+                throw new NotImplementedException();
+            }
+            
+            if (0 != (_mask & MaskValues.ShadowOcclusionCulling))
+            {
+                throw new NotImplementedException();
+            }
+            
+            return false;
+        }
     }
 }

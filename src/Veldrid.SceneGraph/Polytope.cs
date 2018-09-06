@@ -50,5 +50,27 @@ namespace Veldrid.SceneGraph
             }
             _maskStack.Push(_resultMask);
         }
+
+        public bool Contains(BoundingBox bb)
+        {
+            if (_maskStack.Count == 0) return true;
+
+            _resultMask = _maskStack.Peek();
+            uint selectorMask = 0x1;
+
+            foreach (var plane in _planeList)
+            {
+                if (0 != (_resultMask & selectorMask))
+                {
+                    int res = plane.Intersect(bb);
+                    if (res < 0) return false;  // Outside the clipping set
+                    else if (res > 0) _resultMask ^= selectorMask;  // Don't check again
+                }
+
+                selectorMask <<= 1;
+            }
+
+            return true;
+        }
     }
 }

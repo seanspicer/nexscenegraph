@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Numerics;
 
 namespace Veldrid.SceneGraph.Util
 {
@@ -84,8 +85,82 @@ namespace Veldrid.SceneGraph.Util
             var matrix = _cullStack.GetProjectionMatrix();
 
             var bb = drawable.GetBoundingBox();
+            
+            // TODO Add Cull Callback Here
+
+            if (drawable.IsCullingActive && _cullStack.IsCulled(bb)) return;
+
+            if (CullSettings.ComputeNearFarMode.DoNotComputeNearFar != _cullStack.GetComputeNearFarMode() && bb.Valid())
+            {
+                if(!UpdateCalculatedNearFar(matrix, drawable, false))
+                {
+                    return;
+                }
+            }
+            
+            // TODO - Continue HERE
+            
+            
         }
-        
+
+        private bool UpdateCalculatedNearFar(Matrix4x4 matrix, Drawable drawable, bool isBillboard)
+        {
+            var bb = drawable.GetBoundingBox();
+
+            if (isBillboard)
+            {
+                throw new NotImplementedException();
+            }
+
+            // Brute force
+            UpdateCalculatedNearFar(bb.Corner(0));
+            UpdateCalculatedNearFar(bb.Corner(1));
+            UpdateCalculatedNearFar(bb.Corner(2));
+            UpdateCalculatedNearFar(bb.Corner(3));
+            UpdateCalculatedNearFar(bb.Corner(4));
+            UpdateCalculatedNearFar(bb.Corner(5));
+            UpdateCalculatedNearFar(bb.Corner(6));
+            UpdateCalculatedNearFar(bb.Corner(7));
+
+            return true;
+
+        }
+
+        private void UpdateCalculatedNearFar(Vector3 pos)
+        {
+            float d;
+            if (_cullStack.ModelViewStack.Count != 0)
+            {
+                var matrix = _cullStack.ModelViewStack.Peek();
+                d = Distance(pos, matrix);
+            }
+            else
+            {
+                d = -pos.Z;
+            }
+
+            if (d < _computedZNear)
+            {
+                _computedZNear = d;
+                if (d < 0.0)
+                {
+                    // Billboard?
+                    throw new Exception("Alerting billboard");
+                }
+            }
+
+            if (d > _computedZFar)
+            {
+                _computedZFar = d;
+            }
+        }
+
+        private float Distance(Vector3 coord, Matrix4x4 matrix)
+        {
+            return -(coord.X*matrix.M13+coord.Y*matrix.M23+coord.Z*matrix.M33+matrix.M43);
+ 
+        }
+
         public override void Apply<T>(Geometry<T> node)
         {
             Apply((Node)node);

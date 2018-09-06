@@ -43,7 +43,7 @@ namespace Veldrid.SceneGraph
                                        ShadowOcclusionCulling
         };
         
-        enum ComputeNearFarMode
+        public enum ComputeNearFarMode
         {
             DoNotComputeNearFar = 0,
             ComputeNearFarUsingBoundingVolumes,
@@ -123,6 +123,16 @@ namespace Veldrid.SceneGraph
             _cullMask = 0xffffffff;
             _cullMaskLeft = 0xffffffff;
             _cullMaskRight = 0xffffffff;
+        }
+
+        public void SetComputeNearFarMode(ComputeNearFarMode mode)
+        {
+            _computeNearFar = mode;
+        }
+
+        public ComputeNearFarMode GetComputeNearFarMode()
+        {
+            return _computeNearFar;
         }
     }
 }
