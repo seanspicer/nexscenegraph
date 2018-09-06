@@ -19,13 +19,76 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
+
+using System;
+
 namespace Veldrid.SceneGraph.Util
 {
     public class CullVisitor : NodeVisitor
     {
-        public CullVisitor()
+        private CullStack _cullStack = new CullStack();
+        
+        private StateGraph _rootStateGraph = null;
+        private StateGraph _currentStateGraph = null;
+
+        private RenderStage _rootRenderStage = null;
+        private RenderBin _currentRenderBin = null;
+        
+        private float _computedZNear = float.PositiveInfinity;
+        private float _computedZFar = -float.NegativeInfinity;
+
+        private int _traversalOrderNumber = 0;
+        private int _currentReuseRenderLeafIndex = 0;
+        private int _numberOfEncloseOverrideRenderBinDetails = 0;
+
+        public StateGraph RootStateGraph
+        {
+            get => _rootStateGraph;
+        }
+        
+        public StateGraph CurrentStateGraph
+        {
+            get => _currentStateGraph;
+        }
+        
+        public RenderStage RenderStage
+        {
+            get => _rootRenderStage;
+        }
+        public RenderStage CurrentRenderStage
+        {
+            get => _currentRenderBin.Stage;
+        }
+
+        public RenderBin CurrentRenderBin => _currentRenderBin;
+        
+        public Camera CurrentCamera
+        {
+            get => CurrentRenderStage.Camera;
+        }
+        
+
+        public CullVisitor() : base(VisitorType.CullVisitor, TraversalModeType.TraverseActiveChildren)
         {
             // Nothing here (yet!)
+        }
+
+        public void SetStateGraph(StateGraph stateGraph)
+        {
+            _rootStateGraph = stateGraph;
+            _currentStateGraph = stateGraph;
+        }
+        
+        public override void Apply(Drawable drawable)
+        {
+            var matrix = _cullStack.GetProjectionMatrix();
+
+            var bb = drawable.GetBoundingBox();
+        }
+        
+        public override void Apply<T>(Geometry<T> node)
+        {
+            Apply((Node)node);
         }
     }
 }

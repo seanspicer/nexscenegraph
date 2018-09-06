@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) 2018 Sean Spicer
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,28 +21,33 @@
 //
 
 using System.Collections.Generic;
-using System.Numerics;
+using Veldrid.SceneGraph.Util;
 
 namespace Veldrid.SceneGraph
 {
-    public class CullStack
+    public class RenderInfo
     {
-        private Stack<Matrix4x4> _modelViewStack = new Stack<Matrix4x4>();
-        private Stack<Matrix4x4> _projectionStack = new Stack<Matrix4x4>();
-        
-        public CullStack()
+        public View View { get; set; }= null;
+        public State State { get; set; }= null;
+        public Stack<Camera> CameraStack { get; set; } = new Stack<Camera>();
+        public Stack<RenderBin> RenderBinStack { get; set; } = new Stack<RenderBin>();
+
+        public RenderInfo()
         {
-            
         }
 
-        public Matrix4x4 GetModelViewMatrix()
+        public RenderInfo(State state, View view)
         {
-            return _modelViewStack.Count == 0 ? Matrix4x4.Identity : _modelViewStack.Peek();
+            State = state;
+            View = view;
         }
 
-        public Matrix4x4 GetProjectionMatrix()
+        public RenderInfo(RenderInfo renderInfo)
         {
-            return _projectionStack.Count == 0 ? Matrix4x4.Identity : _projectionStack.Peek();
+            State = renderInfo.State;
+            View = renderInfo.View;
+            CameraStack = renderInfo.CameraStack;
+            RenderBinStack = renderInfo.RenderBinStack;
         }
     }
 }

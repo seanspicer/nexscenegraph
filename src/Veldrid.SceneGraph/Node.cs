@@ -31,7 +31,7 @@ namespace Veldrid.SceneGraph
         private List<LinkedList<Node>> _nodePaths;
         
         public CollectParentPaths(Node haltTraversalAtNode = null) :
-            base(TraversalModeType.TraverseParents)
+            base(VisitorType.NodeVisitor, TraversalModeType.TraverseParents)
         {
             _haltTraversalAtNode = haltTraversalAtNode;
             _nodePaths = new List<LinkedList<Node>>();
@@ -50,7 +50,7 @@ namespace Veldrid.SceneGraph
         }
     }
    
-    public abstract class Node
+    public abstract class Node : Object
     {
         public Guid Id { get; private set; }
         public uint NodeMask { get; set; } = 0xffffffff;
@@ -58,8 +58,8 @@ namespace Veldrid.SceneGraph
         public int NumParents => _parents.Count;
 
         private List<Group> _parents;
-        private bool _boundingSphereComputed = false;
-        private BoundingSphere _boundingSphere;
+        protected bool _boundingSphereComputed = false;
+        protected BoundingSphere _boundingSphere;
 
         private BoundingSphere _initialBound = new BoundingSphere();
         public BoundingSphere InitialBound

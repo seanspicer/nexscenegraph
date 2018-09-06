@@ -28,8 +28,8 @@ using Veldrid;
 
 namespace Veldrid.SceneGraph
 {    
-    public class Geometry<T> : Node 
-        where T : struct 
+    public class Geometry<T> : Drawable 
+        where T : struct, IPrimitiveElement
     {
         public byte[] VertexShader { get; set; }
         public string VertexShaderEntryPoint { get; set; }
@@ -54,6 +54,22 @@ namespace Veldrid.SceneGraph
         public override void Accept(NodeVisitor visitor)
         {
             visitor.Apply(this);
+        }
+
+        public override void Draw(RenderInfo renderInfo)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override BoundingBox ComputeBoundingBox()
+        {
+            var bb = new BoundingBox();
+            foreach (var elt in VertexData)
+            {
+                bb.ExpandBy(elt.VertexPosition);
+            }
+
+            return bb;
         }
     }
 }

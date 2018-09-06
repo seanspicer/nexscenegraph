@@ -52,7 +52,7 @@ namespace Veldrid.SceneGraph
         public ResourceLayout ResourceLayout { get; set; }
         public ResourceSet ResourceSet { get; set; }
         
-        internal DrawVisitor()
+        internal DrawVisitor() : base(VisitorType.NodeVisitor)
         {
             TraversalMode = TraversalModeType.TraverseActiveChildren;
             DrawInfoDictionary = new Dictionary<Guid, DrawInfo>();
@@ -63,7 +63,7 @@ namespace Veldrid.SceneGraph
         }
         
         // Draw a Geometry
-        public override void Apply<T>(Geometry<T> geometry)
+        public override void Apply<T>(Geometry<T> geometry) 
         {
             DrawInfo drawInfo;
             if (!DrawInfoDictionary.TryGetValue(geometry.Id, out drawInfo))
@@ -95,7 +95,7 @@ namespace Veldrid.SceneGraph
         {
         }
         
-        private DrawInfo SetupDrawInfo<T>(Geometry<T> geometry) where T : struct
+        private DrawInfo SetupDrawInfo<T>(Geometry<T> geometry) where T : struct, IPrimitiveElement
         {
             var drawInfo = new DrawInfo();
 

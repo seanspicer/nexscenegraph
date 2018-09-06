@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) 2018 Sean Spicer
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,29 +20,19 @@
 // SOFTWARE.
 //
 
-using System.Collections.Generic;
-using System.Numerics;
-
 namespace Veldrid.SceneGraph
 {
-    public class CullStack
+    public abstract class Object
     {
-        private Stack<Matrix4x4> _modelViewStack = new Stack<Matrix4x4>();
-        private Stack<Matrix4x4> _projectionStack = new Stack<Matrix4x4>();
+        public enum DataVarianceType
+        {
+            Dynamic,
+            Static,
+            Unspecified
+        };
+
+        public DataVarianceType DataVariance { get; set; } = DataVarianceType.Unspecified;
         
-        public CullStack()
-        {
-            
-        }
-
-        public Matrix4x4 GetModelViewMatrix()
-        {
-            return _modelViewStack.Count == 0 ? Matrix4x4.Identity : _modelViewStack.Peek();
-        }
-
-        public Matrix4x4 GetProjectionMatrix()
-        {
-            return _projectionStack.Count == 0 ? Matrix4x4.Identity : _projectionStack.Peek();
-        }
+        public Object() {}
     }
 }

@@ -33,7 +33,7 @@ using Veldrid.SceneGraph.Viewer;
 namespace HelloNsg
 {
     
-    public struct VertexPositionColor
+    public struct VertexPositionColor : IPrimitiveElement
     {
         public const uint SizeInBytes = 24;
         
@@ -46,6 +46,11 @@ namespace HelloNsg
         {
             Position = position;
             Color = color;
+        }
+        
+        public Vector3 VertexPosition
+        {
+            get => new Vector3(Position, 0.0f);
         }
     }
     

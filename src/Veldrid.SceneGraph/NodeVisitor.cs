@@ -42,7 +42,8 @@ namespace Veldrid.SceneGraph
         public enum VisitorType
         {
             NodeVisitor,
-            UpdateVisitor
+            UpdateVisitor,
+            CullVisitor
         };
 
         /// <summary>
@@ -67,12 +68,15 @@ namespace Veldrid.SceneGraph
         /// </summary>
         public uint NodeMaskOverride { get; set; } = 0x0;
 
+        public VisitorType Type { get; set; }
+        
         public TraversalModeType TraversalMode { get; set; }
         
         public LinkedList<Node> NodePath { get; } = new LinkedList<Node>();
         
-        public NodeVisitor(TraversalModeType traversalMode = TraversalModeType.TraverseNone)
+        public NodeVisitor(VisitorType type, TraversalModeType traversalMode = TraversalModeType.TraverseNone)
         {
+            Type = type;
             TraversalMode = traversalMode;
         }
 
@@ -130,7 +134,15 @@ namespace Veldrid.SceneGraph
         //
         // Default implementation for Geometry Node
         // 
-        public virtual void Apply<T>(Geometry<T> node) where T : struct
+        public virtual void Apply(Drawable node)
+        {
+            Apply((Node)node);
+        }
+        
+        //
+        // Default implementation for Geometry Node
+        // 
+        public virtual void Apply<T>(Geometry<T> node) where T : struct, IPrimitiveElement
         {
             Apply((Node)node);
         }
@@ -142,5 +154,7 @@ namespace Veldrid.SceneGraph
         {
             Apply((Node)node);
         }
+        
+        
     }
 }

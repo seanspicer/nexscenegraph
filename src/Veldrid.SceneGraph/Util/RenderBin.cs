@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) 2018 Sean Spicer
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,28 +21,38 @@
 //
 
 using System.Collections.Generic;
-using System.Numerics;
 
-namespace Veldrid.SceneGraph
+namespace Veldrid.SceneGraph.Util
 {
-    public class CullStack
+    public class RenderBin
     {
-        private Stack<Matrix4x4> _modelViewStack = new Stack<Matrix4x4>();
-        private Stack<Matrix4x4> _projectionStack = new Stack<Matrix4x4>();
-        
-        public CullStack()
+        public enum SortModeTypes
+        {
+            SortByState,
+            SortByStateThenFrontToBack,
+            SortFrontToBack,
+            SortBackToFront,
+            TraversalOrder
+        };
+
+        public SortModeTypes SortMode { get; set; } = SortModeTypes.SortByState;
+        public StateGraph StateGraph { get; set; } = null;
+        public StateSet StateSet { get; set; } = null;
+        public RenderBin Parent { get; set; } = null;
+        public RenderStage Stage { get; set; } = null;
+        public uint BinNumber { get; set; } = 0;
+        public Dictionary<uint, RenderBin> RenderBinDict { get; set; } = new Dictionary<uint, RenderBin>();
+        public List<StateGraph> StateGraphList { get; set; } = new List<StateGraph>();
+        public List<RenderLeaf> RenderLeafList { get; set; } = new List<RenderLeaf>();
+
+        public RenderBin()
         {
             
         }
 
-        public Matrix4x4 GetModelViewMatrix()
+        public virtual void Draw(RenderInfo renderInfo, RenderLeaf previous)
         {
-            return _modelViewStack.Count == 0 ? Matrix4x4.Identity : _modelViewStack.Peek();
-        }
-
-        public Matrix4x4 GetProjectionMatrix()
-        {
-            return _projectionStack.Count == 0 ? Matrix4x4.Identity : _projectionStack.Peek();
+            
         }
     }
 }

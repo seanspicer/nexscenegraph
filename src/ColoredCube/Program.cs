@@ -33,11 +33,11 @@ using Veldrid.SceneGraph.Viewer;
 
 namespace ColoredCube
 {
-    public struct VertexPositionColor
+    public struct VertexPositionColor : IPrimitiveElement
     {
         public const uint SizeInBytes = 28;
-        
-        [PositionSemantic]
+
+        [PositionSemantic] 
         public Vector3 Position;
         [ColorSemantic]
         public Vector4 Color;
@@ -46,6 +46,11 @@ namespace ColoredCube
         {
             Position = position;
             Color = color;
+        }
+
+        public Vector3 VertexPosition
+        {
+            get => Position;
         }
     }
     
