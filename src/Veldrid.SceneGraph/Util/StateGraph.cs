@@ -28,9 +28,35 @@ namespace Veldrid.SceneGraph.Util
     {
         public StateGraph Parent { get; set; } = null;
         public StateSet StateSet { get; set; } = null;
+        public List<RenderLeaf> Leaves { get; set; } = new List<RenderLeaf>();
+        public Dictionary<StateSet, StateGraph> Children { get; set; } = new Dictionary<StateSet, StateGraph>();
 
+        private float _averageDistance = 0;
+        private float _minimumDistance = 0;
+        private bool _dynamic = false;
+        
         private int _depth = 0;
 
+        public StateGraph(StateGraph parent, StateSet stateSet)
+        {
+            Parent = parent;
+            StateSet = stateSet;
+
+            if (null != parent)
+            {
+                _depth = parent._depth + 1;
+            }
+
+            if (null != parent && parent._dynamic)
+            {
+                _dynamic = true;
+            }
+            else
+            {
+                _dynamic = stateSet.DataVariance==Object.DataVarianceType.Dynamic;
+            }
+        }
+        
         public static void MoveStateGraph(State state, StateGraph sgCurr, StateGraph sgNew)
         {
             if (sgNew == sgCurr || null == sgNew) return;
@@ -103,6 +129,29 @@ namespace Veldrid.SceneGraph.Util
                     state.PushStateSet(rg.StateSet);
                 }
             }
+        }
+
+        public void AddLeaf(RenderLeaf leaf)
+        {
+            if (null == leaf) return;
+            
+            _averageDistance = float.PositiveInfinity; // mark dirty.
+            _minimumDistance = float.PositiveInfinity; // mark dirty.
+            Leaves.Add(leaf);
+            leaf.Parent = this;
+            if (_dynamic) leaf.Dynamic = true;
+        }
+
+        public StateGraph FindOrInsert(StateSet stateSet)
+        {
+            if (Children.ContainsKey(stateSet))
+            {
+                return Children[stateSet];
+            }
+            
+            var sg = new StateGraph(this, stateSet);
+            Children.Add(stateSet, sg);
+            return sg;
         }
     }
 }

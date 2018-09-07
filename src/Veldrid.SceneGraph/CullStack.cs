@@ -56,5 +56,15 @@ namespace Veldrid.SceneGraph
         {
             return bb.Valid() && CurrentCullingSet.IsCulled(bb);
         }
+
+        public void PushStateSet(StateSet stateset)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void PopStateSet()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

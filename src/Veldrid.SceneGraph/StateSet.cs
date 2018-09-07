@@ -20,10 +20,35 @@
 // SOFTWARE.
 //
 
+using System;
+using System.Collections.Generic;
+
 namespace Veldrid.SceneGraph
 {
-    public class StateSet
+    public class StateSet : Object
     {
+        private List<Node> Parents { get; set; } = new List<Node>();
+
+        public event Action<StateSet, NodeVisitor> UpdateCallback;
+        public event Action<StateSet, NodeVisitor> EventCallback;
+
+        public int NumChildrenRequiringUpdateTraversal { get; private set; } = 0;
+        public int NumChildrenRequiringEventTraversal { get; private set; } = 0;
         
+
+        public void RemoveParent(Node node)
+        {
+            Parents.Remove(node);
+        }
+
+        public bool RequiresUpdateTraversal()
+        {
+            return UpdateCallback != null || NumChildrenRequiringUpdateTraversal != 0; 
+        }
+
+        public bool RequiresEventTraversal()
+        {
+            return EventCallback != null || NumChildrenRequiringEventTraversal != 0; 
+        }
     }
 }

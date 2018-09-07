@@ -26,12 +26,12 @@ namespace Veldrid.SceneGraph.Util
 {
     public class RenderLeaf
     {
-        private StateGraph Parent { get; set; } = null;
+        public StateGraph Parent { get; set; } = null;
         private Drawable Drawable { get; set; } = null;
         private Matrix4x4 Projection { get; set; } = Matrix4x4.Identity;
         private Matrix4x4 ModelView { get; set; } = Matrix4x4.Identity;
         private float Depth { get; set; } = 0.0f;
-        private bool Dynamic { get; set; } = false;
+        public bool Dynamic { get; set; } = false;
         private uint TraversalOrderNumber { get; set; } = 0;
 
         private RenderLeaf()

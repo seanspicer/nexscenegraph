@@ -31,7 +31,7 @@ namespace Veldrid.SceneGraph
     /// </summary>
     public class CullingSet
     {
-        private struct StateFrustumPair
+        public struct StateFrustumPair
         {
             public Polytope Polytope;
             public StateSet StateSet;
@@ -60,7 +60,7 @@ namespace Veldrid.SceneGraph
 
         private MaskValues _mask = MaskValues.DefaultCulling;
         private Polytope _frustum = new Polytope();
-        private List<StateFrustumPair>    _stateFrustumList = new List<StateFrustumPair>();
+        public List<StateFrustumPair>    StateFrustumList { get; set; } = new List<StateFrustumPair>();
         private Vector4 _pixelSizeVector = Vector4.Zero;
         private float _smallFeatureCullingPixelSize = 0;
 

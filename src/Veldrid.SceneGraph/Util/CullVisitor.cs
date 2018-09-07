@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Linq;
 using System.Numerics;
 
 namespace Veldrid.SceneGraph.Util
@@ -79,28 +80,83 @@ namespace Veldrid.SceneGraph.Util
             _rootStateGraph = stateGraph;
             _currentStateGraph = stateGraph;
         }
-        
+
         public override void Apply(Drawable drawable)
         {
             var matrix = _cullStack.GetProjectionMatrix();
 
             var bb = drawable.GetBoundingBox();
-            
+
             // TODO Add Cull Callback Here
 
             if (drawable.IsCullingActive && _cullStack.IsCulled(bb)) return;
 
             if (CullSettings.ComputeNearFarMode.DoNotComputeNearFar != _cullStack.GetComputeNearFarMode() && bb.Valid())
             {
-                if(!UpdateCalculatedNearFar(matrix, drawable, false))
+                if (!UpdateCalculatedNearFar(matrix, drawable, false))
                 {
                     return;
                 }
             }
+
+            // need to track how push/pops there are, so we can unravel the stack correctly.
+            uint numPopStateSetRequired = 0;
+
+            // push the geoset's state on the geostate stack.
+            var stateSet = drawable.StateSet;
+            if (null != stateSet)
+            {
+                ++numPopStateSetRequired;
+                PushStateSet(stateSet);
+            }
+
+            var cs = _cullStack.CurrentCullingSet;
+            foreach (var sf in cs.StateFrustumList)
+            {
+                if (sf.Polytope.Contains(bb))
+                {
+                    ++numPopStateSetRequired;
+                    PushStateSet(stateSet);
+                }
+            }
             
-            // TODO - Continue HERE
+            var depth = bb !=null ? Distance(bb.Center, matrix) : 0.0f;
+
+            if (float.IsNaN(depth))
+            {
+                Console.WriteLine("CullVisitor.Apply(Drawable) detected NaN");
+            }
+            else
+            {
+                AddDrawableAndDepth(drawable, matrix, depth);
+            }
             
-            
+            for(var i=0;i< numPopStateSetRequired; ++i)
+            {
+                PopStateSet();
+            }
+
+        }
+
+        private void PushStateSet(StateSet stateSet)
+        {
+            // TODO - Deal with RenderBins?
+            _currentStateGraph = _currentStateGraph.FindOrInsert(stateSet);
+        }
+        
+        private void PopStateSet()
+        {
+           // TODO - Deal with RenderBins?
+            _currentStateGraph = _currentStateGraph.Parent;
+        }
+
+        private void AddDrawableAndDepth(Drawable drawable, Matrix4x4 matrix, float depth)
+        {
+            if (_currentStateGraph.Leaves.Count == 0)
+            {
+                _currentRenderBin.StateGraphList.Add(_currentStateGraph);
+            }
+            _currentStateGraph.AddLeaf(new RenderLeaf(drawable, _cullStack.GetProjectionMatrix(),matrix,depth));
         }
 
         private bool UpdateCalculatedNearFar(Matrix4x4 matrix, Drawable drawable, bool isBillboard)

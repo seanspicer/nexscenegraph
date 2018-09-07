@@ -52,6 +52,7 @@ namespace Veldrid.SceneGraph
    
     public abstract class Node : Object
     {
+        // Public Fields
         public Guid Id { get; private set; }
         public uint NodeMask { get; set; } = 0xffffffff;
         
@@ -62,10 +63,63 @@ namespace Veldrid.SceneGraph
 
         public bool IsCullingActive => NumChildrenWithCullingDisabled == 0 && CullingActive && GetBound().Valid();
 
+        public StateSet StateSet
+        {
+            get => _stateSet;
+            set
+            {
+                if (value == _stateSet) return;
+                
+                var deltaUpdate = 0;
+                var deltaEvent = 0;
+                
+                if (null != _stateSet)
+                {
+                    _stateSet.RemoveParent(this);
+                    if (_stateSet.RequiresUpdateTraversal()) --deltaUpdate;
+                    if (_stateSet.RequiresEventTraversal()) --deltaEvent;
+                }
+                
+                if (deltaUpdate!=0)
+                {
+                    SetNumChildrenRequiringUpdateTraversal(GetNumChildrenRequiringUpdateTraversal()+deltaUpdate);
+                }
+
+                if (deltaEvent!=0)
+                {
+                    SetNumChildrenRequiringEventTraversal(GetNumChildrenRequiringEventTraversal()+deltaEvent);
+                }
+            } 
+        }
+
+        private int GetNumChildrenRequiringEventTraversal()
+        {
+            throw new NotImplementedException();
+        }
+
+        private int GetNumChildrenRequiringUpdateTraversal()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void SetNumChildrenRequiringEventTraversal(int i)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void SetNumChildrenRequiringUpdateTraversal(int i)
+        {
+            throw new NotImplementedException();
+        }
+
+        // Protected/Private fields
+
+        private StateSet _stateSet = null;
         private List<Group> _parents;
         protected bool _boundingSphereComputed = false;
         protected BoundingSphere _boundingSphere;
 
+       
         private BoundingSphere _initialBound = new BoundingSphere();
         public BoundingSphere InitialBound
         {
@@ -84,6 +138,18 @@ namespace Veldrid.SceneGraph
             Id = Guid.NewGuid();
 
             _parents = new List<Group>();
+        }
+
+        public StateSet GetOrCreateStateSet()
+        {
+            if (null == _stateSet)
+            {
+                _stateSet = new StateSet();
+            }
+            
+            return _stateSet;
+            
+            
         }
 
         protected internal void AddParent(Group parent)
