@@ -144,7 +144,7 @@ namespace Veldrid.SceneGraph
         // 
         public virtual void Apply<T>(Geometry<T> node) where T : struct, IPrimitiveElement
         {
-            Apply((Node)node);
+            Apply((Drawable)node);
         }
 
         // 

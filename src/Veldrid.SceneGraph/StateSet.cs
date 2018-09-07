@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using SharpDX.Direct3D11;
 
 namespace Veldrid.SceneGraph
 {
@@ -35,6 +36,10 @@ namespace Veldrid.SceneGraph
         public int NumChildrenRequiringUpdateTraversal { get; private set; } = 0;
         public int NumChildrenRequiringEventTraversal { get; private set; } = 0;
         
+        // States
+        public BlendStateDescription BlendState { get; set; } = BlendStateDescription.SingleOverrideBlend;
+        public DepthStencilStateDescription DepthStencilState { get; set; } = DepthStencilStateDescription.DepthOnlyLessEqual;
+        public RasterizerStateDescription RasterizerState { get; set; } = RasterizerStateDescription.Default;
 
         public void RemoveParent(Node node)
         {

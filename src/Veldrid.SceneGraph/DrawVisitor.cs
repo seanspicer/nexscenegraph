@@ -45,12 +45,36 @@ namespace Veldrid.SceneGraph
     internal class DrawVisitor : NodeVisitor
     {
         private Dictionary<Guid, DrawInfo> DrawInfoDictionary { get; }
+
+        private RenderInfo _renderInfo = new RenderInfo();
+
+        public GraphicsDevice GraphicsDevice
+        {
+            get => _renderInfo.GraphicsDevice;
+            set => _renderInfo.GraphicsDevice = value;
+        }
+
+        public ResourceFactory ResourceFactory
+        {
+            get => _renderInfo.ResourceFactory;
+            set => _renderInfo.ResourceFactory = value;
+        }
         
-        public GraphicsDevice GraphicsDevice { get; set; }
-        public ResourceFactory ResourceFactory { get; set; }
-        public CommandList CommandList { get; set; }
-        public ResourceLayout ResourceLayout { get; set; }
-        public ResourceSet ResourceSet { get; set; }
+        public CommandList CommandList
+        {
+            get => _renderInfo.CommandList;
+            set => _renderInfo.CommandList = value;
+        }
+        public ResourceLayout ResourceLayout
+        {
+            get => _renderInfo.ResourceLayout;
+            set => _renderInfo.ResourceLayout = value;
+        }
+        public ResourceSet ResourceSet
+        {
+            get => _renderInfo.ResourceSet;
+            set => _renderInfo.ResourceSet = value;
+        }
         
         internal DrawVisitor() : base(VisitorType.NodeVisitor)
         {
@@ -61,90 +85,14 @@ namespace Veldrid.SceneGraph
         public void BeginDraw()
         {
         }
-        
-        // Draw a Geometry
-        public override void Apply<T>(Geometry<T> geometry) 
-        {
-            DrawInfo drawInfo;
-            if (!DrawInfoDictionary.TryGetValue(geometry.Id, out drawInfo))
-            {
-                drawInfo = SetupDrawInfo(geometry);
-                DrawInfoDictionary.Add(geometry.Id, drawInfo);
-            }
-            
-            // Set pipeline
-            CommandList.SetPipeline(drawInfo.PipeLine);
 
-            // Set the resources
-            CommandList.SetGraphicsResourceSet(0, ResourceSet);
-            
-            // Set all relevant state to draw our quad.
-            CommandList.SetVertexBuffer(0, drawInfo.VertexBuffer);
-            CommandList.SetIndexBuffer(drawInfo.IndexBuffer, IndexFormat.UInt16); // Problem child
-            
-            // Issue a Draw command for a single instance with 4 indices.
-            CommandList.DrawIndexed(
-                indexCount: drawInfo.NumIndices,
-                instanceCount: 1,
-                indexStart: 0,
-                vertexOffset: 0,
-                instanceStart: 0);
+        public override void Apply(Drawable drawable)
+        {
+            drawable.Draw(_renderInfo);
         }
 
         public void EndDraw()
         {
-        }
-        
-        private DrawInfo SetupDrawInfo<T>(Geometry<T> geometry) where T : struct, IPrimitiveElement
-        {
-            var drawInfo = new DrawInfo();
-
-            var vbDescription = new BufferDescription(
-                (uint) (geometry.VertexData.Length * geometry.SizeOfVertexData),
-                BufferUsage.VertexBuffer);
-
-            drawInfo.VertexBuffer = ResourceFactory.CreateBuffer(vbDescription);
-            GraphicsDevice.UpdateBuffer(drawInfo.VertexBuffer, 0, geometry.VertexData);
-            
-            var ibDescription = new BufferDescription(
-                (uint) geometry.IndexData.Length * sizeof(ushort),
-                BufferUsage.IndexBuffer);
-
-            drawInfo.NumIndices = (uint) geometry.IndexData.Length;
-            drawInfo.IndexBuffer = ResourceFactory.CreateBuffer(ibDescription);
-            GraphicsDevice.UpdateBuffer(drawInfo.IndexBuffer, 0, geometry.IndexData);
-
-            // TODO - maybe make a class for this stuff <ShaderProgram> ?
-            drawInfo.VertexShader =
-                ResourceFactory.CreateShader(new ShaderDescription(ShaderStages.Vertex, geometry.VertexShader, geometry.VertexShaderEntryPoint));
-            drawInfo.FragmentShader =
-                ResourceFactory.CreateShader(new ShaderDescription(ShaderStages.Fragment, geometry.FragmentShader, geometry.FragmentShaderEntryPoint));
-            
-            var pipelineDescription = new GraphicsPipelineDescription();
-            pipelineDescription.BlendState = BlendStateDescription.SingleOverrideBlend;
-            pipelineDescription.DepthStencilState = new DepthStencilStateDescription(
-                depthTestEnabled: true,
-                depthWriteEnabled: true,
-                comparisonKind: ComparisonKind.LessEqual);
-            pipelineDescription.RasterizerState = new RasterizerStateDescription(
-                cullMode: FaceCullMode.Back,
-                fillMode: PolygonFillMode.Solid,
-                frontFace: FrontFace.Clockwise,
-                depthClipEnabled: true,
-                scissorTestEnabled: false);
-            pipelineDescription.PrimitiveTopology = geometry.PrimitiveTopology;
-
-            pipelineDescription.ResourceLayouts = new[] {ResourceLayout};
-              
-            pipelineDescription.ShaderSet = new ShaderSetDescription(
-                vertexLayouts: new VertexLayoutDescription[] { geometry.VertexLayout },
-                shaders: new Shader[] { drawInfo.VertexShader, drawInfo.FragmentShader });
-            
-            pipelineDescription.Outputs = GraphicsDevice.SwapchainFramebuffer.OutputDescription;
-            
-            drawInfo.PipeLine = ResourceFactory.CreateGraphicsPipeline(pipelineDescription);
-
-            return drawInfo;
         }
         
     }

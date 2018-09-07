@@ -32,6 +32,12 @@ namespace Veldrid.SceneGraph
         public Stack<Camera> CameraStack { get; set; } = new Stack<Camera>();
         public Stack<RenderBin> RenderBinStack { get; set; } = new Stack<RenderBin>();
 
+        public GraphicsDevice GraphicsDevice { get; set; }
+        public ResourceFactory ResourceFactory { get; set; }
+        public CommandList CommandList { get; set; }
+        public ResourceLayout ResourceLayout { get; set; }
+        public ResourceSet ResourceSet { get; set; }
+        
         public RenderInfo()
         {
         }

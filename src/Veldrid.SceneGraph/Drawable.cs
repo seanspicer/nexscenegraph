@@ -39,9 +39,22 @@ namespace Veldrid.SceneGraph
         } 
         
         public event Func<Node, BoundingBox> ComputeBoundingBoxCallback;
-        
-        public abstract void Draw(RenderInfo renderInfo);
+        public event Action<RenderInfo, Drawable> DrawImplementationCallback;
 
+        public void Draw(RenderInfo renderInfo)
+        {
+            if (null != DrawImplementationCallback)
+            {
+                DrawImplementationCallback(renderInfo, this);
+            }
+            else
+            {
+                DrawImplementation(renderInfo);
+            }
+        }
+
+        protected abstract void DrawImplementation(RenderInfo renderInfo);
+        
         public BoundingBox GetBoundingBox()
         {
             if (_boundingSphereComputed) return _boundingBox;

@@ -114,7 +114,7 @@ namespace Veldrid.SceneGraph
 
         // Protected/Private fields
 
-        private StateSet _stateSet = null;
+        protected StateSet _stateSet = null;
         private List<Group> _parents;
         protected bool _boundingSphereComputed = false;
         protected BoundingSphere _boundingSphere;
