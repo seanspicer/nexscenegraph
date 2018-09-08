@@ -66,7 +66,18 @@ namespace ColoredCube
             viewer.View.CameraManipulator = new TrackballManipulator();
 
             var root = new Group();
-            
+
+            var cube = CreateCube();
+          
+            root.AddChild(cube);
+
+            viewer.SceneData = root;
+
+            viewer.Run();
+        }
+
+        static Drawable CreateCube()
+        {
             var geometry = new Geometry<VertexPositionColor>();
 
             // TODO - make this a color index cube
@@ -138,12 +149,21 @@ namespace ColoredCube
                 typeof(Program).Assembly,
                 "ColoredCubeShader", ShaderStages.Fragment);
             geometry.FragmentShaderEntryPoint = "FS";
-          
-            root.AddChild(geometry);
+            
+            //
+            // Setup the cube's pipeline state.  Rendering will not work
+            // without a valid state.
+            //
+            GraphicsPipelineDescription pd = new GraphicsPipelineDescription();
+            pd.BlendState = BlendStateDescription.SingleOverrideBlend;;
+            pd.DepthStencilState = DepthStencilStateDescription.DepthOnlyLessEqual;
+            pd.RasterizerState = RasterizerStateDescription.Default;
+            pd.PrimitiveTopology = PrimitiveTopology.TriangleList;
 
-            viewer.SceneData = root;
-
-            viewer.Run();
+            geometry.PipelineDescription = pd;
+            
+            
+            return geometry;
         }
     }
 }

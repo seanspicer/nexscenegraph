@@ -45,12 +45,7 @@ namespace Veldrid.SceneGraph
 
         public VertexLayoutDescription VertexLayout { get; set; }
             
-        private DeviceBuffer VertexBuffer { get; set; }
-        private DeviceBuffer IndexBuffer { get; set; }
         private uint NumIndices { get; set; }
-        private Shader VertexShaderProg { get; set; }
-        private Shader FragmentShaderProg { get; set; }
-        private Pipeline PipeLine { get; set; }
 
         private bool _dirtyFlag = true;
         
@@ -69,64 +64,31 @@ namespace Veldrid.SceneGraph
         protected override void DrawImplementation(RenderInfo renderInfo)
         {
             if (_dirtyFlag)
-            {
-                //
-                // TODO build this into RenderInfo.Pipeline ?
-                //
-                
+            {                
                 var vbDescription = new BufferDescription(
                     (uint) (VertexData.Length * SizeOfVertexData),
                     BufferUsage.VertexBuffer);
     
-                VertexBuffer = renderInfo.ResourceFactory.CreateBuffer(vbDescription);
-                renderInfo.GraphicsDevice.UpdateBuffer(VertexBuffer, 0, VertexData);
+                renderInfo.VertexBuffer = renderInfo.ResourceFactory.CreateBuffer(vbDescription);
+                renderInfo.GraphicsDevice.UpdateBuffer(renderInfo.VertexBuffer, 0, VertexData);
                 
                 var ibDescription = new BufferDescription(
                     (uint) IndexData.Length * sizeof(ushort),
                     BufferUsage.IndexBuffer);
     
                 NumIndices = (uint) IndexData.Length;
-                IndexBuffer = renderInfo.ResourceFactory.CreateBuffer(ibDescription);
-                renderInfo.GraphicsDevice.UpdateBuffer(IndexBuffer, 0, IndexData);
+                renderInfo.IndexBuffer = renderInfo.ResourceFactory.CreateBuffer(ibDescription);
+                renderInfo.GraphicsDevice.UpdateBuffer(renderInfo.VertexBuffer, 0, IndexData);
     
-                // TODO - maybe make a class for this stuff <ShaderProgram> ?
-                VertexShaderProg =
-                    renderInfo.ResourceFactory.CreateShader(new ShaderDescription(ShaderStages.Vertex, VertexShader, VertexShaderEntryPoint));
-                FragmentShaderProg =
-                    renderInfo.ResourceFactory.CreateShader(new ShaderDescription(ShaderStages.Fragment, FragmentShader, FragmentShaderEntryPoint));
-                
-                var pipelineDescription = new GraphicsPipelineDescription();
-                
-                // TODO - move to some sort of State Apply
-                pipelineDescription.BlendState = _stateSet.BlendState;
-                pipelineDescription.DepthStencilState = _stateSet.DepthStencilState;
-                pipelineDescription.RasterizerState = _stateSet.RasterizerState;
-                // TODO - move to some sort of State Apply
-                
-                pipelineDescription.PrimitiveTopology = PrimitiveTopology;
-    
-                pipelineDescription.ResourceLayouts = new[] {renderInfo.ResourceLayout};
-                  
-                pipelineDescription.ShaderSet = new ShaderSetDescription(
-                    vertexLayouts: new VertexLayoutDescription[] { VertexLayout },
-                    shaders: new Shader[] { VertexShaderProg, FragmentShaderProg });
-                
-                pipelineDescription.Outputs = renderInfo.GraphicsDevice.SwapchainFramebuffer.OutputDescription;
-                
-                PipeLine = renderInfo.ResourceFactory.CreateGraphicsPipeline(pipelineDescription);
-
                 _dirtyFlag = false;
             }
-
-            // Set pipeline
-            renderInfo.CommandList.SetPipeline(PipeLine);
 
             // Set the resources
             renderInfo.CommandList.SetGraphicsResourceSet(0, renderInfo.ResourceSet);
             
             // Set all relevant state to draw our quad.
-            renderInfo.CommandList.SetVertexBuffer(0, VertexBuffer);
-            renderInfo.CommandList.SetIndexBuffer(IndexBuffer, IndexFormat.UInt16); // Problem child
+            renderInfo.CommandList.SetVertexBuffer(0, renderInfo.VertexBuffer);
+            renderInfo.CommandList.SetIndexBuffer(renderInfo.IndexBuffer, IndexFormat.UInt16); 
             
             // Issue a Draw command for a single instance with 4 indices.
             renderInfo.CommandList.DrawIndexed(

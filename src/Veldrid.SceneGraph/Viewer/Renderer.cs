@@ -22,12 +22,13 @@
 
 using System;
 using System.Numerics;
+using Veldrid.SceneGraph.RenderGraph;
 
 namespace Veldrid.SceneGraph.Viewer
 {
     public class Renderer : IGraphicsDeviceOperation
     {
-        private DrawVisitor _drawVisitor;
+        private CullAndAssembleVisitor _cullAndAssembleVisitor;
         private Camera _camera;
         
         private DeviceBuffer _projectionBuffer;
@@ -38,17 +39,19 @@ namespace Veldrid.SceneGraph.Viewer
         private ResourceSet _resourceSet;
         
         private bool _initialized = false;
+
+        private RenderInfo _renderInfo;
         
         public Renderer(Camera camera)
         {
             _camera = camera;
-            _drawVisitor = new DrawVisitor();
+            _cullAndAssembleVisitor = new CullAndAssembleVisitor();
         }
 
         private void Initialize(GraphicsDevice device, ResourceFactory factory)
         {
-            _drawVisitor.GraphicsDevice = device;
-            _drawVisitor.ResourceFactory = factory;
+            _cullAndAssembleVisitor.GraphicsDevice = device;
+            _cullAndAssembleVisitor.ResourceFactory = factory;
             
             _projectionBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
             _viewBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
@@ -58,11 +61,27 @@ namespace Veldrid.SceneGraph.Viewer
                 new ResourceLayoutElementDescription("Projection", ResourceKind.UniformBuffer, ShaderStages.Vertex),
                 new ResourceLayoutElementDescription("View", ResourceKind.UniformBuffer, ShaderStages.Vertex)
             ));
+
+            _cullAndAssembleVisitor.ResourceLayout = _resourceLayout;
+            
+            if (_camera.View.GetType() != typeof(Viewer.View))
+            {
+                throw new InvalidCastException("Camera View type is not correct");
+            }
+            var view = (Viewer.View) _camera.View;
+            view.SceneData?.Accept(_cullAndAssembleVisitor);
             
             _resourceSet = factory.CreateResourceSet(new ResourceSetDescription(_resourceLayout, _projectionBuffer, _viewBuffer));
             
             _commandList = factory.CreateCommandList();
-
+            
+            _renderInfo = new RenderInfo();
+            _renderInfo.GraphicsDevice = device;
+            _renderInfo.ResourceFactory = factory;
+            _renderInfo.CommandList = _commandList;
+            _renderInfo.ResourceLayout = _resourceLayout;
+            _renderInfo.ResourceSet = _resourceSet;
+       
             _initialized = true;
         }
         
@@ -73,11 +92,6 @@ namespace Veldrid.SceneGraph.Viewer
                 Initialize(device, factory);
             }
             
-            
-            _drawVisitor.CommandList = _commandList;
-            _drawVisitor.ResourceLayout = _resourceLayout;
-            _drawVisitor.ResourceSet = _resourceSet;
-            
             // Begin() must be called before commands can be issued.
             _commandList.Begin();
 
@@ -85,20 +99,14 @@ namespace Veldrid.SceneGraph.Viewer
             _commandList.SetFramebuffer(device.SwapchainFramebuffer);
             
             // TODO Set from Camera color ?
-            _commandList.ClearColorTarget(0, RgbaFloat.Black);
+            _commandList.ClearColorTarget(0, RgbaFloat.Grey);
             _commandList.ClearDepthStencil(1f);
-            
-            _drawVisitor.BeginDraw();
 
-            if (_camera.View.GetType() != typeof(Viewer.View))
+            foreach (var dsn in _cullAndAssembleVisitor.DrawSet)
             {
-                throw new InvalidCastException("Camera View type is not correct");
+                _commandList.SetPipeline(dsn.Pipeline);
+                dsn.Drawable.Draw(_renderInfo);
             }
-
-            var view = (Viewer.View) _camera.View;
-            view.SceneData?.Accept(_drawVisitor);
-
-            _drawVisitor.EndDraw();
             
             _commandList.End();
             

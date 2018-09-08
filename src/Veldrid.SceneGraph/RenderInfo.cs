@@ -38,6 +38,10 @@ namespace Veldrid.SceneGraph
         public ResourceLayout ResourceLayout { get; set; }
         public ResourceSet ResourceSet { get; set; }
         
+        // TODO - these dont really belong here.
+        public DeviceBuffer VertexBuffer { get; set; }
+        public DeviceBuffer IndexBuffer { get; set; }
+        
         public RenderInfo()
         {
         }

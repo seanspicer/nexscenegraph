@@ -31,6 +31,7 @@ namespace Veldrid.SceneGraph
     /// </summary>
     public class NodeVisitor
     {
+        
         public enum TraversalModeType
         {
             TraverseNone,
@@ -39,11 +40,14 @@ namespace Veldrid.SceneGraph
             TraverseActiveChildren
         };
         
+        [Flags]
         public enum VisitorType
         {
             NodeVisitor,
             UpdateVisitor,
-            CullVisitor
+            CullVisitor,
+            AssembleVisitor,
+            CullAndAssembleVisitor = CullVisitor | AssembleVisitor
         };
 
         /// <summary>

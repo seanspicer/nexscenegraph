@@ -92,6 +92,13 @@ namespace Veldrid.SceneGraph
             } 
         }
 
+        private GraphicsPipelineDescription? _pipelineDescription = null;
+        public GraphicsPipelineDescription? PipelineDescription
+        {
+            get => _pipelineDescription;
+            set => _pipelineDescription = value;
+        }
+
         private int GetNumChildrenRequiringEventTraversal()
         {
             throw new NotImplementedException();
@@ -228,6 +235,5 @@ namespace Veldrid.SceneGraph
         {
             // Do nothing by default
         }
-       
     }
 }

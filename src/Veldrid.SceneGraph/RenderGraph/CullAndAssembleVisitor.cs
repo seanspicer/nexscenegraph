@@ -1,0 +1,114 @@
+﻿//
+// Copyright (c) 2018 Sean Spicer
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+//
+
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
+namespace Veldrid.SceneGraph.RenderGraph
+{
+    public class CullAndAssembleVisitor : NodeVisitor
+    {
+        public DrawSet DrawSet = new DrawSet();
+        public GraphicsDevice GraphicsDevice { get; set; } = null;
+        public ResourceFactory ResourceFactory { get; set; } = null;
+        public ResourceLayout ResourceLayout { get; set; } = null;
+
+        public Stack<GraphicsPipelineDescription> PipelineDescriptionStack = new Stack<GraphicsPipelineDescription>();
+
+        public bool Valid => null != GraphicsDevice;
+        
+        public CullAndAssembleVisitor() : 
+            base(VisitorType.CullAndAssembleVisitor, TraversalModeType.TraverseActiveChildren)
+        {
+        }
+
+        public override void Apply(Node node)
+        {
+            var needsPop = false;
+            if (node.PipelineDescription.HasValue)
+            {
+                PipelineDescriptionStack.Push(node.PipelineDescription.Value);
+                needsPop = true;
+            }
+            
+            Traverse(node);
+
+            if (needsPop)
+            {
+                PipelineDescriptionStack.Pop();
+            }
+        }
+       
+        public override void Apply<T>(Geometry<T> geometry)
+        {
+            DrawSetNode dsn;
+            dsn.Drawable = geometry;
+
+            GraphicsPipelineDescription pd;
+            if (geometry.PipelineDescription.HasValue)
+            {
+                pd = geometry.PipelineDescription.Value;
+            }
+            else if (PipelineDescriptionStack.Count != 0)
+            {
+                pd = PipelineDescriptionStack.Peek();
+            }
+            else
+            {
+                pd = new GraphicsPipelineDescription
+                {
+                    BlendState = BlendStateDescription.SingleAlphaBlend,
+                    DepthStencilState = DepthStencilStateDescription.DepthOnlyLessEqual,
+                    RasterizerState = RasterizerStateDescription.Default,
+                    PrimitiveTopology = geometry.PrimitiveTopology
+                };
+            }
+            
+            var vertexShaderProg =
+                ResourceFactory.CreateShader(
+                    new ShaderDescription(ShaderStages.Vertex, 
+                        geometry.VertexShader, 
+                        geometry.VertexShaderEntryPoint
+                        )
+                    );
+            
+            var fragmentShaderProg =
+                ResourceFactory.CreateShader(
+                    new ShaderDescription(ShaderStages.Fragment, 
+                        geometry.FragmentShader, 
+                        geometry.FragmentShaderEntryPoint
+                        )
+                    );
+            
+            pd.ResourceLayouts = new[] {ResourceLayout};
+                  
+            pd.ShaderSet = new ShaderSetDescription(
+                vertexLayouts: new VertexLayoutDescription[] { geometry.VertexLayout },
+                shaders: new Shader[] { vertexShaderProg, fragmentShaderProg });
+                
+            pd.Outputs = GraphicsDevice.SwapchainFramebuffer.OutputDescription;
+                
+            dsn.Pipeline = ResourceFactory.CreateGraphicsPipeline(pd);
+            DrawSet.Add(dsn);
+        }
+    }
+}
