@@ -46,7 +46,7 @@ namespace Veldrid.SceneGraph
         public VertexLayoutDescription VertexLayout { get; set; }
             
         private uint NumIndices { get; set; }
-
+        
         private bool _dirtyFlag = true;
         
         public Geometry()
@@ -78,11 +78,11 @@ namespace Veldrid.SceneGraph
     
                 NumIndices = (uint) IndexData.Length;
                 renderInfo.IndexBuffer = renderInfo.ResourceFactory.CreateBuffer(ibDescription);
-                renderInfo.GraphicsDevice.UpdateBuffer(renderInfo.VertexBuffer, 0, IndexData);
+                renderInfo.GraphicsDevice.UpdateBuffer(renderInfo.IndexBuffer, 0, IndexData);
     
                 _dirtyFlag = false;
             }
-
+            
             // Set the resources
             renderInfo.CommandList.SetGraphicsResourceSet(0, renderInfo.ResourceSet);
             

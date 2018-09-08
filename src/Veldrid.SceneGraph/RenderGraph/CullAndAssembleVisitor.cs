@@ -108,6 +108,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             pd.Outputs = GraphicsDevice.SwapchainFramebuffer.OutputDescription;
                 
             dsn.Pipeline = ResourceFactory.CreateGraphicsPipeline(pd);
+
             DrawSet.Add(dsn);
         }
     }

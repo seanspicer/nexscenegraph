@@ -63,6 +63,7 @@ namespace Veldrid.SceneGraph.Viewer
             ));
 
             _cullAndAssembleVisitor.ResourceLayout = _resourceLayout;
+            _cullAndAssembleVisitor.DrawSet.Clear();
             
             if (_camera.View.GetType() != typeof(Viewer.View))
             {
@@ -119,17 +120,6 @@ namespace Veldrid.SceneGraph.Viewer
             {
                 Initialize(device, factory);
             }
-            
-            //device.UpdateBuffer(_projectionBuffer, 0, Matrix4x4.Identity);
-            //device.UpdateBuffer(_viewBuffer, 0, Matrix4x4.Identity);
-            
-            
-//            Console.WriteLine("Transformed Coord = {0}", 
-//                Vector4.Transform(
-//                    Vector4.Transform(
-//                        new Vector4(0.75f, 0.75f, 0f, 1f), 
-//                        _camera.ViewMatrix), 
-//                    _camera.ProjectionMatrix));
             
             device.UpdateBuffer(_projectionBuffer, 0, _camera.ProjectionMatrix);
             device.UpdateBuffer(_viewBuffer, 0, _camera.ViewMatrix);

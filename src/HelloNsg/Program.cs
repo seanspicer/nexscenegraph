@@ -98,11 +98,17 @@ namespace HelloNsg
                 "HelloShaders", ShaderStages.Fragment);
             geometry.FragmentShaderEntryPoint = "FS";
             
-            //var vsPath = Path.Combine(System.AppContext.BaseDirectory, "Shaders", "Vertex.spv");
-            //geometry.VertexShader = File.ReadAllBytes(vsPath);
-            
-            //var fsPath = Path.Combine(System.AppContext.BaseDirectory, "Shaders", "Fragment.spv");
-            //geometry.FragmentShader = File.ReadAllBytes(fsPath);
+            //
+            // Setup the cube's pipeline state.  Rendering will not work
+            // without a valid state.
+            //
+            GraphicsPipelineDescription pd = new GraphicsPipelineDescription();
+            pd.BlendState = BlendStateDescription.SingleOverrideBlend;;
+            pd.DepthStencilState = DepthStencilStateDescription.DepthOnlyLessEqual;
+            pd.RasterizerState = RasterizerStateDescription.Default;
+            pd.PrimitiveTopology = PrimitiveTopology.TriangleStrip;
+
+            geometry.PipelineDescription = pd;
             
             root.AddChild(geometry);
 

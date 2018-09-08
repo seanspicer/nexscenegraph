@@ -151,6 +151,13 @@ namespace ColoredCube
             geometry.FragmentShaderEntryPoint = "FS";
             
             //
+            // TODO - FIXME - this is really not the greatest
+            // 
+            // Specifying a "partial" pipeline state is kinda goofy.
+            // Probably shoudl create a PipelineState object and 
+            // attched shaders and fixed function state to it rather
+            // than the node.
+            // 
             // Setup the cube's pipeline state.  Rendering will not work
             // without a valid state.
             //
