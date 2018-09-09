@@ -22,6 +22,7 @@
 
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Numerics;
 
 namespace Veldrid.SceneGraph.RenderGraph
 {
@@ -31,6 +32,8 @@ namespace Veldrid.SceneGraph.RenderGraph
         public GraphicsDevice GraphicsDevice { get; set; } = null;
         public ResourceFactory ResourceFactory { get; set; } = null;
         public ResourceLayout ResourceLayout { get; set; } = null;
+        
+        public Stack<Matrix4x4> ModelMatrixStack { get; set; } = new Stack<Matrix4x4>();
 
         public Stack<GraphicsPipelineDescription> PipelineDescriptionStack = new Stack<GraphicsPipelineDescription>();
 
@@ -39,6 +42,7 @@ namespace Veldrid.SceneGraph.RenderGraph
         public CullAndAssembleVisitor() : 
             base(VisitorType.CullAndAssembleVisitor, TraversalModeType.TraverseActiveChildren)
         {
+            ModelMatrixStack.Push(Matrix4x4.Identity);
         }
 
         public override void Apply(Node node)
@@ -57,7 +61,19 @@ namespace Veldrid.SceneGraph.RenderGraph
                 PipelineDescriptionStack.Pop();
             }
         }
-       
+
+        public override void Apply(Transform transform)
+        {
+            var curModel = ModelMatrixStack.Peek();
+            transform.ComputeLocalToWorldMatrix(ref curModel, this);
+            ModelMatrixStack.Push(curModel);
+            
+            Traverse(transform);
+
+            ModelMatrixStack.Pop();
+
+        }
+
         public override void Apply<T>(Geometry<T> geometry)
         {
             DrawSetNode dsn;
@@ -108,7 +124,8 @@ namespace Veldrid.SceneGraph.RenderGraph
             pd.Outputs = GraphicsDevice.SwapchainFramebuffer.OutputDescription;
                 
             dsn.Pipeline = ResourceFactory.CreateGraphicsPipeline(pd);
-
+            dsn.ModelMatrix = ModelMatrixStack.Peek();
+            
             DrawSet.Add(dsn);
         }
     }

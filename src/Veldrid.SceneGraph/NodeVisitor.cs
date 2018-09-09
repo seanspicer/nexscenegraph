@@ -26,6 +26,10 @@ using System.Data;
 
 namespace Veldrid.SceneGraph
 {
+    public class NodePath : LinkedList<Node>
+    {
+    }
+
     /// <summary>
     /// Base class for all visitors
     /// </summary>
@@ -76,7 +80,7 @@ namespace Veldrid.SceneGraph
         
         public TraversalModeType TraversalMode { get; set; }
         
-        public LinkedList<Node> NodePath { get; } = new LinkedList<Node>();
+        public NodePath NodePath { get; } = new NodePath();
         
         public NodeVisitor(VisitorType type, TraversalModeType traversalMode = TraversalModeType.TraverseNone)
         {
@@ -154,9 +158,9 @@ namespace Veldrid.SceneGraph
         // 
         // Default implementation for Transform node
         // 
-        public virtual void Apply(Transform node)
+        public virtual void Apply(Transform transform)
         {
-            Apply((Node)node);
+            Apply((Node)transform);
         }
         
         

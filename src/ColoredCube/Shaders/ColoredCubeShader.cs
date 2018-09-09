@@ -16,6 +16,7 @@ namespace ColoredCube.Shaders
     
         public Matrix4x4 Projection;
         public Matrix4x4 View;
+        public Matrix4x4 Model;
 
         [VertexShader]
         public FragmentInput VS(ColoredCube.VertexPositionColor input)
@@ -25,7 +26,9 @@ namespace ColoredCube.Shaders
             
             output.Position = Vector4.Transform(
                 Vector4.Transform(
-                    new Vector4(input.Position, 1f),
+                    Vector4.Transform(
+                        new Vector4(input.Position, 1f),
+                        Model),
                     View),
                 Projection);
         

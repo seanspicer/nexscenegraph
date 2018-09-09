@@ -22,6 +22,7 @@
 
 using System;
 using System.Numerics;
+using Veldrid.MetalBindings;
 using Veldrid.SceneGraph.RenderGraph;
 
 namespace Veldrid.SceneGraph.Viewer
@@ -33,7 +34,7 @@ namespace Veldrid.SceneGraph.Viewer
         
         private DeviceBuffer _projectionBuffer;
         private DeviceBuffer _viewBuffer;
-        private DeviceBuffer _worldBuffer;
+        private DeviceBuffer _modelBuffer;
         private CommandList _commandList;
         private ResourceLayout _resourceLayout;
         private ResourceSet _resourceSet;
@@ -55,11 +56,12 @@ namespace Veldrid.SceneGraph.Viewer
             
             _projectionBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
             _viewBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
-            _worldBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
+            _modelBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
             
             _resourceLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(
                 new ResourceLayoutElementDescription("Projection", ResourceKind.UniformBuffer, ShaderStages.Vertex),
-                new ResourceLayoutElementDescription("View", ResourceKind.UniformBuffer, ShaderStages.Vertex)
+                new ResourceLayoutElementDescription("View", ResourceKind.UniformBuffer, ShaderStages.Vertex),
+                new ResourceLayoutElementDescription("Model", ResourceKind.UniformBuffer, ShaderStages.Vertex)
             ));
 
             _cullAndAssembleVisitor.ResourceLayout = _resourceLayout;
@@ -72,7 +74,7 @@ namespace Veldrid.SceneGraph.Viewer
             var view = (Viewer.View) _camera.View;
             view.SceneData?.Accept(_cullAndAssembleVisitor);
             
-            _resourceSet = factory.CreateResourceSet(new ResourceSetDescription(_resourceLayout, _projectionBuffer, _viewBuffer));
+            _resourceSet = factory.CreateResourceSet(new ResourceSetDescription(_resourceLayout, _projectionBuffer, _viewBuffer, _modelBuffer));
             
             _commandList = factory.CreateCommandList();
             
@@ -106,6 +108,14 @@ namespace Veldrid.SceneGraph.Viewer
             foreach (var dsn in _cullAndAssembleVisitor.DrawSet)
             {
                 _commandList.SetPipeline(dsn.Pipeline);
+                
+                // Set the resources
+                _commandList.SetGraphicsResourceSet(0, _resourceSet);
+                _commandList.UpdateBuffer(_modelBuffer, 0, dsn.ModelMatrix);
+                
+                // Update model matrix
+                //device.UpdateBuffer(_modelBuffer, 0, dsn.ModelMatrix);
+                
                 dsn.Drawable.Draw(_renderInfo);
             }
             

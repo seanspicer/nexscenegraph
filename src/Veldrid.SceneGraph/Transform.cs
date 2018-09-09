@@ -26,9 +26,9 @@ using System.Numerics;
 namespace Veldrid.SceneGraph
 {
     /// <summary>
-    /// A Transform is a node which transforms all children by a 4x4 matrix
+    /// A Transform is a node which transforms all children
     /// </summary>
-    public class Transform : Node
+    public class Transform : Group
     {
         public enum ReferenceFrameType
         {
@@ -49,7 +49,7 @@ namespace Veldrid.SceneGraph
             visitor.Apply(this);
         }
 
-        public virtual bool computeLocalToWorldMatrix(ref Matrix4x4 matrix, NodeVisitor visitor)
+        public virtual bool ComputeLocalToWorldMatrix(ref Matrix4x4 matrix, NodeVisitor visitor)
         {
             if (ReferenceFrameType.Relative == ReferenceFrame)
             {
@@ -62,7 +62,7 @@ namespace Veldrid.SceneGraph
             }
         }
         
-        public virtual bool computeWorldToLocalMatrix(ref Matrix4x4 matrix, NodeVisitor visitor)
+        public virtual bool ComputeWorldToLocalMatrix(ref Matrix4x4 matrix, NodeVisitor visitor)
         {
             if (ReferenceFrameType.Relative == ReferenceFrame)
             {

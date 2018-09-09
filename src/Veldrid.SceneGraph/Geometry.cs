@@ -83,8 +83,7 @@ namespace Veldrid.SceneGraph
                 _dirtyFlag = false;
             }
             
-            // Set the resources
-            renderInfo.CommandList.SetGraphicsResourceSet(0, renderInfo.ResourceSet);
+
             
             // Set all relevant state to draw our quad.
             renderInfo.CommandList.SetVertexBuffer(0, renderInfo.VertexBuffer);

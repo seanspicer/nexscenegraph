@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using ColoredCube.Shaders;
 using ShaderGen;
+using SharpDX.Mathematics.Interop;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
@@ -66,10 +67,25 @@ namespace ColoredCube
             viewer.View.CameraManipulator = new TrackballManipulator();
 
             var root = new Group();
+            
+            var scale_xform = new MatrixTransform();
+            scale_xform.Matrix = Matrix4x4.CreateScale(0.25f);
 
+            var trans_xform_left = new MatrixTransform();
+            trans_xform_left.Matrix = Matrix4x4.CreateTranslation(-1.0f, 0.0f, 0.0f);
+            
+            var trans_xform_right = new MatrixTransform();
+            trans_xform_right.Matrix = Matrix4x4.CreateTranslation(1.0f, 0.0f, 0.0f);
+            
             var cube = CreateCube();
-          
-            root.AddChild(cube);
+
+            scale_xform.AddChild(cube);
+            
+            trans_xform_right.AddChild(scale_xform);
+            trans_xform_left.AddChild(scale_xform);
+            
+            root.AddChild(trans_xform_left);
+            root.AddChild(trans_xform_right);
 
             viewer.SceneData = root;
 

@@ -20,21 +20,20 @@
 // SOFTWARE.
 //
 
-using System.Collections.Generic;
 using System.Numerics;
 
-namespace Veldrid.SceneGraph.RenderGraph
+namespace Veldrid.SceneGraph.Viewer
 {
-    public struct DrawSetNode
+    public static class MatrixExtensions
     {
-        public Pipeline Pipeline;
-        public Drawable Drawable;
-        public Matrix4x4 ModelMatrix;
-    }
-
-    public class DrawSet : List<DrawSetNode>
-    {
+        public static Matrix4x4 PreMultiply(this Matrix4x4 mat, Matrix4x4 other)
+        {
+            return Matrix4x4.Multiply(other, mat);
+        }
         
+        public static Matrix4x4 PostMultiply(this Matrix4x4 mat, Matrix4x4 other)
+        {
+            return Matrix4x4.Multiply(mat, other);
+        }
     }
-    
 }
