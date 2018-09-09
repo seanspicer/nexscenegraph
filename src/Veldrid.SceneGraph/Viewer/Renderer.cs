@@ -105,16 +105,19 @@ namespace Veldrid.SceneGraph.Viewer
             _commandList.ClearColorTarget(0, RgbaFloat.Grey);
             _commandList.ClearDepthStencil(1f);
 
+            var curModelMatrix = Matrix4x4.Identity;
             foreach (var dsn in _cullAndAssembleVisitor.DrawSet)
             {
                 _commandList.SetPipeline(dsn.Pipeline);
                 
                 // Set the resources
                 _commandList.SetGraphicsResourceSet(0, _resourceSet);
-                _commandList.UpdateBuffer(_modelBuffer, 0, dsn.ModelMatrix);
-                
-                // Update model matrix
-                //device.UpdateBuffer(_modelBuffer, 0, dsn.ModelMatrix);
+
+                if (dsn.ModelMatrix != curModelMatrix)
+                {
+                    _commandList.UpdateBuffer(_modelBuffer, 0, dsn.ModelMatrix);
+                    curModelMatrix = dsn.ModelMatrix;
+                }
                 
                 dsn.Drawable.Draw(_renderInfo);
             }
