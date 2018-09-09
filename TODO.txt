@@ -6,11 +6,11 @@ Overall
 SceneGraph
 ~~~~~~~~~~
 
-+ Implement Transform node
-+ Implement Noop Cull Traversal
-+ Implement RenderGraph instead of DrawVisitor
++ Implement Transform node [Done]
++ Implement Noop Cull Traversal [Done]
++ Implement RenderGraph instead of DrawVisitor [In Progress]
 + Implement Update/Update Uniforms visitor
-+ Code Review Visitor implementation & double-dispatch
++ Code Review Visitor implementation & double-dispatch [Done]
 
 Viewer
 ~~~~~~
