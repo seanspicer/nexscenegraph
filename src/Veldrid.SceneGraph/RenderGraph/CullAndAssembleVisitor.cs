@@ -23,6 +23,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Numerics;
+using Veldrid.Utilities;
 
 namespace Veldrid.SceneGraph.RenderGraph
 {
@@ -39,10 +40,19 @@ namespace Veldrid.SceneGraph.RenderGraph
 
         public bool Valid => null != GraphicsDevice;
         
+        private Polytope CullingFrustum { get; set; } = new Polytope();
+        
         public CullAndAssembleVisitor() : 
             base(VisitorType.CullAndAssembleVisitor, TraversalModeType.TraverseActiveChildren)
         {
             ModelMatrixStack.Push(Matrix4x4.Identity);
+            
+        }
+
+        public void PushProjectionMatrix(Matrix4x4 projection)
+        {
+            CullingFrustum.SetToUnitFrustum(false, false);
+            CullingFrustum.TransformProvidingInverse(projection);
         }
 
         public override void Apply(Node node)

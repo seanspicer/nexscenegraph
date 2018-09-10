@@ -32,9 +32,9 @@ namespace Veldrid.SceneGraph
     public class Polytope
     {
         private uint _resultMask;
-        private List<Plane> _planeList;
+        private List<Plane> _planeList = new List<Plane>();
         private List<Vector3> _vertexList;
-        private Stack<uint> _maskStack;
+        private Stack<uint> _maskStack = new Stack<uint>();
 
         public Polytope()
         {
@@ -51,6 +51,38 @@ namespace Veldrid.SceneGraph
             _maskStack.Push(_resultMask);
         }
 
+        public void SetToUnitFrustum(bool withNear=true, bool withFar = true)
+        {
+            _planeList.Clear();
+            _planeList.Add(new Plane( 1.0f, 0.0f, 0.0f,1.0f)); // left plane.
+            _planeList.Add(new Plane(-1.0f, 0.0f, 0.0f,1.0f)); // right plane.
+            _planeList.Add(new Plane( 0.0f, 1.0f, 0.0f,1.0f)); // bottom plane.
+            _planeList.Add(new Plane( 0.0f,-1.0f, 0.0f,1.0f)); // top plane.
+            if (withNear) _planeList.Add(new Plane(0.0f,0.0f, 1.0f,1.0f)); // near plane
+            if (withFar)  _planeList.Add(new Plane(0.0f,0.0f,-1.0f,1.0f)); // far plane
+            SetupMask();
+        }
+
+        public void TransformProvidingInverse(Matrix4x4 inverseMatrix)
+        {
+            if (0 == _maskStack.Count) return;
+
+            _resultMask = _maskStack.Peek();
+            uint selectorMask = 0x1;
+
+            for(var i=0; i<_planeList.Count; ++i)
+            {
+                if (0 != (_resultMask & selectorMask))
+                {
+                    var p = _planeList[i];
+                    _planeList.RemoveAt(i);
+                    _planeList.Insert(i, Plane.Transform(p, inverseMatrix));
+                }
+
+                selectorMask <<= 1;
+            }
+        }
+        
         public bool Contains(BoundingBox bb)
         {
             if (_maskStack.Count == 0) return true;
@@ -62,7 +94,7 @@ namespace Veldrid.SceneGraph
             {
                 if (0 != (_resultMask & selectorMask))
                 {
-                    int res = plane.Intersect(bb);
+                    var res = plane.Intersect(bb);
                     if (res < 0) return false;  // Outside the clipping set
                     else if (res > 0) _resultMask ^= selectorMask;  // Don't check again
                 }
