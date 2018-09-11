@@ -54,7 +54,7 @@ namespace Veldrid.SceneGraph
             if (plane.Distance(bb.Corner((uint) pci.lowerBBCorner)) > 0.0f) return 1;
             
             // if highest point is below plane then all below.
-            if (plane.Distance(bb.Corner((uint) pci.upperBBCorner)) < 0.0f) return 1;
+            if (plane.Distance(bb.Corner((uint) pci.upperBBCorner)) < 0.0f) return -1;
             
             // Otherwise, must be crossing a plane
             return 0;

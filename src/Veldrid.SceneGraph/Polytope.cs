@@ -25,6 +25,7 @@ using System.Numerics;
 
 namespace Veldrid.SceneGraph
 {
+
     public class PlaneList : List<Plane> {}
     
     /// <summary>
@@ -35,6 +36,8 @@ namespace Veldrid.SceneGraph
     {
         private readonly PlaneList _planeList = new PlaneList();
 
+        public Matrix4x4 VPMatrix { get; set; } = Matrix4x4.Identity;
+        
         public Polytope()
         {
             SetToUnitFrustum();
@@ -86,6 +89,22 @@ namespace Veldrid.SceneGraph
             foreach (var plane in _planeList)
             {
                 var res = plane.Intersect(bb);
+                if (res < 0) return false;  // Outside the clipping set
+            }
+
+            return true;
+        }
+        
+        public bool Contains(BoundingBox bb, Matrix4x4 transformMatrix)
+        {
+            if (_planeList.Count == 0) return true;
+
+            var mvp = Matrix4x4.Multiply(transformMatrix, VPMatrix);
+            Matrix4x4.Invert(mvp, out var mvpInv);
+            
+            foreach (var plane in _planeList)
+            {
+                var res = Plane.Transform(plane, mvpInv).Intersect(bb);
                 if (res < 0) return false;  // Outside the clipping set
             }
 

@@ -124,7 +124,7 @@ namespace Veldrid.SceneGraph
         protected StateSet _stateSet = null;
         private List<Group> _parents;
         protected bool _boundingSphereComputed = false;
-        protected BoundingSphere _boundingSphere;
+        protected BoundingSphere _boundingSphere = new BoundingSphere();
 
        
         private BoundingSphere _initialBound = new BoundingSphere();

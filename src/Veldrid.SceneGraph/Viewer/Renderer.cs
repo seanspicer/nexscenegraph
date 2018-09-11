@@ -39,6 +39,8 @@ namespace Veldrid.SceneGraph.Viewer
         private ResourceLayout _resourceLayout;
         private ResourceSet _resourceSet;
         
+        private Polytope CullingFrustum { get; set; } = new Polytope();
+        
         private bool _initialized = false;
 
         private RenderInfo _renderInfo;
@@ -113,6 +115,8 @@ namespace Veldrid.SceneGraph.Viewer
                 // Set the resources
                 _commandList.SetGraphicsResourceSet(0, _resourceSet);
 
+                if (IsCulled(dsn.Drawable.GetBoundingBox(), dsn.ModelMatrix)) continue;
+                
                 if (dsn.ModelMatrix != curModelMatrix)
                 {
                     _commandList.UpdateBuffer(_modelBuffer, 0, dsn.ModelMatrix);
@@ -127,6 +131,11 @@ namespace Veldrid.SceneGraph.Viewer
             device.SubmitCommands(_commandList);
         }
 
+        private bool IsCulled(BoundingBox bb, Matrix4x4 modelMatrix)
+        {
+            return !CullingFrustum.Contains(bb, modelMatrix);
+        }
+
         private void UpdateUniforms(GraphicsDevice device, ResourceFactory factory)
         {
             if (!_initialized)
@@ -136,9 +145,14 @@ namespace Veldrid.SceneGraph.Viewer
             
             device.UpdateBuffer(_projectionBuffer, 0, _camera.ProjectionMatrix);
             device.UpdateBuffer(_viewBuffer, 0, _camera.ViewMatrix);
+
+            //  TODO - don't need both of these
             
-            _cullAndAssembleVisitor.SetCullingViewProjectionMatrix(_camera.ProjectionMatrix);
-            
+
+            var vp = Matrix4x4.Multiply(_camera.ViewMatrix, _camera.ProjectionMatrix);
+            _cullAndAssembleVisitor.SetCullingViewProjectionMatrix(vp);
+            CullingFrustum.VPMatrix = vp;
+
         }
 
         private void SwapBuffers(GraphicsDevice device)
