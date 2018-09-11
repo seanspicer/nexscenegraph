@@ -26,8 +26,18 @@ namespace Veldrid.SceneGraph
 {
     public class BoundingSphere
     {
-        public Vector3 Center => _center;
-        public float Radius => _radius;
+        public Vector3 Center
+        {
+            get => _center;
+            set => _center = value;
+        }
+
+        public float Radius
+        {
+            get => _radius;
+            set => _radius = value;
+        }
+        
         public float Radius2 => _radius * _radius;
         
         private Vector3 _center;

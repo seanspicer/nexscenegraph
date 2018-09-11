@@ -115,5 +115,53 @@ namespace Veldrid.SceneGraph
                 child.Accept(nv);
             }
         }
+
+        public override BoundingSphere ComputeBound()
+        {
+            var bsphere = new BoundingSphere();
+            if (0 == _children.Count)
+            {
+                return bsphere;
+            }
+
+            // note, special handling of the case when a child is an Transform,
+            // such that only Transforms which are relative to their parents coordinates frame (i.e this group)
+            // are handled, Transform relative to and absolute reference frame are ignored.
+
+            var bb = new BoundingBox();
+            bb.Init();
+            foreach(var child in _children)
+            {
+                switch (child)
+                {
+                    case Transform transform when transform.ReferenceFrame != Transform.ReferenceFrameType.Relative:
+                        continue;
+                    case Drawable drawable:
+                        bb.ExpandBy(drawable.GetBoundingBox());
+                        break;
+                    default:
+                        var bs = child.GetBound();
+                        bb.ExpandBy(bs);
+                        break;
+                }
+            }
+
+            if (!bb.Valid())
+            {
+                return bsphere;
+            }
+
+            bsphere.Center = bb.Center;
+            bsphere.Radius = 0.0f;
+            foreach(var child in _children)
+            {
+                if (child is Transform transform &&
+                    transform.ReferenceFrame != Transform.ReferenceFrameType.Relative) continue;
+                var bs = child.GetBound();
+                bsphere.ExpandRadiusBy(bs);
+            }
+
+            return bsphere;
+        }
     }
 }

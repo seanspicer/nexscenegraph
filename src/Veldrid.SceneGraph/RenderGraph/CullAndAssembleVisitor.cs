@@ -46,13 +46,11 @@ namespace Veldrid.SceneGraph.RenderGraph
             base(VisitorType.CullAndAssembleVisitor, TraversalModeType.TraverseActiveChildren)
         {
             ModelMatrixStack.Push(Matrix4x4.Identity);
-            
         }
 
-        public void PushProjectionMatrix(Matrix4x4 projection)
+        public void SetCullingViewProjectionMatrix(Matrix4x4 vp)
         {
-            CullingFrustum.SetToUnitFrustum(false, false);
-            CullingFrustum.TransformProvidingInverse(projection);
+            CullingFrustum.SetToViewProjectionFrustum(vp, false, false);
         }
 
         public override void Apply(Node node)
@@ -86,6 +84,10 @@ namespace Veldrid.SceneGraph.RenderGraph
 
         public override void Apply<T>(Geometry<T> geometry)
         {
+            // TODO - should be at Drawable level?
+            var bb = geometry.GetBoundingBox();
+            if (IsCulled(bb)) return;
+            
             DrawSetNode dsn;
             dsn.Drawable = geometry;
 
@@ -137,6 +139,15 @@ namespace Veldrid.SceneGraph.RenderGraph
             dsn.ModelMatrix = ModelMatrixStack.Peek();
             
             DrawSet.Add(dsn);
+        }
+
+        
+        private bool IsCulled(BoundingBox bb)
+        {
+            // Is this bounding box culled?
+            if (!CullingFrustum.Contains(bb)) return true;
+
+            return false;
         }
     }
 }

@@ -55,11 +55,9 @@ namespace Veldrid.SceneGraph
             {
                 return false;
             }
-            else
-            {
-                matrix = Matrix4x4.Identity;
-                return true;
-            }
+
+            matrix = Matrix4x4.Identity;
+            return true;
         }
         
         public virtual bool ComputeWorldToLocalMatrix(ref Matrix4x4 matrix, NodeVisitor visitor)
@@ -68,16 +66,49 @@ namespace Veldrid.SceneGraph
             {
                 return false;
             }
-            else
-            {
-                matrix = Matrix4x4.Identity;
-                return true;
-            }
+
+            matrix = Matrix4x4.Identity;
+            return true;
         }
 
-        public virtual BoundingSphere computeBound()
+        public override BoundingSphere ComputeBound()
         {
-            throw new NotImplementedException();
+            var bsphere = base.ComputeBound();
+            if (!bsphere.Valid()) return bsphere;
+
+            var localToWorld = new Matrix4x4();
+            ComputeLocalToWorldMatrix(ref localToWorld, null);
+           
+            var xdash = bsphere.Center;
+            xdash.X += bsphere.Radius;
+            xdash = Vector3.Transform(xdash,localToWorld);
+
+            var ydash = bsphere.Center;
+            ydash.Y += bsphere.Radius;
+            ydash = Vector3.Transform(ydash,localToWorld);
+
+            var zdash = bsphere.Center;
+            zdash.Z += bsphere.Radius;
+            zdash = Vector3.Transform(zdash,localToWorld);
+
+            bsphere.Center = Vector3.Transform(bsphere.Center, localToWorld);
+
+            xdash -= bsphere.Center;
+            var sqrlen_xdash = xdash.LengthSquared();
+
+            ydash -= bsphere.Center;
+            var sqrlen_ydash = ydash.LengthSquared();
+
+            zdash -= bsphere.Center;
+            var sqrlen_zdash = zdash.LengthSquared();
+
+            bsphere.Radius = sqrlen_xdash;
+            if (bsphere.Radius<sqrlen_ydash) bsphere.Radius = sqrlen_ydash;
+            if (bsphere.Radius<sqrlen_zdash) bsphere.Radius = sqrlen_zdash;
+            bsphere.Radius = (float)Math.Sqrt(bsphere.Radius);
+
+            return bsphere;
+            
         }
     }
 }

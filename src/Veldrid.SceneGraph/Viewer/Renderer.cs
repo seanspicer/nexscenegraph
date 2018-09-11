@@ -137,7 +137,7 @@ namespace Veldrid.SceneGraph.Viewer
             device.UpdateBuffer(_projectionBuffer, 0, _camera.ProjectionMatrix);
             device.UpdateBuffer(_viewBuffer, 0, _camera.ViewMatrix);
             
-            _cullAndAssembleVisitor.PushProjectionMatrix(_camera.ProjectionMatrix);
+            _cullAndAssembleVisitor.SetCullingViewProjectionMatrix(_camera.ProjectionMatrix);
             
         }
 
