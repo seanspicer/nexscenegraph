@@ -69,12 +69,12 @@ namespace ColoredCube
             var root = new Group();
             
             var scale_xform = new MatrixTransform();
-            scale_xform.Matrix = Matrix4x4.CreateScale(0.1f);
+            scale_xform.Matrix = Matrix4x4.CreateScale(0.05f);
             
             var cube = CreateCube();
             scale_xform.AddChild(cube);
 
-            var gridSize = 2;
+            var gridSize = 5;
             var transF = 1.0f / gridSize;
             for (var i = -gridSize; i <= gridSize; ++i)
             {
