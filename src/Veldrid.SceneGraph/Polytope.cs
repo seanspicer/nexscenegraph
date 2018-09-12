@@ -21,6 +21,7 @@
 //
 
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
 using System.Numerics;
 
 namespace Veldrid.SceneGraph
@@ -62,23 +63,14 @@ namespace Veldrid.SceneGraph
         }
 
         public void SetToViewProjectionFrustum(
-            Matrix4x4 viewProjectionMatrix,
+            Matrix4x4 viewProjectionMatrix, 
             bool withNear=true, 
             bool withFar = true)
         {
-            _planeList.Clear();
-            _planeList.Add(Plane.Transform(new Plane( 1.0f, 0.0f, 0.0f,1.0f), viewProjectionMatrix)); // left plane.
-            _planeList.Add(Plane.Transform(new Plane(-1.0f, 0.0f, 0.0f,1.0f), viewProjectionMatrix)); // right plane.
-            _planeList.Add(Plane.Transform(new Plane( 0.0f, 1.0f, 0.0f,1.0f), viewProjectionMatrix)); // bottom plane.
-            _planeList.Add(Plane.Transform(new Plane( 0.0f,-1.0f, 0.0f,1.0f), viewProjectionMatrix)); // top plane.
-            if (withNear)
+            SetToUnitFrustum(withNear, withFar);
+            foreach (var plane in _planeList)
             {
-                _planeList.Add(Plane.Transform(new Plane(0.0f,0.0f, 1.0f,1.0f), viewProjectionMatrix)); // near plane
-            }
-
-            if (withFar)
-            {
-                _planeList.Add(Plane.Transform(new Plane(0.0f,0.0f,-1.0f,1.0f), viewProjectionMatrix)); // far plane
+                plane.Transform(viewProjectionMatrix);
             }
         }
         
@@ -104,7 +96,9 @@ namespace Veldrid.SceneGraph
             
             foreach (var plane in _planeList)
             {
-                var res = Plane.Transform(plane, mvpInv).Intersect(bb);
+                var isp = new Plane(plane);
+                isp.Transform(mvpInv);
+                var res = isp.Intersect(bb);
                 if (res < 0) return false;  // Outside the clipping set
             }
 

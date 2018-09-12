@@ -44,6 +44,8 @@ namespace Veldrid.SceneGraph.Viewer
         private bool _initialized = false;
 
         private RenderInfo _renderInfo;
+
+        private int _culledObjectCount = 0;
         
         public Renderer(Camera camera)
         {
@@ -108,6 +110,7 @@ namespace Veldrid.SceneGraph.Viewer
             _commandList.ClearDepthStencil(1f);
 
             var curModelMatrix = Matrix4x4.Identity;
+            _culledObjectCount = 0;
             foreach (var dsn in _cullAndAssembleVisitor.DrawSet)
             {
                 _commandList.SetPipeline(dsn.Pipeline);
@@ -133,7 +136,14 @@ namespace Veldrid.SceneGraph.Viewer
 
         private bool IsCulled(BoundingBox bb, Matrix4x4 modelMatrix)
         {
-            return !CullingFrustum.Contains(bb, modelMatrix);
+            var culled = !CullingFrustum.Contains(bb, modelMatrix);
+
+            if (culled)
+            {
+                _culledObjectCount++;
+                Console.WriteLine("Culled Object {0}", _culledObjectCount);
+            }
+            return culled;
         }
 
         private void UpdateUniforms(GraphicsDevice device, ResourceFactory factory)
