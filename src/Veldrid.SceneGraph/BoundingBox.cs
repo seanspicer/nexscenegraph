@@ -151,9 +151,9 @@ namespace Veldrid.SceneGraph
         public Vector3 Corner(uint pos)
         {
             return new Vector3(
-                1 == (pos & 1) ? _max.X: _min.X, 
-                1 == (pos & 2) ? _max.Y: _min.Y,
-                1 == (pos & 4) ? _max.Z: _min.Z);
+                1 == (pos & 1) ? _max.X : _min.X, 
+                1 == (pos & 2) ? _max.Y : _min.Y,
+                1 == (pos & 4) ? _max.Z : _min.Z);
         }
 
         /// <summary>
