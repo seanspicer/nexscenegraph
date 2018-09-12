@@ -78,6 +78,8 @@ namespace Veldrid.SceneGraph.Viewer
             var view = (Viewer.View) _camera.View;
             view.SceneData?.Accept(_cullAndAssembleVisitor);
             
+            device.UpdateBuffer(_modelBuffer, 0, Matrix4x4.Identity);
+            
             _resourceSet = factory.CreateResourceSet(new ResourceSetDescription(_resourceLayout, _projectionBuffer, _viewBuffer, _modelBuffer));
             
             _commandList = factory.CreateCommandList();
@@ -118,6 +120,7 @@ namespace Veldrid.SceneGraph.Viewer
                 // Set the resources
                 _commandList.SetGraphicsResourceSet(0, _resourceSet);
 
+                // TODO - Question: can this be done on a separate thread?
                 if (IsCulled(dsn.Drawable.GetBoundingBox(), dsn.ModelMatrix)) continue;
                 
                 if (dsn.ModelMatrix != curModelMatrix)

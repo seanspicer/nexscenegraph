@@ -78,8 +78,14 @@ namespace Veldrid.SceneGraph
         /// </returns>
         public int Intersect(BoundingBox bb)
         {
+            var lowerBBCorner = bb.Corner(_lowerBBCorner);
+            var distLower = Distance(lowerBBCorner);
+            
             // If lowest point above plane than all above.
             if (Distance(bb.Corner(_lowerBBCorner)) > 0.0f) return 1;
+            
+            var upperBBCorner = bb.Corner(_upperBBCorner);
+            var distUpper = Distance(upperBBCorner);
             
             // If highest point is below plane then all below.
             if (Distance(bb.Corner(_upperBBCorner)) < 0.0f) return -1;

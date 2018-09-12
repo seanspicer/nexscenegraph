@@ -136,7 +136,23 @@ namespace Veldrid.SceneGraph.Viewer
             //
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                SDL_AddEventWatch(ResizingEventWatcher, null);
+                //
+                // TODO This line causes an error...need to investigate...
+                // 
+                // FailFast:
+                // A callback was made on a garbage collected delegate of type 'Veldrid.SDL2!Veldrid.Sdl2.SDL_EventFilter::Invoke'.
+                //
+                // at Veldrid.Sdl2.Sdl2EventProcessor.PumpEvents()
+                // at Veldrid.Sdl2.Sdl2Window.ProcessEvents(Veldrid.Sdl2.SDLEventHandler)
+                // at Veldrid.Sdl2.Sdl2Window.PumpEvents()
+                // at Veldrid.SceneGraph.Viewer.SimpleViewer.Run(Veldrid.GraphicsBackend)
+                // at ColoredCube.Program.Main(System.String[])
+                //
+                // ~ERROR LINE~ERROR LINE~ERROR LINE~ERROR LINE~
+                //
+                // SDL_AddEventWatch(ResizingEventWatcher, null);
+                //
+                // ~ERROR LINE~ERROR LINE~ERROR LINE~ERROR LINE~
             }
 
             _window.Resized += () =>
@@ -168,7 +184,7 @@ namespace Veldrid.SceneGraph.Viewer
                 var inputSnapshot = _window.PumpEvents();
                 
                 // TODO: Can remove InputTracker?
-                InputTracker.UpdateFrameInput(inputSnapshot);
+                //InputTracker.UpdateFrameInput(inputSnapshot);
                 
                 InputSnapshotEvent?.Invoke(new InputStateSnapshot(inputSnapshot, _window.Width, _window.Height));
                 
@@ -205,7 +221,7 @@ namespace Veldrid.SceneGraph.Viewer
         //
         protected void OnKeyDown(KeyEvent keyEvent)
         {
-            KeyPressed?.Invoke(keyEvent);
+            //KeyPressed?.Invoke(keyEvent);
         }
 
         #endregion
@@ -233,7 +249,7 @@ namespace Veldrid.SceneGraph.Viewer
                 if (windowEvent.@event == SDL_WindowEventID.Resized)
                 {
                     var inputSnapshot = _window.PumpEvents();
-                    InputTracker.UpdateFrameInput(inputSnapshot);
+                    //InputTracker.UpdateFrameInput(inputSnapshot);
                 }
             }
 

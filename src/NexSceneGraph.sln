@@ -8,6 +8,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veldrid.SceneGraph", "Veldr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColoredCube", "ColoredCube\ColoredCube.csproj", "{21BD4287-DDCB-446C-9DB7-975F31999586}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veldrid.SceneGraph.Tests", "Veldrid.SceneGraph.Tests\Veldrid.SceneGraph.Tests.csproj", "{75B098F2-A5EE-462E-BC74-036CECEFF4E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CullingColoredCubes", "CullingColoredCubes\CullingColoredCubes.csproj", "{62B49CBC-4E53-4D91-9265-C4E419FFA3AD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,9 +30,18 @@ Global
 		{21BD4287-DDCB-446C-9DB7-975F31999586}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{21BD4287-DDCB-446C-9DB7-975F31999586}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{21BD4287-DDCB-446C-9DB7-975F31999586}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75B098F2-A5EE-462E-BC74-036CECEFF4E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75B098F2-A5EE-462E-BC74-036CECEFF4E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75B098F2-A5EE-462E-BC74-036CECEFF4E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75B098F2-A5EE-462E-BC74-036CECEFF4E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62B49CBC-4E53-4D91-9265-C4E419FFA3AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62B49CBC-4E53-4D91-9265-C4E419FFA3AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62B49CBC-4E53-4D91-9265-C4E419FFA3AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62B49CBC-4E53-4D91-9265-C4E419FFA3AD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{56046B5B-D92E-40D6-8FBF-AA2524B51271} = {8F0457B3-E205-44CF-AFAA-5EB8B8967399}
 		{21BD4287-DDCB-446C-9DB7-975F31999586} = {8F0457B3-E205-44CF-AFAA-5EB8B8967399}
+		{62B49CBC-4E53-4D91-9265-C4E419FFA3AD} = {8F0457B3-E205-44CF-AFAA-5EB8B8967399}
 	EndGlobalSection
 EndGlobal
