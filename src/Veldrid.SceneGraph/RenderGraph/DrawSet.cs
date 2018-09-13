@@ -30,6 +30,9 @@ namespace Veldrid.SceneGraph.RenderGraph
         public Pipeline Pipeline;
         public Drawable Drawable;
         public Matrix4x4 ModelMatrix;
+        public ResourceLayout ResourceLayout;
+        public ResourceSet ResourceSet;
+        public DeviceBuffer ModelBuffer;
     }
 
     public class DrawSet : List<DrawSetNode>

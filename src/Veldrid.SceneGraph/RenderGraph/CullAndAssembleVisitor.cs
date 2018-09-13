@@ -90,6 +90,21 @@ namespace Veldrid.SceneGraph.RenderGraph
             
             DrawSetNode dsn;
             dsn.Drawable = geometry;
+            
+            // Construct Node-specific resource Layout
+            dsn.ModelBuffer = ResourceFactory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
+            GraphicsDevice.UpdateBuffer(dsn.ModelBuffer, 0, Matrix4x4.Identity);
+            
+            dsn.ResourceLayout = ResourceFactory.CreateResourceLayout(
+                new ResourceLayoutDescription(
+                    new ResourceLayoutElementDescription("Model", ResourceKind.UniformBuffer, ShaderStages.Vertex)
+                )
+            );
+            dsn.ResourceSet = ResourceFactory.CreateResourceSet(
+                new ResourceSetDescription(
+                    dsn.ResourceLayout,
+                    dsn.ModelBuffer)
+            );
 
             GraphicsPipelineDescription pd;
             if (geometry.PipelineDescription.HasValue)
@@ -127,7 +142,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                         )
                     );
             
-            pd.ResourceLayouts = new[] {ResourceLayout};
+            pd.ResourceLayouts = new[] {ResourceLayout, dsn.ResourceLayout};
                   
             pd.ShaderSet = new ShaderSetDescription(
                 vertexLayouts: new VertexLayoutDescription[] { geometry.VertexLayout },
@@ -137,7 +152,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                 
             dsn.Pipeline = ResourceFactory.CreateGraphicsPipeline(pd);
             dsn.ModelMatrix = ModelMatrixStack.Peek();
-            
+
             DrawSet.Add(dsn);
         }
 

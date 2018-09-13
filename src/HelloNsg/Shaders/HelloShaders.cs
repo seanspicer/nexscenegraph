@@ -15,7 +15,10 @@ namespace HelloNsg.Shaders
             public Vector4 Color;
         }
         
+        [ResourceSet(0)]
         public Matrix4x4 Projection;
+        
+        [ResourceSet(0)]
         public Matrix4x4 View;
 
         [VertexShader]

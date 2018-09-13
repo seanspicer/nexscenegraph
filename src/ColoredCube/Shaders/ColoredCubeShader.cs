@@ -14,8 +14,11 @@ namespace ColoredCube.Shaders
             public Vector4 Color;
         }
     
+        [ResourceSet(0)]
         public Matrix4x4 Projection;
+        [ResourceSet(0)]
         public Matrix4x4 View;
+        [ResourceSet(1)]
         public Matrix4x4 Model;
 
         [VertexShader]

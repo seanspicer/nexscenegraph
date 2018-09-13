@@ -34,7 +34,6 @@ namespace Veldrid.SceneGraph.Viewer
         
         private DeviceBuffer _projectionBuffer;
         private DeviceBuffer _viewBuffer;
-        private DeviceBuffer _modelBuffer;
         private CommandList _commandList;
         private ResourceLayout _resourceLayout;
         private ResourceSet _resourceSet;
@@ -60,12 +59,12 @@ namespace Veldrid.SceneGraph.Viewer
             
             _projectionBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
             _viewBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
-            _modelBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
+            
             
             _resourceLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(
                 new ResourceLayoutElementDescription("Projection", ResourceKind.UniformBuffer, ShaderStages.Vertex),
-                new ResourceLayoutElementDescription("View", ResourceKind.UniformBuffer, ShaderStages.Vertex),
-                new ResourceLayoutElementDescription("Model", ResourceKind.UniformBuffer, ShaderStages.Vertex)
+                new ResourceLayoutElementDescription("View", ResourceKind.UniformBuffer, ShaderStages.Vertex)
+                
             ));
 
             _cullAndAssembleVisitor.ResourceLayout = _resourceLayout;
@@ -77,10 +76,9 @@ namespace Veldrid.SceneGraph.Viewer
             }
             var view = (Viewer.View) _camera.View;
             view.SceneData?.Accept(_cullAndAssembleVisitor);
-            
-            device.UpdateBuffer(_modelBuffer, 0, Matrix4x4.Identity);
-            
-            _resourceSet = factory.CreateResourceSet(new ResourceSetDescription(_resourceLayout, _projectionBuffer, _viewBuffer, _modelBuffer));
+
+            _resourceSet = factory.CreateResourceSet(
+                new ResourceSetDescription(_resourceLayout, _projectionBuffer, _viewBuffer));
             
             _commandList = factory.CreateCommandList();
             
@@ -125,9 +123,11 @@ namespace Veldrid.SceneGraph.Viewer
                 
                 if (dsn.ModelMatrix != curModelMatrix)
                 {
-                    _commandList.UpdateBuffer(_modelBuffer, 0, dsn.ModelMatrix);
+                    _commandList.UpdateBuffer(dsn.ModelBuffer, 0, dsn.ModelMatrix);
                     curModelMatrix = dsn.ModelMatrix;
                 }
+                
+                _commandList.SetGraphicsResourceSet(1, dsn.ResourceSet);
                 
                 dsn.Drawable.Draw(_renderInfo);
             }

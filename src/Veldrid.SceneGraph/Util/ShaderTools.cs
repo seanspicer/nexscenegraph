@@ -32,8 +32,12 @@ namespace Veldrid.SceneGraph.Util
         public static Stream OpenEmbeddedAssetStream(string name, Assembly assembly)
         {
             var allNames = assembly.GetManifestResourceNames();
-            var result = assembly.GetManifestResourceStream(name);
-            return result;
+            var stream = assembly.GetManifestResourceStream(name);
+            if (stream == null)
+            {
+                throw new InvalidOperationException("No embedded asset with the name " + name);
+            }
+            return stream;
         }
 
 //        public static Shader LoadShader(ResourceFactory factory, string set, ShaderStages stage, string entryPoint)

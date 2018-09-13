@@ -35,6 +35,8 @@ namespace Veldrid.SceneGraph
         public string VertexShaderEntryPoint { get; set; }
         public byte[] FragmentShader { get; set; }
         public string FragmentShaderEntryPoint { get; set; }
+        public byte[] TextureBytes { get; set; }
+        
 
         public T[] VertexData { get; set; }
         public int SizeOfVertexData => Marshal.SizeOf(default(T));
