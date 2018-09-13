@@ -80,6 +80,8 @@ namespace Veldrid.SceneGraph.Viewer
 
         #region PRIVATE_PROPERTIES
 
+        private string _windowTitle = string.Empty;
+        
         private GraphicsDevice _graphicsDevice;
         private DisposeCollectorResourceFactory _factory;
         private readonly Sdl2Window _window;
@@ -94,8 +96,14 @@ namespace Veldrid.SceneGraph.Viewer
 
         private event Action<InputStateSnapshot> InputSnapshotEvent;
 
+        private const uint NFramesInBuffer = 30;
         private ulong _frameCounter = 0;
+        private ulong _globalFrameCounter = 0;
         private double _frameTimeAccumulator = 0.0;
+        private double _fpsDrawTimeAccumulator = 0.0;
+        private readonly double[] _frameTimeBuff = new double[NFramesInBuffer];
+
+        private SDL_EventFilter ResizeEventFilter = null;
         
         #endregion
 
@@ -117,6 +125,8 @@ namespace Veldrid.SceneGraph.Viewer
         //
         public unsafe SimpleViewer(string title)
         {
+            _windowTitle = title;
+            
             var wci = new WindowCreateInfo()
             {
                 X = 100,
@@ -132,30 +142,14 @@ namespace Veldrid.SceneGraph.Viewer
             DisplaySettings.Instance.ScreenDistance = 1000.0f;
 
             //
-            // TODO: Get Eric to Review
             // This is a "trick" to get continuous resize behavior
             // On Windows.  This should probably be integrated into
             // Veldrid.SDL2
             //
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                //
-                // TODO This line causes an error...need to investigate...
-                // 
-                // FailFast:
-                // A callback was made on a garbage collected delegate of type 'Veldrid.SDL2!Veldrid.Sdl2.SDL_EventFilter::Invoke'.
-                //
-                // at Veldrid.Sdl2.Sdl2EventProcessor.PumpEvents()
-                // at Veldrid.Sdl2.Sdl2Window.ProcessEvents(Veldrid.Sdl2.SDLEventHandler)
-                // at Veldrid.Sdl2.Sdl2Window.PumpEvents()
-                // at Veldrid.SceneGraph.Viewer.SimpleViewer.Run(Veldrid.GraphicsBackend)
-                // at ColoredCube.Program.Main(System.String[])
-                //
-                // ~ERROR LINE~ERROR LINE~ERROR LINE~ERROR LINE~
-                //
-                // SDL_AddEventWatch(ResizingEventWatcher, null);
-                //
-                // ~ERROR LINE~ERROR LINE~ERROR LINE~ERROR LINE~
+                ResizeEventFilter = ResizingEventWatcher;
+                SDL_AddEventWatch(ResizeEventFilter, null);
             }
 
             _window.Resized += () =>
@@ -239,21 +233,18 @@ namespace Veldrid.SceneGraph.Viewer
         #region PRIVATE_METHODS
 
         //
-        // TODO: Get Eric to Review
         // This is a "trick" to get continuous resize behavior
         // On Windows.  This should probably be integrated into
         // Veldrid.SDL2
         //
         private unsafe int ResizingEventWatcher(void* data, SDL_Event* @event)
         {
-            if (@event->type == SDL_EventType.WindowEvent)
+            if (@event->type != SDL_EventType.WindowEvent) return 0;
+            
+            var windowEvent = Unsafe.Read<SDL_WindowEvent>(@event);
+            if (windowEvent.@event == SDL_WindowEventID.Resized)
             {
-                var windowEvent = Unsafe.Read<SDL_WindowEvent>(@event);
-                if (windowEvent.@event == SDL_WindowEventID.Resized)
-                {
-                    var inputSnapshot = _window.PumpEvents();
-                    //InputTracker.UpdateFrameInput(inputSnapshot);
-                }
+                var inputSnapshot = _window.PumpEvents();
             }
 
             return 0;
@@ -291,23 +282,44 @@ namespace Veldrid.SceneGraph.Viewer
                 _firstFrame = false;
             }
 
-            _frameCounter++;
+            
             
             if (!_window.Exists) return;
 
             var newElapsed = _stopwatch.Elapsed.TotalSeconds;
             var deltaSeconds = (float) (newElapsed - _previousElapsed);
-            _frameTimeAccumulator += deltaSeconds;
             
-            if (0 == _frameCounter % 10)
+            //
+            // Rudimentary FPS Calc
+            // 
             {
-                var avgFrameTime = (10 / (_frameTimeAccumulator));
+
+                _frameTimeAccumulator -= _frameTimeBuff[_frameCounter];
+                _frameTimeBuff[_frameCounter] = deltaSeconds;
+                _frameTimeAccumulator += deltaSeconds;
+
+                _fpsDrawTimeAccumulator += deltaSeconds;
+                if (_fpsDrawTimeAccumulator > 0.03333)
+                {
+                    var avgFps = (NFramesInBuffer/_frameTimeAccumulator);
                 
-                _window.Title = "FPS: " + avgFrameTime;
-                _frameCounter = 0;
-                _frameTimeAccumulator = 0;
+                    _window.Title = _windowTitle + ": FPS: " + avgFps.ToString("#.0");
+                    _fpsDrawTimeAccumulator = 0.0;
+                }
+                
+                // RingBuffer
+                if (_frameCounter == NFramesInBuffer - 1)
+                {
+                    _frameCounter = 0;
+                    
+                }
+                else
+                {
+                    _frameCounter++;
+                }
             }
-            
+
+            _globalFrameCounter++;
             _previousElapsed = newElapsed;
 
             if (null == _graphicsDevice) return;
