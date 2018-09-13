@@ -93,6 +93,9 @@ namespace Veldrid.SceneGraph.Viewer
         private event Action<GraphicsDevice, ResourceFactory> GraphicsDeviceOperations;
 
         private event Action<InputStateSnapshot> InputSnapshotEvent;
+
+        private ulong _frameCounter = 0;
+        private double _frameTimeAccumulator = 0.0;
         
         #endregion
 
@@ -288,11 +291,23 @@ namespace Veldrid.SceneGraph.Viewer
                 _firstFrame = false;
             }
 
+            _frameCounter++;
+            
             if (!_window.Exists) return;
 
             var newElapsed = _stopwatch.Elapsed.TotalSeconds;
             var deltaSeconds = (float) (newElapsed - _previousElapsed);
-
+            _frameTimeAccumulator += deltaSeconds;
+            
+            if (0 == _frameCounter % 10)
+            {
+                var avgFrameTime = (10 / (_frameTimeAccumulator));
+                
+                _window.Title = "FPS: " + avgFrameTime;
+                _frameCounter = 0;
+                _frameTimeAccumulator = 0;
+            }
+            
             _previousElapsed = newElapsed;
 
             if (null == _graphicsDevice) return;
