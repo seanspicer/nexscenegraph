@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0003" />
     <PackageReference Include="AssimpNet-netstandard" Version="3.3.1" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0005" />
     <PackageReference Include="Veldrid" Version="4.4.0" />
     <ProjectReference Include="..\AssetPrimitives\AssetPrimitives.csproj" />
   </ItemGroup>

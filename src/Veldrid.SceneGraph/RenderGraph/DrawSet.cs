@@ -34,7 +34,8 @@ namespace Veldrid.SceneGraph.RenderGraph
         public ResourceLayout ResourceLayout;
         public ResourceSet ResourceSet;
         public DeviceBuffer ModelBuffer;
-        public ProcessedTexture Texture;
+        public Texture Texture;
+        public TextureView TextureView;
     }
 
     public class DrawSet : List<DrawSetNode>
