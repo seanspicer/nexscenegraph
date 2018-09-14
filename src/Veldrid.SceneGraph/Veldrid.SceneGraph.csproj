@@ -10,4 +10,7 @@
     <PackageReference Include="Veldrid.StartupUtilities" Version="4.4.0" />
     <PackageReference Include="Veldrid.Utilities" Version="4.4.0" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AssetProcessor\AssetProcessor.csproj" />
+  </ItemGroup>
 </Project>

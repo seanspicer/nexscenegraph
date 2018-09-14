@@ -22,6 +22,7 @@
 
 using System.Collections.Generic;
 using System.Numerics;
+using AssetPrimitives;
 
 namespace Veldrid.SceneGraph.RenderGraph
 {
@@ -33,6 +34,7 @@ namespace Veldrid.SceneGraph.RenderGraph
         public ResourceLayout ResourceLayout;
         public ResourceSet ResourceSet;
         public DeviceBuffer ModelBuffer;
+        public ProcessedTexture Texture;
     }
 
     public class DrawSet : List<DrawSetNode>

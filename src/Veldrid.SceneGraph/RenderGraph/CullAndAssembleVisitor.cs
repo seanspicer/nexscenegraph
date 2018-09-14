@@ -22,7 +22,9 @@
 
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Numerics;
+using AssetProcessor;
 using Veldrid.Utilities;
 
 namespace Veldrid.SceneGraph.RenderGraph
@@ -88,9 +90,22 @@ namespace Veldrid.SceneGraph.RenderGraph
             var bb = geometry.GetBoundingBox();
             if (IsCulled(bb)) return;
             
-            DrawSetNode dsn;
+            DrawSetNode dsn = new DrawSetNode();
             dsn.Drawable = geometry;
             
+            // Load Texture
+            if (null != geometry.TextureBytes)
+            {
+                var texProcessor = new ImageSharpProcessor();
+                using (var stream = new MemoryStream(geometry.TextureBytes))
+                {
+                    var processedTexture = texProcessor.ProcessT(stream, "png");
+
+                    dsn.Texture = processedTexture;
+                }
+                
+            }
+                
             // Construct Node-specific resource Layout
             dsn.ModelBuffer = ResourceFactory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
             GraphicsDevice.UpdateBuffer(dsn.ModelBuffer, 0, Matrix4x4.Identity);
@@ -154,6 +169,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             dsn.ModelMatrix = ModelMatrixStack.Peek();
 
             DrawSet.Add(dsn);
+            
         }
 
         
