@@ -26,7 +26,7 @@ using AssetPrimitives;
 
 namespace Veldrid.SceneGraph.RenderGraph
 {
-    public struct DrawSetNode
+    public class DrawSetNode
     {
         public Pipeline Pipeline;
         public Drawable Drawable;
@@ -34,8 +34,7 @@ namespace Veldrid.SceneGraph.RenderGraph
         public ResourceLayout ResourceLayout;
         public ResourceSet ResourceSet;
         public DeviceBuffer ModelBuffer;
-        public Texture Texture;
-        public TextureView TextureView;
+
     }
 
     public class DrawSet : List<DrawSetNode>
