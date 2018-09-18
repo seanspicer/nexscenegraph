@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <EmbeddedResource Include="Textures\tree.png" />
         <EmbeddedResource Include="Textures\spnza_bricks_a_diff.png" />
     </ItemGroup>
 

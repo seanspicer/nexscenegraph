@@ -22,8 +22,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Numerics;
-using TexturedCube.Shaders;
+using MultiTexturedCube.Shaders;
 using ShaderGen;
 using Veldrid;
 using Veldrid.SceneGraph;
@@ -35,17 +36,20 @@ namespace MultiTexturedCube
 {
     public struct VertexPositionTexture : IPrimitiveElement
     {
-        public const uint SizeInBytes = 20;
+        public const uint SizeInBytes = 36;
 
         [PositionSemantic] 
         public Vector3 Position;
-        [ColorSemantic]
+        [TextureCoordinateSemantic]
         public Vector2 TexCoord;
+        [ColorSemantic]
+        public Vector4 Color;
         
-        public VertexPositionTexture(Vector3 position, Vector2 texCoord)
+        public VertexPositionTexture(Vector3 position, Vector2 texCoord, Vector4 color)
         {
             Position = position;
             TexCoord = texCoord;
+            Color = color;
         }
 
         public Vector3 VertexPosition
@@ -86,35 +90,35 @@ namespace MultiTexturedCube
             var vertices = new VertexPositionTexture[]
             {
                 // Top
-                new VertexPositionTexture(new Vector3(-0.5f, +0.5f, -0.5f), new Vector2(0, 0)),
-                new VertexPositionTexture(new Vector3(+0.5f, +0.5f, -0.5f), new Vector2(1, 0)),
-                new VertexPositionTexture(new Vector3(+0.5f, +0.5f, +0.5f), new Vector2(1, 1)),
-                new VertexPositionTexture(new Vector3(-0.5f, +0.5f, +0.5f), new Vector2(0, 1)),
+                new VertexPositionTexture(new Vector3(-0.5f, +0.5f, -0.5f), new Vector2(0, 0), new Vector4(1, 0, 0, 1)),
+                new VertexPositionTexture(new Vector3(+0.5f, +0.5f, -0.5f), new Vector2(1, 0), new Vector4(1, 0, 0, 1)),
+                new VertexPositionTexture(new Vector3(+0.5f, +0.5f, +0.5f), new Vector2(1, 1), new Vector4(1, 0, 0, 1)),
+                new VertexPositionTexture(new Vector3(-0.5f, +0.5f, +0.5f), new Vector2(0, 1), new Vector4(1, 0, 0, 1)),
                 // Bottom                                                             
-                new VertexPositionTexture(new Vector3(-0.5f,-0.5f, +0.5f),  new Vector2(0, 0)),
-                new VertexPositionTexture(new Vector3(+0.5f,-0.5f, +0.5f),  new Vector2(1, 0)),
-                new VertexPositionTexture(new Vector3(+0.5f,-0.5f, -0.5f),  new Vector2(1, 1)),
-                new VertexPositionTexture(new Vector3(-0.5f,-0.5f, -0.5f),  new Vector2(0, 1)),
+                new VertexPositionTexture(new Vector3(-0.5f,-0.5f, +0.5f),  new Vector2(0, 0), new Vector4(1, 1, 0, 1)),
+                new VertexPositionTexture(new Vector3(+0.5f,-0.5f, +0.5f),  new Vector2(1, 0), new Vector4(1, 1, 0, 1)),
+                new VertexPositionTexture(new Vector3(+0.5f,-0.5f, -0.5f),  new Vector2(1, 1), new Vector4(1, 1, 0, 1)),
+                new VertexPositionTexture(new Vector3(-0.5f,-0.5f, -0.5f),  new Vector2(0, 1), new Vector4(1, 1, 0, 1)),
                 // Left                                                               
-                new VertexPositionTexture(new Vector3(-0.5f, +0.5f, -0.5f), new Vector2(0, 0)),
-                new VertexPositionTexture(new Vector3(-0.5f, +0.5f, +0.5f), new Vector2(1, 0)),
-                new VertexPositionTexture(new Vector3(-0.5f, -0.5f, +0.5f), new Vector2(1, 1)),
-                new VertexPositionTexture(new Vector3(-0.5f, -0.5f, -0.5f), new Vector2(0, 1)),
+                new VertexPositionTexture(new Vector3(-0.5f, +0.5f, -0.5f), new Vector2(0, 0), new Vector4(0, 1, 0, 1)),
+                new VertexPositionTexture(new Vector3(-0.5f, +0.5f, +0.5f), new Vector2(1, 0), new Vector4(0, 1, 0, 1)),
+                new VertexPositionTexture(new Vector3(-0.5f, -0.5f, +0.5f), new Vector2(1, 1), new Vector4(0, 1, 0, 1)),
+                new VertexPositionTexture(new Vector3(-0.5f, -0.5f, -0.5f), new Vector2(0, 1), new Vector4(0, 1, 0, 1)),
                 // Right                                                              
-                new VertexPositionTexture(new Vector3(+0.5f, +0.5f, +0.5f), new Vector2(0, 0)),
-                new VertexPositionTexture(new Vector3(+0.5f, +0.5f, -0.5f), new Vector2(1, 0)),
-                new VertexPositionTexture(new Vector3(+0.5f, -0.5f, -0.5f), new Vector2(1, 1)),
-                new VertexPositionTexture(new Vector3(+0.5f, -0.5f, +0.5f), new Vector2(0, 1)),
+                new VertexPositionTexture(new Vector3(+0.5f, +0.5f, +0.5f), new Vector2(0, 0), new Vector4(0, 1, 1, 1)),
+                new VertexPositionTexture(new Vector3(+0.5f, +0.5f, -0.5f), new Vector2(1, 0), new Vector4(0, 1, 1, 1)),
+                new VertexPositionTexture(new Vector3(+0.5f, -0.5f, -0.5f), new Vector2(1, 1), new Vector4(0, 1, 1, 1)),
+                new VertexPositionTexture(new Vector3(+0.5f, -0.5f, +0.5f), new Vector2(0, 1), new Vector4(0, 1, 1, 1)),
                 // Back                                                               
-                new VertexPositionTexture(new Vector3(+0.5f, +0.5f, -0.5f), new Vector2(0, 0)),
-                new VertexPositionTexture(new Vector3(-0.5f, +0.5f, -0.5f), new Vector2(1, 0)),
-                new VertexPositionTexture(new Vector3(-0.5f, -0.5f, -0.5f), new Vector2(1, 1)),
-                new VertexPositionTexture(new Vector3(+0.5f, -0.5f, -0.5f), new Vector2(0, 1)),
+                new VertexPositionTexture(new Vector3(+0.5f, +0.5f, -0.5f), new Vector2(0, 0), new Vector4(0, 0, 1, 1)),
+                new VertexPositionTexture(new Vector3(-0.5f, +0.5f, -0.5f), new Vector2(1, 0), new Vector4(0, 0, 1, 1)),
+                new VertexPositionTexture(new Vector3(-0.5f, -0.5f, -0.5f), new Vector2(1, 1), new Vector4(0, 0, 1, 1)),
+                new VertexPositionTexture(new Vector3(+0.5f, -0.5f, -0.5f), new Vector2(0, 1), new Vector4(0, 0, 1, 1)),
                 // Front                                                              
-                new VertexPositionTexture(new Vector3(-0.5f, +0.5f, +0.5f), new Vector2(0, 0)),
-                new VertexPositionTexture(new Vector3(+0.5f, +0.5f, +0.5f), new Vector2(1, 0)),
-                new VertexPositionTexture(new Vector3(+0.5f, -0.5f, +0.5f), new Vector2(1, 1)),
-                new VertexPositionTexture(new Vector3(-0.5f, -0.5f, +0.5f), new Vector2(0, 1)),
+                new VertexPositionTexture(new Vector3(-0.5f, +0.5f, +0.5f), new Vector2(0, 0), new Vector4(1, 0, 1, 1)),
+                new VertexPositionTexture(new Vector3(+0.5f, +0.5f, +0.5f), new Vector2(1, 0), new Vector4(1, 0, 1, 1)),
+                new VertexPositionTexture(new Vector3(+0.5f, -0.5f, +0.5f), new Vector2(1, 1), new Vector4(1, 0, 1, 1)),
+                new VertexPositionTexture(new Vector3(-0.5f, -0.5f, +0.5f), new Vector2(0, 1), new Vector4(1, 0, 1, 1)),
             };
             
             ushort[] indices =
@@ -133,7 +137,8 @@ namespace MultiTexturedCube
 
             geometry.VertexLayout = new VertexLayoutDescription(
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
-                new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2));
+                new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
+                new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
             
             geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;
 
@@ -147,9 +152,25 @@ namespace MultiTexturedCube
                 "MultiTexturedCubeShader", ShaderStages.Fragment);
             geometry.FragmentShaderEntryPoint = "FS";
 
-            geometry.TextureBytes = ShaderTools.ReadEmbeddedAssetBytes(
-                "MultiTexturedCube.Textures.spnza_bricks_a_diff.png",
-                typeof(Program).Assembly);
+            geometry.TextureList.Add(
+                new Texture2D(Texture2D.ImageFormatType.Png,
+                    ShaderTools.ReadEmbeddedAssetBytes(
+                        "MultiTexturedCube.Textures.spnza_bricks_a_diff.png",
+                        typeof(Program).Assembly),
+                    1,
+                    "SurfaceTexture", 
+                    "SurfaceSampler")
+            );
+            
+            geometry.TextureList.Add(
+                new Texture2D(Texture2D.ImageFormatType.Png,
+                    ShaderTools.ReadEmbeddedAssetBytes(
+                        "MultiTexturedCube.Textures.tree.png",
+                        typeof(Program).Assembly),
+                    1,
+                    "TreeTexture", 
+                    "TreeSampler")
+                );
             
             //
             // TODO - FIXME - this is really not the greatest
