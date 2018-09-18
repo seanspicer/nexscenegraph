@@ -2,14 +2,13 @@
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Processing.Transforms;
-using SixLabors.ImageSharp.Processing.Transforms.Resamplers;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using Veldrid;
 using AssetPrimitives;
+using SixLabors.ImageSharp.Processing.Processors.Transforms;
 
 namespace AssetProcessor
 {

@@ -23,6 +23,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using AssetProcessor;
 using Veldrid.Utilities;
@@ -92,6 +93,8 @@ namespace Veldrid.SceneGraph.RenderGraph
             
             DrawSetNode dsn = new DrawSetNode();
             dsn.Drawable = geometry;
+
+            bool hasTexture = false;
             
             // Load Texture
             if (null != geometry.TextureBytes)
@@ -101,24 +104,50 @@ namespace Veldrid.SceneGraph.RenderGraph
                 {
                     var processedTexture = texProcessor.ProcessT(stream, "png");
 
-                    dsn.Texture = processedTexture;
+                    dsn.Texture =
+                        processedTexture.CreateDeviceTexture(GraphicsDevice, ResourceFactory, TextureUsage.Sampled);
+                    dsn.TextureView =
+                        ResourceFactory.CreateTextureView(dsn.Texture);
+
+                    hasTexture = true;
+
                 }
-                
             }
                 
             // Construct Node-specific resource Layout
             dsn.ModelBuffer = ResourceFactory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
             GraphicsDevice.UpdateBuffer(dsn.ModelBuffer, 0, Matrix4x4.Identity);
+
+            var resourceLayoutElementDescriptionList = new List<ResourceLayoutElementDescription> { };
+            resourceLayoutElementDescriptionList.Add(
+                new ResourceLayoutElementDescription("Model", ResourceKind.UniformBuffer, ShaderStages.Vertex));
             
+            if (hasTexture)
+            {
+                resourceLayoutElementDescriptionList.Add(
+                    new ResourceLayoutElementDescription("SurfaceTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment)
+                    );
+                resourceLayoutElementDescriptionList.Add(
+                    new ResourceLayoutElementDescription("SurfaceSampler", ResourceKind.Sampler, ShaderStages.Fragment)
+                );    
+            }
+
             dsn.ResourceLayout = ResourceFactory.CreateResourceLayout(
-                new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("Model", ResourceKind.UniformBuffer, ShaderStages.Vertex)
-                )
-            );
+                    new ResourceLayoutDescription(resourceLayoutElementDescriptionList.ToArray()));
+            
+            var bindableResourceList = new List<BindableResource>();
+            bindableResourceList.Add(dsn.ModelBuffer);
+            if (hasTexture)
+            {
+                bindableResourceList.Add(dsn.TextureView);
+                bindableResourceList.Add(GraphicsDevice.Aniso4xSampler);
+            }
+            
             dsn.ResourceSet = ResourceFactory.CreateResourceSet(
                 new ResourceSetDescription(
                     dsn.ResourceLayout,
-                    dsn.ModelBuffer)
+                    bindableResourceList.ToArray()
+                    )
             );
 
             GraphicsPipelineDescription pd;
