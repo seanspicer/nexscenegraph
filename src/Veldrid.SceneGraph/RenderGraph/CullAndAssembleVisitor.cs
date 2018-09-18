@@ -94,54 +94,38 @@ namespace Veldrid.SceneGraph.RenderGraph
             DrawSetNode dsn = new DrawSetNode();
             dsn.Drawable = geometry;
 
-            bool hasTexture = false;
-            
-            // Load Texture
-            if (null != geometry.TextureBytes)
-            {
-                var texProcessor = new ImageSharpProcessor();
-                using (var stream = new MemoryStream(geometry.TextureBytes))
-                {
-                    var processedTexture = texProcessor.ProcessT(stream, "png");
-
-                    dsn.Texture =
-                        processedTexture.CreateDeviceTexture(GraphicsDevice, ResourceFactory, TextureUsage.Sampled);
-                    dsn.TextureView =
-                        ResourceFactory.CreateTextureView(dsn.Texture);
-
-                    hasTexture = true;
-
-                }
-            }
-                
             // Construct Node-specific resource Layout
             dsn.ModelBuffer = ResourceFactory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
             GraphicsDevice.UpdateBuffer(dsn.ModelBuffer, 0, Matrix4x4.Identity);
-
+            
             var resourceLayoutElementDescriptionList = new List<ResourceLayoutElementDescription> { };
             resourceLayoutElementDescriptionList.Add(
                 new ResourceLayoutElementDescription("Model", ResourceKind.UniformBuffer, ShaderStages.Vertex));
-            
-            if (hasTexture)
-            {
-                resourceLayoutElementDescriptionList.Add(
-                    new ResourceLayoutElementDescription("SurfaceTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment)
-                    );
-                resourceLayoutElementDescriptionList.Add(
-                    new ResourceLayoutElementDescription("SurfaceSampler", ResourceKind.Sampler, ShaderStages.Fragment)
-                );    
-            }
-
-            dsn.ResourceLayout = ResourceFactory.CreateResourceLayout(
-                    new ResourceLayoutDescription(resourceLayoutElementDescriptionList.ToArray()));
-            
+  
             var bindableResourceList = new List<BindableResource>();
             bindableResourceList.Add(dsn.ModelBuffer);
-            if (hasTexture)
+            
+            // Process Attached Textures
+            foreach (var tex2d in geometry.TextureList)
             {
-                bindableResourceList.Add(dsn.TextureView);
+                var deviceTexture =
+                    tex2d.ProcessedTexture.CreateDeviceTexture(GraphicsDevice, ResourceFactory, TextureUsage.Sampled);
+                var textureView =
+                    ResourceFactory.CreateTextureView(deviceTexture);
+  
+                resourceLayoutElementDescriptionList.Add(
+                    new ResourceLayoutElementDescription(tex2d.TextureName, ResourceKind.TextureReadOnly, ShaderStages.Fragment)
+                    );
+                resourceLayoutElementDescriptionList.Add(
+                    new ResourceLayoutElementDescription(tex2d.SamplerName, ResourceKind.Sampler, ShaderStages.Fragment)
+                );    
+
+                bindableResourceList.Add(textureView);
                 bindableResourceList.Add(GraphicsDevice.Aniso4xSampler);
             }
+            
+            dsn.ResourceLayout = ResourceFactory.CreateResourceLayout(
+                new ResourceLayoutDescription(resourceLayoutElementDescriptionList.ToArray()));
             
             dsn.ResourceSet = ResourceFactory.CreateResourceSet(
                 new ResourceSetDescription(

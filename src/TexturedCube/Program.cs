@@ -148,10 +148,15 @@ namespace TexturedCube
                 "TexturedCubeShader", ShaderStages.Fragment);
             geometry.FragmentShaderEntryPoint = "FS";
 
-            geometry.TextureBytes = ShaderTools.ReadEmbeddedAssetBytes(
-                "TexturedCube.Textures.spnza_bricks_a_diff.png",
-                typeof(Program).Assembly);
-            
+            geometry.TextureList.Add(
+                new Texture2D(Texture2D.ImageFormatType.Png,
+                ShaderTools.ReadEmbeddedAssetBytes(
+                    "TexturedCube.Textures.spnza_bricks_a_diff.png",
+                    typeof(Program).Assembly),
+                1,
+                "SurfaceTexture", 
+                "SurfaceSampler"));
+               
             //
             // TODO - FIXME - this is really not the greatest
             // 

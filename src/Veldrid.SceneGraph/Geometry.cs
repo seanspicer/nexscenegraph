@@ -35,7 +35,9 @@ namespace Veldrid.SceneGraph
         public string VertexShaderEntryPoint { get; set; }
         public byte[] FragmentShader { get; set; }
         public string FragmentShaderEntryPoint { get; set; }
-        public byte[] TextureBytes { get; set; }
+        
+        // TODO - this needs to be moved to a PipelineStateObject
+        public List<Texture2D> TextureList { get; } = new List<Texture2D>();
         
 
         public T[] VertexData { get; set; }
