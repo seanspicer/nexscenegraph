@@ -106,7 +106,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             bindableResourceList.Add(dsn.ModelBuffer);
             
             // Process Attached Textures
-            foreach (var tex2d in geometry.TextureList)
+            foreach (var tex2d in geometry.PipelineState.TextureList)
             {
                 var deviceTexture =
                     tex2d.ProcessedTexture.CreateDeviceTexture(GraphicsDevice, ResourceFactory, TextureUsage.Sampled);
@@ -134,39 +134,45 @@ namespace Veldrid.SceneGraph.RenderGraph
                     )
             );
 
-            GraphicsPipelineDescription pd;
-            if (geometry.PipelineDescription.HasValue)
-            {
-                pd = geometry.PipelineDescription.Value;
-            }
-            else if (PipelineDescriptionStack.Count != 0)
-            {
-                pd = PipelineDescriptionStack.Peek();
-            }
-            else
-            {
-                pd = new GraphicsPipelineDescription
-                {
-                    BlendState = BlendStateDescription.SingleAlphaBlend,
-                    DepthStencilState = DepthStencilStateDescription.DepthOnlyLessEqual,
-                    RasterizerState = RasterizerStateDescription.Default,
-                    PrimitiveTopology = geometry.PrimitiveTopology
-                };
-            }
+            // TODO = this needs to go on a stack, I think.
+            GraphicsPipelineDescription pd = new GraphicsPipelineDescription();
+            pd.BlendState = geometry.PipelineState.BlendStateDescription;
+            pd.DepthStencilState = geometry.PipelineState.DepthStencilState;
+            pd.RasterizerState = geometry.PipelineState.RasterizerStateDescription;
+            pd.PrimitiveTopology = geometry.PipelineState.PrimitiveTopology;
+            
+//            if (geometry.PipelineDescription.HasValue)
+//            {
+//                pd = geometry.PipelineDescription.Value;
+//            }
+//            else if (PipelineDescriptionStack.Count != 0)
+//            {
+//                pd = PipelineDescriptionStack.Peek();
+//            }
+//            else
+//            {
+//                pd = new GraphicsPipelineDescription
+//                {
+//                    BlendState = BlendStateDescription.SingleAlphaBlend,
+//                    DepthStencilState = DepthStencilStateDescription.DepthOnlyLessEqual,
+//                    RasterizerState = RasterizerStateDescription.Default,
+//                    PrimitiveTopology = geometry.PrimitiveTopology
+//                };
+//            }
             
             var vertexShaderProg =
                 ResourceFactory.CreateShader(
                     new ShaderDescription(ShaderStages.Vertex, 
-                        geometry.VertexShader, 
-                        geometry.VertexShaderEntryPoint
+                        geometry.PipelineState.VertexShader, 
+                        geometry.PipelineState.VertexShaderEntryPoint
                         )
                     );
             
             var fragmentShaderProg =
                 ResourceFactory.CreateShader(
                     new ShaderDescription(ShaderStages.Fragment, 
-                        geometry.FragmentShader, 
-                        geometry.FragmentShaderEntryPoint
+                        geometry.PipelineState.FragmentShader, 
+                        geometry.PipelineState.FragmentShaderEntryPoint
                         )
                     );
             

@@ -14,7 +14,7 @@ namespace MultiTexturedCube.Shaders
         public Matrix4x4 View;
 
         [ResourceSet(1)]
-        public Matrix4x4 World;
+        public Matrix4x4 Model;
         [ResourceSet(1)]
         public Texture2DResource SurfaceTexture;
         [ResourceSet(1)]
@@ -28,7 +28,7 @@ namespace MultiTexturedCube.Shaders
         public FragmentInput VS(VertexInput input)
         {
             FragmentInput output;
-            Vector4 worldPosition = Mul(World, new Vector4(input.Position, 1));
+            Vector4 worldPosition = Mul(Model, new Vector4(input.Position, 1));
             Vector4 viewPosition = Mul(View, worldPosition);
             Vector4 clipPosition = Mul(Projection, viewPosition);
             output.SystemPosition = clipPosition;
