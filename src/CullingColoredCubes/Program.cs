@@ -86,6 +86,8 @@ namespace ColoredCube
                     root.AddChild(xform);
                 }
             }
+
+            root.PipelineState = CreateSharedState();
             
             viewer.SceneData = root;
 
@@ -154,19 +156,26 @@ namespace ColoredCube
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
             
-            geometry.PipelineState.PrimitiveTopology = PrimitiveTopology.TriangleList;
-
-            geometry.PipelineState.VertexShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
-                typeof(Program).Assembly,
-                "ColoredCubeShader", ShaderStages.Vertex);
-            geometry.PipelineState.VertexShaderEntryPoint = "VS";
-
-            geometry.PipelineState.FragmentShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
-                typeof(Program).Assembly,
-                "ColoredCubeShader", ShaderStages.Fragment);
-            geometry.PipelineState.FragmentShaderEntryPoint = "FS";            
+            geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;       
             
             return geometry;
         }
+        
+        private static PipelineState CreateSharedState()
+        {
+            var pso = new PipelineState();
+            pso.VertexShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+                typeof(Program).Assembly,
+                "ColoredCubeShader", ShaderStages.Vertex);
+            pso.VertexShaderEntryPoint = "VS";
+
+            pso.FragmentShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+                typeof(Program).Assembly,
+                "ColoredCubeShader", ShaderStages.Fragment);
+            pso.FragmentShaderEntryPoint = "FS";
+
+            return pso;
+        }
+        
     }
 }

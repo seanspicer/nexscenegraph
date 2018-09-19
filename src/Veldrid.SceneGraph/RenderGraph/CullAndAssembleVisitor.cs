@@ -39,7 +39,7 @@ namespace Veldrid.SceneGraph.RenderGraph
         
         public Stack<Matrix4x4> ModelMatrixStack { get; set; } = new Stack<Matrix4x4>();
 
-        public Stack<GraphicsPipelineDescription> PipelineDescriptionStack = new Stack<GraphicsPipelineDescription>();
+        public Stack<PipelineState> PipelineStateStack = new Stack<PipelineState>();
 
         public bool Valid => null != GraphicsDevice;
         
@@ -59,9 +59,9 @@ namespace Veldrid.SceneGraph.RenderGraph
         public override void Apply(Node node)
         {
             var needsPop = false;
-            if (node.PipelineDescription.HasValue)
+            if (node.HasPipelineState)
             {
-                PipelineDescriptionStack.Push(node.PipelineDescription.Value);
+                PipelineStateStack.Push(node.PipelineState);
                 needsPop = true;
             }
             
@@ -69,7 +69,7 @@ namespace Veldrid.SceneGraph.RenderGraph
 
             if (needsPop)
             {
-                PipelineDescriptionStack.Pop();
+                PipelineStateStack.Pop();
             }
         }
 
@@ -105,8 +105,34 @@ namespace Veldrid.SceneGraph.RenderGraph
             var bindableResourceList = new List<BindableResource>();
             bindableResourceList.Add(dsn.ModelBuffer);
             
+            
+
+            // TODO = this needs to go on a stack, I think.
+            GraphicsPipelineDescription pd = new GraphicsPipelineDescription();
+            pd.PrimitiveTopology = geometry.PrimitiveTopology;
+
+            PipelineState pso = null;
+            
+            // Node specific state
+            if (geometry.HasPipelineState) 
+            {
+                pso = geometry.PipelineState;         
+            }
+            
+            // Shared State
+            else if (PipelineStateStack.Count != 0) 
+            {
+                pso = PipelineStateStack.Peek();
+            }
+            
+            // Fallback
+            else 
+            {
+                pso = new PipelineState();
+            }
+            
             // Process Attached Textures
-            foreach (var tex2d in geometry.PipelineState.TextureList)
+            foreach (var tex2d in pso.TextureList)
             {
                 var deviceTexture =
                     tex2d.ProcessedTexture.CreateDeviceTexture(GraphicsDevice, ResourceFactory, TextureUsage.Sampled);
@@ -115,7 +141,7 @@ namespace Veldrid.SceneGraph.RenderGraph
   
                 resourceLayoutElementDescriptionList.Add(
                     new ResourceLayoutElementDescription(tex2d.TextureName, ResourceKind.TextureReadOnly, ShaderStages.Fragment)
-                    );
+                );
                 resourceLayoutElementDescriptionList.Add(
                     new ResourceLayoutElementDescription(tex2d.SamplerName, ResourceKind.Sampler, ShaderStages.Fragment)
                 );    
@@ -131,57 +157,39 @@ namespace Veldrid.SceneGraph.RenderGraph
                 new ResourceSetDescription(
                     dsn.ResourceLayout,
                     bindableResourceList.ToArray()
-                    )
+                )
             );
+            
+            pd.BlendState = pso.BlendStateDescription;
+            pd.DepthStencilState = pso.DepthStencilState;
+            pd.RasterizerState = pso.RasterizerStateDescription;
 
-            // TODO = this needs to go on a stack, I think.
-            GraphicsPipelineDescription pd = new GraphicsPipelineDescription();
-            pd.BlendState = geometry.PipelineState.BlendStateDescription;
-            pd.DepthStencilState = geometry.PipelineState.DepthStencilState;
-            pd.RasterizerState = geometry.PipelineState.RasterizerStateDescription;
-            pd.PrimitiveTopology = geometry.PipelineState.PrimitiveTopology;
-            
-//            if (geometry.PipelineDescription.HasValue)
-//            {
-//                pd = geometry.PipelineDescription.Value;
-//            }
-//            else if (PipelineDescriptionStack.Count != 0)
-//            {
-//                pd = PipelineDescriptionStack.Peek();
-//            }
-//            else
-//            {
-//                pd = new GraphicsPipelineDescription
-//                {
-//                    BlendState = BlendStateDescription.SingleAlphaBlend,
-//                    DepthStencilState = DepthStencilStateDescription.DepthOnlyLessEqual,
-//                    RasterizerState = RasterizerStateDescription.Default,
-//                    PrimitiveTopology = geometry.PrimitiveTopology
-//                };
-//            }
-            
-            var vertexShaderProg =
-                ResourceFactory.CreateShader(
-                    new ShaderDescription(ShaderStages.Vertex, 
-                        geometry.PipelineState.VertexShader, 
-                        geometry.PipelineState.VertexShaderEntryPoint
+            if (null != pso.VertexShader && null != pso.FragmentShader &&
+                null != pso.VertexShaderEntryPoint && null != pso.FragmentShaderEntryPoint)
+            {
+                var vertexShaderProg =
+                    ResourceFactory.CreateShader(
+                        new ShaderDescription(ShaderStages.Vertex, 
+                            pso.VertexShader, 
+                            pso.VertexShaderEntryPoint
                         )
                     );
             
-            var fragmentShaderProg =
-                ResourceFactory.CreateShader(
-                    new ShaderDescription(ShaderStages.Fragment, 
-                        geometry.PipelineState.FragmentShader, 
-                        geometry.PipelineState.FragmentShaderEntryPoint
+                var fragmentShaderProg =
+                    ResourceFactory.CreateShader(
+                        new ShaderDescription(ShaderStages.Fragment, 
+                            pso.FragmentShader, 
+                            pso.FragmentShaderEntryPoint
                         )
                     );
+                
+                pd.ShaderSet = new ShaderSetDescription(
+                    vertexLayouts: new VertexLayoutDescription[] { geometry.VertexLayout },
+                    shaders: new Shader[] { vertexShaderProg, fragmentShaderProg });
+            }
             
             pd.ResourceLayouts = new[] {ResourceLayout, dsn.ResourceLayout};
                   
-            pd.ShaderSet = new ShaderSetDescription(
-                vertexLayouts: new VertexLayoutDescription[] { geometry.VertexLayout },
-                shaders: new Shader[] { vertexShaderProg, fragmentShaderProg });
-                
             pd.Outputs = GraphicsDevice.SwapchainFramebuffer.OutputDescription;
                 
             dsn.Pipeline = ResourceFactory.CreateGraphicsPipeline(pd);

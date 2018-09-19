@@ -145,7 +145,7 @@ namespace ColoredCube
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
             
-            geometry.PipelineState.PrimitiveTopology = PrimitiveTopology.TriangleList;
+            geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;
 
             geometry.PipelineState.VertexShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
                 typeof(Program).Assembly,

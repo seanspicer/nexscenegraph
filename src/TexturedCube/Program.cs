@@ -136,7 +136,7 @@ namespace TexturedCube
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2));
             
-            geometry.PipelineState.PrimitiveTopology = PrimitiveTopology.TriangleList;
+            geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;
 
             geometry.PipelineState.VertexShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
                 typeof(Program).Assembly,

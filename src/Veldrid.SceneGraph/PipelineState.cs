@@ -39,7 +39,7 @@ namespace Veldrid.SceneGraph
             DepthStencilStateDescription.DepthOnlyLessEqual;
 
         public RasterizerStateDescription RasterizerStateDescription { get; set; } = RasterizerStateDescription.Default;
-        public PrimitiveTopology PrimitiveTopology { get; set; } = PrimitiveTopology.TriangleStrip;
+        
 
         public PipelineState()
         {
