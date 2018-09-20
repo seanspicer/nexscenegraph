@@ -68,7 +68,7 @@ namespace Veldrid.SceneGraph.Viewer
             ));
 
             _cullAndAssembleVisitor.ResourceLayout = _resourceLayout;
-            _cullAndAssembleVisitor.DrawSet.Clear();
+            _cullAndAssembleVisitor.OpaqueRenderGroup.Clear();
             
             if (_camera.View.GetType() != typeof(Viewer.View))
             {
@@ -111,33 +111,35 @@ namespace Veldrid.SceneGraph.Viewer
 
             var curModelMatrix = Matrix4x4.Identity;
             _culledObjectCount = 0;
-
-            var drawSetStates = _cullAndAssembleVisitor.DrawSet.Keys;
-            foreach (var dss in drawSetStates)
+            
+            // Draw Opaque Bins
+            var opaqueRenderGroupStates = _cullAndAssembleVisitor.OpaqueRenderGroup.GetStateList();
+            foreach (var state in opaqueRenderGroupStates)
             {
+                var ri = state.GetPipelineAndResources(device, factory, _resourceLayout);
+                
                 // Set this state's pipelnie
-                _commandList.SetPipeline(dss.Pipeline);
+                _commandList.SetPipeline(ri.Pipeline);
                 
                 // Set the resources
                 _commandList.SetGraphicsResourceSet(0, _resourceSet);
                 
                 // Set state-local resources
-                _commandList.SetGraphicsResourceSet(1, dss.ResourceSet);
+                _commandList.SetGraphicsResourceSet(1, ri.ResourceSet);
 
                 // Iterate over all drawables in this state
-                var drawSetNodes = _cullAndAssembleVisitor.DrawSet[dss];
-                foreach (var dsn in drawSetNodes)
+                foreach (var renderElement in state.Elements)
                 {
                     // TODO - Question: can this be done on a separate thread?
-                    if (IsCulled(dsn.Drawable.GetBoundingBox(), dsn.ModelMatrix)) continue;
+                    if (IsCulled(renderElement.Drawable.GetBoundingBox(), renderElement.ModelMatrix)) continue;
                 
-                    if (dsn.ModelMatrix != curModelMatrix)
+                    if (renderElement.ModelMatrix != curModelMatrix)
                     {
-                        _commandList.UpdateBuffer(dss.ModelBuffer, 0, dsn.ModelMatrix);
-                        curModelMatrix = dsn.ModelMatrix;
+                        _commandList.UpdateBuffer(ri.ModelBuffer, 0, renderElement.ModelMatrix);
+                        curModelMatrix = renderElement.ModelMatrix;
                     }
                 
-                    dsn.Drawable.Draw(_renderInfo);
+                    renderElement.Drawable.Draw(_renderInfo);
                 }
             }
             
