@@ -142,17 +142,17 @@ namespace MultiTexturedCube
             
             geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;
 
-            geometry.VertexShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+            geometry.PipelineState.VertexShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
                 typeof(Program).Assembly,
                 "MultiTexturedCubeShader", ShaderStages.Vertex);
-            geometry.VertexShaderEntryPoint = "VS";
+            geometry.PipelineState.VertexShaderEntryPoint = "VS";
 
-            geometry.FragmentShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+            geometry.PipelineState.FragmentShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
                 typeof(Program).Assembly,
                 "MultiTexturedCubeShader", ShaderStages.Fragment);
-            geometry.FragmentShaderEntryPoint = "FS";
+            geometry.PipelineState.FragmentShaderEntryPoint = "FS";
 
-            geometry.TextureList.Add(
+            geometry.PipelineState.TextureList.Add(
                 new Texture2D(Texture2D.ImageFormatType.Png,
                     ShaderTools.ReadEmbeddedAssetBytes(
                         "MultiTexturedCube.Textures.spnza_bricks_a_diff.png",
@@ -162,7 +162,7 @@ namespace MultiTexturedCube
                     "SurfaceSampler")
             );
             
-            geometry.TextureList.Add(
+            geometry.PipelineState.TextureList.Add(
                 new Texture2D(Texture2D.ImageFormatType.Png,
                     ShaderTools.ReadEmbeddedAssetBytes(
                         "MultiTexturedCube.Textures.tree.png",
@@ -171,27 +171,7 @@ namespace MultiTexturedCube
                     "TreeTexture", 
                     "TreeSampler")
                 );
-            
-            //
-            // TODO - FIXME - this is really not the greatest
-            // 
-            // Specifying a "partial" pipeline state is kinda goofy.
-            // Probably should create a PipelineState object and 
-            // attached shaders and fixed function state to it rather
-            // than the node.
-            // 
-            // Setup the cube's pipeline state.  Rendering will not work
-            // without a valid state.
-            //
-            GraphicsPipelineDescription pd = new GraphicsPipelineDescription();
-            pd.BlendState = BlendStateDescription.SingleOverrideBlend;;
-            pd.DepthStencilState = DepthStencilStateDescription.DepthOnlyLessEqual;
-            pd.RasterizerState = RasterizerStateDescription.Default;
-            pd.PrimitiveTopology = PrimitiveTopology.TriangleList;
-
-            geometry.PipelineDescription = pd;
-            
-            
+                       
             return geometry;
         }
     }

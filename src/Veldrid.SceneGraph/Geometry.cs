@@ -31,23 +31,16 @@ namespace Veldrid.SceneGraph
     public class Geometry<T> : Drawable 
         where T : struct, IPrimitiveElement
     {
-        public byte[] VertexShader { get; set; }
-        public string VertexShaderEntryPoint { get; set; }
-        public byte[] FragmentShader { get; set; }
-        public string FragmentShaderEntryPoint { get; set; }
+        //public PipelineState PipelineState { get; } = new PipelineState();
         
-        // TODO - this needs to be moved to a PipelineStateObject
-        public List<Texture2D> TextureList { get; } = new List<Texture2D>();
-        
-
         public T[] VertexData { get; set; }
         public int SizeOfVertexData => Marshal.SizeOf(default(T));
         
         public ushort[] IndexData { get; set; }
 
-        public PrimitiveTopology PrimitiveTopology { get; set; }
-
         public VertexLayoutDescription VertexLayout { get; set; }
+
+        public PrimitiveTopology PrimitiveTopology { get; set; } = PrimitiveTopology.TriangleStrip;
             
         private uint NumIndices { get; set; }
         
@@ -55,8 +48,7 @@ namespace Veldrid.SceneGraph
         
         public Geometry()
         {
-            PrimitiveTopology = PrimitiveTopology.TriangleList;
-            _stateSet = new StateSet();
+            //_stateSet = new StateSet();
         }
         
         // Required for double-dispatch

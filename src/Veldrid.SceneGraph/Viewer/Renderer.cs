@@ -111,25 +111,34 @@ namespace Veldrid.SceneGraph.Viewer
 
             var curModelMatrix = Matrix4x4.Identity;
             _culledObjectCount = 0;
-            foreach (var dsn in _cullAndAssembleVisitor.DrawSet)
+
+            var drawSetStates = _cullAndAssembleVisitor.DrawSet.Keys;
+            foreach (var dss in drawSetStates)
             {
-                _commandList.SetPipeline(dsn.Pipeline);
+                // Set this state's pipelnie
+                _commandList.SetPipeline(dss.Pipeline);
                 
                 // Set the resources
                 _commandList.SetGraphicsResourceSet(0, _resourceSet);
+                
+                // Set state-local resources
+                _commandList.SetGraphicsResourceSet(1, dss.ResourceSet);
 
-                // TODO - Question: can this be done on a separate thread?
-                if (IsCulled(dsn.Drawable.GetBoundingBox(), dsn.ModelMatrix)) continue;
-                
-                if (dsn.ModelMatrix != curModelMatrix)
+                // Iterate over all drawables in this state
+                var drawSetNodes = _cullAndAssembleVisitor.DrawSet[dss];
+                foreach (var dsn in drawSetNodes)
                 {
-                    _commandList.UpdateBuffer(dsn.ModelBuffer, 0, dsn.ModelMatrix);
-                    curModelMatrix = dsn.ModelMatrix;
+                    // TODO - Question: can this be done on a separate thread?
+                    if (IsCulled(dsn.Drawable.GetBoundingBox(), dsn.ModelMatrix)) continue;
+                
+                    if (dsn.ModelMatrix != curModelMatrix)
+                    {
+                        _commandList.UpdateBuffer(dss.ModelBuffer, 0, dsn.ModelMatrix);
+                        curModelMatrix = dsn.ModelMatrix;
+                    }
+                
+                    dsn.Drawable.Draw(_renderInfo);
                 }
-                
-                _commandList.SetGraphicsResourceSet(1, dsn.ResourceSet);
-                
-                dsn.Drawable.Draw(_renderInfo);
             }
             
             _commandList.End();

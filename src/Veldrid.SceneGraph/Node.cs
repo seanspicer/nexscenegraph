@@ -92,11 +92,16 @@ namespace Veldrid.SceneGraph
             } 
         }
 
-        private GraphicsPipelineDescription? _pipelineDescription = null;
-        public GraphicsPipelineDescription? PipelineDescription
+        private PipelineState _pipelineState = null;
+        public PipelineState PipelineState
         {
-            get => _pipelineDescription;
-            set => _pipelineDescription = value;
+            get => _pipelineState ?? (_pipelineState = new PipelineState());
+            set => _pipelineState = value;
+        }
+        
+        public bool HasPipelineState
+        {
+            get => null != _pipelineState;
         }
 
         private int GetNumChildrenRequiringEventTraversal()

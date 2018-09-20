@@ -85,31 +85,17 @@ namespace HelloNsg
             geometry.VertexLayout = new VertexLayoutDescription(
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float2),
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
-            
-            geometry.PrimitiveTopology = PrimitiveTopology.TriangleStrip;
 
-            geometry.VertexShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+            geometry.PipelineState.VertexShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
                 typeof(Program).Assembly,
                 "HelloShaders", ShaderStages.Vertex);
-            geometry.VertexShaderEntryPoint = "VS";
+            geometry.PipelineState.VertexShaderEntryPoint = "VS";
 
-            geometry.FragmentShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+            geometry.PipelineState.FragmentShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
                 typeof(Program).Assembly,
                 "HelloShaders", ShaderStages.Fragment);
-            geometry.FragmentShaderEntryPoint = "FS";
-            
-            //
-            // Setup the cube's pipeline state.  Rendering will not work
-            // without a valid state.
-            //
-            GraphicsPipelineDescription pd = new GraphicsPipelineDescription();
-            pd.BlendState = BlendStateDescription.SingleOverrideBlend;;
-            pd.DepthStencilState = DepthStencilStateDescription.DepthOnlyLessEqual;
-            pd.RasterizerState = RasterizerStateDescription.Default;
-            pd.PrimitiveTopology = PrimitiveTopology.TriangleStrip;
-
-            geometry.PipelineDescription = pd;
-            
+            geometry.PipelineState.FragmentShaderEntryPoint = "FS";
+                        
             root.AddChild(geometry);
 
             viewer.SceneData = root;

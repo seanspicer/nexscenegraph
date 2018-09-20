@@ -86,6 +86,8 @@ namespace ColoredCube
                     root.AddChild(xform);
                 }
             }
+
+            root.PipelineState = CreateSharedState();
             
             viewer.SceneData = root;
 
@@ -154,39 +156,26 @@ namespace ColoredCube
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
             
-            geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;
-
-            geometry.VertexShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
-                typeof(Program).Assembly,
-                "ColoredCubeShader", ShaderStages.Vertex);
-            geometry.VertexShaderEntryPoint = "VS";
-
-            geometry.FragmentShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
-                typeof(Program).Assembly,
-                "ColoredCubeShader", ShaderStages.Fragment);
-            geometry.FragmentShaderEntryPoint = "FS";
-            
-            //
-            // TODO - FIXME - this is really not the greatest
-            // 
-            // Specifying a "partial" pipeline state is kinda goofy.
-            // Probably shoudl create a PipelineState object and 
-            // attched shaders and fixed function state to it rather
-            // than the node.
-            // 
-            // Setup the cube's pipeline state.  Rendering will not work
-            // without a valid state.
-            //
-            GraphicsPipelineDescription pd = new GraphicsPipelineDescription();
-            pd.BlendState = BlendStateDescription.SingleOverrideBlend;;
-            pd.DepthStencilState = DepthStencilStateDescription.DepthOnlyLessEqual;
-            pd.RasterizerState = RasterizerStateDescription.Default;
-            pd.PrimitiveTopology = PrimitiveTopology.TriangleList;
-
-            geometry.PipelineDescription = pd;
-            
+            geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;       
             
             return geometry;
         }
+        
+        private static PipelineState CreateSharedState()
+        {
+            var pso = new PipelineState();
+            pso.VertexShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+                typeof(Program).Assembly,
+                "ColoredCubeShader", ShaderStages.Vertex);
+            pso.VertexShaderEntryPoint = "VS";
+
+            pso.FragmentShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+                typeof(Program).Assembly,
+                "ColoredCubeShader", ShaderStages.Fragment);
+            pso.FragmentShaderEntryPoint = "FS";
+
+            return pso;
+        }
+        
     }
 }
