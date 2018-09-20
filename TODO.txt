@@ -3,14 +3,12 @@ Overall
 + Review Copyright Notices
 + Review Public API surface
 
+
+
 SceneGraph
 ~~~~~~~~~~
-
-+ Implement Transform node [Done]
-+ Implement Noop Cull Traversal [Done]
 + Implement RenderGraph instead of DrawVisitor [In Progress]
 + Implement Update/Update Uniforms visitor
-+ Code Review Visitor implementation & double-dispatch [Done]
 
 Viewer
 ~~~~~~
@@ -19,7 +17,40 @@ Viewer
 + Improve Separation of Concerns using delegates and Action<>s
 + Implement ViewAll
 
+[x] - Basic Single Window Viewer
+    [x] GUI Action Adapter Structure
+    [ ] ViewAll Logic
+    [ ] Delegate Event Propagation
+[x] - View Abstraction (organizing cameras, scenegraph root, and the renderer)
+[x] - Configurable Orthographic and Perspective Cameras
+[x] - Basic Trackball and Orbit Camera Manipulators
+[x] - Core Scene Graph Objects:
+      [x] Node
+          [x] Group
+              [x] Transform 
+                  [x] MatrixTransform 
+                  [x] Camera
+                  [ ] PositionAttitudeTransform
+                  [ ] AntiSquish
+              [ ] Switch
+              [ ] Clip
+              [ ] Geode
+                  [ ] Billboard
+      [x] Drawable 
+          [x] Geometry
+              [x] Basic Shader Management
+              [x] Basic Texture Management
+          [ ] Text
+[x] - Visitor Structure
+    [x] NodeVisitor
+        [x] TransformVisitor
+        [x] AssemblyVisitor (For constructing RenderGroups)
+        [x] Update Visitor
+[x] - Renderer
+    [x] Efficient View Frustum Culling of RenderGroup Objects
+    [x] Render Group (Currently called DrawSets) Drawing
+    [x] Pipeline State Sorting
+    [ ] Buffer Update Batching
 
-Demos - Hello NSG
-~~~~~~~~~~~~~~~~~
-+ Fix/Figure out [WarningEXT] (BufferEXT)  [ UNASSIGNED-CoreValidation-MemTrack-InvalidAliasing ]
+
+
