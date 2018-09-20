@@ -31,7 +31,6 @@ namespace Veldrid.SceneGraph.RenderGraph
     {
         public Drawable Drawable;
         public Matrix4x4 ModelMatrix;
-        
     }
     
     public class RenderGroup

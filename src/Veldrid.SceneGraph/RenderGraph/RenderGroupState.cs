@@ -45,10 +45,17 @@ namespace Veldrid.SceneGraph.RenderGraph
             GraphicsPipelineDescription pd = new GraphicsPipelineDescription();
             pd.PrimitiveTopology = PrimitiveTopology;
 
+            var nDrawables = (uint)Elements.Count;
             ri.ModelBuffer =
-                resourceFactory.CreateBuffer(new BufferDescription(64,
-                    BufferUsage.UniformBuffer | BufferUsage.Dynamic));
-            graphicsDevice.UpdateBuffer(ri.ModelBuffer, 0, Matrix4x4.Identity);
+                resourceFactory.CreateBuffer(new BufferDescription(64*nDrawables, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
+            
+            var modelMatrixBuffer = new Matrix4x4[nDrawables];
+            for(var i=0; i<nDrawables; ++i)
+            {
+                modelMatrixBuffer[i] = Elements[i].ModelMatrix;
+            }
+            
+            graphicsDevice.UpdateBuffer(ri.ModelBuffer, 0, modelMatrixBuffer);
 
             resourceLayoutElementDescriptionList.Add(
                 new ResourceLayoutElementDescription("Model", ResourceKind.UniformBuffer, ShaderStages.Vertex));

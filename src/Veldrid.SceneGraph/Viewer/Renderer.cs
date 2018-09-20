@@ -126,6 +126,7 @@ namespace Veldrid.SceneGraph.Viewer
                 
                 // Set state-local resources
                 _commandList.SetGraphicsResourceSet(1, ri.ResourceSet);
+                
 
                 // Iterate over all drawables in this state
                 foreach (var renderElement in state.Elements)
@@ -133,11 +134,12 @@ namespace Veldrid.SceneGraph.Viewer
                     // TODO - Question: can this be done on a separate thread?
                     if (IsCulled(renderElement.Drawable.GetBoundingBox(), renderElement.ModelMatrix)) continue;
                 
-                    if (renderElement.ModelMatrix != curModelMatrix)
-                    {
-                        _commandList.UpdateBuffer(ri.ModelBuffer, 0, renderElement.ModelMatrix);
-                        curModelMatrix = renderElement.ModelMatrix;
-                    }
+                      // TODO - need a uniform to index into the correct model matrix
+//                    if (renderElement.ModelMatrix != curModelMatrix)
+//                    {
+//                        _commandList.UpdateBuffer(ri.ModelBuffer, 0, renderElement.ModelMatrix);
+//                        curModelMatrix = renderElement.ModelMatrix;
+//                    }
                 
                     renderElement.Drawable.Draw(_renderInfo);
                 }
