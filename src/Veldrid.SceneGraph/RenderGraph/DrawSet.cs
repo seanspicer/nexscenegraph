@@ -26,18 +26,21 @@ using AssetPrimitives;
 
 namespace Veldrid.SceneGraph.RenderGraph
 {
-    public class DrawSetNode
+    public class DrawSetState
     {
         public Pipeline Pipeline;
-        public Drawable Drawable;
-        public Matrix4x4 ModelMatrix;
         public ResourceLayout ResourceLayout;
         public ResourceSet ResourceSet;
         public DeviceBuffer ModelBuffer;
-
+    }
+    
+    public class DrawSetNode
+    {
+        public Drawable Drawable;
+        public Matrix4x4 ModelMatrix;
     }
 
-    public class DrawSet : List<DrawSetNode>
+    public class DrawSet : Dictionary<DrawSetState, List<DrawSetNode>>
     {
         
     }

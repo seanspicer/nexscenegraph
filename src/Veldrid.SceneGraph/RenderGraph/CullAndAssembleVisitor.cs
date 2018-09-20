@@ -25,6 +25,7 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices.ComTypes;
 using AssetProcessor;
 using Veldrid.Utilities;
 
@@ -44,7 +45,9 @@ namespace Veldrid.SceneGraph.RenderGraph
         public bool Valid => null != GraphicsDevice;
         
         private Polytope CullingFrustum { get; set; } = new Polytope();
-        
+
+        private Dictionary<PipelineState, DrawSetState> PipelineCache { get; set; } = new Dictionary<PipelineState, DrawSetState>();
+
         public CullAndAssembleVisitor() : 
             base(VisitorType.CullAndAssembleVisitor, TraversalModeType.TraverseActiveChildren)
         {
@@ -93,20 +96,11 @@ namespace Veldrid.SceneGraph.RenderGraph
             
             DrawSetNode dsn = new DrawSetNode();
             dsn.Drawable = geometry;
-
-            // Construct Node-specific resource Layout
-            dsn.ModelBuffer = ResourceFactory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
-            GraphicsDevice.UpdateBuffer(dsn.ModelBuffer, 0, Matrix4x4.Identity);
             
             var resourceLayoutElementDescriptionList = new List<ResourceLayoutElementDescription> { };
-            resourceLayoutElementDescriptionList.Add(
-                new ResourceLayoutElementDescription("Model", ResourceKind.UniformBuffer, ShaderStages.Vertex));
-  
             var bindableResourceList = new List<BindableResource>();
-            bindableResourceList.Add(dsn.ModelBuffer);
             
             
-
             // TODO = this needs to go on a stack, I think.
             GraphicsPipelineDescription pd = new GraphicsPipelineDescription();
             pd.PrimitiveTopology = geometry.PrimitiveTopology;
@@ -130,73 +124,98 @@ namespace Veldrid.SceneGraph.RenderGraph
             {
                 pso = new PipelineState();
             }
-            
-            // Process Attached Textures
-            foreach (var tex2d in pso.TextureList)
+
+            if (false == PipelineCache.TryGetValue(pso, out var dss))
             {
-                var deviceTexture =
-                    tex2d.ProcessedTexture.CreateDeviceTexture(GraphicsDevice, ResourceFactory, TextureUsage.Sampled);
-                var textureView =
-                    ResourceFactory.CreateTextureView(deviceTexture);
-  
+                dss = new DrawSetState();
+                
+                dss.ModelBuffer = ResourceFactory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
+                GraphicsDevice.UpdateBuffer(dss.ModelBuffer, 0, Matrix4x4.Identity);
+                
                 resourceLayoutElementDescriptionList.Add(
-                    new ResourceLayoutElementDescription(tex2d.TextureName, ResourceKind.TextureReadOnly, ShaderStages.Fragment)
+                    new ResourceLayoutElementDescription("Model", ResourceKind.UniformBuffer, ShaderStages.Vertex));
+                
+                bindableResourceList.Add(dss.ModelBuffer);
+                
+                // Process Attached Textures
+                foreach (var tex2d in pso.TextureList)
+                {
+                    var deviceTexture =
+                        tex2d.ProcessedTexture.CreateDeviceTexture(GraphicsDevice, ResourceFactory, TextureUsage.Sampled);
+                    var textureView =
+                        ResourceFactory.CreateTextureView(deviceTexture);
+      
+                    resourceLayoutElementDescriptionList.Add(
+                        new ResourceLayoutElementDescription(tex2d.TextureName, ResourceKind.TextureReadOnly, ShaderStages.Fragment)
+                    );
+                    resourceLayoutElementDescriptionList.Add(
+                        new ResourceLayoutElementDescription(tex2d.SamplerName, ResourceKind.Sampler, ShaderStages.Fragment)
+                    );    
+    
+                    bindableResourceList.Add(textureView);
+                    bindableResourceList.Add(GraphicsDevice.Aniso4xSampler);
+                }
+                
+                dss.ResourceLayout = ResourceFactory.CreateResourceLayout(
+                    new ResourceLayoutDescription(resourceLayoutElementDescriptionList.ToArray()));
+                
+                dss.ResourceSet = ResourceFactory.CreateResourceSet(
+                    new ResourceSetDescription(
+                        dss.ResourceLayout,
+                        bindableResourceList.ToArray()
+                    )
                 );
-                resourceLayoutElementDescriptionList.Add(
-                    new ResourceLayoutElementDescription(tex2d.SamplerName, ResourceKind.Sampler, ShaderStages.Fragment)
-                );    
-
-                bindableResourceList.Add(textureView);
-                bindableResourceList.Add(GraphicsDevice.Aniso4xSampler);
-            }
-            
-            dsn.ResourceLayout = ResourceFactory.CreateResourceLayout(
-                new ResourceLayoutDescription(resourceLayoutElementDescriptionList.ToArray()));
-            
-            dsn.ResourceSet = ResourceFactory.CreateResourceSet(
-                new ResourceSetDescription(
-                    dsn.ResourceLayout,
-                    bindableResourceList.ToArray()
-                )
-            );
-            
-            pd.BlendState = pso.BlendStateDescription;
-            pd.DepthStencilState = pso.DepthStencilState;
-            pd.RasterizerState = pso.RasterizerStateDescription;
-
-            if (null != pso.VertexShader && null != pso.FragmentShader &&
-                null != pso.VertexShaderEntryPoint && null != pso.FragmentShaderEntryPoint)
-            {
-                var vertexShaderProg =
-                    ResourceFactory.CreateShader(
-                        new ShaderDescription(ShaderStages.Vertex, 
-                            pso.VertexShader, 
-                            pso.VertexShaderEntryPoint
-                        )
-                    );
-            
-                var fragmentShaderProg =
-                    ResourceFactory.CreateShader(
-                        new ShaderDescription(ShaderStages.Fragment, 
-                            pso.FragmentShader, 
-                            pso.FragmentShaderEntryPoint
-                        )
-                    );
                 
-                pd.ShaderSet = new ShaderSetDescription(
-                    vertexLayouts: new VertexLayoutDescription[] { geometry.VertexLayout },
-                    shaders: new Shader[] { vertexShaderProg, fragmentShaderProg });
-            }
-            
-            pd.ResourceLayouts = new[] {ResourceLayout, dsn.ResourceLayout};
-                  
-            pd.Outputs = GraphicsDevice.SwapchainFramebuffer.OutputDescription;
+                pd.BlendState = pso.BlendStateDescription;
+                pd.DepthStencilState = pso.DepthStencilState;
+                pd.RasterizerState = pso.RasterizerStateDescription;
+    
+                if (null != pso.VertexShader && null != pso.FragmentShader &&
+                    null != pso.VertexShaderEntryPoint && null != pso.FragmentShaderEntryPoint)
+                {
+                    var vertexShaderProg =
+                        ResourceFactory.CreateShader(
+                            new ShaderDescription(ShaderStages.Vertex, 
+                                pso.VertexShader, 
+                                pso.VertexShaderEntryPoint
+                            )
+                        );
                 
-            dsn.Pipeline = ResourceFactory.CreateGraphicsPipeline(pd);
+                    var fragmentShaderProg =
+                        ResourceFactory.CreateShader(
+                            new ShaderDescription(ShaderStages.Fragment, 
+                                pso.FragmentShader, 
+                                pso.FragmentShaderEntryPoint
+                            )
+                        );
+                    
+                    pd.ShaderSet = new ShaderSetDescription(
+                        vertexLayouts: new VertexLayoutDescription[] { geometry.VertexLayout },
+                        shaders: new Shader[] { vertexShaderProg, fragmentShaderProg });
+                }
+                
+                pd.ResourceLayouts = new[] {ResourceLayout, dss.ResourceLayout};
+                      
+                pd.Outputs = GraphicsDevice.SwapchainFramebuffer.OutputDescription;
+                
+                dss.Pipeline = ResourceFactory.CreateGraphicsPipeline(pd);
+                
+                PipelineCache.Add(pso, dss);
+            }
+
+           
             dsn.ModelMatrix = ModelMatrixStack.Peek();
 
-            DrawSet.Add(dsn);
-            
+            if (DrawSet.TryGetValue(dss, out var dsl))
+            {
+                dsl.Add(dsn);
+            }
+            else
+            {
+                dsl = new List<DrawSetNode>();
+                dsl.Add(dsn);
+                DrawSet.Add(dss, dsl);
+            }
         }
 
         
