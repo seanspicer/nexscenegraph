@@ -36,7 +36,7 @@ namespace TextRendering
             
             var allNames = asm.GetManifestResourceNames();
             
-            var viewer = new SimpleViewer("Hello Veldrid Scene Graph");
+            var viewer = new SimpleViewer("Text Rendering Demo");
             viewer.View.CameraManipulator = new TrackballManipulator();
 
             var root = new Group();

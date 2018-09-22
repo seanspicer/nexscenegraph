@@ -20,20 +20,101 @@
 // SOFTWARE.
 //
 
+using System.Numerics;
+using System.Runtime.InteropServices;
+using AssetPrimitives;
+using AssetProcessor;
 using SixLabors.Fonts;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.Primitives;
+using ShaderGen;
+using Veldrid;
+using Veldrid.SceneGraph.Util;
+using Math = System.Math;
+
 
 namespace Veldrid.SceneGraph.Text
 {
+    internal struct VertexPositionTexture : IPrimitiveElement
+    {
+        public const uint SizeInBytes = 20;
+
+        [PositionSemantic] 
+        public Vector3 Position;
+        [ColorSemantic]
+        public Vector2 TexCoord;
+        
+        public VertexPositionTexture(Vector3 position, Vector2 texCoord)
+        {
+            Position = position;
+            TexCoord = texCoord;
+        }
+
+        public Vector3 VertexPosition => Position;
+    }
+    
     public class TextNode : Drawable
     {
         private Font Font { get; set; }
         public string Text { get; set; }
 
+        private VertexPositionTexture[] VertexData { get; set; }
+        public int SizeOfVertexData => Marshal.SizeOf(default(VertexPositionTexture));
+        
+        public ushort[] IndexData { get; set; }
+
+        public VertexLayoutDescription VertexLayout { get; set; }
+
+        public PrimitiveTopology PrimitiveTopology { get; set; } = PrimitiveTopology.TriangleStrip;
+        
         public TextNode()
         {
-            // Create default Font
-            Font = SystemFonts.CreateFont("Arial", 10);
+            VertexData = new VertexPositionTexture[]
+            {
+                // Quad
+                new VertexPositionTexture(new Vector3(-1.0f, +1.0f, +0.0f), new Vector2(0, 0)),
+                new VertexPositionTexture(new Vector3(+1.0f, +1.0f, +0.0f), new Vector2(1, 0)),
+                new VertexPositionTexture(new Vector3(+1.0f, -1.0f, +0.0f), new Vector2(1, 1)),
+                new VertexPositionTexture(new Vector3(-1.0f, -1.0f, +0.0f), new Vector2(0, 1))
+            };
+
+            IndexData = new ushort[]
+            {
+                0, 1, 2, 0, 2, 3,
+            };
             
+            VertexLayout = new VertexLayoutDescription(
+                new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
+                new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2));
+            
+            PrimitiveTopology = PrimitiveTopology.TriangleList;
+
+            PipelineState.VertexShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+                typeof(TextNode).Assembly,
+                "TexturedCubeShader", ShaderStages.Vertex);
+            PipelineState.VertexShaderEntryPoint = "VS";
+
+            PipelineState.FragmentShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+                typeof(TextNode).Assembly,
+                "TexturedCubeShader", ShaderStages.Fragment);
+            PipelineState.FragmentShaderEntryPoint = "FS";
+
+            // Defer this...
+//            PipelineState.TextureList.Add(
+//                new Texture2D(Texture2D.ImageFormatType.Png,
+//                    ShaderTools.ReadEmbeddedAssetBytes(
+//                        "TexturedCube.Textures.spnza_bricks_a_diff.png",
+//                        typeof(Program).Assembly),
+//                    1,
+//                    "SurfaceTexture", 
+//                    "SurfaceSampler"));
+        }
+        
+        public override void Accept(NodeVisitor visitor)
+        {
+            visitor.Apply(this);
         }
         
         protected override void DrawImplementation(RenderInfo renderInfo)
@@ -43,7 +124,47 @@ namespace Veldrid.SceneGraph.Text
 
         protected override BoundingBox ComputeBoundingBox()
         {
-            throw new System.NotImplementedException();
+            var bb = new BoundingBox();
+            foreach (var elt in VertexData)
+            {
+                bb.ExpandBy(elt.VertexPosition);
+            }
+
+            return bb;
+        }
+
+        private ProcessedTexture BuildTexture()
+        {
+            // Create default Font
+            Font = SystemFonts.CreateFont("Arial", 30);
+
+            using (var img = new Image<Rgba32>(256, 256))
+            {
+                var padding = 4;
+                var text = "Hello, World";
+                float targetWidth = img.Width - (padding * 2);
+                float targetHeight = img.Height - (padding * 2);
+
+                // measure the text size
+                SizeF size = TextMeasurer.Measure(text, new RendererOptions(Font));
+
+                //find out how much we need to scale the text to fill the space (up or down)
+                float scalingFactor = Math.Min(img.Width / size.Width, img.Height / size.Height);
+
+                //create a new font 
+                Font scaledFont = new Font(Font, scalingFactor * Font.Size);
+
+                var center = new PointF(img.Width / 2, img.Height / 2);
+                var textGraphicOptions = new TextGraphicsOptions(true) {
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                img.Mutate(i => i.DrawText(textGraphicOptions, text, scaledFont, Rgba32.White, center));
+                
+                var imageProcessor = new ImageSharpProcessor();
+                return imageProcessor.ProcessT(img);
+
+            }
         }
     }
 }

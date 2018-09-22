@@ -14,6 +14,35 @@ namespace AssetProcessor
 {
     public class ImageSharpProcessor : BinaryAssetProcessor<ProcessedTexture>
     {
+        public unsafe ProcessedTexture ProcessT(Image<Rgba32> image)
+        {
+            
+            Image<Rgba32>[] mipmaps = GenerateMipmaps(image, out int totalSize);
+
+            byte[] allTexData = new byte[totalSize];
+            long offset = 0;
+            fixed (byte* allTexDataPtr = allTexData)
+            {
+                foreach (Image<Rgba32> mipmap in mipmaps)
+                {
+                    long mipSize = mipmap.Width * mipmap.Height * sizeof(Rgba32);
+                    fixed (Rgba32* pixelPtr = &mipmap.DangerousGetPinnableReferenceToPixelBuffer())
+                    {
+                        Buffer.MemoryCopy(pixelPtr, allTexDataPtr + offset, mipSize, mipSize);
+                    }
+
+                    offset += mipSize;
+                }
+            }
+
+            ProcessedTexture texData = new ProcessedTexture(
+                PixelFormat.R8_G8_B8_A8_UNorm, TextureType.Texture2D,
+                (uint)image.Width, (uint)image.Height, 1,
+                (uint)mipmaps.Length, 1,
+                allTexData);
+            return texData;
+        }
+        
         public unsafe override ProcessedTexture ProcessT(Stream stream, string extension)
         {
             Image<Rgba32> image = Image.Load(stream);
