@@ -24,6 +24,7 @@ using System;
 using System.Numerics;
 using Veldrid.MetalBindings;
 using Veldrid.SceneGraph.RenderGraph;
+using Vulkan;
 
 namespace Veldrid.SceneGraph.Viewer
 {
@@ -127,20 +128,19 @@ namespace Veldrid.SceneGraph.Viewer
                 // Set state-local resources
                 _commandList.SetGraphicsResourceSet(1, ri.ResourceSet);
                 
-
                 // Iterate over all drawables in this state
                 foreach (var renderElement in state.Elements)
                 {
                     // TODO - Question: can this be done on a separate thread?
                     if (IsCulled(renderElement.Drawable.GetBoundingBox(), renderElement.ModelMatrix)) continue;
-                
-                      // TODO - need a uniform to index into the correct model matrix
-//                    if (renderElement.ModelMatrix != curModelMatrix)
-//                    {
-//                        _commandList.UpdateBuffer(ri.ModelBuffer, 0, renderElement.ModelMatrix);
-//                        curModelMatrix = renderElement.ModelMatrix;
-//                    }
-                
+                   
+                    // TODO - CASE 1 - use a vkCmdBindDescriptorSets equiv to bind the correct model matrix offset
+                    if (renderElement.ModelMatrix != curModelMatrix)
+                    {
+                        _commandList.UpdateBuffer(ri.ModelBuffer, 0, renderElement.ModelMatrix);
+                        curModelMatrix = renderElement.ModelMatrix;
+                    }
+                    
                     renderElement.Drawable.Draw(_renderInfo);
                 }
             }
@@ -173,9 +173,8 @@ namespace Veldrid.SceneGraph.Viewer
             device.UpdateBuffer(_viewBuffer, 0, _camera.ViewMatrix);
 
             //  TODO - don't need both of these
-            
 
-            var vp = Matrix4x4.Multiply(_camera.ViewMatrix, _camera.ProjectionMatrix);
+            var vp = _camera.ViewMatrix.PostMultiply(_camera.ProjectionMatrix);
             _cullAndAssembleVisitor.SetCullingViewProjectionMatrix(vp);
             CullingFrustum.VPMatrix = vp;
 
