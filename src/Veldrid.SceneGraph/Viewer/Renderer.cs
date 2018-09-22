@@ -141,6 +141,16 @@ namespace Veldrid.SceneGraph.Viewer
                         curModelMatrix = renderElement.ModelMatrix;
                     }
                     
+                    // Compute eye point - this is really useful only for transparent geoms
+                    var modelView = renderElement.ModelMatrix.PostMultiply(_camera.ViewMatrix);
+                    Matrix4x4.Invert(modelView, out var modelViewInverse);
+                    var m_eye = Vector3.Transform(Vector3.Zero, modelViewInverse);
+
+                    var ctr = renderElement.Drawable.GetBoundingBox().Center;
+                    var dist = Vector3.Distance(m_eye, ctr);
+                        
+                    Console.WriteLine("Dist = {0}", dist);
+                    
                     renderElement.Drawable.Draw(_renderInfo);
                 }
             }
