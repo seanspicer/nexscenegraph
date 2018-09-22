@@ -24,6 +24,7 @@ using System;
 using System.Numerics;
 using Veldrid.MetalBindings;
 using Veldrid.SceneGraph.RenderGraph;
+using Vulkan;
 
 namespace Veldrid.SceneGraph.Viewer
 {
@@ -68,7 +69,7 @@ namespace Veldrid.SceneGraph.Viewer
             ));
 
             _cullAndAssembleVisitor.ResourceLayout = _resourceLayout;
-            _cullAndAssembleVisitor.DrawSet.Clear();
+            _cullAndAssembleVisitor.OpaqueRenderGroup.Clear();
             
             if (_camera.View.GetType() != typeof(Viewer.View))
             {
@@ -111,33 +112,36 @@ namespace Veldrid.SceneGraph.Viewer
 
             var curModelMatrix = Matrix4x4.Identity;
             _culledObjectCount = 0;
-
-            var drawSetStates = _cullAndAssembleVisitor.DrawSet.Keys;
-            foreach (var dss in drawSetStates)
+            
+            // Draw Opaque Bins
+            var opaqueRenderGroupStates = _cullAndAssembleVisitor.OpaqueRenderGroup.GetStateList();
+            foreach (var state in opaqueRenderGroupStates)
             {
+                var ri = state.GetPipelineAndResources(device, factory, _resourceLayout);
+                
                 // Set this state's pipelnie
-                _commandList.SetPipeline(dss.Pipeline);
+                _commandList.SetPipeline(ri.Pipeline);
                 
                 // Set the resources
                 _commandList.SetGraphicsResourceSet(0, _resourceSet);
                 
                 // Set state-local resources
-                _commandList.SetGraphicsResourceSet(1, dss.ResourceSet);
-
+                _commandList.SetGraphicsResourceSet(1, ri.ResourceSet);
+                
                 // Iterate over all drawables in this state
-                var drawSetNodes = _cullAndAssembleVisitor.DrawSet[dss];
-                foreach (var dsn in drawSetNodes)
+                foreach (var renderElement in state.Elements)
                 {
                     // TODO - Question: can this be done on a separate thread?
-                    if (IsCulled(dsn.Drawable.GetBoundingBox(), dsn.ModelMatrix)) continue;
-                
-                    if (dsn.ModelMatrix != curModelMatrix)
+                    if (IsCulled(renderElement.Drawable.GetBoundingBox(), renderElement.ModelMatrix)) continue;
+                   
+                    // TODO - CASE 1 - use a vkCmdBindDescriptorSets equiv to bind the correct model matrix offset
+                    if (renderElement.ModelMatrix != curModelMatrix)
                     {
-                        _commandList.UpdateBuffer(dss.ModelBuffer, 0, dsn.ModelMatrix);
-                        curModelMatrix = dsn.ModelMatrix;
+                        _commandList.UpdateBuffer(ri.ModelBuffer, 0, renderElement.ModelMatrix);
+                        curModelMatrix = renderElement.ModelMatrix;
                     }
-                
-                    dsn.Drawable.Draw(_renderInfo);
+                    
+                    renderElement.Drawable.Draw(_renderInfo);
                 }
             }
             
@@ -169,9 +173,8 @@ namespace Veldrid.SceneGraph.Viewer
             device.UpdateBuffer(_viewBuffer, 0, _camera.ViewMatrix);
 
             //  TODO - don't need both of these
-            
 
-            var vp = Matrix4x4.Multiply(_camera.ViewMatrix, _camera.ProjectionMatrix);
+            var vp = _camera.ViewMatrix.PostMultiply(_camera.ProjectionMatrix);
             _cullAndAssembleVisitor.SetCullingViewProjectionMatrix(vp);
             CullingFrustum.VPMatrix = vp;
 

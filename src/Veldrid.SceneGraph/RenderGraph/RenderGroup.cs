@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) 2018 Sean Spicer
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,29 +20,48 @@
 // SOFTWARE.
 //
 
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Numerics;
-using AssetPrimitives;
 
 namespace Veldrid.SceneGraph.RenderGraph
 {
-    public class DrawSetState
-    {
-        public Pipeline Pipeline;
-        public ResourceLayout ResourceLayout;
-        public ResourceSet ResourceSet;
-        public DeviceBuffer ModelBuffer;
-    }
-    
-    public class DrawSetNode
+    public class RenderGroupElement
     {
         public Drawable Drawable;
         public Matrix4x4 ModelMatrix;
     }
-
-    public class DrawSet : Dictionary<DrawSetState, List<DrawSetNode>>
+    
+    public class RenderGroup
     {
         
+        private Dictionary<Tuple<PipelineState, PrimitiveTopology, VertexLayoutDescription>, RenderGroupState> RenderGroupStateCache;
+
+        public RenderGroup()
+        {
+            RenderGroupStateCache = new Dictionary<Tuple<PipelineState, PrimitiveTopology, VertexLayoutDescription>, RenderGroupState>();
+        }
+
+        public void Clear()
+        {
+            RenderGroupStateCache.Clear();
+        }
+        
+        public IEnumerable<RenderGroupState> GetStateList()
+        {
+            return RenderGroupStateCache.Values;
+        }
+        
+        public RenderGroupState GetOrCreateState(PipelineState pso, PrimitiveTopology pt, VertexLayoutDescription vl)
+        {
+            var key = new Tuple<PipelineState, PrimitiveTopology, VertexLayoutDescription>(pso, pt, vl);
+            if (RenderGroupStateCache.TryGetValue(key, out var renderGroupState)) return renderGroupState;
+            
+            renderGroupState = new RenderGroupState(pso, pt, vl);
+            RenderGroupStateCache.Add(key, renderGroupState);
+
+            return renderGroupState;
+        }
     }
-    
 }
