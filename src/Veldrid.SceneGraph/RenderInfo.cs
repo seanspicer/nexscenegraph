@@ -39,7 +39,6 @@ namespace Veldrid.SceneGraph
         public ResourceSet ResourceSet { get; set; }
         
         // TODO - these dont really belong here.
-        public Pipeline Pipeline { get; set; }
         public DeviceBuffer VertexBuffer { get; set; }
         public DeviceBuffer IndexBuffer { get; set; }
         

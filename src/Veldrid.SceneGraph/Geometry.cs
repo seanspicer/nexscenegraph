@@ -57,37 +57,11 @@ namespace Veldrid.SceneGraph
             visitor.Apply(this);
         }
 
-        protected override void DrawImplementation(RenderInfo renderInfo)
+        protected override void DrawImplementation(CommandList commandList)
         {
-            if (_dirtyFlag)
-            {                
-                var vbDescription = new BufferDescription(
-                    (uint) (VertexData.Length * SizeOfVertexData),
-                    BufferUsage.VertexBuffer);
-    
-                renderInfo.VertexBuffer = renderInfo.ResourceFactory.CreateBuffer(vbDescription);
-                renderInfo.GraphicsDevice.UpdateBuffer(renderInfo.VertexBuffer, 0, VertexData);
-                
-                var ibDescription = new BufferDescription(
-                    (uint) IndexData.Length * sizeof(ushort),
-                    BufferUsage.IndexBuffer);
-    
-                NumIndices = (uint) IndexData.Length;
-                renderInfo.IndexBuffer = renderInfo.ResourceFactory.CreateBuffer(ibDescription);
-                renderInfo.GraphicsDevice.UpdateBuffer(renderInfo.IndexBuffer, 0, IndexData);
-    
-                _dirtyFlag = false;
-            }
-            
-
-            
-            // Set all relevant state to draw our quad.
-            renderInfo.CommandList.SetVertexBuffer(0, renderInfo.VertexBuffer);
-            renderInfo.CommandList.SetIndexBuffer(renderInfo.IndexBuffer, IndexFormat.UInt16); 
-            
             // Issue a Draw command for a single instance with 4 indices.
-            renderInfo.CommandList.DrawIndexed(
-                indexCount: NumIndices,
+            commandList.DrawIndexed(
+                indexCount: (uint) IndexData.Length,
                 instanceCount: 1,
                 indexStart: 0,
                 vertexOffset: 0,

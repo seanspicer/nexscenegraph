@@ -37,8 +37,8 @@ namespace Veldrid.SceneGraph
             Png
         };
 
-        public ImageFormatType ImageFormat { get; private set; }
-        public byte[] ImageBytes { get; private set; } = null;
+        private ImageFormatType ImageFormat { get; set; }
+        private byte[] ImageBytes { get; set; } = null;
         
         public ProcessedTexture ProcessedTexture { get; private set; } = null;
 
@@ -78,6 +78,14 @@ namespace Veldrid.SceneGraph
                     }
                 }
             }
+        }
+
+        public Texture2D(ProcessedTexture processedTexture, uint resourceSetNo, string textureName, string samplerName)
+        {
+            ResourceSetNo = resourceSetNo;
+            TextureName = textureName;
+            SamplerName = samplerName;
+            ProcessedTexture = processedTexture;
         }
     }
 }

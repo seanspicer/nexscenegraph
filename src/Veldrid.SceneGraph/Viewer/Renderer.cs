@@ -141,7 +141,14 @@ namespace Veldrid.SceneGraph.Viewer
                         curModelMatrix = renderElement.ModelMatrix;
                     }
                     
-                    renderElement.Drawable.Draw(_renderInfo);
+                    // Set vertex buffer
+                    _commandList.SetVertexBuffer(0, renderElement.VertexBuffer);
+                    
+                    // Set index buffer
+                    _commandList.SetIndexBuffer(renderElement.IndexBuffer, IndexFormat.UInt16); 
+                    
+                    // Draw the drawable
+                    renderElement.Drawable.Draw(_commandList);
                 }
             }
             

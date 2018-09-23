@@ -32,7 +32,7 @@ namespace TextRendering
     {
         static void Main(string[] args)
         {
-            var asm = typeof(Program).Assembly;
+            var asm = typeof(TextNode).Assembly;
             
             var allNames = asm.GetManifestResourceNames();
             

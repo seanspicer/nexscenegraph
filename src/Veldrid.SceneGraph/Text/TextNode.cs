@@ -60,7 +60,7 @@ namespace Veldrid.SceneGraph.Text
         private Font Font { get; set; }
         public string Text { get; set; }
 
-        private VertexPositionTexture[] VertexData { get; set; }
+        internal VertexPositionTexture[] VertexData { get; set; }
         public int SizeOfVertexData => Marshal.SizeOf(default(VertexPositionTexture));
         
         public ushort[] IndexData { get; set; }
@@ -93,23 +93,15 @@ namespace Veldrid.SceneGraph.Text
 
             PipelineState.VertexShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
                 typeof(TextNode).Assembly,
-                "TexturedCubeShader", ShaderStages.Vertex);
+                "BasicTextureShader", ShaderStages.Vertex);
             PipelineState.VertexShaderEntryPoint = "VS";
 
             PipelineState.FragmentShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
                 typeof(TextNode).Assembly,
-                "TexturedCubeShader", ShaderStages.Fragment);
+                "BasicTextureShader", ShaderStages.Fragment);
             PipelineState.FragmentShaderEntryPoint = "FS";
 
-            // Defer this...
-//            PipelineState.TextureList.Add(
-//                new Texture2D(Texture2D.ImageFormatType.Png,
-//                    ShaderTools.ReadEmbeddedAssetBytes(
-//                        "TexturedCube.Textures.spnza_bricks_a_diff.png",
-//                        typeof(Program).Assembly),
-//                    1,
-//                    "SurfaceTexture", 
-//                    "SurfaceSampler"));
+            PipelineState.BlendStateDescription = BlendStateDescription.SingleAlphaBlend;
         }
         
         public override void Accept(NodeVisitor visitor)
@@ -117,9 +109,15 @@ namespace Veldrid.SceneGraph.Text
             visitor.Apply(this);
         }
         
-        protected override void DrawImplementation(RenderInfo renderInfo)
+        protected override void DrawImplementation(CommandList commandList)
         {
-            throw new System.NotImplementedException();
+            // Issue a Draw command for a single instance.
+            commandList.DrawIndexed(
+                indexCount: (uint) IndexData.Length,
+                instanceCount: 1,
+                indexStart: 0,
+                vertexOffset: 0,
+                instanceStart: 0);
         }
 
         protected override BoundingBox ComputeBoundingBox()
@@ -133,20 +131,19 @@ namespace Veldrid.SceneGraph.Text
             return bb;
         }
 
-        private ProcessedTexture BuildTexture()
+        internal ProcessedTexture BuildTexture()
         {
             // Create default Font
-            Font = SystemFonts.CreateFont("Arial", 30);
+            Font = SystemFonts.CreateFont("Arial", 10);
 
-            using (var img = new Image<Rgba32>(256, 256))
+            using (var img = new Image<Rgba32>(512, 512))
             {
                 var padding = 4;
-                var text = "Hello, World";
                 float targetWidth = img.Width - (padding * 2);
                 float targetHeight = img.Height - (padding * 2);
 
                 // measure the text size
-                SizeF size = TextMeasurer.Measure(text, new RendererOptions(Font));
+                SizeF size = TextMeasurer.Measure(Text, new RendererOptions(Font));
 
                 //find out how much we need to scale the text to fill the space (up or down)
                 float scalingFactor = Math.Min(img.Width / size.Width, img.Height / size.Height);
@@ -157,9 +154,11 @@ namespace Veldrid.SceneGraph.Text
                 var center = new PointF(img.Width / 2, img.Height / 2);
                 var textGraphicOptions = new TextGraphicsOptions(true) {
                     HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center
+                    VerticalAlignment = VerticalAlignment.Center,
+                    
                 };
-                img.Mutate(i => i.DrawText(textGraphicOptions, text, scaledFont, Rgba32.White, center));
+                img.Mutate(i => i.BackgroundColor(Rgba32.Transparent));
+                img.Mutate(i => i.DrawText(textGraphicOptions, Text, scaledFont, Rgba32.White, center));
                 
                 var imageProcessor = new ImageSharpProcessor();
                 return imageProcessor.ProcessT(img);

@@ -30,7 +30,7 @@ namespace Veldrid.SceneGraph
         public string VertexShaderEntryPoint { get; set; }
         public byte[] FragmentShader { get; set; }
         public string FragmentShaderEntryPoint { get; set; }
-
+        
         public List<Texture2D> TextureList { get; } = new List<Texture2D>();
 
         public BlendStateDescription BlendStateDescription { get; set; } = BlendStateDescription.SingleOverrideBlend;

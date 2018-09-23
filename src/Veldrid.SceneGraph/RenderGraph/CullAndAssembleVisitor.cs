@@ -27,6 +27,7 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices.ComTypes;
 using AssetProcessor;
+using Veldrid.SceneGraph.Text;
 using Veldrid.Utilities;
 
 namespace Veldrid.SceneGraph.RenderGraph
@@ -91,9 +92,6 @@ namespace Veldrid.SceneGraph.RenderGraph
 
         public override void Apply<T>(Geometry<T> geometry)
         {
-            // TODO - should be at Drawable level?
-            var bb = geometry.GetBoundingBox();
-            if (IsCulled(bb)) return;
 
             PipelineState pso = null;
 
@@ -115,12 +113,78 @@ namespace Veldrid.SceneGraph.RenderGraph
                 pso = new PipelineState();
             }
 
-            var renderGroupState = OpaqueRenderGroup.GetOrCreateState(pso, geometry.PrimitiveTopology, geometry.VertexLayout);
+            // Setup Vertex and Index Buffers
+            var vbDescription = new BufferDescription(
+                (uint) (geometry.VertexData.Length * geometry.SizeOfVertexData),
+                BufferUsage.VertexBuffer);
 
+            var vertexBuffer = ResourceFactory.CreateBuffer(vbDescription);
+            GraphicsDevice.UpdateBuffer(vertexBuffer, 0, geometry.VertexData);
+            
+            var ibDescription = new BufferDescription(
+                (uint) geometry.IndexData.Length * sizeof(ushort),
+                BufferUsage.IndexBuffer);
+
+            var indexBuffer = ResourceFactory.CreateBuffer(ibDescription);
+            GraphicsDevice.UpdateBuffer(indexBuffer, 0, geometry.IndexData);
+            
+            // Construct Render Groupe element
             var element = new RenderGroupElement
             {
                 Drawable = geometry, 
-                ModelMatrix = ModelMatrixStack.Peek()
+                ModelMatrix = ModelMatrixStack.Peek(),
+                VertexBuffer = vertexBuffer,
+                IndexBuffer = indexBuffer
+            };
+
+            var renderGroupState = OpaqueRenderGroup.GetOrCreateState(pso, geometry.PrimitiveTopology, geometry.VertexLayout);
+            renderGroupState.Elements.Add(element);
+        }
+
+        public override void Apply(TextNode textNode)
+        {
+            PipelineState pso = textNode.PipelineState;
+            
+            //
+            // Setup rendering buffers
+            //
+                     
+            var vbDescription = new BufferDescription(
+                (uint) (textNode.VertexData.Length * textNode.SizeOfVertexData),
+                BufferUsage.VertexBuffer);
+
+            var vertexBuffer = ResourceFactory.CreateBuffer(vbDescription);
+            GraphicsDevice.UpdateBuffer(vertexBuffer, 0, textNode.VertexData);
+            
+            var ibDescription = new BufferDescription(
+                (uint) textNode.IndexData.Length * sizeof(ushort),
+                BufferUsage.IndexBuffer);
+
+            var numIndices = (uint) textNode.IndexData.Length;
+            var indexBuffer = ResourceFactory.CreateBuffer(ibDescription);
+            GraphicsDevice.UpdateBuffer(indexBuffer, 0, textNode.IndexData);
+
+            
+            //
+            // Setup the texture here
+            //
+            // TODO: this should probably be done in some sort of update visitor
+            //
+            pso.TextureList.Add(
+                new Texture2D(textNode.BuildTexture(),
+                    1,
+                    "SurfaceTexture", 
+                    "SurfaceSampler"));
+
+            var renderGroupState = OpaqueRenderGroup.GetOrCreateState(pso, textNode.PrimitiveTopology, textNode.VertexLayout);
+
+            var element = new RenderGroupElement
+            {
+                Drawable = textNode, 
+                ModelMatrix = ModelMatrixStack.Peek(),
+                VertexBuffer = vertexBuffer,
+                IndexBuffer = indexBuffer
+                
             };
 
             renderGroupState.Elements.Add(element);
