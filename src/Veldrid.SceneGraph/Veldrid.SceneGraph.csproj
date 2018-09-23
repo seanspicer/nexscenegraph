@@ -1,11 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <ShaderOutputPath>$(BaseIntermediateOutputPath)Shaders</ShaderOutputPath>
+    <ShaderContentIncludePath>Shaders</ShaderContentIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="ShaderGen.Build" Version="1.2.0-beta2" />
+    <PackageReference Include="ShaderGen.Primitives" Version="1.2.0-beta2" />
+    <PackageReference Include="SixLabors.Fonts" Version="1.0.0-beta0007" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0005" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0005" />
+    <PackageReference Include="SixLabors.Shapes.Text" Version="1.0.0-beta0007" />
     <PackageReference Include="Veldrid" Version="4.4.0" />
     <PackageReference Include="Veldrid.StartupUtilities" Version="4.4.0" />
     <PackageReference Include="Veldrid.Utilities" Version="4.4.0" />
@@ -13,4 +21,15 @@
   <ItemGroup>
     <ProjectReference Include="..\AssetProcessor\AssetProcessor.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="ShaderGen.Build" Version="1.2.0-beta2" />
+    <PackageReference Include="ShaderGen.Primitives" Version="1.2.0-beta2" />
+  </ItemGroup>
+  <Target Name="IncludeGeneratedShaderEmbeddedResource" AfterTargets="AssignTargetPaths" Condition="'$(ShaderContentIncludePath)' != ''">
+    <ItemGroup>
+      <EmbeddedResource Include="@(GeneratedShader)">
+        <LogicalName>%(FileName)%(Extension)</LogicalName>
+      </EmbeddedResource>
+    </ItemGroup>
+  </Target>
 </Project>

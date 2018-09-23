@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using Veldrid.SceneGraph.Text;
 
 namespace Veldrid.SceneGraph
 {
@@ -150,9 +151,17 @@ namespace Veldrid.SceneGraph
         //
         // Default implementation for Geometry Node
         // 
-        public virtual void Apply<T>(Geometry<T> node) where T : struct, IPrimitiveElement
+        public virtual void Apply<T>(Geometry<T> geometry) where T : struct, IPrimitiveElement
         {
-            Apply((Drawable)node);
+            Apply((Drawable)geometry);
+        }
+
+        // 
+        // Default implemenation for TextNode
+        //
+        public virtual void Apply(TextNode textNode)
+        {
+            Apply((Drawable) textNode);
         }
 
         // 

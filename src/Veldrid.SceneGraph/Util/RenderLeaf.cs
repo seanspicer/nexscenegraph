@@ -111,7 +111,7 @@ namespace Veldrid.SceneGraph.Util
                 state.ApplyModelViewAndProjectionUniformsIfRequired();
 
                 // Issue Drawing Commands
-                Drawable.Draw(renderInfo);
+                //Drawable.Draw(renderInfo);
             }
             else
             {
@@ -125,7 +125,7 @@ namespace Veldrid.SceneGraph.Util
                 state.ApplyModelViewAndProjectionUniformsIfRequired();
                 
                 // Issue Drawing Commands
-                Drawable.Draw(renderInfo);
+                //Drawable.Draw(renderInfo);
                 
             }
 
