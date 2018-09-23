@@ -42,7 +42,7 @@ namespace TextRendering
             var root = new Group();
 
             var textNode = new TextNode();
-            textNode.Text = "My First Text Node!";
+            textNode.Text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor";
             
             root.AddChild(textNode);
 
