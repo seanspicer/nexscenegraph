@@ -24,7 +24,6 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using AssetPrimitives;
 using AssetProcessor;
-using Assimp.Configs;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
