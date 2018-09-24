@@ -20,44 +20,52 @@
 // SOFTWARE.
 //
 
+using System;
 using System.Collections.Generic;
-using Veldrid.SceneGraph.Util;
+using System.Data;
+using System.Numerics;
 
-namespace Veldrid.SceneGraph
+namespace Veldrid.SceneGraph.RenderGraph
 {
-    public class RenderInfo
+    public class RenderGroupElement
     {
-        public View View { get; set; }= null;
-        public State State { get; set; }= null;
-        public Stack<Camera> CameraStack { get; set; } = new Stack<Camera>();
-        public Stack<RenderBin> RenderBinStack { get; set; } = new Stack<RenderBin>();
-
-        public GraphicsDevice GraphicsDevice { get; set; }
-        public ResourceFactory ResourceFactory { get; set; }
-        public CommandList CommandList { get; set; }
-        public ResourceLayout ResourceLayout { get; set; }
-        public ResourceSet ResourceSet { get; set; }
+        public Drawable Drawable;
+        public Matrix4x4 ModelMatrix;
         
-        // TODO - these dont really belong here.
+        // TODO - do these really belong here?
         public DeviceBuffer VertexBuffer { get; set; }
         public DeviceBuffer IndexBuffer { get; set; }
+    }
+    
+    public class RenderGroup
+    {
         
-        public RenderInfo()
+        private Dictionary<Tuple<PipelineState, PrimitiveTopology, VertexLayoutDescription>, RenderGroupState> RenderGroupStateCache;
+
+        public RenderGroup()
         {
+            RenderGroupStateCache = new Dictionary<Tuple<PipelineState, PrimitiveTopology, VertexLayoutDescription>, RenderGroupState>();
         }
 
-        public RenderInfo(State state, View view)
+        public void Clear()
         {
-            State = state;
-            View = view;
+            RenderGroupStateCache.Clear();
         }
-
-        public RenderInfo(RenderInfo renderInfo)
+        
+        public IEnumerable<RenderGroupState> GetStateList()
         {
-            State = renderInfo.State;
-            View = renderInfo.View;
-            CameraStack = renderInfo.CameraStack;
-            RenderBinStack = renderInfo.RenderBinStack;
+            return RenderGroupStateCache.Values;
+        }
+        
+        public RenderGroupState GetOrCreateState(PipelineState pso, PrimitiveTopology pt, VertexLayoutDescription vl)
+        {
+            var key = new Tuple<PipelineState, PrimitiveTopology, VertexLayoutDescription>(pso, pt, vl);
+            if (RenderGroupStateCache.TryGetValue(key, out var renderGroupState)) return renderGroupState;
+            
+            renderGroupState = new RenderGroupState(pso, pt, vl);
+            RenderGroupStateCache.Add(key, renderGroupState);
+
+            return renderGroupState;
         }
     }
 }

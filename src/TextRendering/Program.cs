@@ -20,29 +20,35 @@
 // SOFTWARE.
 //
 
-using System.Collections.Generic;
-using System.Numerics;
-using AssetPrimitives;
+using System;
+using Veldrid.SceneGraph;
+using Veldrid.SceneGraph.InputAdapter;
+using Veldrid.SceneGraph.Text;
+using Veldrid.SceneGraph.Viewer;
 
-namespace Veldrid.SceneGraph.RenderGraph
+namespace TextRendering
 {
-    public class DrawSetState
+    class Program
     {
-        public Pipeline Pipeline;
-        public ResourceLayout ResourceLayout;
-        public ResourceSet ResourceSet;
-        public DeviceBuffer ModelBuffer;
-    }
-    
-    public class DrawSetNode
-    {
-        public Drawable Drawable;
-        public Matrix4x4 ModelMatrix;
-    }
+        static void Main(string[] args)
+        {
+            var asm = typeof(TextNode).Assembly;
+            
+            var allNames = asm.GetManifestResourceNames();
+            
+            var viewer = new SimpleViewer("Text Rendering Demo");
+            viewer.View.CameraManipulator = new TrackballManipulator();
 
-    public class DrawSet : Dictionary<DrawSetState, List<DrawSetNode>>
-    {
-        
+            var root = new Group();
+
+            var textNode = new TextNode();
+            textNode.Text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor";
+            
+            root.AddChild(textNode);
+
+            viewer.SceneData = root;
+
+            viewer.Run();
+        }
     }
-    
 }
