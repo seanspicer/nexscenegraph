@@ -26,9 +26,9 @@ namespace Veldrid.SceneGraph
 {
     public class PipelineState
     {
-        public byte[] VertexShader { get; set; }
-        public string VertexShaderEntryPoint { get; set; }
-        public byte[] FragmentShader { get; set; }
+        public ShaderDescription? VertexShaderDescription { get; set; }
+        public ShaderDescription? FragmentShaderDescription { get; set; }
+        
         public string FragmentShaderEntryPoint { get; set; }
         
         public List<Texture2D> TextureList { get; } = new List<Texture2D>();

@@ -28,6 +28,7 @@ using ShaderGen;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
+using Veldrid.SceneGraph.Shaders.Standard;
 using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Viewer;
 
@@ -138,16 +139,9 @@ namespace TexturedCube
             
             geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;
 
-            geometry.PipelineState.VertexShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
-                typeof(Program).Assembly,
-                "TexturedCubeShader", ShaderStages.Vertex);
-            geometry.PipelineState.VertexShaderEntryPoint = "VS";
-
-            geometry.PipelineState.FragmentShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
-                typeof(Program).Assembly,
-                "TexturedCubeShader", ShaderStages.Fragment);
-            geometry.PipelineState.FragmentShaderEntryPoint = "FS";
-
+            geometry.PipelineState.VertexShaderDescription = Texture2DShader.Instance.VertexShaderDescription;
+            geometry.PipelineState.FragmentShaderDescription = Texture2DShader.Instance.FragmentShaderDescription;
+            
             geometry.PipelineState.TextureList.Add(
                 new Texture2D(Texture2D.ImageFormatType.Png,
                 ShaderTools.ReadEmbeddedAssetBytes(
