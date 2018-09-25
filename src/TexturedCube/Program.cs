@@ -23,7 +23,6 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using TexturedCube.Shaders;
 using ShaderGen;
 using Veldrid;
 using Veldrid.SceneGraph;
