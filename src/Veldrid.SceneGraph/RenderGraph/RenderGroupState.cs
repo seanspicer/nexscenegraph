@@ -105,24 +105,10 @@ namespace Veldrid.SceneGraph.RenderGraph
             pd.DepthStencilState = PipelineState.DepthStencilState;
             pd.RasterizerState = PipelineState.RasterizerStateDescription;
 
-            if (null != PipelineState.VertexShader && null != PipelineState.FragmentShader &&
-                null != PipelineState.VertexShaderEntryPoint && null != PipelineState.FragmentShaderEntryPoint)
+            if (null != PipelineState.VertexShaderDescription && null != PipelineState.FragmentShaderDescription)
             {
-                var vertexShaderProg =
-                    resourceFactory.CreateShader(
-                        new ShaderDescription(ShaderStages.Vertex,
-                            PipelineState.VertexShader,
-                            PipelineState.VertexShaderEntryPoint
-                        )
-                    );
-
-                var fragmentShaderProg =
-                    resourceFactory.CreateShader(
-                        new ShaderDescription(ShaderStages.Fragment,
-                            PipelineState.FragmentShader,
-                            PipelineState.FragmentShaderEntryPoint
-                        )
-                    );
+                var vertexShaderProg = resourceFactory.CreateShader(PipelineState.VertexShaderDescription.Value);
+                var fragmentShaderProg = resourceFactory.CreateShader(PipelineState.FragmentShaderDescription.Value);
 
                 pd.ShaderSet = new ShaderSetDescription(
                     vertexLayouts: new VertexLayoutDescription[] {VertexLayout},

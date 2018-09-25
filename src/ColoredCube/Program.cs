@@ -146,17 +146,20 @@ namespace ColoredCube
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
             
             geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;
-
-            geometry.PipelineState.VertexShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
-                typeof(Program).Assembly,
-                "ColoredCubeShader", ShaderStages.Vertex);
-            geometry.PipelineState.VertexShaderEntryPoint = "VS";
-
-            geometry.PipelineState.FragmentShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
-                typeof(Program).Assembly,
-                "ColoredCubeShader", ShaderStages.Fragment);
-            geometry.PipelineState.FragmentShaderEntryPoint = "FS";
                       
+            geometry.PipelineState.VertexShaderDescription = new ShaderDescription(
+                ShaderStages.Vertex,
+                ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+                    typeof(Program).Assembly,
+                    "ColoredCubeShader", ShaderStages.Vertex), 
+                "VS");
+            
+            geometry.PipelineState.FragmentShaderDescription = new ShaderDescription(
+                ShaderStages.Fragment, 
+                ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+                    typeof(Program).Assembly,
+                    "ColoredCubeShader", ShaderStages.Fragment),
+                "FS");
             
             return geometry;
         }
