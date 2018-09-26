@@ -164,16 +164,21 @@ namespace ColoredCube
         private static PipelineState CreateSharedState()
         {
             var pso = new PipelineState();
-            pso.VertexShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
-                typeof(Program).Assembly,
-                "ColoredCubeShader", ShaderStages.Vertex);
-            pso.VertexShaderEntryPoint = "VS";
 
-            pso.FragmentShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
-                typeof(Program).Assembly,
-                "ColoredCubeShader", ShaderStages.Fragment);
-            pso.FragmentShaderEntryPoint = "FS";
-
+            pso.VertexShaderDescription = new ShaderDescription(
+                ShaderStages.Vertex,
+                ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+                    typeof(Program).Assembly,
+                    "ColoredCubeShader", ShaderStages.Vertex), 
+                "VS");
+            
+            pso.FragmentShaderDescription = new ShaderDescription(
+                ShaderStages.Fragment, 
+                ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+                    typeof(Program).Assembly,
+                    "ColoredCubeShader", ShaderStages.Fragment),
+                "FS");
+            
             return pso;
         }
         

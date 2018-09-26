@@ -142,16 +142,20 @@ namespace MultiTexturedCube
             
             geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;
 
-            geometry.PipelineState.VertexShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
-                typeof(Program).Assembly,
-                "MultiTexturedCubeShader", ShaderStages.Vertex);
-            geometry.PipelineState.VertexShaderEntryPoint = "VS";
-
-            geometry.PipelineState.FragmentShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
-                typeof(Program).Assembly,
-                "MultiTexturedCubeShader", ShaderStages.Fragment);
-            geometry.PipelineState.FragmentShaderEntryPoint = "FS";
-
+            geometry.PipelineState.VertexShaderDescription = new ShaderDescription(
+                ShaderStages.Vertex,
+                ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+                    typeof(Program).Assembly,
+                    "MultiTexturedCubeShader", ShaderStages.Vertex), 
+                "VS");
+            
+            geometry.PipelineState.FragmentShaderDescription = new ShaderDescription(
+                ShaderStages.Fragment, 
+                ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+                    typeof(Program).Assembly,
+                    "MultiTexturedCubeShader", ShaderStages.Fragment),
+                "FS");
+            
             geometry.PipelineState.TextureList.Add(
                 new Texture2D(Texture2D.ImageFormatType.Png,
                     ShaderTools.ReadEmbeddedAssetBytes(

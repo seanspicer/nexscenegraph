@@ -24,7 +24,6 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using AssetPrimitives;
 using AssetProcessor;
-using Assimp.Configs;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -32,6 +31,7 @@ using SixLabors.ImageSharp.Processing;
 using SixLabors.Primitives;
 using ShaderGen;
 using Veldrid;
+using Veldrid.SceneGraph.Shaders.Standard;
 using Veldrid.SceneGraph.Util;
 using Math = System.Math;
 
@@ -92,15 +92,8 @@ namespace Veldrid.SceneGraph.Text
             
             PrimitiveTopology = PrimitiveTopology.TriangleList;
 
-            PipelineState.VertexShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
-                typeof(TextNode).Assembly,
-                "BasicTextureShader", ShaderStages.Vertex);
-            PipelineState.VertexShaderEntryPoint = "VS";
-
-            PipelineState.FragmentShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
-                typeof(TextNode).Assembly,
-                "BasicTextureShader", ShaderStages.Fragment);
-            PipelineState.FragmentShaderEntryPoint = "FS";
+            PipelineState.VertexShaderDescription = Texture2DShader.Instance.VertexShaderDescription;
+            PipelineState.FragmentShaderDescription = Texture2DShader.Instance.FragmentShaderDescription;;
 
             PipelineState.BlendStateDescription = BlendStateDescription.SingleAlphaBlend;
         }

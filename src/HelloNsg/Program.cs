@@ -86,15 +86,19 @@ namespace HelloNsg
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float2),
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
 
-            geometry.PipelineState.VertexShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
-                typeof(Program).Assembly,
-                "HelloShaders", ShaderStages.Vertex);
-            geometry.PipelineState.VertexShaderEntryPoint = "VS";
-
-            geometry.PipelineState.FragmentShader = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
-                typeof(Program).Assembly,
-                "HelloShaders", ShaderStages.Fragment);
-            geometry.PipelineState.FragmentShaderEntryPoint = "FS";
+            geometry.PipelineState.VertexShaderDescription = new ShaderDescription(
+                ShaderStages.Vertex,
+                ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+                    typeof(Program).Assembly,
+                    "HelloShaders", ShaderStages.Vertex), 
+                "VS");
+            
+            geometry.PipelineState.FragmentShaderDescription = new ShaderDescription(
+                ShaderStages.Fragment, 
+                ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+                    typeof(Program).Assembly,
+                    "HelloShaders", ShaderStages.Fragment),
+                "FS");
                         
             root.AddChild(geometry);
 
