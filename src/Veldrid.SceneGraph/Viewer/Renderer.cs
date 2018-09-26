@@ -21,6 +21,8 @@
 //
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using Veldrid.MetalBindings;
 using Veldrid.SceneGraph.RenderGraph;
@@ -110,16 +112,40 @@ namespace Veldrid.SceneGraph.Viewer
             _commandList.ClearColorTarget(0, RgbaFloat.Grey);
             _commandList.ClearDepthStencil(1f);
 
-            var curModelMatrix = Matrix4x4.Identity;
+            
             _culledObjectCount = 0;
             
-            // Draw Opaque Bins
+            //
+            // Draw Opaque Geometry
+            // 
+            if (_cullAndAssembleVisitor.OpaqueRenderGroup.HasDrawableElements())
+            {
+                DrawOpaqueRenderGroups(device, factory);
+            }
+            
+            // 
+            // Draw Transparent Geometry
+            //
+            if (_cullAndAssembleVisitor.TransparentRenderGroup.HasDrawableElements())
+            {
+                DrawTransparentRenderGroups(device, factory);
+            }
+            
+            _commandList.End();
+            
+            device.SubmitCommands(_commandList);
+        }
+
+        private void DrawOpaqueRenderGroups(GraphicsDevice device, ResourceFactory factory)
+        {
+            var curModelMatrix = Matrix4x4.Identity;
+            
             var opaqueRenderGroupStates = _cullAndAssembleVisitor.OpaqueRenderGroup.GetStateList();
             foreach (var state in opaqueRenderGroupStates)
             {
                 var ri = state.GetPipelineAndResources(device, factory, _resourceLayout);
                 
-                // Set this state's pipelnie
+                // Set this state's pipeline
                 _commandList.SetPipeline(ri.Pipeline);
                 
                 // Set the resources
@@ -151,12 +177,86 @@ namespace Veldrid.SceneGraph.Viewer
                     renderElement.Drawable.Draw(_commandList);
                 }
             }
-            
-            _commandList.End();
-            
-            device.SubmitCommands(_commandList);
         }
+        
+        private void DrawTransparentRenderGroups(GraphicsDevice device, ResourceFactory factory)
+        {
+            var curModelMatrix = Matrix4x4.Identity;
+            
+            //
+            // First sort the transparent render elements by distance to eye point (if not culled).
+            //
+            var drawOrderMap = new SortedDictionary<float, Tuple<RenderGroupState, RenderGroupElement>>();
+            var transparentRenderGroupStates = _cullAndAssembleVisitor.TransparentRenderGroup.GetStateList();
+            foreach (var state in transparentRenderGroupStates)
+            {
+                var ri = state.GetPipelineAndResources(device, factory, _resourceLayout);
 
+                // Iterate over all drawables in this state
+                foreach (var renderElement in state.Elements)
+                {
+                    // TODO - Question: can this be done on a separate thread?
+                    if (IsCulled(renderElement.Drawable.GetBoundingBox(), renderElement.ModelMatrix)) continue;
+
+                    // Compute eye point - this is really useful only for transparent geoms
+                    var modelView = renderElement.ModelMatrix.PostMultiply(_camera.ViewMatrix);
+                    Matrix4x4.Invert(modelView, out var modelViewInverse);
+                    var mEye = Vector3.Transform(Vector3.Zero, modelViewInverse);
+
+                    var ctr = renderElement.Drawable.GetBoundingBox().Center;
+                    var dist = Vector3.Distance(mEye, ctr);
+
+                    // Add this to a map
+                    drawOrderMap.Add(dist, Tuple.Create(state, renderElement));
+                }
+            }
+            
+            // Now draw transparent elements
+            RenderGroupState lastState = null;
+            foreach (var element in drawOrderMap.Values)
+            {
+                var state = element.Item1;
+                RenderGroupState.RenderInfo ri = null;
+
+                if (null == lastState || state != lastState)
+                {
+                    ri = state.GetPipelineAndResources(device, factory, _resourceLayout);
+
+                    // Set this state's pipeline
+                    _commandList.SetPipeline(ri.Pipeline);
+
+                    // Set the resources
+                    _commandList.SetGraphicsResourceSet(0, _resourceSet);
+
+                    // Set state-local resources
+                    _commandList.SetGraphicsResourceSet(1, ri.ResourceSet);
+                }
+                else
+                {
+                    ri = lastState.GetPipelineAndResources(device, factory, _resourceLayout);
+                }
+
+                var renderElement = element.Item2;
+
+                if (renderElement.ModelMatrix != curModelMatrix)
+                {
+                    _commandList.UpdateBuffer(ri.ModelBuffer, 0, renderElement.ModelMatrix);
+                    curModelMatrix = renderElement.ModelMatrix;
+                }
+
+                // Set vertex buffer
+                _commandList.SetVertexBuffer(0, renderElement.VertexBuffer);
+
+                // Set index buffer
+                _commandList.SetIndexBuffer(renderElement.IndexBuffer, IndexFormat.UInt16);
+
+                // Draw the drawable
+                renderElement.Drawable.Draw(_commandList);
+
+                lastState = state;
+            }
+        }
+        
         private bool IsCulled(BoundingBox bb, Matrix4x4 modelMatrix)
         {
             var culled = !CullingFrustum.Contains(bb, modelMatrix);

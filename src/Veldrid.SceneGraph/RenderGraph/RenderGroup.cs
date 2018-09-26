@@ -39,6 +39,10 @@ namespace Veldrid.SceneGraph.RenderGraph
     
     public class RenderGroup
     {
+        public bool HasDrawableElements()
+        {
+            return RenderGroupStateCache.Count > 0;
+        }
         
         private Dictionary<Tuple<PipelineState, PrimitiveTopology, VertexLayoutDescription>, RenderGroupState> RenderGroupStateCache;
 

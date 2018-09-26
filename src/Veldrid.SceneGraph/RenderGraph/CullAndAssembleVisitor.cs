@@ -35,6 +35,7 @@ namespace Veldrid.SceneGraph.RenderGraph
     public class CullAndAssembleVisitor : NodeVisitor
     {
         public RenderGroup OpaqueRenderGroup { get; set; } = new RenderGroup();
+        public RenderGroup TransparentRenderGroup { get; set; } = new RenderGroup();
 
         public GraphicsDevice GraphicsDevice { get; set; } = null;
         public ResourceFactory ResourceFactory { get; set; } = null;
@@ -137,7 +138,19 @@ namespace Veldrid.SceneGraph.RenderGraph
                 IndexBuffer = indexBuffer
             };
 
-            var renderGroupState = OpaqueRenderGroup.GetOrCreateState(pso, geometry.PrimitiveTopology, geometry.VertexLayout);
+            // 
+            // Sort into appropriate render group
+            // 
+            RenderGroupState renderGroupState = null;
+            if (pso.BlendStateDescription.AttachmentStates.Contains(BlendAttachmentDescription.AlphaBlend))
+            {
+                renderGroupState = TransparentRenderGroup.GetOrCreateState(pso, geometry.PrimitiveTopology, geometry.VertexLayout);
+            }
+            else
+            {
+                renderGroupState = OpaqueRenderGroup.GetOrCreateState(pso, geometry.PrimitiveTopology, geometry.VertexLayout);
+            }
+                
             renderGroupState.Elements.Add(element);
         }
 
@@ -176,7 +189,10 @@ namespace Veldrid.SceneGraph.RenderGraph
                     "SurfaceTexture", 
                     "SurfaceSampler"));
 
-            var renderGroupState = OpaqueRenderGroup.GetOrCreateState(pso, textNode.PrimitiveTopology, textNode.VertexLayout);
+            // 
+            // Text Nodes always go into the transparent render group
+            // 
+            var renderGroupState = TransparentRenderGroup.GetOrCreateState(pso, textNode.PrimitiveTopology, textNode.VertexLayout);
 
             var element = new RenderGroupElement
             {
