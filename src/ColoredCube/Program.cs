@@ -23,12 +23,12 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using ColoredCube.Shaders;
 using ShaderGen;
 using SharpDX.Mathematics.Interop;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
+using Veldrid.SceneGraph.Shaders.Standard;
 using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Viewer;
 
@@ -52,6 +52,7 @@ namespace ColoredCube
         public Vector3 VertexPosition
         {
             get => Position;
+            set => Position = value;
         }
     }
     
@@ -147,19 +148,8 @@ namespace ColoredCube
             
             geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;
                       
-            geometry.PipelineState.VertexShaderDescription = new ShaderDescription(
-                ShaderStages.Vertex,
-                ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
-                    typeof(Program).Assembly,
-                    "ColoredCubeShader", ShaderStages.Vertex), 
-                "VS");
-            
-            geometry.PipelineState.FragmentShaderDescription = new ShaderDescription(
-                ShaderStages.Fragment, 
-                ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
-                    typeof(Program).Assembly,
-                    "ColoredCubeShader", ShaderStages.Fragment),
-                "FS");
+            geometry.PipelineState.VertexShaderDescription = Vertex3Color4Shader.Instance.VertexShaderDescription;
+            geometry.PipelineState.FragmentShaderDescription = Vertex3Color4Shader.Instance.FragmentShaderDescription;
             
             return geometry;
         }

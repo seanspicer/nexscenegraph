@@ -71,9 +71,9 @@ namespace Veldrid.SceneGraph
         protected override BoundingBox ComputeBoundingBox()
         {
             var bb = new BoundingBox();
-            foreach (var elt in VertexData)
+            foreach(var idx in IndexData)
             {
-                bb.ExpandBy(elt.VertexPosition);
+                bb.ExpandBy(VertexData[idx].VertexPosition);
             }
 
             return bb;

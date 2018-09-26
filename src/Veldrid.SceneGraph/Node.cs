@@ -55,6 +55,8 @@ namespace Veldrid.SceneGraph
         // Public Fields
         public Guid Id { get; private set; }
         public uint NodeMask { get; set; } = 0xffffffff;
+
+        public string NameString { get; set; } = string.Empty;
         
         public int NumParents => _parents.Count;
 

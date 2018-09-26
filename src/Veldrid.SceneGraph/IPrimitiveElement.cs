@@ -26,6 +26,6 @@ namespace Veldrid.SceneGraph
 {
     public interface IPrimitiveElement
     {
-        Vector3 VertexPosition { get; }
+        Vector3 VertexPosition { get; set; }
     }
 }

@@ -51,6 +51,7 @@ namespace HelloNsg
         public Vector3 VertexPosition
         {
             get => new Vector3(Position, 0.0f);
+            set => Position = new Vector2(value.X, value.Y);
         }
     }
     

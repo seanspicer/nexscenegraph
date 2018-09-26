@@ -23,12 +23,12 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using ColoredCube.Shaders;
 using ShaderGen;
 using SharpDX.Mathematics.Interop;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
+using Veldrid.SceneGraph.Shaders.Standard;
 using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Viewer;
 
@@ -52,6 +52,7 @@ namespace ColoredCube
         public Vector3 VertexPosition
         {
             get => Position;
+            set => Position = value;
         }
     }
     
@@ -165,20 +166,9 @@ namespace ColoredCube
         {
             var pso = new PipelineState();
 
-            pso.VertexShaderDescription = new ShaderDescription(
-                ShaderStages.Vertex,
-                ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
-                    typeof(Program).Assembly,
-                    "ColoredCubeShader", ShaderStages.Vertex), 
-                "VS");
-            
-            pso.FragmentShaderDescription = new ShaderDescription(
-                ShaderStages.Fragment, 
-                ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
-                    typeof(Program).Assembly,
-                    "ColoredCubeShader", ShaderStages.Fragment),
-                "FS");
-            
+            pso.VertexShaderDescription = Vertex3Color4Shader.Instance.VertexShaderDescription;
+            pso.FragmentShaderDescription = Vertex3Color4Shader.Instance.FragmentShaderDescription;
+
             return pso;
         }
         

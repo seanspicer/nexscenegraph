@@ -181,12 +181,14 @@ namespace Veldrid.SceneGraph.Viewer
         
         private void DrawTransparentRenderGroups(GraphicsDevice device, ResourceFactory factory)
         {
+            //Console.WriteLine("---- Frame ----");
+            
             var curModelMatrix = Matrix4x4.Identity;
             
             //
             // First sort the transparent render elements by distance to eye point (if not culled).
             //
-            var drawOrderMap = new SortedDictionary<float, Tuple<RenderGroupState, RenderGroupElement>>();
+            var drawOrderMap = new SortedList<float, List<Tuple<RenderGroupState, RenderGroupElement>>>();
             var transparentRenderGroupStates = _cullAndAssembleVisitor.TransparentRenderGroup.GetStateList();
             foreach (var state in transparentRenderGroupStates)
             {
@@ -206,54 +208,70 @@ namespace Veldrid.SceneGraph.Viewer
                     var ctr = renderElement.Drawable.GetBoundingBox().Center;
                     var dist = Vector3.Distance(mEye, ctr);
 
+                    //Console.WriteLine("DrawElement => {0}, Ctr = {1}, Dist = {2}", renderElement.Drawable.NameString, ctr, dist);
+                    
                     // Add this to a map
-                    drawOrderMap.Add(dist, Tuple.Create(state, renderElement));
+                    if (!drawOrderMap.TryGetValue(dist, out var renderList))
+                    {
+                        renderList = new List<Tuple<RenderGroupState, RenderGroupElement>>();
+                        drawOrderMap.Add(dist, renderList);
+                        
+                    }
+                    renderList.Add(Tuple.Create(state, renderElement));
                 }
             }
             
-            // Now draw transparent elements
+            // Now draw transparent elements, back to front
             RenderGroupState lastState = null;
-            foreach (var element in drawOrderMap.Values)
+            foreach (var renderList in drawOrderMap.Reverse())
             {
-                var state = element.Item1;
-                RenderGroupState.RenderInfo ri = null;
-
-                if (null == lastState || state != lastState)
+                foreach (var element in renderList.Value)
                 {
-                    ri = state.GetPipelineAndResources(device, factory, _resourceLayout);
+                    var state = element.Item1;
+                    RenderGroupState.RenderInfo ri = null;
 
-                    // Set this state's pipeline
-                    _commandList.SetPipeline(ri.Pipeline);
+                    if (null == lastState || state != lastState)
+                    {
+                        ri = state.GetPipelineAndResources(device, factory, _resourceLayout);
 
-                    // Set the resources
-                    _commandList.SetGraphicsResourceSet(0, _resourceSet);
+                        // Set this state's pipeline
+                        _commandList.SetPipeline(ri.Pipeline);
 
-                    // Set state-local resources
-                    _commandList.SetGraphicsResourceSet(1, ri.ResourceSet);
+                        // Set the resources
+                        _commandList.SetGraphicsResourceSet(0, _resourceSet);
+
+                        // Set state-local resources
+                        _commandList.SetGraphicsResourceSet(1, ri.ResourceSet);
+                        
+                        _commandList.UpdateBuffer(ri.ModelBuffer, 0, Matrix4x4.Identity);
+                    }
+                    else
+                    {
+                        ri = lastState.GetPipelineAndResources(device, factory, _resourceLayout);
+                    }
+
+                    var renderElement = element.Item2;
+
+                    if (renderElement.ModelMatrix != curModelMatrix)
+                    {
+                        // This update-buffer is a massive performance bottleneck
+                        //_commandList.UpdateBuffer(ri.ModelBuffer, 0, renderElement.ModelMatrix);
+                        //curModelMatrix = renderElement.ModelMatrix;
+                    }
+
+                    // Set vertex buffer
+                    _commandList.SetVertexBuffer(0, renderElement.VertexBuffer);
+                    
+                    // Set index buffer
+                    _commandList.SetIndexBuffer(renderElement.IndexBuffer, IndexFormat.UInt16);
+
+                    // Draw the drawable
+                    renderElement.Drawable.Draw(_commandList);
+
+                    //Console.WriteLine("DrawElement => {0}", renderElement.Drawable.NameString);
+                    
+                    lastState = state;
                 }
-                else
-                {
-                    ri = lastState.GetPipelineAndResources(device, factory, _resourceLayout);
-                }
-
-                var renderElement = element.Item2;
-
-                if (renderElement.ModelMatrix != curModelMatrix)
-                {
-                    _commandList.UpdateBuffer(ri.ModelBuffer, 0, renderElement.ModelMatrix);
-                    curModelMatrix = renderElement.ModelMatrix;
-                }
-
-                // Set vertex buffer
-                _commandList.SetVertexBuffer(0, renderElement.VertexBuffer);
-
-                // Set index buffer
-                _commandList.SetIndexBuffer(renderElement.IndexBuffer, IndexFormat.UInt16);
-
-                // Draw the drawable
-                renderElement.Drawable.Draw(_commandList);
-
-                lastState = state;
             }
         }
         

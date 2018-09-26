@@ -51,6 +51,7 @@ namespace TexturedCube
         public Vector3 VertexPosition
         {
             get => Position;
+            set => Position = value;
         }
     }
     

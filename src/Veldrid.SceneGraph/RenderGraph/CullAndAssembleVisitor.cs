@@ -20,6 +20,7 @@
 // SOFTWARE.
 //
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
@@ -119,8 +120,19 @@ namespace Veldrid.SceneGraph.RenderGraph
                 (uint) (geometry.VertexData.Length * geometry.SizeOfVertexData),
                 BufferUsage.VertexBuffer);
 
+            //
+            // TODO - this is a 'trick' to Premultiply geometry to avoid performance hits
+            //
+            var mm = ModelMatrixStack.Peek();
+            var vtxData = new T[geometry.VertexData.Length];
+            Array.Copy(geometry.VertexData, vtxData, geometry.VertexData.Length);
+            for(var i=0; i<vtxData.Length; ++i)
+            {
+                vtxData[i].VertexPosition = Vector3.Transform(vtxData[i].VertexPosition, mm);
+            }
+            
             var vertexBuffer = ResourceFactory.CreateBuffer(vbDescription);
-            GraphicsDevice.UpdateBuffer(vertexBuffer, 0, geometry.VertexData);
+            GraphicsDevice.UpdateBuffer(vertexBuffer, 0, vtxData);
             
             var ibDescription = new BufferDescription(
                 (uint) geometry.IndexData.Length * sizeof(ushort),
@@ -129,7 +141,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             var indexBuffer = ResourceFactory.CreateBuffer(ibDescription);
             GraphicsDevice.UpdateBuffer(indexBuffer, 0, geometry.IndexData);
             
-            // Construct Render Groupe element
+            // Construct Render Group element
             var element = new RenderGroupElement
             {
                 Drawable = geometry, 

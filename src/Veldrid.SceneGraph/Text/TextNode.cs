@@ -53,7 +53,11 @@ namespace Veldrid.SceneGraph.Text
             TexCoord = texCoord;
         }
 
-        public Vector3 VertexPosition => Position;
+        public Vector3 VertexPosition
+        {
+            get => Position;
+            set => Position = value;
+        }
     }
     
     public class TextNode : Drawable
