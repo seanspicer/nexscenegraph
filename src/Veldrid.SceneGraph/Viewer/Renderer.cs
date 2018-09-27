@@ -191,8 +191,6 @@ namespace Veldrid.SceneGraph.Viewer
             _stopWatch.Reset();
             _stopWatch.Start();
 
-            
-            
             //
             // First sort the transparent render elements by distance to eye point (if not culled).
             //
@@ -229,6 +227,9 @@ namespace Veldrid.SceneGraph.Viewer
             }
 
             var sortTime = _stopWatch.ElapsedMilliseconds;
+
+            var boundVertexBuffer = -1;
+            var boundIndexBuffer = -1;
             
             // Now draw transparent elements, back to front
             RenderGroupState lastState = null;
@@ -256,11 +257,19 @@ namespace Veldrid.SceneGraph.Viewer
 
                     var renderElement = element.Item2;
 
-                    // Set vertex buffer
-                    _commandList.SetVertexBuffer(0, renderElement.VertexBuffer.Item2);
-                    
-                    // Set index buffer
-                    _commandList.SetIndexBuffer(renderElement.IndexBuffer.Item2, IndexFormat.UInt16);
+                    if (boundVertexBuffer != renderElement.VertexBuffer.Item1)
+                    {
+                        // Set vertex buffer
+                        _commandList.SetVertexBuffer(0, renderElement.VertexBuffer.Item2);
+                        boundVertexBuffer = renderElement.VertexBuffer.Item1;     
+                    }
+
+                    if (boundIndexBuffer != renderElement.IndexBuffer.Item1)
+                    {
+                        // Set index buffer
+                        _commandList.SetIndexBuffer(renderElement.IndexBuffer.Item2, IndexFormat.UInt16);
+                        boundIndexBuffer = renderElement.IndexBuffer.Item1;
+                    }
 
                     // Draw the drawable
                     renderElement.Drawable.Draw(_commandList, renderElement.IndexBuffer.Item3, (int)renderElement.VertexBuffer.Item3);

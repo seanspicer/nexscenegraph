@@ -132,11 +132,11 @@ namespace Veldrid.SceneGraph.RenderGraph
                 vtxData[i].VertexPosition = Vector3.Transform(vtxData[i].VertexPosition, mm);
             }
             
-            var vtxBufInfo = GetVertexBufferAndOffset((uint) (geometry.VertexData.Length * geometry.SizeOfVertexData));
-            GraphicsDevice.UpdateBuffer(vtxBufInfo.Item2, vtxBufInfo.Item3, vtxData);
+            var vtxBufInfo = GetVertexBufferAndOffset((uint) geometry.VertexData.Length, (uint) geometry.SizeOfVertexData);
+            GraphicsDevice.UpdateBuffer(vtxBufInfo.Item2, vtxBufInfo.Item3*(uint)geometry.SizeOfVertexData, vtxData);
 
-            var idxBufInfo = GetIndexBufferAndOffset((uint) geometry.IndexData.Length * sizeof(ushort));
-            GraphicsDevice.UpdateBuffer(idxBufInfo.Item2, idxBufInfo.Item3, geometry.IndexData);
+            var idxBufInfo = GetIndexBufferAndOffset((uint) geometry.IndexData.Length, sizeof(ushort));
+            GraphicsDevice.UpdateBuffer(idxBufInfo.Item2, idxBufInfo.Item3*sizeof(ushort), geometry.IndexData);
             
             // Construct Render Group element
             var element = new RenderGroupElement
@@ -170,11 +170,11 @@ namespace Veldrid.SceneGraph.RenderGraph
             //
             // Setup rendering buffers
             //
-            var vtxBufInfo = GetVertexBufferAndOffset((uint) (textNode.VertexData.Length * textNode.SizeOfVertexData));
-            GraphicsDevice.UpdateBuffer(vtxBufInfo.Item2, 0, textNode.VertexData);
+            var vtxBufInfo = GetVertexBufferAndOffset((uint) textNode.VertexData.Length, (uint) textNode.SizeOfVertexData);
+            GraphicsDevice.UpdateBuffer(vtxBufInfo.Item2, vtxBufInfo.Item3* (uint) textNode.SizeOfVertexData, textNode.VertexData);
             
-            var idxBufInfo = GetIndexBufferAndOffset((uint) textNode.IndexData.Length * sizeof(ushort));        
-            GraphicsDevice.UpdateBuffer(idxBufInfo.Item2, idxBufInfo.Item3, textNode.IndexData);
+            var idxBufInfo = GetIndexBufferAndOffset((uint) textNode.IndexData.Length, sizeof(ushort));        
+            GraphicsDevice.UpdateBuffer(idxBufInfo.Item2, idxBufInfo.Item3*sizeof(ushort), textNode.IndexData);
 
             
             //
@@ -205,12 +205,14 @@ namespace Veldrid.SceneGraph.RenderGraph
             renderGroupState.Elements.Add(element);
         }
 
-        private Tuple<int, DeviceBuffer, uint> GetVertexBufferAndOffset(uint sizeInBytes)
+        private Tuple<int, DeviceBuffer, uint> GetVertexBufferAndOffset(uint length, uint vtxSizeInBytes)
         {
+            uint sizeInBytes = length * vtxSizeInBytes;
+            
             var bufferIndex = VertexBufferList.Count-1;
-            if (VertexBufferList.Count == 0 || _currVertexBufferOffset + sizeInBytes > 65536)
+            if (VertexBufferList.Count == 0 || _currVertexBufferOffset + sizeInBytes > 128*65536)
             {   
-                var vbDescription = new BufferDescription(65536, BufferUsage.VertexBuffer);
+                var vbDescription = new BufferDescription(128*65536, BufferUsage.VertexBuffer);
                 var vertexBuffer = ResourceFactory.CreateBuffer(vbDescription);
                 VertexBufferList.Add(vertexBuffer);
 
@@ -218,19 +220,21 @@ namespace Veldrid.SceneGraph.RenderGraph
                 bufferIndex = VertexBufferList.Count-1;
             }
 
-            var result = Tuple.Create(bufferIndex, VertexBufferList[bufferIndex], _currVertexBufferOffset);
+            var result = Tuple.Create(bufferIndex, VertexBufferList[bufferIndex], _currVertexBufferOffset/vtxSizeInBytes);
             
             _currVertexBufferOffset += sizeInBytes;
 
             return result;
         }
         
-        private Tuple<int, DeviceBuffer, uint> GetIndexBufferAndOffset(uint sizeInBytes)
+        private Tuple<int, DeviceBuffer, uint> GetIndexBufferAndOffset(uint length, uint idxSizeInBytes)
         {
+            uint sizeInBytes = length * idxSizeInBytes;
+            
             var bufferIndex = IndexBufferList.Count-1;
-            if (IndexBufferList.Count == 0 || _currIndexBufferOffset + sizeInBytes > 65536)
+            if (IndexBufferList.Count == 0 || _currIndexBufferOffset + sizeInBytes > 128*65536)
             {   
-                var ibDescription = new BufferDescription(65536, BufferUsage.IndexBuffer);
+                var ibDescription = new BufferDescription(128*65536, BufferUsage.IndexBuffer);
                 var indexBuffer = ResourceFactory.CreateBuffer(ibDescription);
                 IndexBufferList.Add(indexBuffer);
 
@@ -239,7 +243,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             }
             
             
-            var result = Tuple.Create(bufferIndex, IndexBufferList[bufferIndex], _currIndexBufferOffset);
+            var result = Tuple.Create(bufferIndex, IndexBufferList[bufferIndex], _currIndexBufferOffset/idxSizeInBytes);
             _currIndexBufferOffset += sizeInBytes;
             return result;
         }
