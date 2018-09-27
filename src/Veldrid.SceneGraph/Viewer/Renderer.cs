@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using Veldrid.MetalBindings;
@@ -48,6 +49,8 @@ namespace Veldrid.SceneGraph.Viewer
         private RenderInfo _renderInfo;
 
         private int _culledObjectCount = 0;
+        
+        private Stopwatch _stopWatch = new Stopwatch();
         
         public Renderer(Camera camera)
         {
@@ -168,13 +171,13 @@ namespace Veldrid.SceneGraph.Viewer
                     }
                     
                     // Set vertex buffer
-                    _commandList.SetVertexBuffer(0, renderElement.VertexBuffer);
+                    _commandList.SetVertexBuffer(0, renderElement.VertexBuffer.Item2);
                     
                     // Set index buffer
-                    _commandList.SetIndexBuffer(renderElement.IndexBuffer, IndexFormat.UInt16); 
+                    _commandList.SetIndexBuffer(renderElement.IndexBuffer.Item2, IndexFormat.UInt16); 
                     
                     // Draw the drawable
-                    renderElement.Drawable.Draw(_commandList);
+                    renderElement.Drawable.Draw(_commandList, renderElement.IndexBuffer.Item3, (int)renderElement.VertexBuffer.Item3);
                 }
             }
         }
@@ -184,6 +187,11 @@ namespace Veldrid.SceneGraph.Viewer
             //Console.WriteLine("---- Frame ----");
             
             var curModelMatrix = Matrix4x4.Identity;
+
+            _stopWatch.Reset();
+            _stopWatch.Start();
+
+            
             
             //
             // First sort the transparent render elements by distance to eye point (if not culled).
@@ -200,13 +208,12 @@ namespace Veldrid.SceneGraph.Viewer
                     // TODO - Question: can this be done on a separate thread?
                     if (IsCulled(renderElement.Drawable.GetBoundingBox(), renderElement.ModelMatrix)) continue;
 
-                    // Compute eye point - this is really useful only for transparent geoms
-                    var modelView = renderElement.ModelMatrix.PostMultiply(_camera.ViewMatrix);
-                    Matrix4x4.Invert(modelView, out var modelViewInverse);
-                    var mEye = Vector3.Transform(Vector3.Zero, modelViewInverse);
-
                     var ctr = renderElement.Drawable.GetBoundingBox().Center;
-                    var dist = Vector3.Distance(mEye, ctr);
+                    
+                    // Compute distance eye point 
+                    var modelView = renderElement.ModelMatrix.PostMultiply(_camera.ViewMatrix);
+                    var ctr_w = Vector3.Transform(ctr, modelView);
+                    var dist = Vector3.Distance(ctr_w, Vector3.Zero);
 
                     //Console.WriteLine("DrawElement => {0}, Ctr = {1}, Dist = {2}", renderElement.Drawable.NameString, ctr, dist);
                     
@@ -220,6 +227,8 @@ namespace Veldrid.SceneGraph.Viewer
                     renderList.Add(Tuple.Create(state, renderElement));
                 }
             }
+
+            var sortTime = _stopWatch.ElapsedMilliseconds;
             
             // Now draw transparent elements, back to front
             RenderGroupState lastState = null;
@@ -228,11 +237,10 @@ namespace Veldrid.SceneGraph.Viewer
                 foreach (var element in renderList.Value)
                 {
                     var state = element.Item1;
-                    RenderGroupState.RenderInfo ri = null;
 
                     if (null == lastState || state != lastState)
                     {
-                        ri = state.GetPipelineAndResources(device, factory, _resourceLayout);
+                        var ri = state.GetPipelineAndResources(device, factory, _resourceLayout);
 
                         // Set this state's pipeline
                         _commandList.SetPipeline(ri.Pipeline);
@@ -245,45 +253,40 @@ namespace Veldrid.SceneGraph.Viewer
                         
                         _commandList.UpdateBuffer(ri.ModelBuffer, 0, Matrix4x4.Identity);
                     }
-                    else
-                    {
-                        ri = lastState.GetPipelineAndResources(device, factory, _resourceLayout);
-                    }
 
                     var renderElement = element.Item2;
 
-                    if (renderElement.ModelMatrix != curModelMatrix)
-                    {
-                        // This update-buffer is a massive performance bottleneck
-                        //_commandList.UpdateBuffer(ri.ModelBuffer, 0, renderElement.ModelMatrix);
-                        //curModelMatrix = renderElement.ModelMatrix;
-                    }
-
                     // Set vertex buffer
-                    _commandList.SetVertexBuffer(0, renderElement.VertexBuffer);
+                    _commandList.SetVertexBuffer(0, renderElement.VertexBuffer.Item2);
                     
                     // Set index buffer
-                    _commandList.SetIndexBuffer(renderElement.IndexBuffer, IndexFormat.UInt16);
+                    _commandList.SetIndexBuffer(renderElement.IndexBuffer.Item2, IndexFormat.UInt16);
 
                     // Draw the drawable
-                    renderElement.Drawable.Draw(_commandList);
+                    renderElement.Drawable.Draw(_commandList, renderElement.IndexBuffer.Item3, (int)renderElement.VertexBuffer.Item3);
 
                     //Console.WriteLine("DrawElement => {0}", renderElement.Drawable.NameString);
                     
                     lastState = state;
                 }
             }
+
+            var drawTime = _stopWatch.ElapsedMilliseconds;
+
+            _stopWatch.Stop();
+            
+            Console.WriteLine("SortTime = {0} ms, DrawTime = {1} ms.", sortTime, drawTime-sortTime);
         }
         
         private bool IsCulled(BoundingBox bb, Matrix4x4 modelMatrix)
         {
             var culled = !CullingFrustum.Contains(bb, modelMatrix);
 
-            if (culled)
-            {
-                _culledObjectCount++;
-                Console.WriteLine("Culled Object {0}", _culledObjectCount);
-            }
+//            if (culled)
+//            {
+//                _culledObjectCount++;
+//                Console.WriteLine("Culled Object {0}", _culledObjectCount);
+//            }
             return culled;
         }
 

@@ -57,14 +57,14 @@ namespace Veldrid.SceneGraph
             visitor.Apply(this);
         }
 
-        protected override void DrawImplementation(CommandList commandList)
+        protected override void DrawImplementation(CommandList commandList, uint indexStart, int vertexOffset)
         {
             // Issue a Draw command for a single instance with 4 indices.
             commandList.DrawIndexed(
                 indexCount: (uint) IndexData.Length,
                 instanceCount: 1,
-                indexStart: 0,
-                vertexOffset: 0,
+                indexStart: indexStart,
+                vertexOffset: vertexOffset,
                 instanceStart: 0);
         }
 

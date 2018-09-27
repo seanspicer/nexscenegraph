@@ -70,30 +70,30 @@ namespace TransparencySorting
             var root = new Group();
             
             var scale_xform = new MatrixTransform();
-            scale_xform.Matrix = Matrix4x4.CreateScale(0.075f);
+            scale_xform.Matrix = Matrix4x4.CreateScale(0.8f);
             
             var cube = CreateCube();
             scale_xform.AddChild(cube);
-            //root.AddChild(scale_xform);
+            root.AddChild(scale_xform);
             
-            var gridSize = 3;
-            var transF = 1.0f / gridSize;
-            for (var i = -gridSize; i <= gridSize; ++i)
-            {
-                for (var j = -gridSize; j <= gridSize; ++j)
-                {
-                    for (var k = -gridSize; k <= gridSize; ++k)
-                    {
-                        var xform = new MatrixTransform
-                        {
-                            Matrix = Matrix4x4.CreateTranslation(transF * i, transF * j, transF * k)
-                        };
-                        xform.AddChild(scale_xform);
-                        root.AddChild(xform);
-                    }
-
-                }
-            }
+//            var gridSize = 2;
+//            var transF = 1.0f / gridSize;
+//            for (var i = -gridSize; i <= gridSize; ++i)
+//            {
+//                for (var j = -gridSize; j <= gridSize; ++j)
+//                {
+//                    for (var k = -gridSize; k <= gridSize; ++k)
+//                    {
+//                        var xform = new MatrixTransform
+//                        {
+//                            Matrix = Matrix4x4.CreateTranslation(transF * i, transF * j, transF * k)
+//                        };
+//                        xform.AddChild(scale_xform);
+//                        root.AddChild(xform);
+//                    }
+//
+//                }
+//            }
 
             root.PipelineState = CreateSharedState();
             

@@ -41,7 +41,7 @@ namespace Veldrid.SceneGraph
         public event Func<Node, BoundingBox> ComputeBoundingBoxCallback;
         public event Action<CommandList, Drawable> DrawImplementationCallback;
 
-        public void Draw(CommandList commandList)
+        public void Draw(CommandList commandList, uint indexStart, int vertexOffset)
         {
             if (null != DrawImplementationCallback)
             {
@@ -49,11 +49,11 @@ namespace Veldrid.SceneGraph
             }
             else
             {
-                DrawImplementation(commandList);
+                DrawImplementation(commandList, indexStart, vertexOffset);
             }
         }
 
-        protected abstract void DrawImplementation(CommandList commandList);
+        protected abstract void DrawImplementation(CommandList commandList, uint indexStart, int vertexOffset);
         
         public BoundingBox GetBoundingBox()
         {

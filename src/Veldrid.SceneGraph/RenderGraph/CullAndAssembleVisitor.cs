@@ -46,6 +46,12 @@ namespace Veldrid.SceneGraph.RenderGraph
 
         public Stack<PipelineState> PipelineStateStack = new Stack<PipelineState>();
 
+        private uint _currVertexBufferOffset = 0;
+        public List<DeviceBuffer> VertexBufferList { get; } = new List<DeviceBuffer>();
+        
+        private uint _currIndexBufferOffset = 0;
+        public List<DeviceBuffer> IndexBufferList { get; } = new List<DeviceBuffer>();
+
         public bool Valid => null != GraphicsDevice;
         
         private Polytope CullingFrustum { get; set; } = new Polytope();
@@ -115,11 +121,6 @@ namespace Veldrid.SceneGraph.RenderGraph
                 pso = new PipelineState();
             }
 
-            // Setup Vertex and Index Buffers
-            var vbDescription = new BufferDescription(
-                (uint) (geometry.VertexData.Length * geometry.SizeOfVertexData),
-                BufferUsage.VertexBuffer);
-
             //
             // TODO - this is a 'trick' to Premultiply geometry to avoid performance hits
             //
@@ -131,23 +132,19 @@ namespace Veldrid.SceneGraph.RenderGraph
                 vtxData[i].VertexPosition = Vector3.Transform(vtxData[i].VertexPosition, mm);
             }
             
-            var vertexBuffer = ResourceFactory.CreateBuffer(vbDescription);
-            GraphicsDevice.UpdateBuffer(vertexBuffer, 0, vtxData);
-            
-            var ibDescription = new BufferDescription(
-                (uint) geometry.IndexData.Length * sizeof(ushort),
-                BufferUsage.IndexBuffer);
+            var vtxBufInfo = GetVertexBufferAndOffset((uint) (geometry.VertexData.Length * geometry.SizeOfVertexData));
+            GraphicsDevice.UpdateBuffer(vtxBufInfo.Item2, vtxBufInfo.Item3, vtxData);
 
-            var indexBuffer = ResourceFactory.CreateBuffer(ibDescription);
-            GraphicsDevice.UpdateBuffer(indexBuffer, 0, geometry.IndexData);
+            var idxBufInfo = GetIndexBufferAndOffset((uint) geometry.IndexData.Length * sizeof(ushort));
+            GraphicsDevice.UpdateBuffer(idxBufInfo.Item2, idxBufInfo.Item3, geometry.IndexData);
             
             // Construct Render Group element
             var element = new RenderGroupElement
             {
                 Drawable = geometry, 
                 ModelMatrix = ModelMatrixStack.Peek(),
-                VertexBuffer = vertexBuffer,
-                IndexBuffer = indexBuffer
+                VertexBuffer = vtxBufInfo,
+                IndexBuffer = idxBufInfo
             };
 
             // 
@@ -173,21 +170,11 @@ namespace Veldrid.SceneGraph.RenderGraph
             //
             // Setup rendering buffers
             //
-                     
-            var vbDescription = new BufferDescription(
-                (uint) (textNode.VertexData.Length * textNode.SizeOfVertexData),
-                BufferUsage.VertexBuffer);
-
-            var vertexBuffer = ResourceFactory.CreateBuffer(vbDescription);
-            GraphicsDevice.UpdateBuffer(vertexBuffer, 0, textNode.VertexData);
+            var vtxBufInfo = GetVertexBufferAndOffset((uint) (textNode.VertexData.Length * textNode.SizeOfVertexData));
+            GraphicsDevice.UpdateBuffer(vtxBufInfo.Item2, 0, textNode.VertexData);
             
-            var ibDescription = new BufferDescription(
-                (uint) textNode.IndexData.Length * sizeof(ushort),
-                BufferUsage.IndexBuffer);
-
-            var numIndices = (uint) textNode.IndexData.Length;
-            var indexBuffer = ResourceFactory.CreateBuffer(ibDescription);
-            GraphicsDevice.UpdateBuffer(indexBuffer, 0, textNode.IndexData);
+            var idxBufInfo = GetIndexBufferAndOffset((uint) textNode.IndexData.Length * sizeof(ushort));        
+            GraphicsDevice.UpdateBuffer(idxBufInfo.Item2, idxBufInfo.Item3, textNode.IndexData);
 
             
             //
@@ -210,20 +197,51 @@ namespace Veldrid.SceneGraph.RenderGraph
             {
                 Drawable = textNode, 
                 ModelMatrix = ModelMatrixStack.Peek(),
-                VertexBuffer = vertexBuffer,
-                IndexBuffer = indexBuffer
+                VertexBuffer = vtxBufInfo,
+                IndexBuffer = idxBufInfo
                 
             };
 
             renderGroupState.Elements.Add(element);
         }
-        
-        private bool IsCulled(BoundingBox bb)
-        {
-            // Is this bounding box culled?
-            if (!CullingFrustum.Contains(bb)) return true;
 
-            return false;
+        private Tuple<int, DeviceBuffer, uint> GetVertexBufferAndOffset(uint sizeInBytes)
+        {
+            var bufferIndex = VertexBufferList.Count-1;
+            if (VertexBufferList.Count == 0 || _currVertexBufferOffset + sizeInBytes > 65536)
+            {   
+                var vbDescription = new BufferDescription(65536, BufferUsage.VertexBuffer);
+                var vertexBuffer = ResourceFactory.CreateBuffer(vbDescription);
+                VertexBufferList.Add(vertexBuffer);
+
+                _currVertexBufferOffset = 0;
+                bufferIndex = VertexBufferList.Count-1;
+            }
+
+            var result = Tuple.Create(bufferIndex, VertexBufferList[bufferIndex], _currVertexBufferOffset);
+            
+            _currVertexBufferOffset += sizeInBytes;
+
+            return result;
+        }
+        
+        private Tuple<int, DeviceBuffer, uint> GetIndexBufferAndOffset(uint sizeInBytes)
+        {
+            var bufferIndex = IndexBufferList.Count-1;
+            if (IndexBufferList.Count == 0 || _currIndexBufferOffset + sizeInBytes > 65536)
+            {   
+                var ibDescription = new BufferDescription(65536, BufferUsage.IndexBuffer);
+                var indexBuffer = ResourceFactory.CreateBuffer(ibDescription);
+                IndexBufferList.Add(indexBuffer);
+
+                _currIndexBufferOffset = 0;
+                bufferIndex = IndexBufferList.Count-1;
+            }
+            
+            
+            var result = Tuple.Create(bufferIndex, IndexBufferList[bufferIndex], _currIndexBufferOffset);
+            _currIndexBufferOffset += sizeInBytes;
+            return result;
         }
     }
 }

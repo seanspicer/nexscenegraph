@@ -33,8 +33,8 @@ namespace Veldrid.SceneGraph.RenderGraph
         public Matrix4x4 ModelMatrix;
         
         // TODO - do these really belong here?
-        public DeviceBuffer VertexBuffer { get; set; }
-        public DeviceBuffer IndexBuffer { get; set; }
+        public Tuple<int, DeviceBuffer, uint> VertexBuffer { get; set; }
+        public Tuple<int, DeviceBuffer, uint> IndexBuffer { get; set; }
     }
     
     public class RenderGroup
