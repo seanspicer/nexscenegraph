@@ -64,19 +64,19 @@ namespace TransparencySorting
             
             var allNames = asm.GetManifestResourceNames();
             
-            var viewer = new SimpleViewer("Colored Cube Scene Graph");
+            var viewer = new SimpleViewer("Transparancy Sorting Demo");
             viewer.View.CameraManipulator = new TrackballManipulator();
 
             var root = new Group();
             
             var scale_xform = new MatrixTransform();
-            scale_xform.Matrix = Matrix4x4.CreateScale(0.075f);
+            scale_xform.Matrix = Matrix4x4.CreateScale(0.05f);
             
             var cube = CreateCube();
             scale_xform.AddChild(cube);
-            //root.AddChild(scale_xform);
+//            root.AddChild(scale_xform);
             
-            var gridSize = 3;
+            var gridSize = 5;
             var transF = 1.0f / gridSize;
             for (var i = -gridSize; i <= gridSize; ++i)
             {
