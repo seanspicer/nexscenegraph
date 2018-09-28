@@ -136,7 +136,13 @@ namespace Veldrid.SceneGraph.Viewer
             
             _commandList.End();
             
+            _stopWatch.Reset();
+            _stopWatch.Start();
+            
             device.SubmitCommands(_commandList);
+
+            var gpuTime = _stopWatch.ElapsedMilliseconds;
+            Console.WriteLine("GPU = {0}", gpuTime);
         }
 
         private void DrawOpaqueRenderGroups(GraphicsDevice device, ResourceFactory factory)
@@ -279,7 +285,7 @@ namespace Veldrid.SceneGraph.Viewer
 
             _stopWatch.Stop();
             
-            Console.WriteLine("SortTime = {0} ms, DrawTime = {1} ms.", sortTime, drawTime-sortTime);
+            Console.WriteLine("SortTime = {0} ms, RecordTime = {1} ms.", sortTime, drawTime-sortTime);
         }
         
         private bool IsCulled(BoundingBox bb, Matrix4x4 modelMatrix)
