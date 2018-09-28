@@ -164,11 +164,6 @@ namespace Veldrid.SceneGraph.Viewer
                     if (IsCulled(renderElement.Drawable.GetBoundingBox(), renderElement.ModelMatrix)) continue;
                    
                     // TODO - CASE 1 - use a vkCmdBindDescriptorSets equiv to bind the correct model matrix offset
-                    if (renderElement.ModelMatrix != curModelMatrix)
-                    {
-                        _commandList.UpdateBuffer(ri.ModelBuffer, 0, renderElement.ModelMatrix);
-                        curModelMatrix = renderElement.ModelMatrix;
-                    }
                     
                     // Set vertex buffer
                     _commandList.SetVertexBuffer(0, renderElement.VertexBuffer.Item2);
