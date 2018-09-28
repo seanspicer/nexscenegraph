@@ -74,14 +74,14 @@ namespace Veldrid.SceneGraph.Viewer
             ));
 
             _cullAndAssembleVisitor.ResourceLayout = _resourceLayout;
-            _cullAndAssembleVisitor.OpaqueRenderGroup.Clear();
+            //_cullAndAssembleVisitor.OpaqueRenderGroup.Clear();
             
             if (_camera.View.GetType() != typeof(Viewer.View))
             {
                 throw new InvalidCastException("Camera View type is not correct");
             }
-            var view = (Viewer.View) _camera.View;
-            view.SceneData?.Accept(_cullAndAssembleVisitor);
+            //var view = (Viewer.View) _camera.View;
+            //view.SceneData?.Accept(_cullAndAssembleVisitor);
 
             _resourceSet = factory.CreateResourceSet(
                 new ResourceSetDescription(_resourceLayout, _projectionBuffer, _viewBuffer));
@@ -104,6 +104,12 @@ namespace Veldrid.SceneGraph.Viewer
             {
                 Initialize(device, factory);
             }
+            
+            // TEST
+            _cullAndAssembleVisitor.Reset();
+            var view = (Viewer.View) _camera.View;
+            view.SceneData?.Accept(_cullAndAssembleVisitor);
+            // TEST
             
             // Begin() must be called before commands can be issued.
             _commandList.Begin();
@@ -196,6 +202,7 @@ namespace Veldrid.SceneGraph.Viewer
             // First sort the transparent render elements by distance to eye point (if not culled).
             //
             var drawOrderMap = new SortedList<float, List<Tuple<RenderGroupState, RenderGroupElement>>>();
+            drawOrderMap.Capacity = _cullAndAssembleVisitor.RenderElementCount;
             var transparentRenderGroupStates = _cullAndAssembleVisitor.TransparentRenderGroup.GetStateList();
             foreach (var state in transparentRenderGroupStates)
             {

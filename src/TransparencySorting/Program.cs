@@ -70,11 +70,11 @@ namespace TransparencySorting
             var root = new Group();
             
             var scale_xform = new MatrixTransform();
-            scale_xform.Matrix = Matrix4x4.CreateScale(0.05f);
+            scale_xform.Matrix = Matrix4x4.CreateScale(0.075f);
             
             var cube = CreateCube();
             scale_xform.AddChild(cube);
-//            root.AddChild(scale_xform);
+            //root.AddChild(scale_xform);
             
             var gridSize = 5;
             var transF = 1.0f / gridSize;
@@ -150,7 +150,7 @@ namespace TransparencySorting
                 20,21,22, 20,22,23,
             };
 
-            var faces = new int[] {1, 2, 3, 4, 5};
+            var faces = new int[] {0, 1, 2, 3, 4, 5};
             
             var vld = new VertexLayoutDescription(
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
@@ -161,15 +161,6 @@ namespace TransparencySorting
                 var start = 6 * f;
 
                 var geometry = new Geometry<VertexPositionColor>();
-
-//                if (f == 2)
-//                {
-//                    geometry.NameString = "green";
-//                }
-//                else
-//                {
-//                    geometry.NameString = "light blue";
-//                }
                 
                 geometry.VertexData = vertices.ToArray();
                 geometry.IndexData = indices.GetRange(start, 6).ToArray();

@@ -41,14 +41,16 @@ namespace Veldrid.SceneGraph.RenderGraph
         public GraphicsDevice GraphicsDevice { get; set; } = null;
         public ResourceFactory ResourceFactory { get; set; } = null;
         public ResourceLayout ResourceLayout { get; set; } = null;
-        
+
         public Stack<Matrix4x4> ModelMatrixStack { get; set; } = new Stack<Matrix4x4>();
 
         public Stack<PipelineState> PipelineStateStack = new Stack<PipelineState>();
 
+        private int _currVertexBufferIndex = 0;
         private uint _currVertexBufferOffset = 0;
         public List<DeviceBuffer> VertexBufferList { get; } = new List<DeviceBuffer>();
         
+        private int _currIndexBufferIndex = 0;
         private uint _currIndexBufferOffset = 0;
         public List<DeviceBuffer> IndexBufferList { get; } = new List<DeviceBuffer>();
 
@@ -56,7 +58,8 @@ namespace Veldrid.SceneGraph.RenderGraph
         
         private Polytope CullingFrustum { get; set; } = new Polytope();
 
-        private HashSet<RenderGroupState> PipelineCache { get; set; } = new HashSet<RenderGroupState>();
+        public int RenderElementCount { get; private set; } = 0;
+        //private HashSet<RenderGroupState> PipelineCache { get; set; } = new HashSet<RenderGroupState>();
 
         public CullAndAssembleVisitor() : 
             base(VisitorType.CullAndAssembleVisitor, TraversalModeType.TraverseActiveChildren)
@@ -64,6 +67,26 @@ namespace Veldrid.SceneGraph.RenderGraph
             ModelMatrixStack.Push(Matrix4x4.Identity);
         }
 
+        public void Reset()
+        {
+            ModelMatrixStack.Clear();
+            ModelMatrixStack.Push(Matrix4x4.Identity);
+            
+            PipelineStateStack.Clear();
+
+            _currIndexBufferIndex = 0;
+            _currVertexBufferOffset = 0;
+
+            _currVertexBufferIndex = 0;
+            _currIndexBufferOffset = 0;
+            
+            OpaqueRenderGroup.Clear();
+            TransparentRenderGroup.Clear();
+            
+            RenderElementCount = 0;
+            
+        }
+        
         public void SetCullingViewProjectionMatrix(Matrix4x4 vp)
         {
             CullingFrustum.SetToViewProjectionFrustum(vp, false, false);
@@ -92,7 +115,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             transform.ComputeLocalToWorldMatrix(ref curModel, this);
             ModelMatrixStack.Push(curModel);
             
-            Traverse(transform);
+            Apply((Node)transform);
 
             ModelMatrixStack.Pop();
 
@@ -161,6 +184,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             }
                 
             renderGroupState.Elements.Add(element);
+            RenderElementCount++;
         }
 
         public override void Apply(TextNode textNode)
@@ -203,24 +227,32 @@ namespace Veldrid.SceneGraph.RenderGraph
             };
 
             renderGroupState.Elements.Add(element);
+            RenderElementCount++;
         }
 
         private Tuple<int, DeviceBuffer, uint> GetVertexBufferAndOffset(uint length, uint vtxSizeInBytes)
         {
             uint sizeInBytes = length * vtxSizeInBytes;
             
-            var bufferIndex = VertexBufferList.Count-1;
             if (VertexBufferList.Count == 0 || _currVertexBufferOffset + sizeInBytes > 128*65536)
-            {   
-                var vbDescription = new BufferDescription(128*65536, BufferUsage.VertexBuffer);
-                var vertexBuffer = ResourceFactory.CreateBuffer(vbDescription);
-                VertexBufferList.Add(vertexBuffer);
+            {
+                // Need to allocate a new buffer
+                if (VertexBufferList.Count <= _currVertexBufferIndex+1)
+                {
+                    var vbDescription = new BufferDescription(128*65536, BufferUsage.VertexBuffer);
+                    var vertexBuffer = ResourceFactory.CreateBuffer(vbDescription);
+                    VertexBufferList.Add(vertexBuffer);
 
-                _currVertexBufferOffset = 0;
-                bufferIndex = VertexBufferList.Count-1;
+                    _currVertexBufferOffset = 0;
+                    _currVertexBufferIndex = VertexBufferList.Count - 1;
+                }
+                else
+                {
+                    _currVertexBufferIndex++;
+                }
             }
 
-            var result = Tuple.Create(bufferIndex, VertexBufferList[bufferIndex], _currVertexBufferOffset/vtxSizeInBytes);
+            var result = Tuple.Create(_currVertexBufferIndex, VertexBufferList[_currVertexBufferIndex], _currVertexBufferOffset/vtxSizeInBytes);
             
             _currVertexBufferOffset += sizeInBytes;
 
@@ -231,21 +263,31 @@ namespace Veldrid.SceneGraph.RenderGraph
         {
             uint sizeInBytes = length * idxSizeInBytes;
             
-            var bufferIndex = IndexBufferList.Count-1;
             if (IndexBufferList.Count == 0 || _currIndexBufferOffset + sizeInBytes > 128*65536)
-            {   
-                var ibDescription = new BufferDescription(128*65536, BufferUsage.IndexBuffer);
-                var indexBuffer = ResourceFactory.CreateBuffer(ibDescription);
-                IndexBufferList.Add(indexBuffer);
+            {
+                if (IndexBufferList.Count <= _currIndexBufferIndex + 1)
+                {
+                    var ibDescription = new BufferDescription(128 * 65536, BufferUsage.IndexBuffer);
+                    var indexBuffer = ResourceFactory.CreateBuffer(ibDescription);
+                    IndexBufferList.Add(indexBuffer);
 
-                _currIndexBufferOffset = 0;
-                bufferIndex = IndexBufferList.Count-1;
+                    _currIndexBufferOffset = 0;
+                    _currIndexBufferIndex = IndexBufferList.Count-1;
+                }
+                else
+                {
+                    _currIndexBufferIndex++;
+                }
+
+                
             }
             
             
-            var result = Tuple.Create(bufferIndex, IndexBufferList[bufferIndex], _currIndexBufferOffset/idxSizeInBytes);
+            var result = Tuple.Create(_currIndexBufferIndex, IndexBufferList[_currIndexBufferIndex], _currIndexBufferOffset/idxSizeInBytes);
             _currIndexBufferOffset += sizeInBytes;
             return result;
         }
+
+
     }
 }
