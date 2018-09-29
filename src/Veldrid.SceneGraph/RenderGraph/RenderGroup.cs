@@ -53,6 +53,10 @@ namespace Veldrid.SceneGraph.RenderGraph
 
         public void Clear()
         {
+            foreach (var rgs in RenderGroupStateCache.Values)
+            {
+                rgs.ReleaseUnmanagedResources();
+            }
             RenderGroupStateCache.Clear();
         }
         

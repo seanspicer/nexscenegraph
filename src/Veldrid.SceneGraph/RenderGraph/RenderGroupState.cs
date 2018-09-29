@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Veldrid.Utilities;
 
 namespace Veldrid.SceneGraph.RenderGraph
 {
-   
     public class RenderGroupState
     {
         public class RenderInfo
@@ -58,12 +58,14 @@ namespace Veldrid.SceneGraph.RenderGraph
 //                modelMatrixBuffer[i] = Elements[i].ModelMatrix;
 //            }
             
+            // TODO - this shouldn't be allocated here!
             var modelMatrixBuffer = Matrix4x4.Identity;
             ri.ModelBuffer =
                 resourceFactory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
             
             graphicsDevice.UpdateBuffer(ri.ModelBuffer, 0, modelMatrixBuffer);
-
+            // TODO - this shouldn't be allocated here!
+            
             resourceLayoutElementDescriptionList.Add(
                 new ResourceLayoutElementDescription("Model", ResourceKind.UniformBuffer, ShaderStages.Vertex));
 
@@ -120,10 +122,31 @@ namespace Veldrid.SceneGraph.RenderGraph
             pd.Outputs = graphicsDevice.SwapchainFramebuffer.OutputDescription;
 
             ri.Pipeline = resourceFactory.CreateGraphicsPipeline(pd);
+            
 
             RenderInfoCache.Add(key, ri);
             
             return ri;
+        }
+
+        public void ReleaseUnmanagedResources()
+        {
+            foreach (var entry in RenderInfoCache)
+            {
+                var key = entry.Key;
+                var ri = entry.Value;
+
+                var f = key.Item2 as DisposeCollectorResourceFactory;
+                f.DisposeCollector.Remove(ri.Pipeline);
+                f.DisposeCollector.Remove(ri.ResourceLayout);
+                f.DisposeCollector.Remove(ri.ResourceSet);
+                f.DisposeCollector.Remove(ri.ModelBuffer);
+                
+                ri.Pipeline.Dispose();
+                ri.ResourceLayout.Dispose();
+                ri.ResourceSet.Dispose();
+                ri.ModelBuffer.Dispose();
+            }
         }
     }
 }

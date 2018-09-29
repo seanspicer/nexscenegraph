@@ -41,6 +41,7 @@ namespace Veldrid.SceneGraph.Viewer
         private CommandList _commandList;
         private ResourceLayout _resourceLayout;
         private ResourceSet _resourceSet;
+        private Fence _fence;
         
         private Polytope CullingFrustum { get; set; } = new Polytope();
         
@@ -80,8 +81,8 @@ namespace Veldrid.SceneGraph.Viewer
             {
                 throw new InvalidCastException("Camera View type is not correct");
             }
-            //var view = (Viewer.View) _camera.View;
-            //view.SceneData?.Accept(_cullAndAssembleVisitor);
+            var view = (Viewer.View) _camera.View;
+            view.SceneData?.Accept(_cullAndAssembleVisitor);
 
             _resourceSet = factory.CreateResourceSet(
                 new ResourceSetDescription(_resourceLayout, _projectionBuffer, _viewBuffer));
@@ -94,7 +95,10 @@ namespace Veldrid.SceneGraph.Viewer
             _renderInfo.CommandList = _commandList;
             _renderInfo.ResourceLayout = _resourceLayout;
             _renderInfo.ResourceSet = _resourceSet;
-       
+
+            _fence = factory.CreateFence(false);
+            
+            
             _initialized = true;
         }
         
@@ -106,9 +110,9 @@ namespace Veldrid.SceneGraph.Viewer
             }
             
             // TEST
-            _cullAndAssembleVisitor.Reset();
-            var view = (Viewer.View) _camera.View;
-            view.SceneData?.Accept(_cullAndAssembleVisitor);
+            //_cullAndAssembleVisitor.Reset();
+            //var view = (Viewer.View) _camera.View;
+            //view.SceneData?.Accept(_cullAndAssembleVisitor);
             // TEST
             
             // Begin() must be called before commands can be issued.
@@ -145,7 +149,8 @@ namespace Veldrid.SceneGraph.Viewer
             _stopWatch.Reset();
             _stopWatch.Start();
             
-            device.SubmitCommands(_commandList);
+            _fence.Reset();
+            device.SubmitCommands(_commandList, _fence);
 
             var gpuTime = _stopWatch.ElapsedMilliseconds;
             Console.WriteLine("GPU = {0}", gpuTime);
@@ -332,6 +337,11 @@ namespace Veldrid.SceneGraph.Viewer
 
         public void HandleOperation(GraphicsDevice device, ResourceFactory factory)
         {
+            if (null != _fence)
+            {
+                device.WaitForFence(_fence);
+            }
+            
             UpdateUniforms(device, factory);
             Draw(device, factory);
             SwapBuffers(device);
