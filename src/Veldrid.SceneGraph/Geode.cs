@@ -21,13 +21,13 @@
 //
 
 using System;
+using System.Collections.Generic;
 
 namespace Veldrid.SceneGraph
 {
-    public abstract class Drawable : Object
+    public class Geode : Node
     {
-        protected bool _boundingSphereComputed = false;
-        protected BoundingSphere _boundingSphere = new BoundingSphere();
+        public List<Drawable> Drawables { get; } = new List<Drawable>();
         
         protected BoundingBox _boundingBox;
         protected BoundingBox _initialBoundingBox = new BoundingBox();
@@ -39,43 +39,18 @@ namespace Veldrid.SceneGraph
                 _initialBoundingBox = value;
                 DirtyBound();
             }
-        } 
-        
-        public event Func<Drawable, BoundingBox> ComputeBoundingBoxCallback;
-        public event Action<CommandList, Drawable> DrawImplementationCallback;
-
-        private PipelineState _pipelineState = null;
-        public PipelineState PipelineState
-        {
-            get => _pipelineState ?? (_pipelineState = new PipelineState());
-            set => _pipelineState = value;
         }
         
-        public bool HasPipelineState
-        {
-            get => null != _pipelineState;
-        }
+        public event Func<Node, BoundingBox> ComputeBoundingBoxCallback;
         
-        public void Draw(CommandList commandList)
+        public Geode()
         {
-            if (null != DrawImplementationCallback)
-            {
-                DrawImplementationCallback(commandList, this);
-            }
-            else
-            {
-                DrawImplementation(commandList);
-            }
-        }
-
-        protected abstract void DrawImplementation(CommandList commandList);
-        
-        
-        public void DirtyBound()
-        {
-            if (!_boundingSphereComputed) return;
             
-            _boundingSphereComputed = false;
+        }
+        
+        public override void Accept(NodeVisitor visitor)
+        {
+            visitor.Apply(this);
         }
         
         public BoundingBox GetBoundingBox()
@@ -102,6 +77,15 @@ namespace Veldrid.SceneGraph
             return _boundingBox;
         }
 
-        protected abstract BoundingBox ComputeBoundingBox();
+        protected BoundingBox ComputeBoundingBox()
+        {
+            var bb = new BoundingBox();
+            foreach (var drawable in Drawables)
+            {
+                bb.ExpandBy(drawable.GetBoundingBox());
+            }
+
+            return bb;
+        }
     }
 }

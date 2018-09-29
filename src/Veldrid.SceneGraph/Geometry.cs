@@ -31,8 +31,6 @@ namespace Veldrid.SceneGraph
     public class Geometry<T> : Drawable 
         where T : struct, IPrimitiveElement
     {
-        //public PipelineState PipelineState { get; } = new PipelineState();
-        
         public T[] VertexData { get; set; }
         public int SizeOfVertexData => Marshal.SizeOf(default(T));
         
@@ -40,32 +38,20 @@ namespace Veldrid.SceneGraph
 
         public VertexLayoutDescription VertexLayout { get; set; }
 
-        public PrimitiveTopology PrimitiveTopology { get; set; } = PrimitiveTopology.TriangleStrip;
+        public List<PrimitiveSet> PrimitiveSets { get; } = new List<PrimitiveSet>();
             
-        private uint NumIndices { get; set; }
-        
         private bool _dirtyFlag = true;
         
         public Geometry()
         {
-            //_stateSet = new StateSet();
-        }
-        
-        // Required for double-dispatch
-        public override void Accept(NodeVisitor visitor)
-        {
-            visitor.Apply(this);
         }
 
-        protected override void DrawImplementation(CommandList commandList, uint indexStart, int vertexOffset)
+        protected override void DrawImplementation(CommandList commandList)
         {
-            // Issue a Draw command for a single instance with 4 indices.
-            commandList.DrawIndexed(
-                indexCount: (uint) IndexData.Length,
-                instanceCount: 1,
-                indexStart: indexStart,
-                vertexOffset: vertexOffset,
-                instanceStart: 0);
+            foreach (var primitiveSet in PrimitiveSets)
+            {
+                primitiveSet.Draw(commandList);
+            }
         }
 
         protected override BoundingBox ComputeBoundingBox()

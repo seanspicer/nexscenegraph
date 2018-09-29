@@ -136,8 +136,8 @@ namespace Veldrid.SceneGraph
                 {
                     case Transform transform when transform.ReferenceFrame != Transform.ReferenceFrameType.Relative:
                         continue;
-                    case Drawable drawable:
-                        bb.ExpandBy(drawable.GetBoundingBox());
+                    case Geode geode:
+                        bb.ExpandBy(geode.GetBoundingBox());
                         break;
                     default:
                         var bs = child.GetBound();

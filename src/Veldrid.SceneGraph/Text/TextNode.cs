@@ -102,19 +102,14 @@ namespace Veldrid.SceneGraph.Text
             PipelineState.BlendStateDescription = BlendStateDescription.SingleAlphaBlend;
         }
         
-        public override void Accept(NodeVisitor visitor)
-        {
-            visitor.Apply(this);
-        }
-        
-        protected override void DrawImplementation(CommandList commandList, uint indexStart, int vertexOffset)
+        protected override void DrawImplementation(CommandList commandList)
         {
             // Issue a Draw command for a single instance.
             commandList.DrawIndexed(
                 indexCount: (uint) IndexData.Length,
                 instanceCount: 1,
-                indexStart: indexStart,
-                vertexOffset: vertexOffset,
+                indexStart: 0,
+                vertexOffset: 0,
                 instanceStart: 0);
         }
 
