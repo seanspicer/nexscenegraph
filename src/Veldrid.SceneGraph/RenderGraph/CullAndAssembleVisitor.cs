@@ -26,6 +26,7 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using AssetProcessor;
 using Veldrid.SceneGraph.Text;
@@ -37,6 +38,9 @@ namespace Veldrid.SceneGraph.RenderGraph
     {
         public RenderGroup OpaqueRenderGroup { get; set; } = new RenderGroup();
         public RenderGroup TransparentRenderGroup { get; set; } = new RenderGroup();
+        
+        public List<Drawable> OpaqueDrawables { get; set; } = new List<Drawable>();
+        public List<Drawable> TransparentDrawables { get; set; } = new List<Drawable>();
 
         public GraphicsDevice GraphicsDevice { get; set; } = null;
         public ResourceFactory ResourceFactory { get; set; } = null;
@@ -121,15 +125,14 @@ namespace Veldrid.SceneGraph.RenderGraph
 
         }
 
-        public override void Apply<T>(Geometry<T> geometry)
+        public override void Apply(Geode geode)
         {
-
             PipelineState pso = null;
 
             // Node specific state
-            if (geometry.HasPipelineState)
+            if (geode.HasPipelineState)
             {
-                pso = geometry.PipelineState;
+                pso = geode.PipelineState;
             }
 
             // Shared State
@@ -144,150 +147,23 @@ namespace Veldrid.SceneGraph.RenderGraph
                 pso = new PipelineState();
             }
 
-            //
-            // TODO - this is a 'trick' to Premultiply geometry to avoid performance hits
-            //
-            var mm = ModelMatrixStack.Peek();
-            var vtxData = new T[geometry.VertexData.Length];
-            Array.Copy(geometry.VertexData, vtxData, geometry.VertexData.Length);
-            for(var i=0; i<vtxData.Length; ++i)
+            foreach (var drawable in geode.Drawables)
             {
-                vtxData[i].VertexPosition = Vector3.Transform(vtxData[i].VertexPosition, mm);
-            }
-            
-            var vtxBufInfo = GetVertexBufferAndOffset((uint) geometry.VertexData.Length, (uint) geometry.SizeOfVertexData);
-            GraphicsDevice.UpdateBuffer(vtxBufInfo.Item2, vtxBufInfo.Item3*(uint)geometry.SizeOfVertexData, vtxData);
-
-            var idxBufInfo = GetIndexBufferAndOffset((uint) geometry.IndexData.Length, sizeof(ushort));
-            GraphicsDevice.UpdateBuffer(idxBufInfo.Item2, idxBufInfo.Item3*sizeof(ushort), geometry.IndexData);
-            
-            // Construct Render Group element
-            var element = new RenderGroupElement
-            {
-                Drawable = geometry, 
-                ModelMatrix = ModelMatrixStack.Peek(),
-                VertexBuffer = vtxBufInfo,
-                IndexBuffer = idxBufInfo
-            };
-
-            // 
-            // Sort into appropriate render group
-            // 
-            RenderGroupState renderGroupState = null;
-            if (pso.BlendStateDescription.AttachmentStates.Contains(BlendAttachmentDescription.AlphaBlend))
-            {
-                renderGroupState = TransparentRenderGroup.GetOrCreateState(pso, geometry.PrimitiveTopology, geometry.VertexLayout);
-            }
-            else
-            {
-                renderGroupState = OpaqueRenderGroup.GetOrCreateState(pso, geometry.PrimitiveTopology, geometry.VertexLayout);
-            }
+                drawable.ConfigureDeviceBuffers(GraphicsDevice, ResourceFactory);
                 
-            renderGroupState.Elements.Add(element);
-            RenderElementCount++;
-        }
-
-        public override void Apply(TextNode textNode)
-        {
-            PipelineState pso = textNode.PipelineState;
-            
-            //
-            // Setup rendering buffers
-            //
-            var vtxBufInfo = GetVertexBufferAndOffset((uint) textNode.VertexData.Length, (uint) textNode.SizeOfVertexData);
-            GraphicsDevice.UpdateBuffer(vtxBufInfo.Item2, vtxBufInfo.Item3* (uint) textNode.SizeOfVertexData, textNode.VertexData);
-            
-            var idxBufInfo = GetIndexBufferAndOffset((uint) textNode.IndexData.Length, sizeof(ushort));        
-            GraphicsDevice.UpdateBuffer(idxBufInfo.Item2, idxBufInfo.Item3*sizeof(ushort), textNode.IndexData);
-
-            
-            //
-            // Setup the texture here
-            //
-            // TODO: this should probably be done in some sort of update visitor
-            //
-            pso.TextureList.Add(
-                new Texture2D(textNode.BuildTexture(),
-                    1,
-                    "SurfaceTexture", 
-                    "SurfaceSampler"));
-
-            // 
-            // Text Nodes always go into the transparent render group
-            // 
-            var renderGroupState = TransparentRenderGroup.GetOrCreateState(pso, textNode.PrimitiveTopology, textNode.VertexLayout);
-
-            var element = new RenderGroupElement
-            {
-                Drawable = textNode, 
-                ModelMatrix = ModelMatrixStack.Peek(),
-                VertexBuffer = vtxBufInfo,
-                IndexBuffer = idxBufInfo
-                
-            };
-
-            renderGroupState.Elements.Add(element);
-            RenderElementCount++;
-        }
-
-        private Tuple<int, DeviceBuffer, uint> GetVertexBufferAndOffset(uint length, uint vtxSizeInBytes)
-        {
-            uint sizeInBytes = length * vtxSizeInBytes;
-            
-            if (VertexBufferList.Count == 0 || _currVertexBufferOffset + sizeInBytes > 128*65536)
-            {
-                // Need to allocate a new buffer
-                if (VertexBufferList.Count <= _currVertexBufferIndex+1)
+                //            
+                // Sort into appropriate render group
+                // 
+                RenderGroupState renderGroupState = null;
+                if (pso.BlendStateDescription.AttachmentStates.Contains(BlendAttachmentDescription.AlphaBlend))
                 {
-                    var vbDescription = new BufferDescription(128*65536, BufferUsage.VertexBuffer);
-                    var vertexBuffer = ResourceFactory.CreateBuffer(vbDescription);
-                    VertexBufferList.Add(vertexBuffer);
-
-                    _currVertexBufferOffset = 0;
-                    _currVertexBufferIndex = VertexBufferList.Count - 1;
+                    TransparentDrawables.Add(drawable);
                 }
                 else
                 {
-                    _currVertexBufferIndex++;
+                    OpaqueDrawables.Add(drawable);
                 }
             }
-
-            var result = Tuple.Create(_currVertexBufferIndex, VertexBufferList[_currVertexBufferIndex], _currVertexBufferOffset/vtxSizeInBytes);
-            
-            _currVertexBufferOffset += sizeInBytes;
-
-            return result;
         }
-        
-        private Tuple<int, DeviceBuffer, uint> GetIndexBufferAndOffset(uint length, uint idxSizeInBytes)
-        {
-            uint sizeInBytes = length * idxSizeInBytes;
-            
-            if (IndexBufferList.Count == 0 || _currIndexBufferOffset + sizeInBytes > 128*65536)
-            {
-                if (IndexBufferList.Count <= _currIndexBufferIndex + 1)
-                {
-                    var ibDescription = new BufferDescription(128 * 65536, BufferUsage.IndexBuffer);
-                    var indexBuffer = ResourceFactory.CreateBuffer(ibDescription);
-                    IndexBufferList.Add(indexBuffer);
-
-                    _currIndexBufferOffset = 0;
-                    _currIndexBufferIndex = IndexBufferList.Count-1;
-                }
-                else
-                {
-                    _currIndexBufferIndex++;
-                }
-
-                
-            }
-            
-            
-            var result = Tuple.Create(_currIndexBufferIndex, IndexBufferList[_currIndexBufferIndex], _currIndexBufferOffset/idxSizeInBytes);
-            _currIndexBufferOffset += sizeInBytes;
-            return result;
-        }
-
-
     }
 }

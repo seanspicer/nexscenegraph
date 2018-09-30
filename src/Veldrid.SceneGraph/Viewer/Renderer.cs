@@ -52,6 +52,8 @@ namespace Veldrid.SceneGraph.Viewer
         private int _culledObjectCount = 0;
         
         private Stopwatch _stopWatch = new Stopwatch();
+
+        private List<Tuple<uint, ResourceSet>> _defaultResourceSets = new List<Tuple<uint, ResourceSet>>();
         
         public Renderer(Camera camera)
         {
@@ -97,7 +99,8 @@ namespace Veldrid.SceneGraph.Viewer
             _renderInfo.ResourceSet = _resourceSet;
 
             _fence = factory.CreateFence(false);
-            
+
+            _defaultResourceSets.Add(Tuple.Create((uint)0, _resourceSet));
             
             _initialized = true;
         }
@@ -131,10 +134,8 @@ namespace Veldrid.SceneGraph.Viewer
             //
             // Draw Opaque Geometry
             // 
-            if (_cullAndAssembleVisitor.OpaqueRenderGroup.HasDrawableElements())
-            {
-                DrawOpaqueRenderGroups(device, factory);
-            }
+            DrawOpaqueRenderGroups(device, factory);
+            
             
             // 
             // Draw Transparent Geometry
@@ -160,37 +161,12 @@ namespace Veldrid.SceneGraph.Viewer
         {
             var curModelMatrix = Matrix4x4.Identity;
             
-            var opaqueRenderGroupStates = _cullAndAssembleVisitor.OpaqueRenderGroup.GetStateList();
-            foreach (var state in opaqueRenderGroupStates)
+            foreach (var drawable in _cullAndAssembleVisitor.OpaqueDrawables)
             {
-                var ri = state.GetPipelineAndResources(device, factory, _resourceLayout);
+                // Configures pipeline (if required)
+                drawable.ConfigurePipelinesForDevice(device, factory, _resourceLayout);
                 
-                // Set this state's pipeline
-                _commandList.SetPipeline(ri.Pipeline);
-                
-                // Set the resources
-                _commandList.SetGraphicsResourceSet(0, _resourceSet);
-                
-                // Set state-local resources
-                _commandList.SetGraphicsResourceSet(1, ri.ResourceSet);
-                
-                // Iterate over all drawables in this state
-                foreach (var renderElement in state.Elements)
-                {
-                    // TODO - Question: can this be done on a separate thread?
-                    if (IsCulled(renderElement.Drawable.GetBoundingBox(), renderElement.ModelMatrix)) continue;
-                   
-                    // TODO - CASE 1 - use a vkCmdBindDescriptorSets equiv to bind the correct model matrix offset
-                    
-                    // Set vertex buffer
-                    _commandList.SetVertexBuffer(0, renderElement.VertexBuffer.Item2);
-                    
-                    // Set index buffer
-                    _commandList.SetIndexBuffer(renderElement.IndexBuffer.Item2, IndexFormat.UInt16); 
-                    
-                    // Draw the drawable
-                    renderElement.Drawable.Draw(_commandList, renderElement.IndexBuffer.Item3, (int)renderElement.VertexBuffer.Item3);
-                }
+                drawable.Draw(device, _defaultResourceSets, _commandList );
             }
         }
         
@@ -198,106 +174,106 @@ namespace Veldrid.SceneGraph.Viewer
         {
             //Console.WriteLine("---- Frame ----");
             
-            var curModelMatrix = Matrix4x4.Identity;
-
-            _stopWatch.Reset();
-            _stopWatch.Start();
-
-            //
-            // First sort the transparent render elements by distance to eye point (if not culled).
-            //
-            var drawOrderMap = new SortedList<float, List<Tuple<RenderGroupState, RenderGroupElement>>>();
-            drawOrderMap.Capacity = _cullAndAssembleVisitor.RenderElementCount;
-            var transparentRenderGroupStates = _cullAndAssembleVisitor.TransparentRenderGroup.GetStateList();
-            foreach (var state in transparentRenderGroupStates)
-            {
-                var ri = state.GetPipelineAndResources(device, factory, _resourceLayout);
-
-                // Iterate over all drawables in this state
-                foreach (var renderElement in state.Elements)
-                {
-                    // TODO - Question: can this be done on a separate thread?
-                    if (IsCulled(renderElement.Drawable.GetBoundingBox(), renderElement.ModelMatrix)) continue;
-
-                    var ctr = renderElement.Drawable.GetBoundingBox().Center;
-                    
-                    // Compute distance eye point 
-                    var modelView = renderElement.ModelMatrix.PostMultiply(_camera.ViewMatrix);
-                    var ctr_w = Vector3.Transform(ctr, modelView);
-                    var dist = Vector3.Distance(ctr_w, Vector3.Zero);
-
-                    //Console.WriteLine("DrawElement => {0}, Ctr = {1}, Dist = {2}", renderElement.Drawable.NameString, ctr, dist);
-                    
-                    // Add this to a map
-                    if (!drawOrderMap.TryGetValue(dist, out var renderList))
-                    {
-                        renderList = new List<Tuple<RenderGroupState, RenderGroupElement>>();
-                        drawOrderMap.Add(dist, renderList);
-                        
-                    }
-                    renderList.Add(Tuple.Create(state, renderElement));
-                }
-            }
-
-            var sortTime = _stopWatch.ElapsedMilliseconds;
-
-            var boundVertexBuffer = -1;
-            var boundIndexBuffer = -1;
-            
-            // Now draw transparent elements, back to front
-            RenderGroupState lastState = null;
-            foreach (var renderList in drawOrderMap.Reverse())
-            {
-                foreach (var element in renderList.Value)
-                {
-                    var state = element.Item1;
-
-                    if (null == lastState || state != lastState)
-                    {
-                        var ri = state.GetPipelineAndResources(device, factory, _resourceLayout);
-
-                        // Set this state's pipeline
-                        _commandList.SetPipeline(ri.Pipeline);
-
-                        // Set the resources
-                        _commandList.SetGraphicsResourceSet(0, _resourceSet);
-
-                        // Set state-local resources
-                        _commandList.SetGraphicsResourceSet(1, ri.ResourceSet);
-                        
-                        _commandList.UpdateBuffer(ri.ModelBuffer, 0, Matrix4x4.Identity);
-                    }
-
-                    var renderElement = element.Item2;
-
-                    if (boundVertexBuffer != renderElement.VertexBuffer.Item1)
-                    {
-                        // Set vertex buffer
-                        _commandList.SetVertexBuffer(0, renderElement.VertexBuffer.Item2);
-                        boundVertexBuffer = renderElement.VertexBuffer.Item1;     
-                    }
-
-                    if (boundIndexBuffer != renderElement.IndexBuffer.Item1)
-                    {
-                        // Set index buffer
-                        _commandList.SetIndexBuffer(renderElement.IndexBuffer.Item2, IndexFormat.UInt16);
-                        boundIndexBuffer = renderElement.IndexBuffer.Item1;
-                    }
-
-                    // Draw the drawable
-                    renderElement.Drawable.Draw(_commandList, renderElement.IndexBuffer.Item3, (int)renderElement.VertexBuffer.Item3);
-
-                    //Console.WriteLine("DrawElement => {0}", renderElement.Drawable.NameString);
-                    
-                    lastState = state;
-                }
-            }
-
-            var drawTime = _stopWatch.ElapsedMilliseconds;
-
-            _stopWatch.Stop();
-            
-            Console.WriteLine("SortTime = {0} ms, RecordTime = {1} ms.", sortTime, drawTime-sortTime);
+//            var curModelMatrix = Matrix4x4.Identity;
+//
+//            _stopWatch.Reset();
+//            _stopWatch.Start();
+//
+//            //
+//            // First sort the transparent render elements by distance to eye point (if not culled).
+//            //
+//            var drawOrderMap = new SortedList<float, List<Tuple<RenderGroupState, RenderGroupElement>>>();
+//            drawOrderMap.Capacity = _cullAndAssembleVisitor.RenderElementCount;
+//            var transparentRenderGroupStates = _cullAndAssembleVisitor.TransparentRenderGroup.GetStateList();
+//            foreach (var state in transparentRenderGroupStates)
+//            {
+//                var ri = state.GetPipelineAndResources(device, factory, _resourceLayout);
+//
+//                // Iterate over all drawables in this state
+//                foreach (var renderElement in state.Elements)
+//                {
+//                    // TODO - Question: can this be done on a separate thread?
+//                    if (IsCulled(renderElement.Drawable.GetBoundingBox(), renderElement.ModelMatrix)) continue;
+//
+//                    var ctr = renderElement.Drawable.GetBoundingBox().Center;
+//                    
+//                    // Compute distance eye point 
+//                    var modelView = renderElement.ModelMatrix.PostMultiply(_camera.ViewMatrix);
+//                    var ctr_w = Vector3.Transform(ctr, modelView);
+//                    var dist = Vector3.Distance(ctr_w, Vector3.Zero);
+//
+//                    //Console.WriteLine("DrawElement => {0}, Ctr = {1}, Dist = {2}", renderElement.Drawable.NameString, ctr, dist);
+//                    
+//                    // Add this to a map
+//                    if (!drawOrderMap.TryGetValue(dist, out var renderList))
+//                    {
+//                        renderList = new List<Tuple<RenderGroupState, RenderGroupElement>>();
+//                        drawOrderMap.Add(dist, renderList);
+//                        
+//                    }
+//                    renderList.Add(Tuple.Create(state, renderElement));
+//                }
+//            }
+//
+//            var sortTime = _stopWatch.ElapsedMilliseconds;
+//
+//            var boundVertexBuffer = -1;
+//            var boundIndexBuffer = -1;
+//            
+//            // Now draw transparent elements, back to front
+//            RenderGroupState lastState = null;
+//            foreach (var renderList in drawOrderMap.Reverse())
+//            {
+//                foreach (var element in renderList.Value)
+//                {
+//                    var state = element.Item1;
+//
+//                    if (null == lastState || state != lastState)
+//                    {
+//                        var ri = state.GetPipelineAndResources(device, factory, _resourceLayout);
+//
+//                        // Set this state's pipeline
+//                        _commandList.SetPipeline(ri.Pipeline);
+//
+//                        // Set the resources
+//                        _commandList.SetGraphicsResourceSet(0, _resourceSet);
+//
+//                        // Set state-local resources
+//                        _commandList.SetGraphicsResourceSet(1, ri.ResourceSet);
+//                        
+//                        _commandList.UpdateBuffer(ri.ModelBuffer, 0, Matrix4x4.Identity);
+//                    }
+//
+//                    var renderElement = element.Item2;
+//
+//                    if (boundVertexBuffer != renderElement.VertexBuffer.Item1)
+//                    {
+//                        // Set vertex buffer
+//                        _commandList.SetVertexBuffer(0, renderElement.VertexBuffer.Item2);
+//                        boundVertexBuffer = renderElement.VertexBuffer.Item1;     
+//                    }
+//
+//                    if (boundIndexBuffer != renderElement.IndexBuffer.Item1)
+//                    {
+//                        // Set index buffer
+//                        _commandList.SetIndexBuffer(renderElement.IndexBuffer.Item2, IndexFormat.UInt16);
+//                        boundIndexBuffer = renderElement.IndexBuffer.Item1;
+//                    }
+//
+//                    // Draw the drawable
+//                    renderElement.Drawable.Draw(_commandList, renderElement.IndexBuffer.Item3, (int)renderElement.VertexBuffer.Item3);
+//
+//                    //Console.WriteLine("DrawElement => {0}", renderElement.Drawable.NameString);
+//                    
+//                    lastState = state;
+//                }
+//            }
+//
+//            var drawTime = _stopWatch.ElapsedMilliseconds;
+//
+//            _stopWatch.Stop();
+//            
+//            Console.WriteLine("SortTime = {0} ms, RecordTime = {1} ms.", sortTime, drawTime-sortTime);
         }
         
         private bool IsCulled(BoundingBox bb, Matrix4x4 modelMatrix)

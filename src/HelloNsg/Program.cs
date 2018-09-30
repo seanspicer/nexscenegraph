@@ -82,6 +82,17 @@ namespace HelloNsg
             
             ushort[] quadIndices = { 0, 1, 2, 3 };
             geometry.IndexData = quadIndices;
+            
+            var pSet = new DrawElements<VertexPositionColor>(
+                geometry, 
+                PrimitiveTopology.TriangleStrip, 
+                (uint)quadIndices.Length, 
+                1, 
+                0, 
+                0, 
+                0);
+            
+            geometry.PrimitiveSets.Add(pSet);
 
             geometry.VertexLayout = new VertexLayoutDescription(
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float2),
@@ -101,7 +112,10 @@ namespace HelloNsg
                     "HelloShaders", ShaderStages.Fragment),
                 "FS");
                         
-            root.AddChild(geometry);
+            var geode = new Geode();
+            geode.Drawables.Add(geometry);
+            
+            root.AddChild(geode);
 
             viewer.SceneData = root;
 

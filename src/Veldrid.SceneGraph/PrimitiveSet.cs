@@ -24,7 +24,12 @@ namespace Veldrid.SceneGraph
 {
     public abstract class PrimitiveSet : Object
     {
-        public PrimitiveTopology PrimitiveTopology { get; set; } = PrimitiveTopology.TriangleStrip;
+        public PrimitiveTopology PrimitiveTopology { get; }
+
+        protected PrimitiveSet(PrimitiveTopology primitiveTopology)
+        {
+            PrimitiveTopology = primitiveTopology;
+        }
         
         public abstract void Draw(CommandList commandList);
 

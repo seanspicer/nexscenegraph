@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 
 namespace Veldrid.SceneGraph
 {
@@ -56,7 +57,7 @@ namespace Veldrid.SceneGraph
             get => null != _pipelineState;
         }
         
-        public void Draw(CommandList commandList)
+        public void Draw(GraphicsDevice device, List<Tuple<uint, ResourceSet>> resourceSets, CommandList commandList)
         {
             if (null != DrawImplementationCallback)
             {
@@ -64,12 +65,22 @@ namespace Veldrid.SceneGraph
             }
             else
             {
-                DrawImplementation(commandList);
+                DrawImplementation(device, resourceSets, commandList);
             }
         }
 
-        protected abstract void DrawImplementation(CommandList commandList);
-        
+        protected abstract void DrawImplementation(GraphicsDevice device, List<Tuple<uint, ResourceSet>> resourceSets, CommandList commandList);
+
+        public virtual void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory)
+        {
+            // Nothing by default
+        }
+
+        public virtual void ConfigurePipelinesForDevice(GraphicsDevice device, ResourceFactory factory,
+            ResourceLayout parentLayout)
+        {
+            // Nothing by default
+        }     
         
         public void DirtyBound()
         {

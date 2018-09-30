@@ -38,7 +38,7 @@ using Math = System.Math;
 
 namespace Veldrid.SceneGraph.Text
 {
-    internal struct VertexPositionTexture : IPrimitiveElement
+    public struct VertexPositionTexture : IPrimitiveElement
     {
         public const uint SizeInBytes = 20;
 
@@ -60,20 +60,11 @@ namespace Veldrid.SceneGraph.Text
         }
     }
     
-    public class TextNode : Drawable
+    public class TextNode : Geometry<VertexPositionTexture>
     {
         private Font Font { get; set; }
         public string Text { get; set; }
 
-        internal VertexPositionTexture[] VertexData { get; set; }
-        public int SizeOfVertexData => Marshal.SizeOf(default(VertexPositionTexture));
-        
-        public ushort[] IndexData { get; set; }
-
-        public VertexLayoutDescription VertexLayout { get; set; }
-
-        public PrimitiveTopology PrimitiveTopology { get; set; } = PrimitiveTopology.TriangleStrip;
-        
         public TextNode()
         {
             VertexData = new VertexPositionTexture[]
@@ -89,39 +80,24 @@ namespace Veldrid.SceneGraph.Text
             {
                 0, 1, 2, 0, 2, 3,
             };
+
+            var pSet = new DrawElements<VertexPositionTexture>(this, PrimitiveTopology.TriangleList, (uint)IndexData.Length, 1, 0, 0, 0);
+            PrimitiveSets.Add(pSet);
             
             VertexLayout = new VertexLayoutDescription(
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2));
-            
-            PrimitiveTopology = PrimitiveTopology.TriangleList;
 
             PipelineState.VertexShaderDescription = Texture2DShader.Instance.VertexShaderDescription;
             PipelineState.FragmentShaderDescription = Texture2DShader.Instance.FragmentShaderDescription;;
 
+            PipelineState.TextureList.Add(
+                new Texture2D(BuildTexture(),
+                    1,
+                    "SurfaceTexture", 
+                    "SurfaceSampler"));
+            
             PipelineState.BlendStateDescription = BlendStateDescription.SingleAlphaBlend;
-        }
-        
-        protected override void DrawImplementation(CommandList commandList)
-        {
-            // Issue a Draw command for a single instance.
-            commandList.DrawIndexed(
-                indexCount: (uint) IndexData.Length,
-                instanceCount: 1,
-                indexStart: 0,
-                vertexOffset: 0,
-                instanceStart: 0);
-        }
-
-        protected override BoundingBox ComputeBoundingBox()
-        {
-            var bb = new BoundingBox();
-            foreach (var elt in VertexData)
-            {
-                bb.ExpandBy(elt.VertexPosition);
-            }
-
-            return bb;
         }
 
         private uint NextPowerOfTwo(uint v)
