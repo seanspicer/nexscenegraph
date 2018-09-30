@@ -84,7 +84,7 @@ namespace MultiTexturedCube
             viewer.Run();
         }
 
-        static Drawable CreateCube()
+        static Geode CreateCube()
         {
             var geometry = new Geometry<VertexPositionTexture>();
 
@@ -141,7 +141,16 @@ namespace MultiTexturedCube
                 new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
             
-            geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;
+            var pSet = new DrawElements<VertexPositionTexture>(
+                geometry, 
+                PrimitiveTopology.TriangleList, 
+                (uint)geometry.IndexData.Length, 
+                1, 
+                0, 
+                0, 
+                0);
+            
+            geometry.PrimitiveSets.Add(pSet);
 
             geometry.PipelineState.VertexShaderDescription = new ShaderDescription(
                 ShaderStages.Vertex,
@@ -176,8 +185,10 @@ namespace MultiTexturedCube
                     "TreeTexture", 
                     "TreeSampler")
                 );
-                       
-            return geometry;
+
+            var geode = new Geode();
+            geode.Drawables.Add(geometry);
+            return geode;
         }
     }
 }

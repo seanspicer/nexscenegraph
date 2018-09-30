@@ -95,7 +95,7 @@ namespace ColoredCube
             viewer.Run();
         }
 
-        static Drawable CreateCube()
+        static Geode CreateCube()
         {
             var geometry = new Geometry<VertexPositionColor>();
 
@@ -157,9 +157,20 @@ namespace ColoredCube
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
             
-            geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;       
+            var pSet = new DrawElements<VertexPositionColor>(
+                geometry, 
+                PrimitiveTopology.TriangleList, 
+                (uint)geometry.IndexData.Length, 
+                1, 
+                0, 
+                0, 
+                0);
             
-            return geometry;
+            geometry.PrimitiveSets.Add(pSet);
+
+            var geode = new Geode();
+            geode.Drawables.Add(geometry);
+            return geode;
         }
         
         private static PipelineState CreateSharedState()

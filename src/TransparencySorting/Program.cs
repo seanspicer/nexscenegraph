@@ -102,9 +102,9 @@ namespace TransparencySorting
             viewer.Run();
         }
 
-        static Group CreateCube()
+        static Geode CreateCube()
         {
-            var faceGroup = new Group();
+            var geode = new Geode();
             
             var vertices = new List<VertexPositionColor>
             {
@@ -168,13 +168,22 @@ namespace TransparencySorting
                 // TODO -> this causes multiple render states
                 geometry.VertexLayout = vld;
         
-                geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;
-
-                faceGroup.AddChild(geometry);
+                var pSet = new DrawElements<VertexPositionColor>(
+                    geometry, 
+                    PrimitiveTopology.TriangleList, 
+                    (uint)geometry.IndexData.Length, 
+                    1, 
+                    0, 
+                    0, 
+                    0);
+            
+                geometry.PrimitiveSets.Add(pSet);
+                
+                geode.Drawables.Add(geometry);
 
             }
 
-            return faceGroup;
+            return geode;
         }
         
         

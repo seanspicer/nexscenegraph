@@ -81,7 +81,7 @@ namespace TexturedCube
             viewer.Run();
         }
 
-        static Drawable CreateCube()
+        static Geode CreateCube()
         {
             var geometry = new Geometry<VertexPositionTexture>();
 
@@ -129,7 +129,6 @@ namespace TexturedCube
                 20,21,22, 20,22,23,
             };
             
-
             geometry.VertexData = vertices;
             geometry.IndexData = indices;
 
@@ -137,7 +136,16 @@ namespace TexturedCube
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2));
             
-            geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;
+            var pSet = new DrawElements<VertexPositionTexture>(
+                geometry, 
+                PrimitiveTopology.TriangleList, 
+                (uint)geometry.IndexData.Length, 
+                1, 
+                0, 
+                0, 
+                0);
+            
+            geometry.PrimitiveSets.Add(pSet);
 
             geometry.PipelineState.VertexShaderDescription = Texture2DShader.Instance.VertexShaderDescription;
             geometry.PipelineState.FragmentShaderDescription = Texture2DShader.Instance.FragmentShaderDescription;
@@ -150,8 +158,11 @@ namespace TexturedCube
                 1,
                 "SurfaceTexture", 
                 "SurfaceSampler"));
-                          
-            return geometry;
+
+            var geode = new Geode();
+            geode.Drawables.Add(geometry);
+
+            return geode;
         }
     }
 }
