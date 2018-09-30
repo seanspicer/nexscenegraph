@@ -135,10 +135,11 @@ namespace TexturedCube
             geometry.VertexLayout = new VertexLayoutDescription(
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2));
+
+            geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;
             
             var pSet = new DrawElements<VertexPositionTexture>(
                 geometry, 
-                PrimitiveTopology.TriangleList, 
                 (uint)geometry.IndexData.Length, 
                 1, 
                 0, 

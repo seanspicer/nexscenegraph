@@ -70,13 +70,14 @@ namespace TransparencySorting
             var root = new Group();
             
             var scale_xform = new MatrixTransform();
-            scale_xform.Matrix = Matrix4x4.CreateScale(0.075f);
+            scale_xform.Matrix = Matrix4x4.CreateScale(0.15f);
+            //scale_xform.Matrix = Matrix4x4.CreateScale(0.25f);
             
             var cube = CreateCube();
             scale_xform.AddChild(cube);
             //root.AddChild(scale_xform);
             
-            var gridSize = 5;
+            var gridSize = 2;
             var transF = 1.0f / gridSize;
             for (var i = -gridSize; i <= gridSize; ++i)
             {
@@ -91,7 +92,6 @@ namespace TransparencySorting
                         xform.AddChild(scale_xform);
                         root.AddChild(xform);
                     }
-
                 }
             }
 
@@ -167,10 +167,11 @@ namespace TransparencySorting
 
                 // TODO -> this causes multiple render states
                 geometry.VertexLayout = vld;
+
+                geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;
         
                 var pSet = new DrawElements<VertexPositionColor>(
                     geometry, 
-                    PrimitiveTopology.TriangleList, 
                     (uint)geometry.IndexData.Length, 
                     1, 
                     0, 

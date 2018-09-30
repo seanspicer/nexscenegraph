@@ -34,8 +34,8 @@ namespace Veldrid.SceneGraph
 
         private readonly Geometry<T> _geometry;
 
-        public DrawElements(Geometry<T> geometry, PrimitiveTopology primitiveTopology, uint indexCount, uint instanceCount, uint indexStart, int vertexOffset, uint instanceStart)
-            : base(primitiveTopology) 
+        public DrawElements(Geometry<T> geometry, uint indexCount, uint instanceCount, uint indexStart, int vertexOffset, uint instanceStart)
+            : base(geometry) 
         {
             _geometry = geometry;
             _indexCount    = indexCount;
@@ -60,7 +60,8 @@ namespace Veldrid.SceneGraph
             var bb = new BoundingBox();
             for(var idx = _indexStart; idx < (_indexStart+_indexCount); ++idx)
             {
-                bb.ExpandBy(_geometry.VertexData[idx].VertexPosition);
+                bb.ExpandBy(_geometry.VertexData[_geometry.IndexData[idx]].VertexPosition);
+                Console.WriteLine("vtx = {0}", _geometry.VertexData[_geometry.IndexData[idx]].VertexPosition);
             }
 
             return bb;

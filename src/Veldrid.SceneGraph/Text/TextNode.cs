@@ -81,7 +81,9 @@ namespace Veldrid.SceneGraph.Text
                 0, 1, 2, 0, 2, 3,
             };
 
-            var pSet = new DrawElements<VertexPositionTexture>(this, PrimitiveTopology.TriangleList, (uint)IndexData.Length, 1, 0, 0, 0);
+            PrimitiveTopology = PrimitiveTopology.TriangleList;
+            
+            var pSet = new DrawElements<VertexPositionTexture>(this, (uint)IndexData.Length, 1, 0, 0, 0);
             PrimitiveSets.Add(pSet);
             
             VertexLayout = new VertexLayoutDescription(

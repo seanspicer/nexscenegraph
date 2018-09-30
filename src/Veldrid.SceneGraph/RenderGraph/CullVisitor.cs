@@ -34,13 +34,10 @@ using Veldrid.Utilities;
 
 namespace Veldrid.SceneGraph.RenderGraph
 {
-    public class CullAndAssembleVisitor : NodeVisitor
+    public class CullVisitor : NodeVisitor
     {
         public RenderGroup OpaqueRenderGroup { get; set; } = new RenderGroup();
         public RenderGroup TransparentRenderGroup { get; set; } = new RenderGroup();
-        
-        public List<Drawable> OpaqueDrawables { get; set; } = new List<Drawable>();
-        public List<Drawable> TransparentDrawables { get; set; } = new List<Drawable>();
 
         public GraphicsDevice GraphicsDevice { get; set; } = null;
         public ResourceFactory ResourceFactory { get; set; } = null;
@@ -63,9 +60,8 @@ namespace Veldrid.SceneGraph.RenderGraph
         private Polytope CullingFrustum { get; set; } = new Polytope();
 
         public int RenderElementCount { get; private set; } = 0;
-        //private HashSet<RenderGroupState> PipelineCache { get; set; } = new HashSet<RenderGroupState>();
 
-        public CullAndAssembleVisitor() : 
+        public CullVisitor() : 
             base(VisitorType.CullAndAssembleVisitor, TraversalModeType.TraverseActiveChildren)
         {
             ModelMatrixStack.Push(Matrix4x4.Identity);
@@ -93,7 +89,14 @@ namespace Veldrid.SceneGraph.RenderGraph
         
         public void SetCullingViewProjectionMatrix(Matrix4x4 vp)
         {
-            CullingFrustum.SetToViewProjectionFrustum(vp, false, false);
+            CullingFrustum.VPMatrix = vp;
+        }
+        
+        private bool IsCulled(BoundingBox bb, Matrix4x4 modelMatrix)
+        {
+            var culled = !CullingFrustum.Contains(bb, modelMatrix);
+
+            return culled;
         }
 
         public override void Apply(Node node)
@@ -127,6 +130,9 @@ namespace Veldrid.SceneGraph.RenderGraph
 
         public override void Apply(Geode geode)
         {
+            var bb = geode.GetBoundingBox();
+            if (IsCulled(bb, ModelMatrixStack.Peek())) return;
+            
             PipelineState pso = null;
 
             // Node specific state
@@ -149,6 +155,14 @@ namespace Veldrid.SceneGraph.RenderGraph
 
             foreach (var drawable in geode.Drawables)
             {
+                if (IsCulled(drawable.GetBoundingBox(), ModelMatrixStack.Peek())) continue;
+                
+                var drawablePso = pso;
+                if (drawable.HasPipelineState)
+                {
+                    drawablePso = drawable.PipelineState;
+                }
+
                 drawable.ConfigureDeviceBuffers(GraphicsDevice, ResourceFactory);
                 
                 //            
@@ -157,12 +171,32 @@ namespace Veldrid.SceneGraph.RenderGraph
                 RenderGroupState renderGroupState = null;
                 if (pso.BlendStateDescription.AttachmentStates.Contains(BlendAttachmentDescription.AlphaBlend))
                 {
-                    TransparentDrawables.Add(drawable);
+                    renderGroupState = TransparentRenderGroup.GetOrCreateState(drawablePso, drawable.PrimitiveTopology, drawable.VertexLayout);
                 }
                 else
                 {
-                    OpaqueDrawables.Add(drawable);
+                    renderGroupState = OpaqueRenderGroup.GetOrCreateState(drawablePso, drawable.PrimitiveTopology, drawable.VertexLayout);
                 }
+
+                var visiblePrimitiveSets = new List<PrimitiveSet>();
+                foreach (var pset in drawable.PrimitiveSets)
+                {
+                    if (IsCulled(pset.GetBoundingBox(), ModelMatrixStack.Peek())) continue;
+                    
+                    visiblePrimitiveSets.Add(pset);
+                }
+                
+                var renderElement = new RenderGroupElement()
+                {
+                    ModelMatrix = ModelMatrixStack.Peek(),
+                    VertexBuffer = drawable.GetVertexBufferForDevice(GraphicsDevice),
+                    IndexBuffer = drawable.GetIndexBufferForDevice(GraphicsDevice),
+                    
+                    
+                    PrimitiveSets = visiblePrimitiveSets
+                };
+                
+                renderGroupState.Elements.Add(renderElement);
             }
         }
     }

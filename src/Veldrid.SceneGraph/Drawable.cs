@@ -42,6 +42,12 @@ namespace Veldrid.SceneGraph
             }
         } 
         
+        public PrimitiveTopology PrimitiveTopology { get; set; }
+        
+        public VertexLayoutDescription VertexLayout { get; set; }
+        
+        public List<PrimitiveSet> PrimitiveSets { get; } = new List<PrimitiveSet>();
+        
         public event Func<Drawable, BoundingBox> ComputeBoundingBoxCallback;
         public event Action<CommandList, Drawable> DrawImplementationCallback;
 
@@ -114,5 +120,11 @@ namespace Veldrid.SceneGraph
         }
 
         protected abstract BoundingBox ComputeBoundingBox();
+
+        public abstract DeviceBuffer GetVertexBufferForDevice(GraphicsDevice device);
+
+        public abstract DeviceBuffer GetIndexBufferForDevice(GraphicsDevice device);
+
+
     }
 }

@@ -20,15 +20,65 @@
 // SOFTWARE.
 //
 
+using System;
+
 namespace Veldrid.SceneGraph
 {
     public abstract class PrimitiveSet : Object
     {
-        public PrimitiveTopology PrimitiveTopology { get; }
-
-        protected PrimitiveSet(PrimitiveTopology primitiveTopology)
+        protected bool _boundingSphereComputed = false;
+        protected BoundingSphere _boundingSphere = new BoundingSphere();
+        
+        protected BoundingBox _boundingBox;
+        protected BoundingBox _initialBoundingBox = new BoundingBox();
+        public BoundingBox InitialBoundingBox
         {
-            PrimitiveTopology = primitiveTopology;
+            get => _initialBoundingBox;
+            set
+            {
+                _initialBoundingBox = value;
+                DirtyBound();
+            }
+        } 
+        
+        public event Func<PrimitiveSet, BoundingBox> ComputeBoundingBoxCallback;
+        
+        public Drawable Drawable { get; }
+
+        protected PrimitiveSet(Drawable drawable)
+        {
+            Drawable = drawable;
+        }
+        
+        public void DirtyBound()
+        {
+            if (!_boundingSphereComputed) return;
+            
+            _boundingSphereComputed = false;
+        }
+        
+        public BoundingBox GetBoundingBox()
+        {
+            if (_boundingSphereComputed) return _boundingBox;
+            
+            _boundingBox = _initialBoundingBox;
+
+            _boundingBox.ExpandBy(null != ComputeBoundingBoxCallback
+                ? ComputeBoundingBoxCallback(this)
+                : ComputeBoundingBox());
+
+            if (_boundingBox.Valid())
+            {
+                _boundingSphere.Set(_boundingBox.Center, _boundingBox.Radius);
+            }
+            else
+            {
+                _boundingSphere.Init();
+            }
+
+            _boundingSphereComputed = true;
+
+            return _boundingBox;
         }
         
         public abstract void Draw(CommandList commandList);

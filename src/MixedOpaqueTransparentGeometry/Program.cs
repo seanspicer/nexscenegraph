@@ -192,10 +192,11 @@ public struct VertexPositionColor : IPrimitiveElement
 
                 // TODO -> this causes multiple render states
                 geometry.VertexLayout = vld;
-        
+
+                geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;
+                
                 var pSet = new DrawElements<VertexPositionColor>(
                     geometry, 
-                    PrimitiveTopology.TriangleList, 
                     (uint)geometry.IndexData.Length, 
                     1, 
                     0, 
@@ -272,10 +273,11 @@ public struct VertexPositionColor : IPrimitiveElement
             geometry.VertexLayout = new VertexLayoutDescription(
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
+
+            geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;
             
             var pSet = new DrawElements<VertexPositionColor>(
                 geometry, 
-                PrimitiveTopology.TriangleList, 
                 (uint)geometry.IndexData.Length, 
                 1, 
                 0, 

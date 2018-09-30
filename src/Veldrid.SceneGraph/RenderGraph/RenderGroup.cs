@@ -29,12 +29,10 @@ namespace Veldrid.SceneGraph.RenderGraph
 {
     public class RenderGroupElement
     {
-        public Drawable Drawable;
+        public List<PrimitiveSet> PrimitiveSets;
         public Matrix4x4 ModelMatrix;
-        
-        // TODO - do these really belong here?
-        public Tuple<int, DeviceBuffer, uint> VertexBuffer { get; set; }
-        public Tuple<int, DeviceBuffer, uint> IndexBuffer { get; set; }
+        public DeviceBuffer VertexBuffer;
+        public DeviceBuffer IndexBuffer;
     }
     
     public class RenderGroup
