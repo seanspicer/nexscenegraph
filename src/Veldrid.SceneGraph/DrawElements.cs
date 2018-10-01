@@ -34,8 +34,8 @@ namespace Veldrid.SceneGraph
 
         private readonly Geometry<T> _geometry;
 
-        public DrawElements(Geometry<T> geometry, uint indexCount, uint instanceCount, uint indexStart, int vertexOffset, uint instanceStart)
-            : base(geometry) 
+        public DrawElements(Geometry<T> geometry, PrimitiveTopology primitiveTopology, uint indexCount, uint instanceCount, uint indexStart, int vertexOffset, uint instanceStart)
+            : base(geometry, primitiveTopology) 
         {
             _geometry = geometry;
             _indexCount    = indexCount;

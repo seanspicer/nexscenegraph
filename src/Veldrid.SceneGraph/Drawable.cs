@@ -40,9 +40,7 @@ namespace Veldrid.SceneGraph
                 _initialBoundingBox = value;
                 DirtyBound();
             }
-        } 
-        
-        public PrimitiveTopology PrimitiveTopology { get; set; }
+        }
         
         public VertexLayoutDescription VertexLayout { get; set; }
         

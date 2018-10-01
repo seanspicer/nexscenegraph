@@ -163,40 +163,45 @@ namespace Veldrid.SceneGraph.RenderGraph
                     drawablePso = drawable.PipelineState;
                 }
 
+                //
+                // This allocates / updates vbo/ibos
+                //
                 drawable.ConfigureDeviceBuffers(GraphicsDevice, ResourceFactory);
-                
-                //            
-                // Sort into appropriate render group
-                // 
-                RenderGroupState renderGroupState = null;
-                if (pso.BlendStateDescription.AttachmentStates.Contains(BlendAttachmentDescription.AlphaBlend))
-                {
-                    renderGroupState = TransparentRenderGroup.GetOrCreateState(drawablePso, drawable.PrimitiveTopology, drawable.VertexLayout);
-                }
-                else
-                {
-                    renderGroupState = OpaqueRenderGroup.GetOrCreateState(drawablePso, drawable.PrimitiveTopology, drawable.VertexLayout);
-                }
 
-                var visiblePrimitiveSets = new List<PrimitiveSet>();
+                var renderElementCache = new Dictionary<RenderGroupState, RenderGroupElement>();
+                
                 foreach (var pset in drawable.PrimitiveSets)
                 {
                     if (IsCulled(pset.GetBoundingBox(), ModelMatrixStack.Peek())) continue;
                     
-                    visiblePrimitiveSets.Add(pset);
+                    //            
+                    // Sort into appropriate render group
+                    // 
+                    RenderGroupState renderGroupState = null;
+                    if (drawablePso.BlendStateDescription.AttachmentStates.Contains(BlendAttachmentDescription.AlphaBlend))
+                    {
+                        renderGroupState = TransparentRenderGroup.GetOrCreateState(drawablePso, pset.PrimitiveTopology, drawable.VertexLayout);
+                    }
+                    else
+                    {
+                        renderGroupState = OpaqueRenderGroup.GetOrCreateState(drawablePso, pset.PrimitiveTopology, drawable.VertexLayout);
+                    }
+
+                    if (false == renderElementCache.TryGetValue(renderGroupState, out var renderElement))
+                    {
+                        renderElement = new RenderGroupElement()
+                        {
+                            ModelMatrix = ModelMatrixStack.Peek(),
+                            VertexBuffer = drawable.GetVertexBufferForDevice(GraphicsDevice),
+                            IndexBuffer = drawable.GetIndexBufferForDevice(GraphicsDevice),
+                            PrimitiveSets = new List<PrimitiveSet>()
+                        };
+                        renderGroupState.Elements.Add(renderElement);
+                        
+                        renderElementCache.Add(renderGroupState, renderElement);
+                    }
+                    renderElement.PrimitiveSets.Add(pset);
                 }
-                
-                var renderElement = new RenderGroupElement()
-                {
-                    ModelMatrix = ModelMatrixStack.Peek(),
-                    VertexBuffer = drawable.GetVertexBufferForDevice(GraphicsDevice),
-                    IndexBuffer = drawable.GetIndexBufferForDevice(GraphicsDevice),
-                    
-                    
-                    PrimitiveSets = visiblePrimitiveSets
-                };
-                
-                renderGroupState.Elements.Add(renderElement);
             }
         }
     }

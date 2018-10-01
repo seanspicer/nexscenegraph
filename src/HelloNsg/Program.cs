@@ -85,6 +85,7 @@ namespace HelloNsg
             
             var pSet = new DrawElements<VertexPositionColor>(
                 geometry, 
+                PrimitiveTopology.TriangleStrip,
                 (uint)quadIndices.Length, 
                 1, 
                 0, 
@@ -92,7 +93,7 @@ namespace HelloNsg
                 0);
             
             geometry.PrimitiveSets.Add(pSet);
-            geometry.PrimitiveTopology = PrimitiveTopology.TriangleStrip;
+            geometry.PrimitiveSets.Add(pSet);
 
             geometry.VertexLayout = new VertexLayoutDescription(
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float2),

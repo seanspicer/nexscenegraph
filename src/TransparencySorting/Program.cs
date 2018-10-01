@@ -168,10 +168,9 @@ namespace TransparencySorting
                 // TODO -> this causes multiple render states
                 geometry.VertexLayout = vld;
 
-                geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;
-        
                 var pSet = new DrawElements<VertexPositionColor>(
                     geometry, 
+                    PrimitiveTopology.TriangleList, 
                     (uint)geometry.IndexData.Length, 
                     1, 
                     0, 
@@ -181,7 +180,6 @@ namespace TransparencySorting
                 geometry.PrimitiveSets.Add(pSet);
                 
                 geode.Drawables.Add(geometry);
-
             }
 
             return geode;

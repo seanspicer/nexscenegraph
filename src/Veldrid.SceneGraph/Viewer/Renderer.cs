@@ -136,8 +136,7 @@ namespace Veldrid.SceneGraph.Viewer
             // Draw Opaque Geometry
             // 
             DrawOpaqueRenderGroups(device, factory);
-            
-            
+
             // 
             // Draw Transparent Geometry
             //

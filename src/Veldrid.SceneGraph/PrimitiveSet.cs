@@ -45,8 +45,12 @@ namespace Veldrid.SceneGraph
         
         public Drawable Drawable { get; }
 
-        protected PrimitiveSet(Drawable drawable)
+        
+        public PrimitiveTopology PrimitiveTopology { get; set; }
+        
+        protected PrimitiveSet(Drawable drawable, PrimitiveTopology primitiveTopology)
         {
+            PrimitiveTopology = primitiveTopology;
             Drawable = drawable;
         }
         
