@@ -129,10 +129,6 @@ namespace TransparencySorting
 
             var faces = new int[] {0, 1, 2, 3, 4, 5};
             
-            var vld = new VertexLayoutDescription(
-                new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
-                new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
-            
             var scaleMatrix = Matrix4x4.CreateScale(0.15f);
 
             var sceneVertices = new List<VertexPositionColor>();
@@ -150,31 +146,36 @@ namespace TransparencySorting
                     {
                         var transMatrix = Matrix4x4.CreateTranslation(transF * i, transF * j, transF * k);
 
-                        var cumMat = transMatrix.PostMultiply(scaleMatrix);
+                        var cumMat = scaleMatrix.PostMultiply(transMatrix);
 
-                        var curSceneIdx = (uint) sceneIndices.Count();
+                        var curSceneIdx = (uint) sceneVertices.Count();
+                        var drawElementStart = (uint) sceneIndices.Count();
+
+                        // Transform vertices and record
+                        foreach (var vtx in vertices)
+                        {
+                            var tmp = vtx;
+                            tmp.Position = Vector3.Transform(vtx.Position, cumMat);
+                            sceneVertices.Add(tmp);
+                        }
                         
                         foreach (var f in faces)
                         {
-                            var start = 6 * f;
+                            var start = (6 * f);
                             var faceIndices = indices.GetRange(start, 6);
 
                             foreach (var idx in faceIndices)
                             {
                                 sceneIndices.Add((ushort)(curSceneIdx+idx));
-                                
-                                var vtx = vertices[idx];
-                                vtx.Position = Vector3.Transform(vtx.Position, cumMat);
-                                sceneVertices.Add(vtx);
                             }
-
+                            
                             var drawElements =
                                 new DrawElements<VertexPositionColor>(
                                     geometry,
                                     PrimitiveTopology.TriangleList,
                                     6,
                                     1,
-                                    curSceneIdx,
+                                    drawElementStart + (uint) start,
                                     0,
                                     0);
                             
@@ -187,7 +188,10 @@ namespace TransparencySorting
             
             geometry.VertexData = sceneVertices.ToArray();
             geometry.IndexData = sceneIndices.ToArray();
-
+            geometry.VertexLayout = new VertexLayoutDescription(
+                new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
+                new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
+            
             geode.Drawables.Add(geometry);
 
             return geode;
