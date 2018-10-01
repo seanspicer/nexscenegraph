@@ -61,7 +61,6 @@ namespace Veldrid.SceneGraph
             for(var idx = _indexStart; idx < (_indexStart+_indexCount); ++idx)
             {
                 bb.ExpandBy(_geometry.VertexData[_geometry.IndexData[idx]].VertexPosition);
-                Console.WriteLine("vtx = {0}", _geometry.VertexData[_geometry.IndexData[idx]].VertexPosition);
             }
 
             return bb;

@@ -136,7 +136,7 @@ namespace TransparencySorting
             
             var geometry = new Geometry<VertexPositionColor>();
             
-            var gridSize = 2;
+            var gridSize = 3;
             var transF = 1.0f / gridSize;
             for (var i = -gridSize; i <= gridSize; ++i)
             {

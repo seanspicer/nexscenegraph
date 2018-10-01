@@ -156,6 +156,7 @@ namespace Veldrid.SceneGraph.Viewer
 
         private void DrawOpaqueRenderGroups(GraphicsDevice device, ResourceFactory factory)
         {
+            var currModelMatrix = Matrix4x4.Identity;
             foreach (var state in _cullVisitor.OpaqueRenderGroup.GetStateList())
             {
                 var ri = state.GetPipelineAndResources(device, factory, _resourceLayout);
@@ -173,8 +174,12 @@ namespace Veldrid.SceneGraph.Viewer
                     _commandList.SetGraphicsResourceSet(1, ri.ResourceSet);
                     
                     // TODO Optimize with uniform buffer later on
-                    _commandList.UpdateBuffer(ri.ModelBuffer, 0, element.ModelMatrix);
-
+                    if (element.ModelMatrix != currModelMatrix)
+                    {
+                        _commandList.UpdateBuffer(ri.ModelBuffer, 0, element.ModelMatrix);
+                        currModelMatrix = element.ModelMatrix;
+                    }
+                    
                     foreach (var primitiveSet in element.PrimitiveSets)
                     {
                         primitiveSet.Draw(_commandList);
@@ -223,6 +228,9 @@ namespace Veldrid.SceneGraph.Viewer
             // Now draw transparent elements, back to front
             RenderGroupState lastState = null;
             RenderGroupState.RenderInfo ri = null;
+
+            var currModelMatrix = Matrix4x4.Identity;
+            
             foreach (var renderList in drawOrderMap.Reverse())
             {
                 foreach (var element in renderList.Value)
@@ -243,7 +251,12 @@ namespace Veldrid.SceneGraph.Viewer
                         _commandList.SetGraphicsResourceSet(1, ri.ResourceSet);
                     }
 
-                    _commandList.UpdateBuffer(ri.ModelBuffer, 0, element.Item2.ModelMatrix);
+                    if (element.Item2.ModelMatrix != currModelMatrix)
+                    {
+                        _commandList.UpdateBuffer(ri.ModelBuffer, 0, element.Item2.ModelMatrix);
+                        currModelMatrix = element.Item2.ModelMatrix;
+                    }
+                    
                     
                     var renderGroupElement = element.Item2;
 
