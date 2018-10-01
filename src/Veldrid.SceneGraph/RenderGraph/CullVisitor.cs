@@ -80,8 +80,8 @@ namespace Veldrid.SceneGraph.RenderGraph
             _currVertexBufferIndex = 0;
             _currIndexBufferOffset = 0;
             
-            OpaqueRenderGroup.Clear();
-            TransparentRenderGroup.Clear();
+            OpaqueRenderGroup.Reset();
+            TransparentRenderGroup.Reset();
             
             RenderElementCount = 0;
             

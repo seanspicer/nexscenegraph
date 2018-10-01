@@ -49,13 +49,12 @@ namespace Veldrid.SceneGraph.RenderGraph
             RenderGroupStateCache = new Dictionary<Tuple<PipelineState, PrimitiveTopology, VertexLayoutDescription>, RenderGroupState>();
         }
 
-        public void Clear()
+        public void Reset()
         {
             foreach (var rgs in RenderGroupStateCache.Values)
             {
-                rgs.ReleaseUnmanagedResources();
+                rgs.Elements.Clear();
             }
-            RenderGroupStateCache.Clear();
         }
         
         public IEnumerable<RenderGroupState> GetStateList()
