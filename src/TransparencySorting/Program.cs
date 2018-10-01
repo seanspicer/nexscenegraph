@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using ShaderGen;
 using SharpDX.Mathematics.Interop;
@@ -68,32 +69,8 @@ namespace TransparencySorting
             viewer.View.CameraManipulator = new TrackballManipulator();
 
             var root = new Group();
-            
-            var scale_xform = new MatrixTransform();
-            scale_xform.Matrix = Matrix4x4.CreateScale(0.15f);
-            //scale_xform.Matrix = Matrix4x4.CreateScale(0.25f);
-            
-            var cube = CreateCube();
-            scale_xform.AddChild(cube);
-            //root.AddChild(scale_xform);
-            
-            var gridSize = 2;
-            var transF = 1.0f / gridSize;
-            for (var i = -gridSize; i <= gridSize; ++i)
-            {
-                for (var j = -gridSize; j <= gridSize; ++j)
-                {
-                    for (var k = -gridSize; k <= gridSize; ++k)
-                    {
-                        var xform = new MatrixTransform
-                        {
-                            Matrix = Matrix4x4.CreateTranslation(transF * i, transF * j, transF * k)
-                        };
-                        xform.AddChild(scale_xform);
-                        root.AddChild(xform);
-                    }
-                }
-            }
+
+            root.AddChild(CreateCube());
 
             root.PipelineState = CreateSharedState();
             
@@ -156,31 +133,62 @@ namespace TransparencySorting
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
             
-            foreach(var f in faces)
-            {
-                var start = 6 * f;
+            var scaleMatrix = Matrix4x4.CreateScale(0.15f);
 
-                var geometry = new Geometry<VertexPositionColor>();
-                
-                geometry.VertexData = vertices.ToArray();
-                geometry.IndexData = indices.GetRange(start, 6).ToArray();
-
-                // TODO -> this causes multiple render states
-                geometry.VertexLayout = vld;
-
-                var pSet = new DrawElements<VertexPositionColor>(
-                    geometry, 
-                    PrimitiveTopology.TriangleList, 
-                    (uint)geometry.IndexData.Length, 
-                    1, 
-                    0, 
-                    0, 
-                    0);
+            var sceneVertices = new List<VertexPositionColor>();
+            var sceneIndices = new List<ushort>();
             
-                geometry.PrimitiveSets.Add(pSet);
-                
-                geode.Drawables.Add(geometry);
+            var geometry = new Geometry<VertexPositionColor>();
+            
+            var gridSize = 2;
+            var transF = 1.0f / gridSize;
+            for (var i = -gridSize; i <= gridSize; ++i)
+            {
+                for (var j = -gridSize; j <= gridSize; ++j)
+                {
+                    for (var k = -gridSize; k <= gridSize; ++k)
+                    {
+                        var transMatrix = Matrix4x4.CreateTranslation(transF * i, transF * j, transF * k);
+
+                        var cumMat = transMatrix.PostMultiply(scaleMatrix);
+
+                        var curSceneIdx = (uint) sceneIndices.Count();
+                        
+                        foreach (var f in faces)
+                        {
+                            var start = 6 * f;
+                            var faceIndices = indices.GetRange(start, 6);
+
+                            foreach (var idx in faceIndices)
+                            {
+                                sceneIndices.Add((ushort)(curSceneIdx+idx));
+                                
+                                var vtx = vertices[idx];
+                                vtx.Position = Vector3.Transform(vtx.Position, cumMat);
+                                sceneVertices.Add(vtx);
+                            }
+
+                            var drawElements =
+                                new DrawElements<VertexPositionColor>(
+                                    geometry,
+                                    PrimitiveTopology.TriangleList,
+                                    6,
+                                    1,
+                                    curSceneIdx,
+                                    0,
+                                    0);
+                            
+                            geometry.PrimitiveSets.Add(drawElements);
+
+                        }
+                    }
+                }
             }
+            
+            geometry.VertexData = sceneVertices.ToArray();
+            geometry.IndexData = sceneIndices.ToArray();
+
+            geode.Drawables.Add(geometry);
 
             return geode;
         }
