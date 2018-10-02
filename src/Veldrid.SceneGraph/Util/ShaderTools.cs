@@ -75,7 +75,7 @@ namespace Veldrid.SceneGraph.Util
                 : (backendType == GraphicsBackend.Vulkan)
                     ? "450.glsl.spv"
                     : (backendType == GraphicsBackend.Metal)
-					    ? isMacOS ? "metallib" : "ios.metallib"
+					    ? isMacOS ? "metal" : "ios.metallib"
                         : (backendType == GraphicsBackend.OpenGL)
                             ? "330.glsl"
                             : "300.glsles";

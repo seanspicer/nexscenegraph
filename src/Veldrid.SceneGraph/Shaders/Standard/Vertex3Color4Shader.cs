@@ -14,11 +14,11 @@ namespace Veldrid.SceneGraph.Shaders.Standard
         
         private Vertex3Color4Shader()
         {
-            var vertexShaderBytes = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+            var vertexShaderBytes = ShaderTools.LoadShaderBytes(DisplaySettings.Instance.GraphicsBackend,
                 typeof(Vertex3Color4Shader).Assembly,
                 "Vertex3Color4ShaderSource", ShaderStages.Vertex);
             
-            var fragmentShaderBytes = ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+            var fragmentShaderBytes = ShaderTools.LoadShaderBytes(DisplaySettings.Instance.GraphicsBackend,
                 typeof(Vertex3Color4Shader).Assembly,
                 "Vertex3Color4ShaderSource", ShaderStages.Fragment);
             

@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using ShaderGen;
 using SharpDX.Mathematics.Interop;
@@ -68,32 +69,8 @@ namespace TransparencySorting
             viewer.View.CameraManipulator = new TrackballManipulator();
 
             var root = new Group();
-            
-            var scale_xform = new MatrixTransform();
-            scale_xform.Matrix = Matrix4x4.CreateScale(0.075f);
-            
-            var cube = CreateCube();
-            scale_xform.AddChild(cube);
-            //root.AddChild(scale_xform);
-            
-            var gridSize = 5;
-            var transF = 1.0f / gridSize;
-            for (var i = -gridSize; i <= gridSize; ++i)
-            {
-                for (var j = -gridSize; j <= gridSize; ++j)
-                {
-                    for (var k = -gridSize; k <= gridSize; ++k)
-                    {
-                        var xform = new MatrixTransform
-                        {
-                            Matrix = Matrix4x4.CreateTranslation(transF * i, transF * j, transF * k)
-                        };
-                        xform.AddChild(scale_xform);
-                        root.AddChild(xform);
-                    }
 
-                }
-            }
+            root.AddChild(CreateCube());
 
             root.PipelineState = CreateSharedState();
             
@@ -102,9 +79,9 @@ namespace TransparencySorting
             viewer.Run();
         }
 
-        static Group CreateCube()
+        static Geode CreateCube()
         {
-            var faceGroup = new Group();
+            var geode = new Geode();
             
             var vertices = new List<VertexPositionColor>
             {
@@ -152,29 +129,72 @@ namespace TransparencySorting
 
             var faces = new int[] {0, 1, 2, 3, 4, 5};
             
-            var vld = new VertexLayoutDescription(
+            var scaleMatrix = Matrix4x4.CreateScale(0.15f);
+
+            var sceneVertices = new List<VertexPositionColor>();
+            var sceneIndices = new List<ushort>();
+            
+            var geometry = new Geometry<VertexPositionColor>();
+            
+            var gridSize = 3;
+            var transF = 1.0f / gridSize;
+            for (var i = -gridSize; i <= gridSize; ++i)
+            {
+                for (var j = -gridSize; j <= gridSize; ++j)
+                {
+                    for (var k = -gridSize; k <= gridSize; ++k)
+                    {
+                        var transMatrix = Matrix4x4.CreateTranslation(transF * i, transF * j, transF * k);
+
+                        var cumMat = scaleMatrix.PostMultiply(transMatrix);
+
+                        var curSceneIdx = (uint) sceneVertices.Count();
+                        var drawElementStart = (uint) sceneIndices.Count();
+
+                        // Transform vertices and record
+                        foreach (var vtx in vertices)
+                        {
+                            var tmp = vtx;
+                            tmp.Position = Vector3.Transform(vtx.Position, cumMat);
+                            sceneVertices.Add(tmp);
+                        }
+                        
+                        foreach (var f in faces)
+                        {
+                            var start = (6 * f);
+                            var faceIndices = indices.GetRange(start, 6);
+
+                            foreach (var idx in faceIndices)
+                            {
+                                sceneIndices.Add((ushort)(curSceneIdx+idx));
+                            }
+                            
+                            var drawElements =
+                                new DrawElements<VertexPositionColor>(
+                                    geometry,
+                                    PrimitiveTopology.TriangleList,
+                                    6,
+                                    1,
+                                    drawElementStart + (uint) start,
+                                    0,
+                                    0);
+                            
+                            geometry.PrimitiveSets.Add(drawElements);
+
+                        }
+                    }
+                }
+            }
+            
+            geometry.VertexData = sceneVertices.ToArray();
+            geometry.IndexData = sceneIndices.ToArray();
+            geometry.VertexLayout = new VertexLayoutDescription(
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
             
-            foreach(var f in faces)
-            {
-                var start = 6 * f;
+            geode.Drawables.Add(geometry);
 
-                var geometry = new Geometry<VertexPositionColor>();
-                
-                geometry.VertexData = vertices.ToArray();
-                geometry.IndexData = indices.GetRange(start, 6).ToArray();
-
-                // TODO -> this causes multiple render states
-                geometry.VertexLayout = vld;
-        
-                geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;
-
-                faceGroup.AddChild(geometry);
-
-            }
-
-            return faceGroup;
+            return geode;
         }
         
         

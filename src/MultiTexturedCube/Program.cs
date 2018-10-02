@@ -84,7 +84,7 @@ namespace MultiTexturedCube
             viewer.Run();
         }
 
-        static Drawable CreateCube()
+        static Geode CreateCube()
         {
             var geometry = new Geometry<VertexPositionTexture>();
 
@@ -140,19 +140,28 @@ namespace MultiTexturedCube
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
+
+            var pSet = new DrawElements<VertexPositionTexture>(
+                geometry, 
+                PrimitiveTopology.TriangleList, 
+                (uint)geometry.IndexData.Length, 
+                1, 
+                0, 
+                0, 
+                0);
             
-            geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;
+            geometry.PrimitiveSets.Add(pSet);
 
             geometry.PipelineState.VertexShaderDescription = new ShaderDescription(
                 ShaderStages.Vertex,
-                ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+                ShaderTools.LoadShaderBytes(DisplaySettings.Instance.GraphicsBackend,
                     typeof(Program).Assembly,
                     "MultiTexturedCubeShader", ShaderStages.Vertex), 
                 "VS");
             
             geometry.PipelineState.FragmentShaderDescription = new ShaderDescription(
                 ShaderStages.Fragment, 
-                ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+                ShaderTools.LoadShaderBytes(DisplaySettings.Instance.GraphicsBackend,
                     typeof(Program).Assembly,
                     "MultiTexturedCubeShader", ShaderStages.Fragment),
                 "FS");
@@ -176,8 +185,10 @@ namespace MultiTexturedCube
                     "TreeTexture", 
                     "TreeSampler")
                 );
-                       
-            return geometry;
+
+            var geode = new Geode();
+            geode.Drawables.Add(geometry);
+            return geode;
         }
     }
 }

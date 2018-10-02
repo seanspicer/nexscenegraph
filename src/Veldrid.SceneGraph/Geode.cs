@@ -25,10 +25,9 @@ using System.Collections.Generic;
 
 namespace Veldrid.SceneGraph
 {
-    public abstract class Drawable : Object
+    public class Geode : Node
     {
-        protected bool _boundingSphereComputed = false;
-        protected BoundingSphere _boundingSphere = new BoundingSphere();
+        public List<Drawable> Drawables { get; } = new List<Drawable>();
         
         protected BoundingBox _boundingBox;
         protected BoundingBox _initialBoundingBox = new BoundingBox();
@@ -42,55 +41,16 @@ namespace Veldrid.SceneGraph
             }
         }
         
-        public VertexLayoutDescription VertexLayout { get; set; }
+        public event Func<Node, BoundingBox> ComputeBoundingBoxCallback;
         
-        public List<PrimitiveSet> PrimitiveSets { get; } = new List<PrimitiveSet>();
-        
-        public event Func<Drawable, BoundingBox> ComputeBoundingBoxCallback;
-        public event Action<CommandList, Drawable> DrawImplementationCallback;
-
-        private PipelineState _pipelineState = null;
-        public PipelineState PipelineState
+        public Geode()
         {
-            get => _pipelineState ?? (_pipelineState = new PipelineState());
-            set => _pipelineState = value;
-        }
-        
-        public bool HasPipelineState
-        {
-            get => null != _pipelineState;
-        }
-        
-        public void Draw(GraphicsDevice device, List<Tuple<uint, ResourceSet>> resourceSets, CommandList commandList)
-        {
-            if (null != DrawImplementationCallback)
-            {
-                DrawImplementationCallback(commandList, this);
-            }
-            else
-            {
-                DrawImplementation(device, resourceSets, commandList);
-            }
-        }
-
-        protected abstract void DrawImplementation(GraphicsDevice device, List<Tuple<uint, ResourceSet>> resourceSets, CommandList commandList);
-
-        public virtual void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory)
-        {
-            // Nothing by default
-        }
-
-        public virtual void ConfigurePipelinesForDevice(GraphicsDevice device, ResourceFactory factory,
-            ResourceLayout parentLayout)
-        {
-            // Nothing by default
-        }     
-        
-        public void DirtyBound()
-        {
-            if (!_boundingSphereComputed) return;
             
-            _boundingSphereComputed = false;
+        }
+        
+        public override void Accept(NodeVisitor visitor)
+        {
+            visitor.Apply(this);
         }
         
         public BoundingBox GetBoundingBox()
@@ -117,12 +77,15 @@ namespace Veldrid.SceneGraph
             return _boundingBox;
         }
 
-        protected abstract BoundingBox ComputeBoundingBox();
+        protected BoundingBox ComputeBoundingBox()
+        {
+            var bb = new BoundingBox();
+            foreach (var drawable in Drawables)
+            {
+                bb.ExpandBy(drawable.GetBoundingBox());
+            }
 
-        public abstract DeviceBuffer GetVertexBufferForDevice(GraphicsDevice device);
-
-        public abstract DeviceBuffer GetIndexBufferForDevice(GraphicsDevice device);
-
-
+            return bb;
+        }
     }
 }

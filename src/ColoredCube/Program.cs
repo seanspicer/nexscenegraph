@@ -68,24 +68,18 @@ namespace ColoredCube
             viewer.View.CameraManipulator = new TrackballManipulator();
 
             var root = new Group();
-            
-            var scale_xform = new MatrixTransform();
-            scale_xform.Matrix = Matrix4x4.CreateScale(0.25f);
- 
             var cube = CreateCube();
-
-            //scale_xform.AddChild(cube);
             
             root.AddChild(cube);
-            //root.AddChild(trans_xform_right);
 
             viewer.SceneData = root;
 
             viewer.Run();
         }
 
-        static Drawable CreateCube()
+        static Geode CreateCube()
         {
+            
             var geometry = new Geometry<VertexPositionColor>();
 
             // TODO - make this a color index cube
@@ -145,13 +139,25 @@ namespace ColoredCube
             geometry.VertexLayout = new VertexLayoutDescription(
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
+
+            var pSet = new DrawElements<VertexPositionColor>(
+                geometry, 
+                PrimitiveTopology.TriangleList,
+                (uint)geometry.IndexData.Length, 
+                1, 
+                0, 
+                0, 
+                0);
             
-            geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;
+            geometry.PrimitiveSets.Add(pSet);
                       
             geometry.PipelineState.VertexShaderDescription = Vertex3Color4Shader.Instance.VertexShaderDescription;
             geometry.PipelineState.FragmentShaderDescription = Vertex3Color4Shader.Instance.FragmentShaderDescription;
-            
-            return geometry;
+
+            var geode = new Geode();
+            geode.Drawables.Add(geometry);
+
+            return geode;
         }
     }
 }

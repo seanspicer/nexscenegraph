@@ -135,6 +135,9 @@ namespace Veldrid.SceneGraph
             else if(TraversalMode != TraversalModeType.TraverseNone) node.Traverse(this);
         }
         
+        //
+        // Default implementation for Generic Node
+        //
         public virtual void Apply(Node node)
         {
             Traverse(node);
@@ -143,25 +146,9 @@ namespace Veldrid.SceneGraph
         //
         // Default implementation for Geometry Node
         // 
-        public virtual void Apply(Drawable node)
+        public virtual void Apply(Geode geode)
         {
-            Apply((Node)node);
-        }
-        
-        //
-        // Default implementation for Geometry Node
-        // 
-        public virtual void Apply<T>(Geometry<T> geometry) where T : struct, IPrimitiveElement
-        {
-            Apply((Drawable)geometry);
-        }
-
-        // 
-        // Default implemenation for TextNode
-        //
-        public virtual void Apply(TextNode textNode)
-        {
-            Apply((Drawable) textNode);
+            Apply((Node)geode);
         }
 
         // 
@@ -171,7 +158,5 @@ namespace Veldrid.SceneGraph
         {
             Apply((Node)transform);
         }
-        
-        
     }
 }

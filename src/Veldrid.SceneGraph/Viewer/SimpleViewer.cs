@@ -89,7 +89,7 @@ namespace Veldrid.SceneGraph.Viewer
         private bool _firstFrame = true;
         private Stopwatch _stopwatch = null;
         private double _previousElapsed = 0;
-        private GraphicsBackend _preferredBackend = GraphicsBackend.Vulkan;
+        private GraphicsBackend _preferredBackend = DisplaySettings.Instance.GraphicsBackend;
         private View _view;
 
         private event Action<GraphicsDevice, ResourceFactory> GraphicsDeviceOperations;
@@ -172,9 +172,13 @@ namespace Veldrid.SceneGraph.Viewer
         //
         // TODO: This runs continuously, probably shoudl have a mode that runs one-frame-at-a-time.
         // 
-        public void Run(GraphicsBackend preferredBackend = GraphicsBackend.Vulkan)
+        public void Run(GraphicsBackend? preferredBackend = null)
         {
-            _preferredBackend = preferredBackend;
+            if (preferredBackend.HasValue)
+            {
+                _preferredBackend = preferredBackend.Value;
+            }
+            
 
             while (_window.Exists)
             {

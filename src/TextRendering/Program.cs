@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.ComponentModel.DataAnnotations;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Text;
@@ -41,10 +42,12 @@ namespace TextRendering
 
             var root = new Group();
 
-            var textNode = new TextNode();
-            textNode.Text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor";
+            var textNode = new TextNode("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor");
             
-            root.AddChild(textNode);
+            var geode = new Geode();
+            geode.Drawables.Add(textNode);
+            
+            root.AddChild(geode);
 
             viewer.SceneData = root;
 

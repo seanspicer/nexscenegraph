@@ -64,7 +64,7 @@ namespace ColoredCube
             
             var allNames = asm.GetManifestResourceNames();
             
-            var viewer = new SimpleViewer("Colored Cube Scene Graph");
+            var viewer = new SimpleViewer("Culling Colored Cube Scene Graph");
             viewer.View.CameraManipulator = new TrackballManipulator();
 
             var root = new Group();
@@ -95,7 +95,7 @@ namespace ColoredCube
             viewer.Run();
         }
 
-        static Drawable CreateCube()
+        static Geode CreateCube()
         {
             var geometry = new Geometry<VertexPositionColor>();
 
@@ -156,10 +156,22 @@ namespace ColoredCube
             geometry.VertexLayout = new VertexLayoutDescription(
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
+
+            var pSet = new DrawElements<VertexPositionColor>(
+                geometry, 
+                PrimitiveTopology.TriangleList,
+                (uint)geometry.IndexData.Length, 
+                
+                1, 
+                0, 
+                0, 
+                0);
             
-            geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;       
-            
-            return geometry;
+            geometry.PrimitiveSets.Add(pSet);
+
+            var geode = new Geode();
+            geode.Drawables.Add(geometry);
+            return geode;
         }
         
         private static PipelineState CreateSharedState()

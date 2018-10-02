@@ -123,7 +123,6 @@ namespace Veldrid.SceneGraph.RenderGraph
 
             ri.Pipeline = resourceFactory.CreateGraphicsPipeline(pd);
             
-
             RenderInfoCache.Add(key, ri);
             
             return ri;

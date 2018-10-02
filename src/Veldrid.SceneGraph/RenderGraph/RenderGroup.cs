@@ -29,12 +29,10 @@ namespace Veldrid.SceneGraph.RenderGraph
 {
     public class RenderGroupElement
     {
-        public Drawable Drawable;
+        public List<PrimitiveSet> PrimitiveSets;
         public Matrix4x4 ModelMatrix;
-        
-        // TODO - do these really belong here?
-        public Tuple<int, DeviceBuffer, uint> VertexBuffer { get; set; }
-        public Tuple<int, DeviceBuffer, uint> IndexBuffer { get; set; }
+        public DeviceBuffer VertexBuffer;
+        public DeviceBuffer IndexBuffer;
     }
     
     public class RenderGroup
@@ -51,13 +49,12 @@ namespace Veldrid.SceneGraph.RenderGraph
             RenderGroupStateCache = new Dictionary<Tuple<PipelineState, PrimitiveTopology, VertexLayoutDescription>, RenderGroupState>();
         }
 
-        public void Clear()
+        public void Reset()
         {
             foreach (var rgs in RenderGroupStateCache.Values)
             {
-                rgs.ReleaseUnmanagedResources();
+                rgs.Elements.Clear();
             }
-            RenderGroupStateCache.Clear();
         }
         
         public IEnumerable<RenderGroupState> GetStateList()

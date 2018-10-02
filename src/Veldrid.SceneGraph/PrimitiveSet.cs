@@ -21,11 +21,10 @@
 //
 
 using System;
-using System.Collections.Generic;
 
 namespace Veldrid.SceneGraph
 {
-    public abstract class Drawable : Object
+    public abstract class PrimitiveSet : Object
     {
         protected bool _boundingSphereComputed = false;
         protected BoundingSphere _boundingSphere = new BoundingSphere();
@@ -40,51 +39,20 @@ namespace Veldrid.SceneGraph
                 _initialBoundingBox = value;
                 DirtyBound();
             }
-        }
+        } 
         
-        public VertexLayoutDescription VertexLayout { get; set; }
+        public event Func<PrimitiveSet, BoundingBox> ComputeBoundingBoxCallback;
         
-        public List<PrimitiveSet> PrimitiveSets { get; } = new List<PrimitiveSet>();
-        
-        public event Func<Drawable, BoundingBox> ComputeBoundingBoxCallback;
-        public event Action<CommandList, Drawable> DrawImplementationCallback;
+        public Drawable Drawable { get; }
 
-        private PipelineState _pipelineState = null;
-        public PipelineState PipelineState
-        {
-            get => _pipelineState ?? (_pipelineState = new PipelineState());
-            set => _pipelineState = value;
-        }
         
-        public bool HasPipelineState
-        {
-            get => null != _pipelineState;
-        }
+        public PrimitiveTopology PrimitiveTopology { get; set; }
         
-        public void Draw(GraphicsDevice device, List<Tuple<uint, ResourceSet>> resourceSets, CommandList commandList)
+        protected PrimitiveSet(Drawable drawable, PrimitiveTopology primitiveTopology)
         {
-            if (null != DrawImplementationCallback)
-            {
-                DrawImplementationCallback(commandList, this);
-            }
-            else
-            {
-                DrawImplementation(device, resourceSets, commandList);
-            }
+            PrimitiveTopology = primitiveTopology;
+            Drawable = drawable;
         }
-
-        protected abstract void DrawImplementation(GraphicsDevice device, List<Tuple<uint, ResourceSet>> resourceSets, CommandList commandList);
-
-        public virtual void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory)
-        {
-            // Nothing by default
-        }
-
-        public virtual void ConfigurePipelinesForDevice(GraphicsDevice device, ResourceFactory factory,
-            ResourceLayout parentLayout)
-        {
-            // Nothing by default
-        }     
         
         public void DirtyBound()
         {
@@ -116,13 +84,10 @@ namespace Veldrid.SceneGraph
 
             return _boundingBox;
         }
+        
+        public abstract void Draw(CommandList commandList);
 
         protected abstract BoundingBox ComputeBoundingBox();
-
-        public abstract DeviceBuffer GetVertexBufferForDevice(GraphicsDevice device);
-
-        public abstract DeviceBuffer GetIndexBufferForDevice(GraphicsDevice device);
-
 
     }
 }

@@ -31,52 +31,83 @@ namespace Veldrid.SceneGraph
     public class Geometry<T> : Drawable 
         where T : struct, IPrimitiveElement
     {
-        //public PipelineState PipelineState { get; } = new PipelineState();
-        
         public T[] VertexData { get; set; }
         public int SizeOfVertexData => Marshal.SizeOf(default(T));
         
         public ushort[] IndexData { get; set; }
 
-        public VertexLayoutDescription VertexLayout { get; set; }
-
-        public PrimitiveTopology PrimitiveTopology { get; set; } = PrimitiveTopology.TriangleStrip;
-            
-        private uint NumIndices { get; set; }
-        
         private bool _dirtyFlag = true;
+        
+        private Dictionary<GraphicsDevice, DeviceBuffer> _vertexBufferCache 
+            = new Dictionary<GraphicsDevice, DeviceBuffer>();
+        
+        private Dictionary<GraphicsDevice, DeviceBuffer> _indexBufferCache 
+            = new Dictionary<GraphicsDevice, DeviceBuffer>();
         
         public Geometry()
         {
-            //_stateSet = new StateSet();
-        }
-        
-        // Required for double-dispatch
-        public override void Accept(NodeVisitor visitor)
-        {
-            visitor.Apply(this);
         }
 
-        protected override void DrawImplementation(CommandList commandList, uint indexStart, int vertexOffset)
+        public override void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory)
         {
-            // Issue a Draw command for a single instance with 4 indices.
-            commandList.DrawIndexed(
-                indexCount: (uint) IndexData.Length,
-                instanceCount: 1,
-                indexStart: indexStart,
-                vertexOffset: vertexOffset,
-                instanceStart: 0);
+            if (_vertexBufferCache.ContainsKey(device) && _indexBufferCache.ContainsKey(device)) return;
+            
+            var vtxBufferDesc =
+                new BufferDescription((uint) (VertexData.Length * SizeOfVertexData), BufferUsage.VertexBuffer);
+            var vbo = factory.CreateBuffer(vtxBufferDesc);
+            device.UpdateBuffer(vbo, 0, VertexData);
+
+            var idxBufferDesc =
+                new BufferDescription((uint) (IndexData.Length * sizeof(ushort)), BufferUsage.IndexBuffer);
+            var ibo = factory.CreateBuffer(idxBufferDesc);
+            device.UpdateBuffer(ibo, 0, IndexData);
+
+            _vertexBufferCache.Add(device, vbo);
+            _indexBufferCache.Add(device, ibo);
+        }
+       
+
+        protected override void DrawImplementation(GraphicsDevice device, List<Tuple<uint, ResourceSet>> resourceSets, CommandList commandList)
+        {
+            foreach (var primitiveSet in PrimitiveSets)
+            {                
+                primitiveSet.Draw(commandList);
+            }
         }
 
         protected override BoundingBox ComputeBoundingBox()
         {
             var bb = new BoundingBox();
-            foreach(var idx in IndexData)
+            foreach (var pset in PrimitiveSets)
             {
-                bb.ExpandBy(VertexData[idx].VertexPosition);
+                bb.ExpandBy(pset.GetBoundingBox());
             }
 
             return bb;
+        }
+
+        public override DeviceBuffer GetVertexBufferForDevice(GraphicsDevice device)
+        {
+            if (_vertexBufferCache.ContainsKey(device))
+            {
+                return _vertexBufferCache[device];
+            }
+            else
+            {
+                throw new Exception("No vertex buffer for device");
+            }
+        }
+        
+        public override DeviceBuffer GetIndexBufferForDevice(GraphicsDevice device)
+        {
+            if (_indexBufferCache.ContainsKey(device))
+            {
+                return _indexBufferCache[device];
+            }
+            else
+            {
+                throw new Exception("No index buffer for device");
+            }
         }
     }
 }

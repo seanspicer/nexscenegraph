@@ -127,9 +127,9 @@ public struct VertexPositionColor : IPrimitiveElement
             viewer.Run();
         }
 
-        static Group CreateCube()
+        static Geode CreateCube()
         {
-            var faceGroup = new Group();
+            var geode = new Geode();
             
             var vertices = new List<VertexPositionColor>
             {
@@ -192,17 +192,26 @@ public struct VertexPositionColor : IPrimitiveElement
 
                 // TODO -> this causes multiple render states
                 geometry.VertexLayout = vld;
-        
-                geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;
 
-                faceGroup.AddChild(geometry);
+                var pSet = new DrawElements<VertexPositionColor>(
+                    geometry, 
+                    PrimitiveTopology.TriangleList,
+                    (uint)geometry.IndexData.Length, 
+                    1, 
+                    0, 
+                    0, 
+                    0);
+            
+                geometry.PrimitiveSets.Add(pSet);
+                
+                geode.Drawables.Add(geometry);
 
             }
 
-            return faceGroup;
+            return geode;
         }
         
-        static Drawable CreateUniformColorCube()
+        static Geode CreateUniformColorCube()
         {
             var geometry = new Geometry<VertexPositionColor>();
 
@@ -264,10 +273,21 @@ public struct VertexPositionColor : IPrimitiveElement
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
             
-            geometry.PrimitiveTopology = PrimitiveTopology.TriangleList;
-                      
+            var pSet = new DrawElements<VertexPositionColor>(
+                geometry, 
+                PrimitiveTopology.TriangleList,
+                (uint)geometry.IndexData.Length, 
+                1, 
+                0, 
+                0, 
+                0);
             
-            return geometry;
+            geometry.PrimitiveSets.Add(pSet);
+
+            var geode = new Geode();
+            geode.Drawables.Add(geometry);
+            
+            return geode;
         }
         
         
