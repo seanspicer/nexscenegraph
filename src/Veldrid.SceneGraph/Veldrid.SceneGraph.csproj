@@ -7,6 +7,9 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="ShaderGen.Build" Version="1.2.0-beta2" />
     <PackageReference Include="ShaderGen.Primitives" Version="1.2.0-beta2" />
