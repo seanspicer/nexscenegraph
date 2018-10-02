@@ -28,7 +28,6 @@ using System.Linq;
 using System.Numerics;
 using Veldrid.MetalBindings;
 using Veldrid.SceneGraph.RenderGraph;
-using Vulkan;
 
 namespace Veldrid.SceneGraph.Viewer
 {
@@ -150,8 +149,11 @@ namespace Veldrid.SceneGraph.Viewer
 
         private void Draw(GraphicsDevice device)
         {
-            _fence.Reset();
+            // TODO - this doesn't work on Metal
+            //device.ResetFence(_fence);
+            
             device.SubmitCommands(_commandList, _fence);
+            device.WaitForIdle();
         }
 
         private void DrawOpaqueRenderGroups(GraphicsDevice device, ResourceFactory factory)
@@ -306,10 +308,11 @@ namespace Veldrid.SceneGraph.Viewer
 
         public void HandleOperation(GraphicsDevice device, ResourceFactory factory)
         {
-            if (null != _fence)
-            {
-                device.WaitForFence(_fence);
-            }
+            // TODO - this doesn't work on Metal
+            //if (null != _fence)
+            //{
+            //    device.WaitForFence(_fence);
+            //}
             
             if (!_initialized)
             {

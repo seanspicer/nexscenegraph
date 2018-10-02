@@ -101,14 +101,14 @@ namespace HelloNsg
 
             geometry.PipelineState.VertexShaderDescription = new ShaderDescription(
                 ShaderStages.Vertex,
-                ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+                ShaderTools.LoadShaderBytes(DisplaySettings.Instance.GraphicsBackend,
                     typeof(Program).Assembly,
                     "HelloShaders", ShaderStages.Vertex), 
                 "VS");
             
             geometry.PipelineState.FragmentShaderDescription = new ShaderDescription(
                 ShaderStages.Fragment, 
-                ShaderTools.LoadShaderBytes(GraphicsBackend.Vulkan,
+                ShaderTools.LoadShaderBytes(DisplaySettings.Instance.GraphicsBackend,
                     typeof(Program).Assembly,
                     "HelloShaders", ShaderStages.Fragment),
                 "FS");

@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Runtime.InteropServices;
 
 namespace Veldrid.SceneGraph
 {
@@ -37,6 +38,8 @@ namespace Veldrid.SceneGraph
         public float ScreenHeight { get; set; }
         public float ScreenDistance { get; set; }
         
+        public GraphicsBackend GraphicsBackend { get; private set; }
+        
         private DisplaySettings()
         {
             SetDefaults();
@@ -49,6 +52,15 @@ namespace Veldrid.SceneGraph
 
         private void SetDefaults()
         {
+            bool isMacOS = RuntimeInformation.OSDescription.Contains("Darwin");
+            if (isMacOS)
+            {
+                GraphicsBackend = GraphicsBackend.Metal;
+            }
+            else
+            {
+                GraphicsBackend = GraphicsBackend.Vulkan;
+            }
         }
     }
 }
