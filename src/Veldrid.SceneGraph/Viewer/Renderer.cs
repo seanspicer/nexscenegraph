@@ -41,7 +41,7 @@ namespace Veldrid.SceneGraph.Viewer
         private CommandList _commandList;
         private ResourceLayout _resourceLayout;
         private ResourceSet _resourceSet;
-        private Fence _fence;
+        //private Fence _fence;
         
         private Polytope CullingFrustum { get; set; } = new Polytope();
         
@@ -97,7 +97,7 @@ namespace Veldrid.SceneGraph.Viewer
             _renderInfo.ResourceLayout = _resourceLayout;
             _renderInfo.ResourceSet = _resourceSet;
 
-            _fence = factory.CreateFence(false);
+            //_fence = factory.CreateFence(false);
 
             _defaultResourceSets.Add(Tuple.Create((uint)0, _resourceSet));
             
@@ -152,7 +152,7 @@ namespace Veldrid.SceneGraph.Viewer
             // TODO - this doesn't work on Metal
             //device.ResetFence(_fence);
             
-            device.SubmitCommands(_commandList, _fence);
+            device.SubmitCommands(_commandList);
             device.WaitForIdle();
         }
 
