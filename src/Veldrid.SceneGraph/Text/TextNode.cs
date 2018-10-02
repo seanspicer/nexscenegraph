@@ -63,10 +63,12 @@ namespace Veldrid.SceneGraph.Text
     public class TextNode : Geometry<VertexPositionTexture>
     {
         private Font Font { get; set; }
-        public string Text { get; set; }
+        public string Text { get; private set; }
 
-        public TextNode()
+        public TextNode(string text)
         {
+            Text = text;
+            
             VertexData = new VertexPositionTexture[]
             {
                 // Quad

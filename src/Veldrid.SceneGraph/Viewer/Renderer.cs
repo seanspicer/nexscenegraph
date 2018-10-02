@@ -337,11 +337,14 @@ namespace Veldrid.SceneGraph.Viewer
             
             SwapBuffers(device);
             
-            Console.WriteLine("Update = {0} ms, Cull = {1} ms, Record = {2}, Draw = {3} ms",
+            var postSwap = _stopWatch.ElapsedMilliseconds;
+            
+            Console.WriteLine("Update = {0} ms, Cull = {1} ms, Record = {2}, Draw = {3} ms, Swap = {4} ms",
                 postUpdate, 
                 postCull-postUpdate,
                 postRecord-postCull,
-                postDraw-postRecord);
+                postDraw-postRecord,
+                postSwap-postDraw);
         }
     }
 }
