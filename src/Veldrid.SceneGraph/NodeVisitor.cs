@@ -151,6 +151,15 @@ namespace Veldrid.SceneGraph
             Apply((Node)geode);
         }
 
+        /// <summary>
+        /// Default Implementation for Billboard
+        /// </summary>
+        /// <param name="billboard"></param>
+        public virtual void Apply(Billboard billboard)
+        {
+            Apply((Geode)billboard);
+        }
+
         // 
         // Default implementation for Transform node
         // 

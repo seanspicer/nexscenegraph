@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) 2018 Sean Spicer
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,31 +20,51 @@
 // SOFTWARE.
 //
 
+using System;
+using System.Collections.Generic;
 using System.Numerics;
+using Veldrid.SceneGraph.Viewer;
 
-namespace Veldrid.SceneGraph.Viewer
+namespace Veldrid.SceneGraph
 {
-    public static class MatrixExtensions
+    public class Billboard : Geode
     {
-        // TODO - UNIT TEST
-        public static Matrix4x4 PreMultiply(this Matrix4x4 mat, Matrix4x4 other)
+        public enum Modes
         {
-            return Matrix4x4.Multiply(other, mat);
+            Screen
+        }
+
+        public Modes Mode { get; set; }
+        
+        public Billboard()
+        {
+            Mode = Modes.Screen;
         }
         
-        // TODO - UNIT TEST
-        public static Matrix4x4 PostMultiply(this Matrix4x4 mat, Matrix4x4 other)
+        public override void Accept(NodeVisitor visitor)
         {
-            return Matrix4x4.Multiply(mat, other);
+            visitor.Apply(this);
         }
-
-        // TODO - UNIT TEST
-        public static Matrix4x4 SetTranslation(this Matrix4x4 mat, Vector3 translation)
+        
+       
+        public Matrix4x4 ComputeMatrix(Matrix4x4 modelView, Vector3 eyeLocal)
         {
-            mat.M41 = translation.X;
-            mat.M42 = translation.Y;
-            mat.M43 = translation.Z;
-            return mat;
+            Matrix4x4 rotate = Matrix4x4.Identity;
+            switch (Mode)
+            {
+                case Modes.Screen:
+                    var tmp = modelView.SetTranslation(Vector3.Zero);
+                    var canInvert = Matrix4x4.Invert(tmp, out rotate);
+                    if (false == canInvert)
+                    {
+                        rotate = Matrix4x4.Identity;
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            return rotate;
         }
     }
 }
