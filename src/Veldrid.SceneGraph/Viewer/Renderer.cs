@@ -41,10 +41,7 @@ namespace Veldrid.SceneGraph.Viewer
         private CommandList _commandList;
         private ResourceLayout _resourceLayout;
         private ResourceSet _resourceSet;
-        //private Fence _fence;
-        
-        private Polytope CullingFrustum { get; set; } = new Polytope();
-        
+
         private bool _initialized = false;
 
         private RenderInfo _renderInfo;
@@ -105,8 +102,17 @@ namespace Veldrid.SceneGraph.Viewer
         }
 
         private void Cull(GraphicsDevice device, ResourceFactory factory)
-        {
+        {    
+            // Reset the visitor
             _cullVisitor.Reset();
+            
+            // Setup matrices
+            _cullVisitor.SetViewMatrix(_camera.ViewMatrix);
+            _cullVisitor.SetProjectionMatrix(_camera.ProjectionMatrix);
+            
+            // Prep
+            _cullVisitor.Prepare();
+
             var view = (Viewer.View) _camera.View;
             view.SceneData?.Accept(_cullVisitor);
         }
@@ -293,11 +299,6 @@ namespace Veldrid.SceneGraph.Viewer
             device.UpdateBuffer(_projectionBuffer, 0, _camera.ProjectionMatrix);
             device.UpdateBuffer(_viewBuffer, 0, _camera.ViewMatrix);
 
-            //  TODO - don't need both of these
-
-            var vp = _camera.ViewMatrix.PostMultiply(_camera.ProjectionMatrix);
-            _cullVisitor.SetCullingViewProjectionMatrix(vp);
-            CullingFrustum.VPMatrix = vp;
 
         }
 
