@@ -230,7 +230,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                     {
                         renderElement = new RenderGroupElement()
                         {
-                            ModelMatrix = ModelMatrixStack.Peek(),
+                            ModelViewMatrix = GetModelViewMatrix(),
                             VertexBuffer = drawable.GetVertexBufferForDevice(GraphicsDevice),
                             IndexBuffer = drawable.GetIndexBufferForDevice(GraphicsDevice),
                             PrimitiveSets = new List<PrimitiveSet>()
@@ -281,7 +281,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                 // TODO - need to modify is culled to handle billboard matrix offset
                 //if (IsCulled(drawable.GetBoundingBox(), ModelMatrixStack.Peek())) continue;
 
-                billboard.ComputeMatrix(modelView, eyeLocal);
+                var billboardMatrix = billboard.ComputeMatrix(modelView, eyeLocal);
                 
                 var drawablePso = pso;
                 if (drawable.HasPipelineState)
@@ -289,8 +289,6 @@ namespace Veldrid.SceneGraph.RenderGraph
                     drawablePso = drawable.PipelineState;
                 }
 
-                
-                
                 //
                 // This allocates / updates vbo/ibos
                 //
@@ -302,8 +300,6 @@ namespace Veldrid.SceneGraph.RenderGraph
                 {
                     // TODO - need to modify is culled to handle billboard matrix offset
                     //if (IsCulled(pset.GetBoundingBox(), ModelMatrixStack.Peek())) continue;
-                    
-                    
                     
                     //            
                     // Sort into appropriate render group
@@ -322,7 +318,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                     {
                         renderElement = new RenderGroupElement()
                         {
-                            ModelMatrix = ModelMatrixStack.Peek(),
+                            ModelViewMatrix = billboardMatrix.PostMultiply(modelView),
                             VertexBuffer = drawable.GetVertexBufferForDevice(GraphicsDevice),
                             IndexBuffer = drawable.GetIndexBufferForDevice(GraphicsDevice),
                             PrimitiveSets = new List<PrimitiveSet>()

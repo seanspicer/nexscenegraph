@@ -52,6 +52,11 @@ namespace Veldrid.SceneGraph
         {
             visitor.Apply(this);
         }
+
+        public virtual void AddDrawable(Drawable drawable)
+        {
+            Drawables.Add(drawable);
+        }
         
         public BoundingBox GetBoundingBox()
         {

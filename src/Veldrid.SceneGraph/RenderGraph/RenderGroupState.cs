@@ -12,7 +12,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             public Pipeline Pipeline;
             public ResourceLayout ResourceLayout;
             public ResourceSet ResourceSet;
-            public DeviceBuffer ModelBuffer;
+            public DeviceBuffer ModelViewBuffer;
         } 
        
         private PipelineState PipelineState;
@@ -60,16 +60,16 @@ namespace Veldrid.SceneGraph.RenderGraph
             
             // TODO - this shouldn't be allocated here!
             var modelMatrixBuffer = Matrix4x4.Identity;
-            ri.ModelBuffer =
+            ri.ModelViewBuffer =
                 resourceFactory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
             
-            graphicsDevice.UpdateBuffer(ri.ModelBuffer, 0, modelMatrixBuffer);
+            graphicsDevice.UpdateBuffer(ri.ModelViewBuffer, 0, modelMatrixBuffer);
             // TODO - this shouldn't be allocated here!
             
             resourceLayoutElementDescriptionList.Add(
                 new ResourceLayoutElementDescription("Model", ResourceKind.UniformBuffer, ShaderStages.Vertex));
 
-            bindableResourceList.Add(ri.ModelBuffer);
+            bindableResourceList.Add(ri.ModelViewBuffer);
 
             // Process Attached Textures
             foreach (var tex2d in PipelineState.TextureList)
@@ -139,12 +139,12 @@ namespace Veldrid.SceneGraph.RenderGraph
                 f.DisposeCollector.Remove(ri.Pipeline);
                 f.DisposeCollector.Remove(ri.ResourceLayout);
                 f.DisposeCollector.Remove(ri.ResourceSet);
-                f.DisposeCollector.Remove(ri.ModelBuffer);
+                f.DisposeCollector.Remove(ri.ModelViewBuffer);
                 
                 ri.Pipeline.Dispose();
                 ri.ResourceLayout.Dispose();
                 ri.ResourceSet.Dispose();
-                ri.ModelBuffer.Dispose();
+                ri.ModelViewBuffer.Dispose();
             }
         }
     }

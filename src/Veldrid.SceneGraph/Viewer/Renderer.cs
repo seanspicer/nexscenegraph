@@ -164,7 +164,7 @@ namespace Veldrid.SceneGraph.Viewer
 
         private void DrawOpaqueRenderGroups(GraphicsDevice device, ResourceFactory factory)
         {
-            var currModelMatrix = Matrix4x4.Identity;
+            var currModelViewMatrix = Matrix4x4.Identity;
             foreach (var state in _cullVisitor.OpaqueRenderGroup.GetStateList())
             {
                 var ri = state.GetPipelineAndResources(device, factory, _resourceLayout);
@@ -182,10 +182,10 @@ namespace Veldrid.SceneGraph.Viewer
                     _commandList.SetGraphicsResourceSet(1, ri.ResourceSet);
                     
                     // TODO Optimize with uniform buffer later on
-                    if (element.ModelMatrix != currModelMatrix)
+                    if (element.ModelViewMatrix != currModelViewMatrix)
                     {
-                        _commandList.UpdateBuffer(ri.ModelBuffer, 0, element.ModelMatrix);
-                        currModelMatrix = element.ModelMatrix;
+                        _commandList.UpdateBuffer(ri.ModelViewBuffer, 0, element.ModelViewMatrix);
+                        currModelViewMatrix = element.ModelViewMatrix;
                     }
                     
                     foreach (var primitiveSet in element.PrimitiveSets)
@@ -215,7 +215,7 @@ namespace Veldrid.SceneGraph.Viewer
                         var ctr = pset.GetBoundingBox().Center;
 
                         // Compute distance eye point 
-                        var modelView = renderElement.ModelMatrix.PostMultiply(_camera.ViewMatrix);
+                        var modelView = renderElement.ModelViewMatrix;
                         var ctr_w = Vector3.Transform(ctr, modelView);
                         var dist = Vector3.Distance(ctr_w, Vector3.Zero);
 
@@ -237,7 +237,7 @@ namespace Veldrid.SceneGraph.Viewer
             RenderGroupState lastState = null;
             RenderGroupState.RenderInfo ri = null;
 
-            var currModelMatrix = Matrix4x4.Identity;
+            var currModelViewMatrix = Matrix4x4.Identity;
             
             foreach (var renderList in drawOrderMap.Reverse())
             {
@@ -259,10 +259,10 @@ namespace Veldrid.SceneGraph.Viewer
                         _commandList.SetGraphicsResourceSet(1, ri.ResourceSet);
                     }
 
-                    if (element.Item2.ModelMatrix != currModelMatrix)
+                    if (element.Item2.ModelViewMatrix != currModelViewMatrix)
                     {
-                        _commandList.UpdateBuffer(ri.ModelBuffer, 0, element.Item2.ModelMatrix);
-                        currModelMatrix = element.Item2.ModelMatrix;
+                        _commandList.UpdateBuffer(ri.ModelViewBuffer, 0, element.Item2.ModelViewMatrix);
+                        currModelViewMatrix = element.Item2.ModelViewMatrix;
                     }
                     
                     
@@ -297,7 +297,9 @@ namespace Veldrid.SceneGraph.Viewer
             }
             
             device.UpdateBuffer(_projectionBuffer, 0, _camera.ProjectionMatrix);
-            device.UpdateBuffer(_viewBuffer, 0, _camera.ViewMatrix);
+            
+            // TODO - Remove
+            device.UpdateBuffer(_viewBuffer, 0, Matrix4x4.Identity);
 
 
         }

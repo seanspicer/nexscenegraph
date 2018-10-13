@@ -26,14 +26,25 @@ namespace Veldrid.SceneGraph.Viewer
 {
     public static class MatrixExtensions
     {
+        // TODO - UNIT TEST
         public static Matrix4x4 PreMultiply(this Matrix4x4 mat, Matrix4x4 other)
         {
             return Matrix4x4.Multiply(other, mat);
         }
         
+        // TODO - UNIT TEST
         public static Matrix4x4 PostMultiply(this Matrix4x4 mat, Matrix4x4 other)
         {
             return Matrix4x4.Multiply(mat, other);
+        }
+
+        // TODO - UNIT TEST
+        public static Matrix4x4 SetTranslation(this Matrix4x4 mat, Vector3 translation)
+        {
+            mat.M41 = translation.X;
+            mat.M42 = translation.Y;
+            mat.M43 = translation.Z;
+            return mat;
         }
     }
 }
