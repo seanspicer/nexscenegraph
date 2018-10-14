@@ -29,12 +29,22 @@ namespace Veldrid.SceneGraph.Util
     /// </summary>
     public abstract class Intersector
     {
+        public enum IntersectionLimitModes
+        {
+            NoLimit,
+            LimitOnePerDrawable,
+            LimitOne,
+            LimitNearest
+        };
+        
+        public IntersectionLimitModes IntersectionLimit { get; set; }
+        
         /// <summary>
         /// Constructor
         /// </summary>
         public Intersector()
         {
-            
+            IntersectionLimit = IntersectionLimitModes.NoLimit;
         }
 
         public abstract void Intersect(IntersectionVisitor iv, Drawable drawable);
