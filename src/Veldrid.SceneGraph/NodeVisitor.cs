@@ -50,6 +50,7 @@ namespace Veldrid.SceneGraph
         {
             NodeVisitor,
             UpdateVisitor,
+            IntersectionVisitor,
             CullVisitor,
             AssembleVisitor,
             CullAndAssembleVisitor = CullVisitor | AssembleVisitor
@@ -129,7 +130,7 @@ namespace Veldrid.SceneGraph
             return (TraversalMask & (NodeMaskOverride | node.NodeMask)) != 0;
         }
         
-        public void Traverse(Node node)
+        protected void Traverse(Node node)
         {
             if (TraversalMode == TraversalModeType.TraverseParents) node.Ascend(this);
             else if(TraversalMode != TraversalModeType.TraverseNone) node.Traverse(this);
