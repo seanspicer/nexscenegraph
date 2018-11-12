@@ -30,26 +30,36 @@ namespace Veldrid.SceneGraph.Util
     {
         public class Intersection : IComparable<Intersection>
         {
-            public double Ratio;
-            public uint PrimitiveIndex;
+            public Vector3 _start;
+            
+            public Vector3 IntersectionPoint { get; private set; }
+            
+            public Drawable Drawable { get; private set; }
+            
+            public float StartToIntersectionDist { get; private set; }
 
-            public Intersection()
+            public Intersection(Vector3 start, Vector3 intersectionPoint, Drawable d)
             {
-                Ratio = -1;
-                PrimitiveIndex = 0;
+                _start = start;
+                IntersectionPoint = intersectionPoint;
+                Drawable = d;
+                StartToIntersectionDist = Vector3.Distance(start, intersectionPoint);
             }
 
             public int CompareTo(Intersection rhs)
             {
-                if (Ratio < rhs.Ratio)
+                var d1 = StartToIntersectionDist;
+                var d2 = rhs.StartToIntersectionDist;
+                
+                if (d1 < d2)
                 {
                     return -1;
                 }
-                else if (Ratio == rhs.Ratio)
+                else if (d1 == d2)
                 {
                     return 0;
                 }
-                else if (Ratio > rhs.Ratio)
+                else if (d1 > d2)
                 {
                     return 1;
                 }
@@ -76,10 +86,15 @@ namespace Veldrid.SceneGraph.Util
             Start = start;
             End = end;
         }
-        
+
         public override void Intersect(IntersectionVisitor iv, Drawable drawable)
         {
-            throw new System.NotImplementedException();
+            var bb = drawable.GetBoundingBox();
+            if (intersects(new BoundingSphere(drawable.GetBoundingBox())))
+            {
+                var intersection = new Intersection(Start, bb.Center, drawable);
+                Intersections.Add(intersection);
+            }
         }
 
         public override bool Enter(Node node)
@@ -119,8 +134,11 @@ namespace Veldrid.SceneGraph.Util
 
             if (IntersectionLimit == IntersectionLimitModes.LimitNearest && 0 != Intersections.Count())
             {
-                double ratio = (startToCenter.Length() - bs.Radius) / System.Math.Sqrt(a);
-                if (ratio >= Intersections.First().Ratio) return false;
+                if (startToCenter.Length() > Intersections.First().StartToIntersectionDist) return false;
+                
+                //double ratio = (startToCenter.Length() - bs.Radius) / System.Math.Sqrt(a);
+                
+                //if (ratio >= Intersections.First().Ratio) return false;
             }
 
             // passed all the rejection tests so line must intersect bounding sphere, return true.
