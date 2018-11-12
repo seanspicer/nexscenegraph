@@ -76,7 +76,7 @@ namespace Veldrid.SceneGraph
             var bsphere = base.ComputeBound();
             if (!bsphere.Valid()) return bsphere;
 
-            var localToWorld = new Matrix4x4();
+            var localToWorld = Matrix4x4.Identity;
             ComputeLocalToWorldMatrix(ref localToWorld, null);
            
             var xdash = bsphere.Center;

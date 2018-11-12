@@ -163,7 +163,10 @@ namespace Veldrid.SceneGraph.Viewer
             _view = new View();
             GraphicsDeviceOperations += _view.Camera.Renderer.HandleOperation;
             InputSnapshotEvent += _view.OnInputEvent;
+            
         }
+
+
 
         /// <summary>
         /// Run the viewer

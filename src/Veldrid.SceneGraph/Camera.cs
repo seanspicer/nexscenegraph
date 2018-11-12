@@ -22,6 +22,7 @@
 
 using System.Data;
 using System.Numerics;
+using Veldrid.SceneGraph.Viewer;
 
 namespace Veldrid.SceneGraph
 {
@@ -77,6 +78,12 @@ namespace Veldrid.SceneGraph
             ProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(vfov, aspectRatio, zNear, zFar);
             //ProjectionMatrix = Matrix4x4.Identity;
         }
+
+        public Vector3 NormalizedScreenToWorld(Vector3 screenCoords)
+        {
+            var viewProjectionMatrix = ViewMatrix.PostMultiply(ProjectionMatrix);
+            return Vector3.Transform(new Vector3(screenCoords.X, screenCoords.Y, screenCoords.Z), viewProjectionMatrix);
+        }
         
         private Vector3 GetLookDir()
         {
@@ -100,5 +107,7 @@ namespace Veldrid.SceneGraph
             //ProjectionMatrix = Matrix4x4.CreateOrthographic(2, 2, 0.1f, 100);
             //ProjectionMatrix = Matrix4x4.Identity;
         }
+        
+        
     }
 }

@@ -66,6 +66,7 @@ namespace ColoredCube
             
             var viewer = new SimpleViewer("Culling Colored Cube Scene Graph");
             viewer.View.CameraManipulator = new TrackballManipulator();
+            viewer.View.PickHandler = new PickHandler(viewer.View.Camera);
 
             var root = new Group();
             
@@ -170,6 +171,7 @@ namespace ColoredCube
             geometry.PrimitiveSets.Add(pSet);
 
             var geode = new Geode();
+            geometry.Name = "Colored Cube";
             geode.Drawables.Add(geometry);
             return geode;
         }

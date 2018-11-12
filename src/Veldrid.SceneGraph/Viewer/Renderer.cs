@@ -345,12 +345,13 @@ namespace Veldrid.SceneGraph.Viewer
             
             var postSwap = _stopWatch.ElapsedMilliseconds;
             
-            Console.WriteLine("Update = {0} ms, Cull = {1} ms, Record = {2}, Draw = {3} ms, Swap = {4} ms",
-                postUpdate, 
-                postCull-postUpdate,
-                postRecord-postCull,
-                postDraw-postRecord,
-                postSwap-postDraw);
+            // Todo move to logger
+//            Console.WriteLine("Update = {0} ms, Cull = {1} ms, Record = {2}, Draw = {3} ms, Swap = {4} ms",
+//                postUpdate, 
+//                postCull-postUpdate,
+//                postRecord-postCull,
+//                postDraw-postRecord,
+//                postSwap-postDraw);
         }
     }
 }

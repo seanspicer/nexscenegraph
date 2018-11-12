@@ -68,7 +68,7 @@ namespace Veldrid.SceneGraph.Util
             }
         }
 
-        protected SortedMultiSet<Intersection> Intersections = new SortedMultiSet<Intersection>();
+        public SortedMultiSet<Intersection> Intersections = new SortedMultiSet<Intersection>();
         
         protected Vector3 Start { get; set; }
         protected Vector3 End { get; set; }

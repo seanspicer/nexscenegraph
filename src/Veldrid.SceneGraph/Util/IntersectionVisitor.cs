@@ -22,7 +22,6 @@
 
 using System.Collections.Generic;
 using System.Numerics;
-using SharpDX.Direct3D11;
 
 namespace Veldrid.SceneGraph.Util
 {

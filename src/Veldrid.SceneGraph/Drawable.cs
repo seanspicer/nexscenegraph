@@ -27,6 +27,8 @@ namespace Veldrid.SceneGraph
 {
     public abstract class Drawable : Object
     {
+        public string Name { get; set; } = string.Empty;
+        
         protected bool _boundingSphereComputed = false;
         protected BoundingSphere _boundingSphere = new BoundingSphere();
         

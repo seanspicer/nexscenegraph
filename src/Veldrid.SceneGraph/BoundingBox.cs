@@ -215,7 +215,16 @@ namespace Veldrid.SceneGraph
         /// <exception cref="NotImplementedException"></exception>
         public void ExpandBy(BoundingSphere sh)
         {
-            throw new NotImplementedException();
+            if (!sh.Valid()) return;
+            
+            if(sh.Center.X-sh.Radius<_min.X) _min.X = sh.Center.X-sh.Radius;
+            if(sh.Center.X+sh.Radius>_max.X) _max.X = sh.Center.X+sh.Radius;
+
+            if(sh.Center.Y-sh.Radius<_min.Y) _min.Y = sh.Center.Y-sh.Radius;
+            if(sh.Center.Y+sh.Radius>_max.Y) _max.Y = sh.Center.Y+sh.Radius;
+
+            if(sh.Center.Z-sh.Radius<_min.Z) _min.Z = sh.Center.Z-sh.Radius;
+            if(sh.Center.Z+sh.Radius>_max.Z) _max.Z = sh.Center.Z+sh.Radius;
         }
 
         public BoundingBox Intersect(BoundingBox bb)
