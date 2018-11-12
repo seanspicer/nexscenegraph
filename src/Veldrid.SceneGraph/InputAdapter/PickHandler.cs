@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Linq;
 using System.Numerics;
 using Veldrid.SceneGraph.Util;
 
@@ -55,8 +56,6 @@ namespace Veldrid.SceneGraph.InputAdapter
         
         private void DoPick(InputStateSnapshot snapshot)
         {
-            Console.WriteLine("Doing Pick...pp");
-            
             var norm = GetNormalizedMousePosition();
             
             var startPos = _camera.NormalizedScreenToWorld(new Vector3(norm.X, norm.Y, -1.0f)); // Near plane
@@ -68,12 +67,29 @@ namespace Veldrid.SceneGraph.InputAdapter
             var view = (Viewer.View) _camera.View;
             view.SceneData?.Accept(intersectionVisitor);
 
-            foreach (var intersection in intersector.Intersections)
+            if (intersector.Intersections.Any())
             {
-                Console.WriteLine(intersection.Drawable.Name);
+                var idx = 0;
+                foreach (var intersection in intersector.Intersections)
+                {
+                    Console.WriteLine($"Intersected [{idx}]: {intersection.Drawable.Name}");
+                    var jdx = 0;
+                    foreach (var node in intersection.NodePath)
+                    {
+                        Console.WriteLine($"  Path[{jdx}]: {node.NameString}");
+                        ++jdx;
+                    }
+                    ++idx;
+                }
+                
+            }
+            else
+            {
+                Console.WriteLine("No Intersections");
             }
             
-            Console.WriteLine("Pick Operation Complete.");
+            
+            
         }
     }
 }

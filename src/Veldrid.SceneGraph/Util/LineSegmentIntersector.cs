@@ -36,13 +36,16 @@ namespace Veldrid.SceneGraph.Util
             
             public Drawable Drawable { get; private set; }
             
+            public NodePath NodePath { get; set; }
+            
             public float StartToIntersectionDist { get; private set; }
 
-            public Intersection(Vector3 start, Vector3 intersectionPoint, Drawable d)
+            public Intersection(Vector3 start, Vector3 intersectionPoint, Drawable d, NodePath nodePath)
             {
                 _start = start;
                 IntersectionPoint = intersectionPoint;
                 Drawable = d;
+                NodePath = nodePath;
                 StartToIntersectionDist = Vector3.Distance(start, intersectionPoint);
             }
 
@@ -92,7 +95,7 @@ namespace Veldrid.SceneGraph.Util
             var bb = drawable.GetBoundingBox();
             if (intersects(new BoundingSphere(drawable.GetBoundingBox())))
             {
-                var intersection = new Intersection(Start, bb.Center, drawable);
+                var intersection = new Intersection(Start, bb.Center, drawable, iv.NodePath.Copy());
                 Intersections.Add(intersection);
             }
         }

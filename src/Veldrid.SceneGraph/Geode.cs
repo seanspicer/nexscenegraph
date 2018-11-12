@@ -48,9 +48,14 @@ namespace Veldrid.SceneGraph
             
         }
         
-        public override void Accept(NodeVisitor visitor)
+        public override void Accept(NodeVisitor nv)
         {
-            visitor.Apply(this);
+            if (nv.ValidNodeMask(this))
+            {
+                nv.PushOntoNodePath(this);
+                nv.Apply(this);
+                nv.PopFromNodePath(this);
+            };
         }
 
         public virtual void AddDrawable(Drawable drawable)

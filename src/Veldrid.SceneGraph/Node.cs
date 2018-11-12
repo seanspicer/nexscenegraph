@@ -220,7 +220,6 @@ namespace Veldrid.SceneGraph
         
         public virtual void Accept(NodeVisitor nv)
         {
-
             if (nv.ValidNodeMask(this))
             {
                 nv.PushOntoNodePath(this);

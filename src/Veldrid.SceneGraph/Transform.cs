@@ -44,9 +44,14 @@ namespace Veldrid.SceneGraph
         }
         
         // Required for double-dispatch
-        public override void Accept(NodeVisitor visitor)
+        public override void Accept(NodeVisitor nv)
         {
-            visitor.Apply(this);
+            if (nv.ValidNodeMask(this))
+            {
+                nv.PushOntoNodePath(this);
+                nv.Apply(this);
+                nv.PopFromNodePath(this);
+            };
         }
 
         public virtual bool ComputeLocalToWorldMatrix(ref Matrix4x4 matrix, NodeVisitor visitor)

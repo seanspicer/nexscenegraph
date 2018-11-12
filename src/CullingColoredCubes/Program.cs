@@ -69,8 +69,10 @@ namespace ColoredCube
             viewer.View.PickHandler = new PickHandler(viewer.View.Camera);
 
             var root = new Group();
+            root.NameString = "Root";
             
             var scale_xform = new MatrixTransform();
+            scale_xform.NameString = "Scale XForm";
             scale_xform.Matrix = Matrix4x4.CreateScale(0.05f);
             
             var cube = CreateCube();
@@ -83,6 +85,7 @@ namespace ColoredCube
                 for (var j = -gridSize; j <= gridSize; ++j)
                 {
                     var xform = new MatrixTransform();
+                    xform.NameString = $"XForm[{i}, {j}]";
                     xform.Matrix = Matrix4x4.CreateTranslation(transF*i, transF*j, 0.0f);
                     xform.AddChild(scale_xform);
                     root.AddChild(xform);
@@ -171,6 +174,7 @@ namespace ColoredCube
             geometry.PrimitiveSets.Add(pSet);
 
             var geode = new Geode();
+            geode.NameString = "Cube Geode";
             geometry.Name = "Colored Cube";
             geode.Drawables.Add(geometry);
             return geode;

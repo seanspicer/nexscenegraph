@@ -29,6 +29,16 @@ namespace Veldrid.SceneGraph
 {
     public class NodePath : LinkedList<Node>
     {
+        public NodePath Copy()
+        {
+            var result = new NodePath();
+            foreach (var node in this)
+            {
+                result.AddLast(node);
+            }
+
+            return result;
+        }
     }
 
     /// <summary>
