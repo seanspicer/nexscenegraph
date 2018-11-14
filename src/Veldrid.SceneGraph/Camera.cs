@@ -23,6 +23,7 @@
 using System;
 using System.Data;
 using System.Numerics;
+using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Viewer;
 
 namespace Veldrid.SceneGraph
@@ -87,13 +88,31 @@ namespace Veldrid.SceneGraph
             var projectionInverse = Matrix4x4.Identity;
             var viewInverse = Matrix4x4.Identity;
 
-            Matrix4x4.Invert(ProjectionMatrix, out projectionInverse);
-            Matrix4x4.Invert(ViewMatrix, out viewInverse);
+            //Matrix4x4.Invert(ProjectionMatrix, out projectionInverse);
+            //Matrix4x4.Invert(ViewMatrix, out viewInverse);
 
-            viewProjectionMatrix = projectionInverse.PostMultiply(viewInverse);
+            viewProjectionMatrix = ProjectionMatrix.PreMultiply(ViewMatrix);
+
+            Matrix4x4 vpi;
+            Matrix4x4.Invert(viewProjectionMatrix, out vpi);
             
             if (true)
             {
+                var nc = new Vector3(screenCoords.X, screenCoords.Y, screenCoords.Z);
+                //var vc = Vector3.Transform(nc, viewInverse);
+                var pc = vpi.PreMultiply(nc);
+
+                return pc;
+                
+                //var mc = Vector3.Transform(pc, ViewMatrix);
+
+                // Undo scale?
+                var scale = viewInverse.M43;
+
+                var mc = new Vector3(pc.X*scale, pc.Y*scale, pc.Z);
+
+                return mc;
+                
                 return Vector3.Transform(new Vector3(screenCoords.X, screenCoords.Y, screenCoords.Z), viewProjectionMatrix);
             }
             else

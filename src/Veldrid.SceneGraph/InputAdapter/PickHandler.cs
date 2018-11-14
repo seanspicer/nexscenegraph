@@ -58,7 +58,7 @@ namespace Veldrid.SceneGraph.InputAdapter
         {
             var norm = GetNormalizedMousePosition();
             
-            var startPos = _camera.NormalizedScreenToWorld(new Vector3(norm.X, norm.Y, -1.0f)); // Near plane
+            var startPos = _camera.NormalizedScreenToWorld(new Vector3(norm.X, norm.Y, 0.0f)); // Near plane
             var endPos = _camera.NormalizedScreenToWorld(new Vector3(norm.X, norm.Y, 1.0f)); // Far plane
             var intersector = new LineSegmentIntersector(startPos, endPos);
             

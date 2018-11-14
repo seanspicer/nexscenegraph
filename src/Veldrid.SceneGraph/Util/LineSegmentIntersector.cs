@@ -90,6 +90,21 @@ namespace Veldrid.SceneGraph.Util
             End = end;
         }
 
+        public override Intersector Clone(IntersectionVisitor iv)
+        {
+            Matrix4x4 matrix;
+            Matrix4x4.Invert(iv.GetModelMatrix(), out matrix);
+            
+            var lsi = new LineSegmentIntersector(
+                matrix.PreMultiply(Start),
+                matrix.PreMultiply(End));
+
+            lsi.Parent = this;
+            lsi.IntersectionLimit = this.IntersectionLimit;
+
+            return lsi;
+        }
+
         public override void Intersect(IntersectionVisitor iv, Drawable drawable)
         {
             var bb = drawable.GetBoundingBox();

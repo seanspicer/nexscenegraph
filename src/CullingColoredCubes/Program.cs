@@ -78,12 +78,14 @@ namespace ColoredCube
             var cube = CreateCube();
             scale_xform.AddChild(cube);
 
-            var gridSize = 5;
+            var gridSize = 1;
             var transF = 1.0f / gridSize;
             for (var i = -gridSize; i <= gridSize; ++i)
             {
                 for (var j = -gridSize; j <= gridSize; ++j)
                 {
+                    //if (i != 1 || j != 1) continue;
+                    
                     var xform = new MatrixTransform();
                     xform.NameString = $"XForm[{i}, {j}]";
                     xform.Matrix = Matrix4x4.CreateTranslation(transF*i, transF*j, 0.0f);

@@ -47,6 +47,8 @@ namespace Veldrid.SceneGraph.Util
             IntersectionLimit = IntersectionLimitModes.NoLimit;
         }
 
+        public abstract Intersector Clone(IntersectionVisitor iv);
+        
         public abstract void Intersect(IntersectionVisitor iv, Drawable drawable);
 
         public abstract bool Enter(Node node);

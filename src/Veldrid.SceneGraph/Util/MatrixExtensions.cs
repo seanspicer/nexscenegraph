@@ -22,7 +22,7 @@
 
 using System.Numerics;
 
-namespace Veldrid.SceneGraph.Viewer
+namespace Veldrid.SceneGraph.Util
 {
     public static class MatrixExtensions
     {
@@ -37,7 +37,25 @@ namespace Veldrid.SceneGraph.Viewer
         {
             return Matrix4x4.Multiply(mat, other);
         }
+        
+        // TODO - UNIT TEST
+        public static Vector3 PreMultiply(this Matrix4x4 mat, Vector3 v)
+        {
+            float d = 1.0f/(mat.M14*v.X+mat.M24*v.Y+mat.M34*v.Z+mat.M44) ;
+            return new Vector3( (mat.M11*v.X + mat.M21*v.Y + mat.M31*v.Z + mat.M41)*d,
+                (mat.M12*v.X + mat.M22*v.Y + mat.M32*v.Z + mat.M42)*d,
+                (mat.M13*v.X + mat.M23*v.Y + mat.M33*v.Z + mat.M43)*d);
+        }
 
+        // TODO - UNIT TEST
+        public static Vector3 PostMultiply(this Matrix4x4 mat, Vector3 v)
+        {
+            float d = 1.0f/(mat.M41*v.X+mat.M42*v.Y+mat.M43*v.Z+mat.M44) ;
+            return new Vector3( (mat.M11*v.X + mat.M12*v.Y + mat.M13*v.Z + mat.M14)*d,
+                (mat.M21*v.X + mat.M22*v.Y + mat.M23*v.Z + mat.M24)*d,
+                (mat.M31*v.X + mat.M32*v.Y + mat.M33*v.Z + mat.M34)*d) ;
+        }
+        
         // TODO - UNIT TEST
         public static Matrix4x4 SetTranslation(this Matrix4x4 mat, Vector3 translation)
         {

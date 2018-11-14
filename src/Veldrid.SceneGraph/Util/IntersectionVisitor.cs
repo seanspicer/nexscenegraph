@@ -21,13 +21,14 @@
 //
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 namespace Veldrid.SceneGraph.Util
 {
     public class IntersectionVisitor : NodeVisitor
     {
-        private Intersector _intersector;
+        private Stack<Intersector> _intersectorStack = new Stack<Intersector>();
         private bool _eyePointDirty = true;
         private Stack<Matrix4x4> _viewMatrixStack = new Stack<Matrix4x4>();
         private Stack<Matrix4x4> _modelMatrixStack = new Stack<Matrix4x4>();
@@ -38,24 +39,57 @@ namespace Veldrid.SceneGraph.Util
             TraversalModeType traversalMode = TraversalModeType.TraverseActiveChildren) 
             : base(type, traversalMode)
         {
-            _intersector = intersector;
+            SetIntersector(intersector);
         }
 
+        public void SetIntersector(Intersector intersector)
+        {
+            _intersectorStack.Clear();
+            
+            if (null != intersector)
+            {
+                _intersectorStack.Push(intersector);
+            }
+        }
+        
+        public Matrix4x4 GetModelMatrix()
+        {
+            return _modelMatrixStack.Any() ? _modelMatrixStack.Peek() : Matrix4x4.Identity;
+        }
+
+        public Matrix4x4 GetViewMatrix()
+        {
+            return _viewMatrixStack.Any() ? _viewMatrixStack.Peek() : Matrix4x4.Identity;
+        }
+        
         protected void Intersect(Drawable drawable)
         {
-            _intersector.Intersect(this, drawable);
+            _intersectorStack.Peek().Intersect(this, drawable);
         }
 
         protected bool Enter(Node node)
         {
-            return _intersector.Enter(node);
+            return _intersectorStack.Peek().Enter(node);
         }
 
         protected void Leave()
         {
-            _intersector.Leave();
+            _intersectorStack.Peek().Leave();
         }
 
+        protected void PushClone()
+        {
+            _intersectorStack.Push(_intersectorStack.Last().Clone(this));
+        }
+
+        protected void PopClone()
+        {
+            if (_intersectorStack.Count >= 2)
+            {
+                _intersectorStack.Pop();
+            }
+        }
+        
         protected void PushViewMatrix(Matrix4x4 viewMatrix)
         {
             PushMatrix(viewMatrix, _viewMatrixStack);
@@ -90,7 +124,9 @@ namespace Veldrid.SceneGraph.Util
 
         protected void Reset()
         {
-            _intersector.Reset();
+            var intersector = _intersectorStack.First();
+            intersector.Reset();
+            SetIntersector(intersector);
         }
         
         public override void Apply(Node node)
@@ -118,17 +154,23 @@ namespace Veldrid.SceneGraph.Util
         {
             if (false == Enter(transform)) return;
 
-            var localToWorld = Matrix4x4.Identity;
-            transform.ComputeLocalToWorldMatrix(ref localToWorld, this);
+            var curModel = _modelMatrixStack.Any() ? _modelMatrixStack.Peek() : Matrix4x4.Identity;
+            
+            
+            transform.ComputeLocalToWorldMatrix(ref curModel, this);
 
             if (transform.ReferenceFrame != Transform.ReferenceFrameType.Relative)
             {
                 PushViewMatrix(Matrix4x4.Identity);
             }
             
-            PushModelMatrix(localToWorld);
+            PushModelMatrix(curModel);
+            
+            PushClone();
             
             Traverse(transform);
+            
+            PopClone();
             
             PopModelmatrix();
             
