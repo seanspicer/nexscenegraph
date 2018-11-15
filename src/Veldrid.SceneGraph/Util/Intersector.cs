@@ -51,7 +51,7 @@ namespace Veldrid.SceneGraph.Util
         
         public abstract void Intersect(IntersectionVisitor iv, Drawable drawable);
 
-        public abstract bool Enter(Node node);
+        public abstract bool Enter(INode node);
 
         public abstract void Leave();
 

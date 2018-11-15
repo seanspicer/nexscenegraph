@@ -67,7 +67,7 @@ namespace Veldrid.SceneGraph.Util
             _intersectorStack.Peek().Intersect(this, drawable);
         }
 
-        protected bool Enter(Node node)
+        protected bool Enter(INode node)
         {
             return _intersectorStack.Peek().Enter(node);
         }
@@ -129,7 +129,7 @@ namespace Veldrid.SceneGraph.Util
             SetIntersector(intersector);
         }
         
-        public override void Apply(Node node)
+        public override void Apply(INode node)
         {
             if (false == Enter(node)) return;
 

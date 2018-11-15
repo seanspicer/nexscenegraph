@@ -27,17 +27,17 @@ namespace Veldrid.SceneGraph
 {
     public class CollectParentPaths : NodeVisitor
     {
-        private Node _haltTraversalAtNode;
-        private List<LinkedList<Node>> _nodePaths;
+        private INode _haltTraversalAtNode;
+        private List<LinkedList<INode>> _nodePaths;
         
-        public CollectParentPaths(Node haltTraversalAtNode = null) :
+        public CollectParentPaths(INode haltTraversalAtNode = null) :
             base(VisitorType.NodeVisitor, TraversalModeType.TraverseParents)
         {
             _haltTraversalAtNode = haltTraversalAtNode;
-            _nodePaths = new List<LinkedList<Node>>();
+            _nodePaths = new List<LinkedList<INode>>();
         }
 
-        public override void Apply(Node node)
+        public override void Apply(INode node)
         {
             if (node.NumParents == 0 || node == _haltTraversalAtNode)
             {
@@ -50,7 +50,7 @@ namespace Veldrid.SceneGraph
         }
     }
    
-    public abstract class Node : Object
+    public abstract class Node : Object, INode
     {
         // Public Fields
         public Guid Id { get; private set; }
@@ -106,22 +106,22 @@ namespace Veldrid.SceneGraph
             get => null != _pipelineState;
         }
 
-        private int GetNumChildrenRequiringEventTraversal()
+        public int GetNumChildrenRequiringEventTraversal()
         {
             throw new NotImplementedException();
         }
 
-        private int GetNumChildrenRequiringUpdateTraversal()
+        public int GetNumChildrenRequiringUpdateTraversal()
         {
             throw new NotImplementedException();
         }
 
-        private void SetNumChildrenRequiringEventTraversal(int i)
+        public void SetNumChildrenRequiringEventTraversal(int i)
         {
             throw new NotImplementedException();
         }
 
-        private void SetNumChildrenRequiringUpdateTraversal(int i)
+        public void SetNumChildrenRequiringUpdateTraversal(int i)
         {
             throw new NotImplementedException();
         }
@@ -129,7 +129,7 @@ namespace Veldrid.SceneGraph
         // Protected/Private fields
 
         protected StateSet _stateSet = null;
-        private List<Group> _parents;
+        private List<IGroup> _parents;
         protected bool _boundingSphereComputed = false;
         protected BoundingSphere _boundingSphere = new BoundingSphere();
 
@@ -151,7 +151,7 @@ namespace Veldrid.SceneGraph
         {
             Id = Guid.NewGuid();
 
-            _parents = new List<Group>();
+            _parents = new List<IGroup>();
         }
 
         public StateSet GetOrCreateStateSet()
@@ -166,12 +166,12 @@ namespace Veldrid.SceneGraph
             
         }
 
-        protected internal void AddParent(Group parent)
+        public void AddParent(IGroup parent)
         {
             _parents.Add(parent);
         }
 
-        protected internal void RemoveParent(Group parent)
+        public void RemoveParent(IGroup parent)
         {
             _parents.RemoveAll(x => x.Id == parent.Id);
         }

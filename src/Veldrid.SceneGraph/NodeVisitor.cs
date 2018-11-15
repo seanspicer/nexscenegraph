@@ -27,7 +27,7 @@ using Veldrid.SceneGraph.Text;
 
 namespace Veldrid.SceneGraph
 {
-    public class NodePath : LinkedList<Node>
+    public class NodePath : LinkedList<INode>
     {
         public NodePath Copy()
         {
@@ -100,7 +100,7 @@ namespace Veldrid.SceneGraph
             TraversalMode = traversalMode;
         }
 
-        public void PushOntoNodePath(Node node)
+        public void PushOntoNodePath(INode node)
         {
             if (TraversalMode != TraversalModeType.TraverseParents)
             {
@@ -112,7 +112,7 @@ namespace Veldrid.SceneGraph
             }
         }
 
-        public void PopFromNodePath(Node node)
+        public void PopFromNodePath(INode node)
         {
             if (TraversalMode != TraversalModeType.TraverseParents)
             {
@@ -135,12 +135,12 @@ namespace Veldrid.SceneGraph
         /// </summary>
         /// <param name="node"></param>
         /// <returns></returns>
-        public bool ValidNodeMask(Node node)
+        public bool ValidNodeMask(INode node)
         {
             return (TraversalMask & (NodeMaskOverride | node.NodeMask)) != 0;
         }
         
-        protected void Traverse(Node node)
+        protected void Traverse(INode node)
         {
             if (TraversalMode == TraversalModeType.TraverseParents) node.Ascend(this);
             else if(TraversalMode != TraversalModeType.TraverseNone) node.Traverse(this);
@@ -149,7 +149,7 @@ namespace Veldrid.SceneGraph
         //
         // Default implementation for Generic Node
         //
-        public virtual void Apply(Node node)
+        public virtual void Apply(INode node)
         {
             Traverse(node);
         }
@@ -159,7 +159,7 @@ namespace Veldrid.SceneGraph
         // 
         public virtual void Apply(Geode geode)
         {
-            Apply((Node)geode);
+            Apply((INode)geode);
         }
 
         /// <summary>
@@ -176,7 +176,7 @@ namespace Veldrid.SceneGraph
         // 
         public virtual void Apply(Transform transform)
         {
-            Apply((Node)transform);
+            Apply((INode)transform);
         }
     }
 }

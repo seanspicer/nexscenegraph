@@ -22,7 +22,7 @@
 
 namespace Veldrid.SceneGraph
 {
-    public abstract class Object
+    public abstract class Object : IObject
     {
         public enum DataVarianceType
         {

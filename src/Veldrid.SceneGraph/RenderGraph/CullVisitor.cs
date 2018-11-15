@@ -139,7 +139,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             return culled;
         }
 
-        public override void Apply(Node node)
+        public override void Apply(INode node)
         {
             var needsPop = false;
             if (node.HasPipelineState)

@@ -25,7 +25,7 @@ using System.Linq;
 
 namespace Veldrid.SceneGraph
 {
-    public class Group : Node
+    public class Group : Node, IGroup
     {
         private List<Node> _children = new List<Node>();
         
@@ -96,14 +96,14 @@ namespace Veldrid.SceneGraph
 
             return true;
         }
-        
 
-        protected virtual void ChildInserted(int index)
+
+        public virtual void ChildInserted(int index)
         {
             // Do nothing by default
         }
 
-        protected virtual void ChildRemoved(int index, int count)
+        public virtual void ChildRemoved(int index, int count)
         {
             // Do nothing by default
         }

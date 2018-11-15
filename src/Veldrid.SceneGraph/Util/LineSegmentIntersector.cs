@@ -120,19 +120,19 @@ namespace Veldrid.SceneGraph.Util
         public override void Intersect(IntersectionVisitor iv, Drawable drawable)
         {
             var bb = drawable.GetBoundingBox();
-            if (intersects(new BoundingSphere(drawable.GetBoundingBox())))
+            if (Intersects(new BoundingSphere(drawable.GetBoundingBox())))
             {
                 var intersection = new Intersection(Start, bb.Center, drawable, iv.NodePath.Copy());
                 InsertIntersection(intersection);
             }
         }
 
-        public override bool Enter(Node node)
+        public override bool Enter(INode node)
         {
-            return intersects(node.GetBound());
+            return Intersects(node.GetBound());
         }
 
-        private bool intersects(BoundingSphere bs)
+        private bool Intersects(BoundingSphere bs)
         {
             if (!bs.Valid()) return true;
 
