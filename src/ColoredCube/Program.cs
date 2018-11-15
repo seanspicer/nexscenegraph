@@ -67,7 +67,7 @@ namespace ColoredCube
             var viewer = new SimpleViewer("Colored Cube Scene Graph");
             viewer.View.CameraManipulator = new TrackballManipulator();
 
-            var root = new Group();
+            var root = Group.Create();
             var cube = CreateCube();
             
             root.AddChild(cube);

@@ -27,7 +27,7 @@ namespace Veldrid.SceneGraph.Viewer
 {
     public class View : Veldrid.SceneGraph.View
     {
-        public Group SceneData { get; set; }
+        public IGroup SceneData { get; set; }
 
         private Action<InputStateSnapshot> HandleInputSnapshot;
 

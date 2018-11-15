@@ -27,16 +27,21 @@ namespace Veldrid.SceneGraph
 {
     public class Group : Node, IGroup
     {
-        private List<Node> _children = new List<Node>();
+        private List<INode> _children = new List<INode>();
         
-        public Group() {}
+        protected Group() {}
+
+        public static IGroup Create()
+        {
+            return new Group();
+        }
         
-        public virtual bool AddChild(Node child)
+        public virtual bool AddChild(INode child)
         {
             return InsertChild(_children.Count, child);
         }
 
-        public virtual bool InsertChild(int index, Node child)
+        public virtual bool InsertChild(int index, INode child)
         {
             if (null == child) return false;
             
@@ -65,7 +70,7 @@ namespace Veldrid.SceneGraph
             return true;
         }
 
-        public virtual bool RemoveChild(Node child)
+        public virtual bool RemoveChild(INode child)
         {
             var pos = _children.FindIndex(x => x.Id == child.Id);
             return pos < _children.Count && RemoveChildren(pos, 1);

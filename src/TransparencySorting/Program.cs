@@ -68,7 +68,7 @@ namespace TransparencySorting
             var viewer = new SimpleViewer("Transparancy Sorting Demo");
             viewer.View.CameraManipulator = new TrackballManipulator();
 
-            var root = new Group();
+            var root = Group.Create();
 
             root.AddChild(CreateCube());
 

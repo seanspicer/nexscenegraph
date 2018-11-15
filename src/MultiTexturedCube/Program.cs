@@ -70,7 +70,7 @@ namespace MultiTexturedCube
             var viewer = new SimpleViewer("Textured Cube Scene Graph");
             viewer.View.CameraManipulator = new TrackballManipulator();
 
-            var root = new Group();
+            var root = Group.Create();
             
             var scale_xform = new MatrixTransform();
             scale_xform.Matrix = Matrix4x4.CreateScale(0.25f);

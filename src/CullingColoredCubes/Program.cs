@@ -68,7 +68,7 @@ namespace ColoredCube
             viewer.View.CameraManipulator = new TrackballManipulator();
             viewer.View.PickHandler = new PickHandler(viewer.View.Camera);
 
-            var root = new Group();
+            var root = Group.Create();
             root.NameString = "Root";
             
             var scale_xform = new MatrixTransform();

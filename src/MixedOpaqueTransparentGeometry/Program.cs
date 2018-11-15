@@ -67,10 +67,10 @@ public struct VertexPositionColor : IPrimitiveElement
             var viewer = new SimpleViewer("Transparancy Sorting Demo");
             viewer.View.CameraManipulator = new TrackballManipulator();
 
-            var root = new Group();
+            var root = Group.Create();
 
             // Construct Transparent Geometry
-            var transparentGroup = new Group();            
+            var transparentGroup = Group.Create();            
             var scale_xform = new MatrixTransform();
             scale_xform.Matrix = Matrix4x4.CreateScale(0.35f);
             
@@ -101,7 +101,7 @@ public struct VertexPositionColor : IPrimitiveElement
 
             var greyCube = CreateUniformColorCube();
             
-            var opaqueGroup = new Group(); 
+            var opaqueGroup = Group.Create();
             var opaqueScaleX = new MatrixTransform();
             opaqueScaleX.Matrix = Matrix4x4.CreateScale(2, 0.10f, 0.10f);
             opaqueScaleX.PipelineState = OpaqueState();

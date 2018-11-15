@@ -40,7 +40,7 @@ namespace TextRendering
             var viewer = new SimpleViewer("Text Rendering Demo");
             viewer.View.CameraManipulator = new TrackballManipulator();
 
-            var root = new Group();
+            var root = Group.Create();
 
             var textNode = new TextNode("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor");
             

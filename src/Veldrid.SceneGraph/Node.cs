@@ -64,7 +64,7 @@ namespace Veldrid.SceneGraph
         public int NumChildrenWithCullingDisabled { get; set; } = 0;
 
         public bool IsCullingActive => NumChildrenWithCullingDisabled == 0 && CullingActive && GetBound().Valid();
-
+            
         public StateSet StateSet
         {
             get => _stateSet;
@@ -147,7 +147,7 @@ namespace Veldrid.SceneGraph
 
         public event Func<Node, BoundingSphere> ComputeBoundCallback;
         
-        public Node()
+        protected Node()
         {
             Id = Guid.NewGuid();
 
