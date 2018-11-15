@@ -39,10 +39,27 @@ namespace Veldrid.SceneGraph.Viewer
             {
                 if (null != _cameraManipulator)
                 {
-                    HandleInputSnapshot = null; // Clear delegates
+                    throw new Exception("Setting camera manipulator twice.  Don't do that.");
                 }
                 _cameraManipulator = value;
                 HandleInputSnapshot += _cameraManipulator.HandleInput;
+            }
+        }
+
+        private PickHandler _pickHandler = null;
+
+        public PickHandler PickHandler
+        {
+            get => _pickHandler;
+            set
+            {
+                if (null != _pickHandler)
+                {
+                    throw new Exception("Setting camera manipulator twice.  Don't do that.");
+                }
+
+                _pickHandler = value;
+                HandleInputSnapshot += _pickHandler.HandleInput;
             }
         }
     
@@ -57,6 +74,7 @@ namespace Veldrid.SceneGraph.Viewer
 
             // Update the camera on input
             _cameraManipulator?.UpdateCamera(Camera);
+
         }
     }
 }

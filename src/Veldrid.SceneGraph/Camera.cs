@@ -20,8 +20,11 @@
 // SOFTWARE.
 //
 
+using System;
 using System.Data;
 using System.Numerics;
+using Veldrid.SceneGraph.Util;
+using Veldrid.SceneGraph.Viewer;
 
 namespace Veldrid.SceneGraph
 {
@@ -75,7 +78,29 @@ namespace Veldrid.SceneGraph
         public void SetProjectionMatrixAsPerspective(float vfov, float aspectRatio, float zNear, float zFar)
         {
             ProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(vfov, aspectRatio, zNear, zFar);
-            //ProjectionMatrix = Matrix4x4.Identity;
+        }
+
+        public Vector3 NormalizedScreenToWorld(Vector3 screenCoords)
+        {
+            var viewProjectionMatrix = Matrix4x4.Identity;
+
+            viewProjectionMatrix = ProjectionMatrix.PreMultiply(ViewMatrix);
+
+            Matrix4x4 vpi;
+            
+            if (Matrix4x4.Invert(viewProjectionMatrix, out vpi))
+            {
+                var nc = new Vector3(screenCoords.X, screenCoords.Y, screenCoords.Z);
+                var pc = vpi.PreMultiply(nc);
+
+                return pc;
+                
+            }
+            else
+            {
+                throw new Exception("Cannot invert view-projection matrix");
+            }
+            
         }
         
         private Vector3 GetLookDir()
@@ -87,18 +112,12 @@ namespace Veldrid.SceneGraph
 
         private void UpdateViewMatrix()
         {
-            //Vector3 lookDir = GetLookDir();
-            //_lookDirection = lookDir;
-            
             ViewMatrix = Matrix4x4.CreateLookAt(_position, new Vector3(0, 0, 0), _upDirection);
-            //ViewMatrix = Matrix4x4.Identity;
         }
 
         private void UpdateProjectionMatrix()
         {
             ProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(_fov, _windowWidth/_windowHeight, _near, _far);
-            //ProjectionMatrix = Matrix4x4.CreateOrthographic(2, 2, 0.1f, 100);
-            //ProjectionMatrix = Matrix4x4.Identity;
         }
     }
 }

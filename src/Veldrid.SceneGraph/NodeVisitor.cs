@@ -29,6 +29,16 @@ namespace Veldrid.SceneGraph
 {
     public class NodePath : LinkedList<Node>
     {
+        public NodePath Copy()
+        {
+            var result = new NodePath();
+            foreach (var node in this)
+            {
+                result.AddLast(node);
+            }
+
+            return result;
+        }
     }
 
     /// <summary>
@@ -50,6 +60,7 @@ namespace Veldrid.SceneGraph
         {
             NodeVisitor,
             UpdateVisitor,
+            IntersectionVisitor,
             CullVisitor,
             AssembleVisitor,
             CullAndAssembleVisitor = CullVisitor | AssembleVisitor
@@ -129,7 +140,7 @@ namespace Veldrid.SceneGraph
             return (TraversalMask & (NodeMaskOverride | node.NodeMask)) != 0;
         }
         
-        public void Traverse(Node node)
+        protected void Traverse(Node node)
         {
             if (TraversalMode == TraversalModeType.TraverseParents) node.Ascend(this);
             else if(TraversalMode != TraversalModeType.TraverseNone) node.Traverse(this);
@@ -149,6 +160,15 @@ namespace Veldrid.SceneGraph
         public virtual void Apply(Geode geode)
         {
             Apply((Node)geode);
+        }
+
+        /// <summary>
+        /// Default Implementation for Billboard
+        /// </summary>
+        /// <param name="billboard"></param>
+        public virtual void Apply(Billboard billboard)
+        {
+            Apply((Geode)billboard);
         }
 
         // 

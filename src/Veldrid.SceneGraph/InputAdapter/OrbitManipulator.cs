@@ -55,11 +55,11 @@ namespace Veldrid.SceneGraph.InputAdapter
             else
 
             {
-                var xNorm = 2.0f*(_inputStateTracker.MousePosition.Value.X / _inputStateTracker.FrameSnapshot.WindowWidth)-1.0f;
-                var yNorm = -2.0f*(_inputStateTracker.MousePosition.Value.Y / _inputStateTracker.FrameSnapshot.WindowHeight)+1.0f;
+                var xNorm = 2.0f*(InputStateTracker.MousePosition.Value.X / InputStateTracker.FrameSnapshot.WindowWidth)-1.0f;
+                var yNorm = -2.0f*(InputStateTracker.MousePosition.Value.Y / InputStateTracker.FrameSnapshot.WindowHeight)+1.0f;
                 
-                var xNormLast = 2.0f*(_inputStateTracker.LastMousePosition.Value.X / _inputStateTracker.FrameSnapshot.WindowWidth)-1.0f;
-                var yNormLast = -2.0f*(_inputStateTracker.LastMousePosition.Value.Y / _inputStateTracker.FrameSnapshot.WindowHeight)+1.0f;
+                var xNormLast = 2.0f*(InputStateTracker.LastMousePosition.Value.X / InputStateTracker.FrameSnapshot.WindowWidth)-1.0f;
+                var yNormLast = -2.0f*(InputStateTracker.LastMousePosition.Value.Y / InputStateTracker.FrameSnapshot.WindowHeight)+1.0f;
 
                 RotateTrackball(xNorm, yNorm, xNormLast, yNormLast, 1.0f);
             }
@@ -117,7 +117,7 @@ namespace Veldrid.SceneGraph.InputAdapter
         
         protected override void HandleWheelDelta()
         {
-            ZoomModel(WheelZoomFactor *_inputStateTracker.FrameSnapshot.WheelDelta, true);
+            ZoomModel(WheelZoomFactor *InputStateTracker.FrameSnapshot.WheelDelta, true);
             RequestRedraw();
         }
         

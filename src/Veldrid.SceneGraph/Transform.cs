@@ -44,9 +44,14 @@ namespace Veldrid.SceneGraph
         }
         
         // Required for double-dispatch
-        public override void Accept(NodeVisitor visitor)
+        public override void Accept(NodeVisitor nv)
         {
-            visitor.Apply(this);
+            if (nv.ValidNodeMask(this))
+            {
+                nv.PushOntoNodePath(this);
+                nv.Apply(this);
+                nv.PopFromNodePath(this);
+            };
         }
 
         public virtual bool ComputeLocalToWorldMatrix(ref Matrix4x4 matrix, NodeVisitor visitor)
@@ -76,7 +81,7 @@ namespace Veldrid.SceneGraph
             var bsphere = base.ComputeBound();
             if (!bsphere.Valid()) return bsphere;
 
-            var localToWorld = new Matrix4x4();
+            var localToWorld = Matrix4x4.Identity;
             ComputeLocalToWorldMatrix(ref localToWorld, null);
            
             var xdash = bsphere.Center;

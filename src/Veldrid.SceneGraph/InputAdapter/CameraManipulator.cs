@@ -25,10 +25,8 @@ using System.Numerics;
 
 namespace Veldrid.SceneGraph.InputAdapter
 {
-    public abstract class CameraManipulator : IInputEventHandler
+    public abstract class CameraManipulator : InputEventHandler
     {
-        protected InputStateTracker _inputStateTracker = new InputStateTracker();
-
         public event Action RequestRedrawAction;
         
         protected abstract Matrix4x4 InverseMatrix { get; }
@@ -44,32 +42,31 @@ namespace Veldrid.SceneGraph.InputAdapter
             camera.ViewMatrix = InverseMatrix;
         }
         
-        public void HandleInput(InputStateSnapshot snapshot)
+        public override void HandleInput(InputStateSnapshot snapshot)
         {
-            
-            _inputStateTracker.UpdateFrameInput(snapshot);
+            base.HandleInput(snapshot);
 
-            if (_inputStateTracker.IsMouseButtonPushed())
+            if (InputStateTracker.IsMouseButtonPushed())
             {
                 HandleMouseButtonPushed();
             }
 
-            if (_inputStateTracker.IsMouseButtonReleased())
+            if (InputStateTracker.IsMouseButtonReleased())
             {
                 HandleMouseButtonReleased();
             }
             
-            if (_inputStateTracker.IsMouseButtonDown() && _inputStateTracker.IsMouseMove())
+            if (InputStateTracker.IsMouseButtonDown() && InputStateTracker.IsMouseMove())
             {
                 HandleDrag();
             }
             
-            else if (_inputStateTracker.IsMouseMove())
+            else if (InputStateTracker.IsMouseMove())
             {
                 HandleMouseMove();
             }
 
-            if (_inputStateTracker.FrameSnapshot.WheelDelta != 0)
+            if (InputStateTracker.FrameSnapshot.WheelDelta != 0)
             {
                 HandleWheelDelta();
             }
@@ -90,7 +87,7 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         protected virtual void HandleMouseMove()
         {
-            Console.WriteLine("Move Event!");
+            //Console.WriteLine("Move Event!");
         }
 
         protected virtual void HandleMouseButtonPushed()
@@ -110,12 +107,12 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         protected virtual bool PerformMovement()
         {
-            var dx = (_inputStateTracker.MousePosition?.X - _inputStateTracker.LastMousePosition?.X)/_inputStateTracker.FrameSnapshot.WindowWidth;
-            var dy = (_inputStateTracker.MousePosition?.Y - _inputStateTracker.LastMousePosition?.Y)/_inputStateTracker.FrameSnapshot.WindowHeight;
+            var dx = (InputStateTracker.MousePosition?.X - InputStateTracker.LastMousePosition?.X)/InputStateTracker.FrameSnapshot.WindowWidth;
+            var dy = (InputStateTracker.MousePosition?.Y - InputStateTracker.LastMousePosition?.Y)/InputStateTracker.FrameSnapshot.WindowHeight;
 
             if (dx == 0 && dy == 0) return false;
 
-            if (_inputStateTracker.GetMouseButton(MouseButton.Left))
+            if (InputStateTracker.GetMouseButton(MouseButton.Left))
             {
                 return PerformMovementLeftMouseButton(dx.Value, dy.Value); 
             }

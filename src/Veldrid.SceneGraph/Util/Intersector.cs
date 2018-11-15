@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) 2018 Sean Spicer
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,20 +20,42 @@
 // SOFTWARE.
 //
 
-using System.Numerics;
+using System;
 
-namespace Veldrid.SceneGraph.Viewer
+namespace Veldrid.SceneGraph.Util
 {
-    public static class MatrixExtensions
+    /// <summary>
+    /// Base class for all intersectors
+    /// </summary>
+    public abstract class Intersector
     {
-        public static Matrix4x4 PreMultiply(this Matrix4x4 mat, Matrix4x4 other)
+        public enum IntersectionLimitModes
         {
-            return Matrix4x4.Multiply(other, mat);
-        }
+            NoLimit,
+            LimitOnePerDrawable,
+            LimitOne,
+            LimitNearest
+        };
         
-        public static Matrix4x4 PostMultiply(this Matrix4x4 mat, Matrix4x4 other)
+        public IntersectionLimitModes IntersectionLimit { get; set; }
+        
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public Intersector()
         {
-            return Matrix4x4.Multiply(mat, other);
+            IntersectionLimit = IntersectionLimitModes.NoLimit;
         }
+
+        public abstract Intersector Clone(IntersectionVisitor iv);
+        
+        public abstract void Intersect(IntersectionVisitor iv, Drawable drawable);
+
+        public abstract bool Enter(Node node);
+
+        public abstract void Leave();
+
+        public abstract void Reset();
+
     }
 }

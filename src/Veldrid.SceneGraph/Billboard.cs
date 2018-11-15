@@ -20,10 +20,52 @@
 // SOFTWARE.
 //
 
+using System;
+using System.Collections.Generic;
+using System.Numerics;
+using Veldrid.SceneGraph.Util;
+using Veldrid.SceneGraph.Viewer;
+
 namespace Veldrid.SceneGraph
- {
-     public interface IPrimitiveFunctor
-     {
-         void SetVertexData(VertexLayoutDescription vld, System.Object[] vertexData);
-     }
- }
+{
+    public class Billboard : Geode
+    {
+        public enum Modes
+        {
+            Screen
+        }
+
+        public Modes Mode { get; set; }
+        
+        public Billboard()
+        {
+            Mode = Modes.Screen;
+        }
+        
+        public override void Accept(NodeVisitor visitor)
+        {
+            visitor.Apply(this);
+        }
+        
+       
+        public Matrix4x4 ComputeMatrix(Matrix4x4 modelView, Vector3 eyeLocal)
+        {
+            Matrix4x4 rotate = Matrix4x4.Identity;
+            switch (Mode)
+            {
+                case Modes.Screen:
+                    var tmp = modelView.SetTranslation(Vector3.Zero);
+                    var canInvert = Matrix4x4.Invert(tmp, out rotate);
+                    if (false == canInvert)
+                    {
+                        rotate = Matrix4x4.Identity;
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            return rotate;
+        }
+    }
+}
