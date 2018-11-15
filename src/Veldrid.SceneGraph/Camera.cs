@@ -78,42 +78,23 @@ namespace Veldrid.SceneGraph
         public void SetProjectionMatrixAsPerspective(float vfov, float aspectRatio, float zNear, float zFar)
         {
             ProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(vfov, aspectRatio, zNear, zFar);
-            //ProjectionMatrix = Matrix4x4.Identity;
         }
 
         public Vector3 NormalizedScreenToWorld(Vector3 screenCoords)
         {
             var viewProjectionMatrix = Matrix4x4.Identity;
 
-            var projectionInverse = Matrix4x4.Identity;
-            var viewInverse = Matrix4x4.Identity;
-
-            //Matrix4x4.Invert(ProjectionMatrix, out projectionInverse);
-            //Matrix4x4.Invert(ViewMatrix, out viewInverse);
-
             viewProjectionMatrix = ProjectionMatrix.PreMultiply(ViewMatrix);
 
             Matrix4x4 vpi;
-            Matrix4x4.Invert(viewProjectionMatrix, out vpi);
             
-            if (true)
+            if (Matrix4x4.Invert(viewProjectionMatrix, out vpi))
             {
                 var nc = new Vector3(screenCoords.X, screenCoords.Y, screenCoords.Z);
-                //var vc = Vector3.Transform(nc, viewInverse);
                 var pc = vpi.PreMultiply(nc);
 
                 return pc;
                 
-                //var mc = Vector3.Transform(pc, ViewMatrix);
-
-                // Undo scale?
-                var scale = viewInverse.M43;
-
-                var mc = new Vector3(pc.X*scale, pc.Y*scale, pc.Z);
-
-                return mc;
-                
-                return Vector3.Transform(new Vector3(screenCoords.X, screenCoords.Y, screenCoords.Z), viewProjectionMatrix);
             }
             else
             {
@@ -131,20 +112,12 @@ namespace Veldrid.SceneGraph
 
         private void UpdateViewMatrix()
         {
-            //Vector3 lookDir = GetLookDir();
-            //_lookDirection = lookDir;
-            
             ViewMatrix = Matrix4x4.CreateLookAt(_position, new Vector3(0, 0, 0), _upDirection);
-            //ViewMatrix = Matrix4x4.Identity;
         }
 
         private void UpdateProjectionMatrix()
         {
             ProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(_fov, _windowWidth/_windowHeight, _near, _far);
-            //ProjectionMatrix = Matrix4x4.CreateOrthographic(2, 2, 0.1f, 100);
-            //ProjectionMatrix = Matrix4x4.Identity;
         }
-        
-        
     }
 }
