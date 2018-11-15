@@ -114,7 +114,7 @@ namespace HelloNsg
                 "FS");
                         
             var geode = new Geode();
-            geode.Drawables.Add(geometry);
+            geode.AddDrawable(geometry);
             
             root.AddChild(geode);
 

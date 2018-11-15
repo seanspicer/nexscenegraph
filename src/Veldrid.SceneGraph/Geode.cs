@@ -25,22 +25,15 @@ using System.Collections.Generic;
 
 namespace Veldrid.SceneGraph
 {
-    public class Geode : Node
+
+    public class Geode : Node, IGeode
     {
-        public List<Drawable> Drawables { get; } = new List<Drawable>();
+        private List<Drawable> _drawables = new List<Drawable>();
+        public IReadOnlyList<Drawable> Drawables => _drawables;
         
         protected BoundingBox _boundingBox;
         protected BoundingBox _initialBoundingBox = new BoundingBox();
-        public BoundingBox InitialBoundingBox
-        {
-            get => _initialBoundingBox;
-            set
-            {
-                _initialBoundingBox = value;
-                DirtyBound();
-            }
-        }
-        
+
         public event Func<Node, BoundingBox> ComputeBoundingBoxCallback;
         
         public Geode()
@@ -60,7 +53,7 @@ namespace Veldrid.SceneGraph
 
         public virtual void AddDrawable(Drawable drawable)
         {
-            Drawables.Add(drawable);
+            _drawables.Add(drawable);
         }
         
         public BoundingBox GetBoundingBox()

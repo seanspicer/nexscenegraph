@@ -176,7 +176,7 @@ namespace ColoredCube
             var geode = new Geode();
             geode.NameString = "Cube Geode";
             geometry.Name = "Colored Cube";
-            geode.Drawables.Add(geometry);
+            geode.AddDrawable(geometry);
             return geode;
         }
         

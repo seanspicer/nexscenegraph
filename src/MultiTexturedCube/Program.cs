@@ -187,7 +187,7 @@ namespace MultiTexturedCube
                 );
 
             var geode = new Geode();
-            geode.Drawables.Add(geometry);
+            geode.AddDrawable(geometry);
             return geode;
         }
     }

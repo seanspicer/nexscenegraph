@@ -26,7 +26,7 @@ using Veldrid.SceneGraph.Viewer;
 
 namespace Veldrid.SceneGraph
 {
-    public class MatrixTransform : Transform
+    public class MatrixTransform : Transform, IMatrixTransform
     {
         private Matrix4x4 _matrix = Matrix4x4.Identity;
 
@@ -56,14 +56,14 @@ namespace Veldrid.SceneGraph
             }
         }
 
-        public virtual void PreMultiply(Matrix4x4 mat)
+        public void PreMultiply(Matrix4x4 mat)
         {
             _matrix = _matrix.PreMultiply(mat);
             _inverseDirty = true;
             DirtyBound();
         }
         
-        public virtual void PostMultiply(Matrix4x4 mat)
+        public void PostMultiply(Matrix4x4 mat)
         {
             _matrix = _matrix.PostMultiply(mat);
             _inverseDirty = true;

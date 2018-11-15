@@ -20,15 +20,15 @@
 // SOFTWARE.
 //
 
+using System.Numerics;
+
 namespace Veldrid.SceneGraph
 {
-    public interface IGroup : INode
+    public interface IMatrixTransform
     {
-        bool AddChild(Node child);
-        bool InsertChild(int index, Node child);
-        bool RemoveChild(Node child);
-        bool RemoveChildren(int pos, int numChildrenToRemove);
-        void ChildInserted(int index);
-        void ChildRemoved(int index, int count);
+        Matrix4x4 Matrix { get; set; }
+        Matrix4x4 Inverse { get; }
+        void PreMultiply(Matrix4x4 mat);
+        void PostMultiply(Matrix4x4 mat);
     }
 }

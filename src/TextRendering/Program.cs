@@ -45,7 +45,7 @@ namespace TextRendering
             var textNode = new TextNode("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor");
             
             var geode = new Geode();
-            geode.Drawables.Add(textNode);
+            geode.AddDrawable(textNode);
             
             root.AddChild(geode);
 

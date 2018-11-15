@@ -192,7 +192,7 @@ namespace TransparencySorting
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
             
-            geode.Drawables.Add(geometry);
+            geode.AddDrawable(geometry);
 
             return geode;
         }

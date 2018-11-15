@@ -98,10 +98,10 @@ namespace BillboardExample
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
                         
             var geode = new Geode();
-            geode.Drawables.Add(geometry);
+            geode.AddDrawable(geometry);
             
             var billboard = new Billboard();
-            billboard.Drawables.Add(geometry);
+            billboard.AddDrawable(geometry);
             
             var leftXForm = new MatrixTransform();
             leftXForm.Matrix = Matrix4x4.CreateTranslation(1, 0, 0);

@@ -204,7 +204,7 @@ public struct VertexPositionColor : IPrimitiveElement
             
                 geometry.PrimitiveSets.Add(pSet);
                 
-                geode.Drawables.Add(geometry);
+                geode.AddDrawable(geometry);
 
             }
 
@@ -285,7 +285,7 @@ public struct VertexPositionColor : IPrimitiveElement
             geometry.PrimitiveSets.Add(pSet);
 
             var geode = new Geode();
-            geode.Drawables.Add(geometry);
+            geode.AddDrawable(geometry);
             
             return geode;
         }

@@ -155,7 +155,7 @@ namespace ColoredCube
             geometry.PipelineState.FragmentShaderDescription = Vertex3Color4Shader.Instance.FragmentShaderDescription;
 
             var geode = new Geode();
-            geode.Drawables.Add(geometry);
+            geode.AddDrawable(geometry);
 
             return geode;
         }

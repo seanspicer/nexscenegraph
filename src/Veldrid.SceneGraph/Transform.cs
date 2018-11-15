@@ -28,7 +28,7 @@ namespace Veldrid.SceneGraph
     /// <summary>
     /// A Transform is a node which transforms all children
     /// </summary>
-    public class Transform : Group
+    public class Transform : Group, ITransform
     {
         public enum ReferenceFrameType
         {
