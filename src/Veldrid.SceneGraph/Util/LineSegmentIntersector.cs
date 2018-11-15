@@ -89,7 +89,7 @@ namespace Veldrid.SceneGraph.Util
             Start = start;
             End = end;
         }
-
+        
         public override Intersector Clone(IntersectionVisitor iv)
         {
             Matrix4x4 matrix;
@@ -105,13 +105,25 @@ namespace Veldrid.SceneGraph.Util
             return lsi;
         }
 
+        private void InsertIntersection(Intersection intersection)
+        {
+            if (null == Parent)
+            {
+                Intersections.Add(intersection);
+            }
+            else
+            {
+                Parent.InsertIntersection(intersection);
+            }
+        }
+
         public override void Intersect(IntersectionVisitor iv, Drawable drawable)
         {
             var bb = drawable.GetBoundingBox();
             if (intersects(new BoundingSphere(drawable.GetBoundingBox())))
             {
                 var intersection = new Intersection(Start, bb.Center, drawable, iv.NodePath.Copy());
-                Intersections.Add(intersection);
+                InsertIntersection(intersection);
             }
         }
 

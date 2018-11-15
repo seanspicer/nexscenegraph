@@ -87,9 +87,6 @@ namespace Veldrid.SceneGraph.InputAdapter
             {
                 Console.WriteLine("No Intersections");
             }
-            
-            
-            
         }
     }
 }
