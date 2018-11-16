@@ -24,7 +24,7 @@ using System;
 
 namespace Veldrid.SceneGraph
 {
-    public abstract class PrimitiveSet : Object
+    public abstract class PrimitiveSet : Object, IPrimitiveSet
     {
         protected bool _boundingSphereComputed = false;
         protected BoundingSphere _boundingSphere = new BoundingSphere();
@@ -43,12 +43,12 @@ namespace Veldrid.SceneGraph
         
         public event Func<PrimitiveSet, BoundingBox> ComputeBoundingBoxCallback;
         
-        public Drawable Drawable { get; }
+        public IDrawable Drawable { get; }
 
         
         public PrimitiveTopology PrimitiveTopology { get; set; }
         
-        protected PrimitiveSet(Drawable drawable, PrimitiveTopology primitiveTopology)
+        protected PrimitiveSet(IDrawable drawable, PrimitiveTopology primitiveTopology)
         {
             PrimitiveTopology = primitiveTopology;
             Drawable = drawable;

@@ -68,7 +68,7 @@ namespace HelloNsg
 
             var root = Group.Create();
             
-            var geometry = new Geometry<VertexPositionColor>();
+            var geometry = Geometry<VertexPositionColor>.Create();
             
             VertexPositionColor[] quadVertices =
             {
@@ -83,7 +83,7 @@ namespace HelloNsg
             ushort[] quadIndices = { 0, 1, 2, 3 };
             geometry.IndexData = quadIndices;
             
-            var pSet = new DrawElements<VertexPositionColor>(
+            var pSet = DrawElements<VertexPositionColor>.Create(
                 geometry, 
                 PrimitiveTopology.TriangleStrip,
                 (uint)quadIndices.Length, 

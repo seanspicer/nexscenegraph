@@ -33,7 +33,7 @@ namespace Veldrid.SceneGraph
         public Matrix4x4 Matrix
         {
             get => _matrix;
-            set { 
+            private set { 
                 _matrix = value;
                 _inverseDirty = true;
                 DirtyBound();
@@ -54,6 +54,16 @@ namespace Veldrid.SceneGraph
 
                 return _inverse;
             }
+        }
+
+        protected MatrixTransform(Matrix4x4 matrix)
+        {
+            Matrix = matrix;
+        }
+
+        public static IMatrixTransform Create(Matrix4x4 matrix)
+        {
+            return new MatrixTransform(matrix);
         }
 
         public void PreMultiply(Matrix4x4 mat)

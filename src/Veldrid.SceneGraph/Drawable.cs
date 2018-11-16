@@ -25,7 +25,7 @@ using System.Collections.Generic;
 
 namespace Veldrid.SceneGraph
 {
-    public abstract class Drawable : Object
+    public abstract class Drawable : Object, IDrawable
     {
         public string Name { get; set; } = string.Empty;
         
@@ -46,7 +46,7 @@ namespace Veldrid.SceneGraph
         
         public VertexLayoutDescription VertexLayout { get; set; }
         
-        public List<PrimitiveSet> PrimitiveSets { get; } = new List<PrimitiveSet>();
+        public List<IPrimitiveSet> PrimitiveSets { get; } = new List<IPrimitiveSet>();
         
         public event Func<Drawable, BoundingBox> ComputeBoundingBoxCallback;
         public event Action<CommandList, Drawable> DrawImplementationCallback;
@@ -61,6 +61,10 @@ namespace Veldrid.SceneGraph
         public bool HasPipelineState
         {
             get => null != _pipelineState;
+        }
+
+        protected Drawable()
+        {
         }
         
         public void Draw(GraphicsDevice device, List<Tuple<uint, ResourceSet>> resourceSets, CommandList commandList)

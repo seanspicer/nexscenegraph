@@ -68,13 +68,12 @@ namespace TexturedCube
 
             var root = Group.Create();
             
-            var scale_xform = new MatrixTransform();
-            scale_xform.Matrix = Matrix4x4.CreateScale(0.75f);
+            var scaleXform = MatrixTransform.Create(Matrix4x4.CreateScale(0.75f));
  
             var cube = CreateCube();
-            scale_xform.AddChild(cube);
+            scaleXform.AddChild(cube);
             
-            root.AddChild(scale_xform);
+            root.AddChild(scaleXform);
 
             viewer.SceneData = root;
 
@@ -83,7 +82,7 @@ namespace TexturedCube
 
         static Geode CreateCube()
         {
-            var geometry = new Geometry<VertexPositionTexture>();
+            var geometry = Geometry<VertexPositionTexture>.Create();
 
             var vertices = new VertexPositionTexture[]
             {
@@ -136,7 +135,7 @@ namespace TexturedCube
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2));
 
-            var pSet = new DrawElements<VertexPositionTexture>(
+            var pSet = DrawElements<VertexPositionTexture>.Create(
                 geometry, 
                 PrimitiveTopology.TriangleList,
                 (uint)geometry.IndexData.Length, 

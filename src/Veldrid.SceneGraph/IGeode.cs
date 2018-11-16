@@ -5,8 +5,8 @@ namespace Veldrid.SceneGraph
 {
     public interface IGeode : INode
     {
-        IReadOnlyList<Drawable> Drawables { get; }
-        event Func<Node, BoundingBox> ComputeBoundingBoxCallback;
-        void AddDrawable(Drawable drawable);
+        IReadOnlyList<IDrawable> Drawables { get; }
+        event Func<INode, BoundingBox> ComputeBoundingBoxCallback;
+        void AddDrawable(IDrawable drawable);
     }
 }

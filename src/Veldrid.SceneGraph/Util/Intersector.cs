@@ -49,7 +49,7 @@ namespace Veldrid.SceneGraph.Util
 
         public abstract Intersector Clone(IntersectionVisitor iv);
         
-        public abstract void Intersect(IntersectionVisitor iv, Drawable drawable);
+        public abstract void Intersect(IntersectionVisitor iv, IDrawable drawable);
 
         public abstract bool Enter(INode node);
 

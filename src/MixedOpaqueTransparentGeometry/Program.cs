@@ -71,8 +71,7 @@ public struct VertexPositionColor : IPrimitiveElement
 
             // Construct Transparent Geometry
             var transparentGroup = Group.Create();            
-            var scale_xform = new MatrixTransform();
-            scale_xform.Matrix = Matrix4x4.CreateScale(0.35f);
+            var scale_xform = MatrixTransform.Create(Matrix4x4.CreateScale(0.35f));
             
             var cube = CreateCube();
             scale_xform.AddChild(cube);
@@ -85,10 +84,10 @@ public struct VertexPositionColor : IPrimitiveElement
                 {
                     for (var k = -gridSize; k <= gridSize; ++k)
                     {
-                        var xform = new MatrixTransform
-                        {
-                            Matrix = Matrix4x4.CreateTranslation(transF * i, transF * j, transF * k)
-                        };
+                        var xform = MatrixTransform.Create(
+                            Matrix4x4.CreateTranslation(transF * i, transF * j, transF * k)
+                        );
+
                         xform.AddChild(scale_xform);
                         transparentGroup.AddChild(xform);
                     }
@@ -102,18 +101,15 @@ public struct VertexPositionColor : IPrimitiveElement
             var greyCube = CreateUniformColorCube();
             
             var opaqueGroup = Group.Create();
-            var opaqueScaleX = new MatrixTransform();
-            opaqueScaleX.Matrix = Matrix4x4.CreateScale(2, 0.10f, 0.10f);
+            var opaqueScaleX = MatrixTransform.Create(Matrix4x4.CreateScale(2, 0.10f, 0.10f));
             opaqueScaleX.PipelineState = OpaqueState();
             opaqueScaleX.AddChild(greyCube);
             
-            var opaqueScaleY = new MatrixTransform();
-            opaqueScaleY.Matrix = Matrix4x4.CreateScale(0.10f, 2f, 0.10f);
+            var opaqueScaleY = MatrixTransform.Create(Matrix4x4.CreateScale(0.10f, 2f, 0.10f));
             opaqueScaleY.PipelineState = OpaqueState();
             opaqueScaleY.AddChild(greyCube);
             
-            var opaqueScaleZ = new MatrixTransform();
-            opaqueScaleZ.Matrix = Matrix4x4.CreateScale(0.10f, 0.10f, 2f);
+            var opaqueScaleZ = MatrixTransform.Create(Matrix4x4.CreateScale(0.10f, 0.10f, 2f));
             opaqueScaleZ.PipelineState = OpaqueState();
             opaqueScaleZ.AddChild(greyCube);
 
@@ -185,7 +181,7 @@ public struct VertexPositionColor : IPrimitiveElement
             {
                 var start = 6 * f;
 
-                var geometry = new Geometry<VertexPositionColor>();
+                var geometry = Geometry<VertexPositionColor>.Create();
                 
                 geometry.VertexData = vertices.ToArray();
                 geometry.IndexData = indices.GetRange(start, 6).ToArray();
@@ -193,7 +189,7 @@ public struct VertexPositionColor : IPrimitiveElement
                 // TODO -> this causes multiple render states
                 geometry.VertexLayout = vld;
 
-                var pSet = new DrawElements<VertexPositionColor>(
+                var pSet = DrawElements<VertexPositionColor>.Create(
                     geometry, 
                     PrimitiveTopology.TriangleList,
                     (uint)geometry.IndexData.Length, 
@@ -213,7 +209,7 @@ public struct VertexPositionColor : IPrimitiveElement
         
         static Geode CreateUniformColorCube()
         {
-            var geometry = new Geometry<VertexPositionColor>();
+            var geometry = Geometry<VertexPositionColor>.Create();
 
             // TODO - make this a color index cube
             Vector3[] cubeVertices =
@@ -273,7 +269,7 @@ public struct VertexPositionColor : IPrimitiveElement
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
             
-            var pSet = new DrawElements<VertexPositionColor>(
+            var pSet = DrawElements<VertexPositionColor>.Create(
                 geometry, 
                 PrimitiveTopology.TriangleList,
                 (uint)geometry.IndexData.Length, 

@@ -66,7 +66,7 @@ namespace BillboardExample
 
             var root = Group.Create();
             
-            var geometry = new Geometry<VertexPositionColor>();
+            var geometry = Geometry<VertexPositionColor>.Create();
             
             VertexPositionColor[] quadVertices =
             {
@@ -81,7 +81,7 @@ namespace BillboardExample
             ushort[] quadIndices = { 0, 1, 2, 3 };
             geometry.IndexData = quadIndices;
             
-            var pSet = new DrawElements<VertexPositionColor>(
+            var pSet = DrawElements<VertexPositionColor>.Create(
                 geometry, 
                 PrimitiveTopology.TriangleStrip,
                 (uint)quadIndices.Length, 
@@ -103,12 +103,10 @@ namespace BillboardExample
             var billboard = new Billboard();
             billboard.AddDrawable(geometry);
             
-            var leftXForm = new MatrixTransform();
-            leftXForm.Matrix = Matrix4x4.CreateTranslation(1, 0, 0);
+            var leftXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(1, 0, 0));
             leftXForm.AddChild(geode);
             
-            var rightXForm = new MatrixTransform();
-            rightXForm.Matrix = Matrix4x4.CreateTranslation(-1, 0, 0);
+            var rightXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(-1, 0, 0));
             rightXForm.AddChild(billboard);
             
             root.AddChild(leftXForm);

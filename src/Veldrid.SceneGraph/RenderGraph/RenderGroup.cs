@@ -29,7 +29,7 @@ namespace Veldrid.SceneGraph.RenderGraph
 {
     public class RenderGroupElement
     {
-        public List<PrimitiveSet> PrimitiveSets;
+        public List<IPrimitiveSet> PrimitiveSets;
         public Matrix4x4 ModelViewMatrix;
         public DeviceBuffer VertexBuffer;
         public DeviceBuffer IndexBuffer;

@@ -28,13 +28,13 @@ namespace Veldrid.SceneGraph
 
     public class Geode : Node, IGeode
     {
-        private List<Drawable> _drawables = new List<Drawable>();
-        public IReadOnlyList<Drawable> Drawables => _drawables;
+        private List<IDrawable> _drawables = new List<IDrawable>();
+        public IReadOnlyList<IDrawable> Drawables => _drawables;
         
         protected BoundingBox _boundingBox;
         protected BoundingBox _initialBoundingBox = new BoundingBox();
 
-        public event Func<Node, BoundingBox> ComputeBoundingBoxCallback;
+        public event Func<INode, BoundingBox> ComputeBoundingBoxCallback;
         
         public Geode()
         {
@@ -51,7 +51,7 @@ namespace Veldrid.SceneGraph
             };
         }
 
-        public virtual void AddDrawable(Drawable drawable)
+        public virtual void AddDrawable(IDrawable drawable)
         {
             _drawables.Add(drawable);
         }

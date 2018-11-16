@@ -71,9 +71,8 @@ namespace ColoredCube
             var root = Group.Create();
             root.NameString = "Root";
             
-            var scale_xform = new MatrixTransform();
+            var scale_xform = MatrixTransform.Create(Matrix4x4.CreateScale(0.05f));
             scale_xform.NameString = "Scale XForm";
-            scale_xform.Matrix = Matrix4x4.CreateScale(0.05f);
             
             var cube = CreateCube();
             scale_xform.AddChild(cube);
@@ -84,9 +83,8 @@ namespace ColoredCube
             {
                 for (var j = -gridSize; j <= gridSize; ++j)
                 {
-                    var xform = new MatrixTransform();
+                    var xform = MatrixTransform.Create(Matrix4x4.CreateTranslation(transF*i, transF*j, 0.0f));
                     xform.NameString = $"XForm[{i}, {j}]";
-                    xform.Matrix = Matrix4x4.CreateTranslation(transF*i, transF*j, 0.0f);
                     xform.AddChild(scale_xform);
                     root.AddChild(xform);
                 }
@@ -101,7 +99,7 @@ namespace ColoredCube
 
         static Geode CreateCube()
         {
-            var geometry = new Geometry<VertexPositionColor>();
+            var geometry = Geometry<VertexPositionColor>.Create();
 
             // TODO - make this a color index cube
             Vector3[] cubeVertices =
@@ -161,7 +159,7 @@ namespace ColoredCube
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
 
-            var pSet = new DrawElements<VertexPositionColor>(
+            var pSet = DrawElements<VertexPositionColor>.Create(
                 geometry, 
                 PrimitiveTopology.TriangleList,
                 (uint)geometry.IndexData.Length, 

@@ -201,7 +201,7 @@ namespace Veldrid.SceneGraph.Viewer
             //
             // First sort the transparent render elements by distance to eye point (if not culled).
             //
-            var drawOrderMap = new SortedList<float, List<Tuple<RenderGroupState, RenderGroupElement, PrimitiveSet>>>();
+            var drawOrderMap = new SortedList<float, List<Tuple<RenderGroupState, RenderGroupElement, IPrimitiveSet>>>();
             drawOrderMap.Capacity = _cullVisitor.RenderElementCount;
             var transparentRenderGroupStates = _cullVisitor.TransparentRenderGroup.GetStateList();
             foreach (var state in transparentRenderGroupStates)
@@ -221,7 +221,7 @@ namespace Veldrid.SceneGraph.Viewer
 
                         if (!drawOrderMap.TryGetValue(dist, out var renderList))
                         {
-                            renderList = new List<Tuple<RenderGroupState, RenderGroupElement, PrimitiveSet>>();
+                            renderList = new List<Tuple<RenderGroupState, RenderGroupElement, IPrimitiveSet>>();
                             drawOrderMap.Add(dist, renderList);
                         }
 

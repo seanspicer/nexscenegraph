@@ -134,7 +134,7 @@ namespace TransparencySorting
             var sceneVertices = new List<VertexPositionColor>();
             var sceneIndices = new List<ushort>();
             
-            var geometry = new Geometry<VertexPositionColor>();
+            var geometry = Geometry<VertexPositionColor>.Create();
             
             var gridSize = 3;
             var transF = 1.0f / gridSize;
@@ -170,7 +170,7 @@ namespace TransparencySorting
                             }
                             
                             var drawElements =
-                                new DrawElements<VertexPositionColor>(
+                                DrawElements<VertexPositionColor>.Create(
                                     geometry,
                                     PrimitiveTopology.TriangleList,
                                     6,

@@ -28,8 +28,7 @@ using Veldrid;
 
 namespace Veldrid.SceneGraph
 {    
-    public class Geometry<T> : Drawable 
-        where T : struct, IPrimitiveElement
+    public class Geometry<T> : Drawable, IGeometry<T> where T : struct, IPrimitiveElement
     {
         public T[] VertexData { get; set; }
         public int SizeOfVertexData => Marshal.SizeOf(default(T));
@@ -44,8 +43,13 @@ namespace Veldrid.SceneGraph
         private Dictionary<GraphicsDevice, DeviceBuffer> _indexBufferCache 
             = new Dictionary<GraphicsDevice, DeviceBuffer>();
         
-        public Geometry()
+        protected Geometry()
         {
+        }
+
+        public static IGeometry<T> Create()
+        {
+            return new Geometry<T>();
         }
 
         public override void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory)

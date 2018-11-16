@@ -62,7 +62,7 @@ namespace Veldrid.SceneGraph.Util
             return _viewMatrixStack.Any() ? _viewMatrixStack.Peek() : Matrix4x4.Identity;
         }
         
-        protected void Intersect(Drawable drawable)
+        protected void Intersect(IDrawable drawable)
         {
             _intersectorStack.Peek().Intersect(this, drawable);
         }

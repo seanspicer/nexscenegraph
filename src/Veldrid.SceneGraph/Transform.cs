@@ -38,7 +38,7 @@ namespace Veldrid.SceneGraph
         
         public ReferenceFrameType ReferenceFrame { get; set; }
 
-        public Transform()
+        protected Transform()
         {
             ReferenceFrame = ReferenceFrameType.Relative;
         }

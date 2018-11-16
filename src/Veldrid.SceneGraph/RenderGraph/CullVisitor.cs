@@ -234,7 +234,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                             ModelViewMatrix = GetModelViewMatrix(),
                             VertexBuffer = drawable.GetVertexBufferForDevice(GraphicsDevice),
                             IndexBuffer = drawable.GetIndexBufferForDevice(GraphicsDevice),
-                            PrimitiveSets = new List<PrimitiveSet>()
+                            PrimitiveSets = new List<IPrimitiveSet>()
                         };
                         renderGroupState.Elements.Add(renderElement);
                         
@@ -322,7 +322,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                             ModelViewMatrix = billboardMatrix.PostMultiply(modelView),
                             VertexBuffer = drawable.GetVertexBufferForDevice(GraphicsDevice),
                             IndexBuffer = drawable.GetIndexBufferForDevice(GraphicsDevice),
-                            PrimitiveSets = new List<PrimitiveSet>()
+                            PrimitiveSets = new List<IPrimitiveSet>()
                         };
                         renderGroupState.Elements.Add(renderElement);
                         

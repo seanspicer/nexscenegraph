@@ -24,9 +24,9 @@ using System.Numerics;
 
 namespace Veldrid.SceneGraph
 {
-    public interface IMatrixTransform
+    public interface IMatrixTransform : IGroup
     {
-        Matrix4x4 Matrix { get; set; }
+        Matrix4x4 Matrix { get; }
         Matrix4x4 Inverse { get; }
         void PreMultiply(Matrix4x4 mat);
         void PostMultiply(Matrix4x4 mat);
