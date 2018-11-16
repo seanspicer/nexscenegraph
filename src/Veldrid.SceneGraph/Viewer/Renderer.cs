@@ -34,7 +34,7 @@ namespace Veldrid.SceneGraph.Viewer
     public class Renderer : IGraphicsDeviceOperation
     {
         private CullVisitor _cullVisitor;
-        private Camera _camera;
+        private ICamera _camera;
         
         private DeviceBuffer _projectionBuffer;
         private DeviceBuffer _viewBuffer;
@@ -50,7 +50,7 @@ namespace Veldrid.SceneGraph.Viewer
 
         private List<Tuple<uint, ResourceSet>> _defaultResourceSets = new List<Tuple<uint, ResourceSet>>();
         
-        public Renderer(Camera camera)
+        public Renderer(ICamera camera)
         {
             _camera = camera;
             _cullVisitor = new CullVisitor();

@@ -37,7 +37,7 @@ namespace Veldrid.SceneGraph.InputAdapter
         }
 
         // Update a camera
-        public virtual void UpdateCamera(Camera camera)
+        public virtual void UpdateCamera(ICamera camera)
         {
             camera.ViewMatrix = InverseMatrix;
         }

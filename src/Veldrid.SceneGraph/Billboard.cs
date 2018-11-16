@@ -28,7 +28,8 @@ using Veldrid.SceneGraph.Viewer;
 
 namespace Veldrid.SceneGraph
 {
-    public class Billboard : Geode
+
+    public class Billboard : Geode, IBillboard
     {
         public enum Modes
         {
@@ -36,8 +37,13 @@ namespace Veldrid.SceneGraph
         }
 
         public Modes Mode { get; set; }
+
+        public static IBillboard Create()
+        {
+            return new Billboard();
+        }
         
-        public Billboard()
+        protected Billboard()
         {
             Mode = Modes.Screen;
         }

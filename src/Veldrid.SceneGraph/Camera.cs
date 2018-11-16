@@ -28,7 +28,7 @@ using Veldrid.SceneGraph.Viewer;
 
 namespace Veldrid.SceneGraph
 {
-    public class Camera : Transform
+    public class Camera : Transform, ICamera
     {
         public View View { get; set; }
         
@@ -54,8 +54,13 @@ namespace Veldrid.SceneGraph
         public float Pitch { get => _pitch; set { _pitch = value; UpdateViewMatrix(); } }
         
         public IGraphicsDeviceOperation Renderer { get; set; }
+
+        public static ICamera Create(float width, float height)
+        {
+            return new Camera(width, height);
+        }
         
-        public Camera(float width, float height)
+        protected Camera(float width, float height)
         {
             _windowWidth = width;
             _windowHeight = height;

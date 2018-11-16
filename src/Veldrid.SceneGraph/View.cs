@@ -26,11 +26,11 @@ namespace Veldrid.SceneGraph
 {
     public class View
     {
-        public Camera Camera { get; set; }
+        public ICamera Camera { get; set; }
 
         public View()
         {
-            Camera = new Camera(DisplaySettings.Instance.ScreenWidth, DisplaySettings.Instance.ScreenHeight);
+            Camera = Veldrid.SceneGraph.Camera.Create(DisplaySettings.Instance.ScreenWidth, DisplaySettings.Instance.ScreenHeight);
             Camera.View = this;
 
             var height = DisplaySettings.Instance.ScreenHeight;

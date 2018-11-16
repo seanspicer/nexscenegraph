@@ -44,7 +44,7 @@ namespace Veldrid.SceneGraph
             _ignoreCameras = ignoreCameras;
         }
 
-        public override void Apply(Transform transform)
+        public override void Apply(ITransform transform)
         {
             if (_coordMode==CoordMode.LocalToWorld)
             {

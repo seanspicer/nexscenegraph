@@ -135,7 +135,7 @@ namespace Veldrid.SceneGraph.Util
             Leave();
         }
 
-        public override void Apply(Geode geode)
+        public override void Apply(IGeode geode)
         {
             if (false == Enter(geode)) return;
 
@@ -147,7 +147,7 @@ namespace Veldrid.SceneGraph.Util
             Leave();
         }
 
-        public override void Apply(Transform transform)
+        public override void Apply(ITransform transform)
         {
             if (false == Enter(transform)) return;
 
@@ -179,7 +179,7 @@ namespace Veldrid.SceneGraph.Util
             Leave();
         }
 
-        public override void Apply(Billboard billboard)
+        public override void Apply(IBillboard billboard)
         {
             // TODO IMPLEMENT FOR BILLBOARDS
             base.Apply(billboard);

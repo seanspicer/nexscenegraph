@@ -141,7 +141,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             }
         }
 
-        public override void Apply(Transform transform)
+        public override void Apply(ITransform transform)
         {
             var curModel = ModelMatrixStack.Peek();
             transform.ComputeLocalToWorldMatrix(ref curModel, this);
@@ -153,7 +153,7 @@ namespace Veldrid.SceneGraph.RenderGraph
 
         }
 
-        public override void Apply(Geode geode)
+        public override void Apply(IGeode geode)
         {
             var bb = geode.GetBoundingBox();
             if (IsCulled(bb, ModelMatrixStack.Peek())) return;
@@ -234,7 +234,7 @@ namespace Veldrid.SceneGraph.RenderGraph
         /// Cull Visitor for billboard 
         /// </summary>
         /// <param name="billboard"></param>
-        public override void Apply(Billboard billboard)
+        public override void Apply(IBillboard billboard)
         {
             var bb = billboard.GetBoundingBox();
             if (IsCulled(bb, ModelMatrixStack.Peek())) return;

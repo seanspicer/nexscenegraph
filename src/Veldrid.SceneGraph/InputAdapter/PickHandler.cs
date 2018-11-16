@@ -29,9 +29,9 @@ namespace Veldrid.SceneGraph.InputAdapter
 {
     public class PickHandler : InputEventHandler
     {
-        private Camera _camera;
+        private ICamera _camera;
         
-        public PickHandler(Camera camera)
+        public PickHandler(ICamera camera)
         {
             _camera = camera;
         }

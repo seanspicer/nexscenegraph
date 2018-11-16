@@ -100,7 +100,7 @@ namespace BillboardExample
             var geode = new Geode();
             geode.AddDrawable(geometry);
             
-            var billboard = new Billboard();
+            var billboard = Billboard.Create();
             billboard.AddDrawable(geometry);
             
             var leftXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(1, 0, 0));
