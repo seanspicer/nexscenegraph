@@ -76,7 +76,7 @@ namespace Veldrid.SceneGraph
             return true;
         }
 
-        public override BoundingSphere ComputeBound()
+        public override IBoundingSphere ComputeBound()
         {
             var bsphere = base.ComputeBound();
             if (!bsphere.Valid()) return bsphere;

@@ -41,17 +41,17 @@ namespace Veldrid.SceneGraph.Tests
         
         public static IEnumerable<object[]> GetData()
         {
-            var quadrant1 = new BoundingBox( 1, 1, 1, 2, 2, 2);
-            var quadrant2 = new BoundingBox(-1, 1, 1,-2, 2, 2);
-            var quadrant3 = new BoundingBox(-1,-1, 1,-2,-2, 2);
-            var quadrant4 = new BoundingBox( 1,-1, 1, 2,-2, 2);
+            var quadrant1 = BoundingBox.Create( 1, 1, 1, 2, 2, 2);
+            var quadrant2 = BoundingBox.Create(-1, 1, 1,-2, 2, 2);
+            var quadrant3 = BoundingBox.Create(-1,-1, 1,-2,-2, 2);
+            var quadrant4 = BoundingBox.Create( 1,-1, 1, 2,-2, 2);
             
-            var quadrant5 = new BoundingBox( 1, 1,-1, 2, 2,-2);
-            var quadrant6 = new BoundingBox(-1, 1,-1,-2, 2,-2);
-            var quadrant7 = new BoundingBox(-1,-1,-1,-2,-2,-2);
-            var quadrant8 = new BoundingBox( 1,-1,-1, 2,-2,-2);
+            var quadrant5 = BoundingBox.Create( 1, 1,-1, 2, 2,-2);
+            var quadrant6 = BoundingBox.Create(-1, 1,-1,-2, 2,-2);
+            var quadrant7 = BoundingBox.Create(-1,-1,-1,-2,-2,-2);
+            var quadrant8 = BoundingBox.Create( 1,-1,-1, 2,-2,-2);
             
-            var unit = new BoundingBox(-1,-1,-1, 1, 1, 1);
+            var unit = BoundingBox.Create(-1,-1,-1, 1, 1, 1);
             
             var allData = new List<object[]>
             {

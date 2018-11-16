@@ -35,7 +35,7 @@ namespace Veldrid.SceneGraph
         bool IsCullingActive { get; }
         PipelineState PipelineState { get; set; }
         bool HasPipelineState { get; }
-        BoundingSphere InitialBound { get; set; }
+        IBoundingSphere InitialBound { get; set; }
         int GetNumChildrenRequiringEventTraversal();
         int GetNumChildrenRequiringUpdateTraversal();
         void SetNumChildrenRequiringEventTraversal(int i);
@@ -54,13 +54,13 @@ namespace Veldrid.SceneGraph
         /// Get the bounding sphere for this node.
         /// </summary>
         /// <returns></returns>
-        BoundingSphere GetBound();
+        IBoundingSphere GetBound();
 
         /// <summary>
         /// Compute the bounding sphere of this geometry
         /// </summary>
         /// <returns></returns>
-        BoundingSphere ComputeBound();
+        IBoundingSphere ComputeBound();
 
         void Accept(NodeVisitor nv);
         void Ascend(NodeVisitor nv);

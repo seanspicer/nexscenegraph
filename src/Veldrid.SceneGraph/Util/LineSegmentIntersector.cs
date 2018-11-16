@@ -120,7 +120,7 @@ namespace Veldrid.SceneGraph.Util
         public override void Intersect(IntersectionVisitor iv, IDrawable drawable)
         {
             var bb = drawable.GetBoundingBox();
-            if (Intersects(new BoundingSphere(drawable.GetBoundingBox())))
+            if (Intersects(BoundingSphere.Create(drawable.GetBoundingBox())))
             {
                 var intersection = new Intersection(Start, bb.Center, drawable, iv.NodePath.Copy());
                 InsertIntersection(intersection);
@@ -132,7 +132,7 @@ namespace Veldrid.SceneGraph.Util
             return Intersects(node.GetBound());
         }
 
-        private bool Intersects(BoundingSphere bs)
+        private bool Intersects(IBoundingSphere bs)
         {
             if (!bs.Valid()) return true;
 

@@ -117,7 +117,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             return Vector3.Transform(eyeWorld, modelViewInverse);
         }
         
-        private bool IsCulled(BoundingBox bb, Matrix4x4 modelMatrix)
+        private bool IsCulled(IBoundingBox bb, Matrix4x4 modelMatrix)
         {
             var culled = !CullingFrustum.Contains(bb, modelMatrix);
 

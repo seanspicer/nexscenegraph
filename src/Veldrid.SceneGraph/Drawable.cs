@@ -30,11 +30,11 @@ namespace Veldrid.SceneGraph
         public string Name { get; set; } = string.Empty;
         
         protected bool _boundingSphereComputed = false;
-        protected BoundingSphere _boundingSphere = new BoundingSphere();
+        protected IBoundingSphere _boundingSphere = BoundingSphere.Create();
         
-        protected BoundingBox _boundingBox;
-        protected BoundingBox _initialBoundingBox = new BoundingBox();
-        public BoundingBox InitialBoundingBox
+        protected IBoundingBox _boundingBox;
+        protected IBoundingBox _initialBoundingBox = BoundingBox.Create();
+        public IBoundingBox InitialBoundingBox
         {
             get => _initialBoundingBox;
             set
@@ -99,7 +99,7 @@ namespace Veldrid.SceneGraph
             _boundingSphereComputed = false;
         }
         
-        public BoundingBox GetBoundingBox()
+        public IBoundingBox GetBoundingBox()
         {
             if (_boundingSphereComputed) return _boundingBox;
             
@@ -123,7 +123,7 @@ namespace Veldrid.SceneGraph
             return _boundingBox;
         }
 
-        protected abstract BoundingBox ComputeBoundingBox();
+        protected abstract IBoundingBox ComputeBoundingBox();
 
         public abstract DeviceBuffer GetVertexBufferForDevice(GraphicsDevice device);
 

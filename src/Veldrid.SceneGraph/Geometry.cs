@@ -77,9 +77,9 @@ namespace Veldrid.SceneGraph
             }
         }
 
-        protected override BoundingBox ComputeBoundingBox()
+        protected override IBoundingBox ComputeBoundingBox()
         {
-            var bb = new BoundingBox();
+            var bb = BoundingBox.Create();
             foreach (var pset in PrimitiveSets)
             {
                 bb.ExpandBy(pset.GetBoundingBox());

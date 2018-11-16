@@ -31,10 +31,10 @@ namespace Veldrid.SceneGraph
         private List<IDrawable> _drawables = new List<IDrawable>();
         public IReadOnlyList<IDrawable> Drawables => _drawables;
         
-        protected BoundingBox _boundingBox;
-        protected BoundingBox _initialBoundingBox = new BoundingBox();
+        protected IBoundingBox _boundingBox;
+        protected IBoundingBox _initialBoundingBox = BoundingBox.Create();
 
-        public event Func<INode, BoundingBox> ComputeBoundingBoxCallback;
+        public event Func<INode, IBoundingBox> ComputeBoundingBoxCallback;
         
         public Geode()
         {
@@ -56,7 +56,7 @@ namespace Veldrid.SceneGraph
             _drawables.Add(drawable);
         }
         
-        public BoundingBox GetBoundingBox()
+        public IBoundingBox GetBoundingBox()
         {
             if (_boundingSphereComputed) return _boundingBox;
             
@@ -80,9 +80,9 @@ namespace Veldrid.SceneGraph
             return _boundingBox;
         }
 
-        protected BoundingBox ComputeBoundingBox()
+        protected IBoundingBox ComputeBoundingBox()
         {
-            var bb = new BoundingBox();
+            var bb = BoundingBox.Create();
             foreach (var drawable in Drawables)
             {
                 bb.ExpandBy(drawable.GetBoundingBox());

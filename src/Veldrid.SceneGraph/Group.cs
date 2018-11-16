@@ -121,9 +121,9 @@ namespace Veldrid.SceneGraph
             }
         }
 
-        public override BoundingSphere ComputeBound()
+        public override IBoundingSphere ComputeBound()
         {
-            var bsphere = new BoundingSphere();
+            var bsphere = BoundingSphere.Create();
             if (0 == _children.Count)
             {
                 return bsphere;
@@ -133,8 +133,7 @@ namespace Veldrid.SceneGraph
             // such that only Transforms which are relative to their parents coordinates frame (i.e this group)
             // are handled, Transform relative to and absolute reference frame are ignored.
 
-            var bb = new BoundingBox();
-            bb.Init();
+            var bb = BoundingBox.Create();
             foreach(var child in _children)
             {
                 switch (child)

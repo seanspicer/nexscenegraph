@@ -74,7 +74,7 @@ namespace Veldrid.SceneGraph
             }
         }
         
-        public bool Contains(BoundingBox bb)
+        public bool Contains(IBoundingBox bb)
         {
             if (_planeList.Count == 0) return true;
 
@@ -87,7 +87,7 @@ namespace Veldrid.SceneGraph
             return true;
         }
         
-        public bool Contains(BoundingBox bb, Matrix4x4 transformMatrix)
+        public bool Contains(IBoundingBox bb, Matrix4x4 transformMatrix)
         {
             if (_planeList.Count == 0) return true;
 

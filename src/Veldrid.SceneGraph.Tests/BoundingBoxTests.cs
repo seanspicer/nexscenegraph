@@ -34,7 +34,7 @@ namespace Veldrid.SceneGraph.Tests
         public void TestExpandByVector()
         {
             // Construct a bounding box above the plane
-            var bb = new BoundingBox();
+            var bb = BoundingBox.Create();
             bb.ExpandBy(new Vector3(-1, -1, 1));
             bb.ExpandBy(new Vector3( 1,  1, 2));
             

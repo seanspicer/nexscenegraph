@@ -24,7 +24,7 @@ using System.Numerics;
 
 namespace Veldrid.SceneGraph
 {
-    public class BoundingSphere
+    public class BoundingSphere : IBoundingSphere
     {
         public Vector3 Center
         {
@@ -43,25 +43,45 @@ namespace Veldrid.SceneGraph
         private Vector3 _center;
         private float _radius;
 
-        public BoundingSphere()
+        public static IBoundingSphere Create()
+        {
+            return new BoundingSphere();
+        }
+        
+        public static IBoundingSphere Create(Vector3 center, float radius)
+        {
+            return new BoundingSphere(center, radius);
+        }
+        
+        public static IBoundingSphere Create(IBoundingSphere sh)
+        {
+            return new BoundingSphere(sh);
+        }
+        
+        public static IBoundingSphere Create(IBoundingBox bb)
+        {
+            return new BoundingSphere(bb);
+        }
+        
+        protected BoundingSphere()
         {
             _center = Vector3.Zero;
             _radius = -1.0f;
         }
 
-        public BoundingSphere(Vector3 center, float radius)
+        protected BoundingSphere(Vector3 center, float radius)
         {
             _center = center;
             _radius = radius;
         }
 
-        public BoundingSphere(BoundingSphere sh)
+        protected BoundingSphere(IBoundingSphere sh)
         {
-            _center = sh._center;
-            _radius = sh._radius;
+            _center = sh.Center;
+            _radius = sh.Radius;
         }
 
-        public BoundingSphere(BoundingBox bb)
+        protected BoundingSphere(IBoundingBox bb)
         {
             _center = Vector3.Zero;
             _radius = -1.0f;
@@ -163,7 +183,7 @@ namespace Veldrid.SceneGraph
         /// The sphere center to minimize the radius increase.
         /// </summary>
         /// <param name="sh"></param>
-        public void ExpandBy(BoundingSphere sh)
+        public void ExpandBy(IBoundingSphere sh)
         {
             // ignore operation if incoming BoundingSphere is invalid.
             if (!sh.Valid()) return;
@@ -171,8 +191,8 @@ namespace Veldrid.SceneGraph
             // This sphere is not set so use the inbound sphere
             if (!Valid())
             {
-                _center = sh._center;
-                _radius = sh._radius;
+                _center = sh.Center;
+                _radius = sh.Radius;
 
                 return;
             }
@@ -190,8 +210,8 @@ namespace Veldrid.SceneGraph
             //  New sphere completely contains this one
             if ( d + _radius <= sh.Radius )
             {
-                _center = sh._center;
-                _radius = sh._radius;
+                _center = sh.Center;
+                _radius = sh.Radius;
                 return;
             }
 
@@ -217,18 +237,18 @@ namespace Veldrid.SceneGraph
         /// reposition the sphere center.
         /// </summary>
         /// <param name="sh"></param>
-        public void ExpandRadiusBy(BoundingSphere sh)
+        public void ExpandRadiusBy(IBoundingSphere sh)
         {
             if (!sh.Valid()) return;
             if (Valid())
             {
-                var r = (sh._center-_center).Length()+sh._radius;
+                var r = (sh.Center-_center).Length()+sh.Radius;
                 if (r>_radius) _radius = r;
             }
             else
             {
-                _center = sh._center;
-                _radius = sh._radius;
+                _center = sh.Center;
+                _radius = sh.Radius;
             }
         }
         
@@ -237,13 +257,13 @@ namespace Veldrid.SceneGraph
         /// The sphere center to minimize the radius increase.
         /// </summary>
         /// <param name="sh"></param>
-        public void ExpandBy(BoundingBox bb)
+        public void ExpandBy(IBoundingBox bb)
         {
             if (!bb.Valid()) return;
             
             if (Valid())
             {
-                var newbb = new BoundingBox(bb);
+                var newbb = BoundingBox.Create(bb);
 
                 for(uint c=0;c<8;++c)
                 {
@@ -270,7 +290,7 @@ namespace Veldrid.SceneGraph
         /// reposition the sphere center.
         /// </summary>
         /// <param name="sh"></param>
-        public void ExpandRadiusBy(BoundingBox bb)
+        public void ExpandRadiusBy(IBoundingBox bb)
         {
             if (!bb.Valid()) return;
             if (Valid())

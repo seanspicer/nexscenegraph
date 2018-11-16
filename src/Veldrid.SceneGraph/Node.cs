@@ -100,11 +100,11 @@ namespace Veldrid.SceneGraph
         // Protected/Private fields
         private List<IGroup> _parents;
         protected bool _boundingSphereComputed = false;
-        protected BoundingSphere _boundingSphere = new BoundingSphere();
+        protected IBoundingSphere _boundingSphere = BoundingSphere.Create();
 
        
-        private BoundingSphere _initialBound = new BoundingSphere();
-        public BoundingSphere InitialBound
+        private IBoundingSphere _initialBound = BoundingSphere.Create();
+        public IBoundingSphere InitialBound
         {
             get { return _initialBound; }
             set
@@ -153,7 +153,7 @@ namespace Veldrid.SceneGraph
         /// Get the bounding sphere for this node.
         /// </summary>
         /// <returns></returns>
-        public BoundingSphere GetBound()
+        public IBoundingSphere GetBound()
         {
             if (_boundingSphereComputed) return _boundingSphere;
             
@@ -170,9 +170,9 @@ namespace Veldrid.SceneGraph
         /// Compute the bounding sphere of this geometry
         /// </summary>
         /// <returns></returns>
-        public virtual BoundingSphere ComputeBound()
+        public virtual IBoundingSphere ComputeBound()
         {
-            return new BoundingSphere();
+            return BoundingSphere.Create();
         }
         
         public virtual void Accept(NodeVisitor nv)

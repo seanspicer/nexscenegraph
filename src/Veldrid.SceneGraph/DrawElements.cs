@@ -81,9 +81,9 @@ namespace Veldrid.SceneGraph
                 instanceStart: _instanceStart);
         }
         
-        protected override BoundingBox ComputeBoundingBox()
+        protected override IBoundingBox ComputeBoundingBox()
         {
-            var bb = new BoundingBox();
+            var bb = BoundingBox.Create();
             for(var idx = _indexStart; idx < (_indexStart+_indexCount); ++idx)
             {
                 bb.ExpandBy(_geometry.VertexData[_geometry.IndexData[idx]].VertexPosition);

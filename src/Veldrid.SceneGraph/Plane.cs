@@ -76,7 +76,7 @@ namespace Veldrid.SceneGraph
         /// return 0 if the bb intersects the plane,
         /// return -1 if the bb is completely below the plane.
         /// </returns>
-        public int Intersect(BoundingBox bb)
+        public int Intersect(IBoundingBox bb)
         {
             var lowerBBCorner = bb.Corner(_lowerBBCorner);
             var distLower = Distance(lowerBBCorner);

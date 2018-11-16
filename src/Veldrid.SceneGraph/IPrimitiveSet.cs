@@ -4,12 +4,12 @@ namespace Veldrid.SceneGraph
 {
     public interface IPrimitiveSet : IObject
     {
-        BoundingBox InitialBoundingBox { get; set; }
+        IBoundingBox InitialBoundingBox { get; set; }
         IDrawable Drawable { get; }
         PrimitiveTopology PrimitiveTopology { get; set; }
-        event Func<PrimitiveSet, BoundingBox> ComputeBoundingBoxCallback;
+        event Func<PrimitiveSet, IBoundingBox> ComputeBoundingBoxCallback;
         void DirtyBound();
-        BoundingBox GetBoundingBox();
+        IBoundingBox GetBoundingBox();
         void Draw(CommandList commandList);
     }
 }
