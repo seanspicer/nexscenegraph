@@ -50,8 +50,8 @@ namespace Veldrid.SceneGraph.RenderGraph
         public Stack<PipelineState> PipelineStateStack = new Stack<PipelineState>();
 
         public bool Valid => null != GraphicsDevice;
-        
-        private Polytope CullingFrustum { get; set; } = new Polytope();
+
+        private IPolytope CullingFrustum { get; set; } = Polytope.Create();
 
         public int RenderElementCount { get; private set; } = 0;
 
@@ -91,7 +91,7 @@ namespace Veldrid.SceneGraph.RenderGraph
         public void Prepare()
         {
             var vp = ViewMatrix.PostMultiply(ProjectionMatrix);
-            CullingFrustum.VPMatrix = vp;
+            CullingFrustum.SetViewProjectionMatrix(vp);
         }
 
         private Matrix4x4 GetModelViewMatrix()

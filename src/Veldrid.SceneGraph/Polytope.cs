@@ -27,38 +27,51 @@ using System.Numerics;
 namespace Veldrid.SceneGraph
 {
 
-    public class PlaneList : List<Plane> {}
-    
+    public class PlaneList : List<IPlane> {}
+
+
+
     /// <summary>
     /// Class representing convex clipping volumes made up from planes.
     /// When adding planes, normals should point inward
     /// </summary>
-    public class Polytope
+    public class Polytope : IPolytope
     {
         private readonly PlaneList _planeList = new PlaneList();
 
-        public Matrix4x4 VPMatrix { get; set; } = Matrix4x4.Identity;
+        private Matrix4x4 _viewProjectionMatrix = Matrix4x4.Identity;
+        public Matrix4x4 ViewProjectionMatrix => _viewProjectionMatrix;
         
-        public Polytope()
+        public static IPolytope Create()
+        {
+            return new Polytope();
+        }
+        
+        protected Polytope()
         {
             SetToUnitFrustum();
         }
 
+        public void SetViewProjectionMatrix(Matrix4x4 viewProjectionMatrix)
+        {
+            _viewProjectionMatrix = viewProjectionMatrix;
+        }
+        
         public void SetToUnitFrustum(bool withNear=true, bool withFar = true)
         {
             _planeList.Clear();
-            _planeList.Add(new Plane( 1.0f, 0.0f, 0.0f,1.0f)); // left plane.
-            _planeList.Add(new Plane(-1.0f, 0.0f, 0.0f,1.0f)); // right plane.
-            _planeList.Add(new Plane( 0.0f, 1.0f, 0.0f,1.0f)); // bottom plane.
-            _planeList.Add(new Plane( 0.0f,-1.0f, 0.0f,1.0f)); // top plane.
+            _planeList.Add(Plane.Create( 1.0f, 0.0f, 0.0f,1.0f)); // left plane.
+            _planeList.Add(Plane.Create(-1.0f, 0.0f, 0.0f,1.0f)); // right plane.
+            _planeList.Add(Plane.Create( 0.0f, 1.0f, 0.0f,1.0f)); // bottom plane.
+            _planeList.Add(Plane.Create( 0.0f,-1.0f, 0.0f,1.0f)); // top plane.
             if (withNear)
             {
-                _planeList.Add(new Plane(0.0f, 0.0f, 1.0f, 1.0f)); // near plane
+                _planeList.Add(Plane.Create(0.0f, 0.0f, 1.0f, 1.0f)); // near plane
             }
 
             if (withFar)
             {
-                _planeList.Add(new Plane(0.0f, 0.0f, -1.0f, 1.0f)); // far plane
+                _planeList.Add(Plane.Create(0.0f, 0.0f, -1.0f, 1.0f)); // far plane
             }
         }
 
@@ -91,12 +104,12 @@ namespace Veldrid.SceneGraph
         {
             if (_planeList.Count == 0) return true;
 
-            var mvp = Matrix4x4.Multiply(transformMatrix, VPMatrix);
+            var mvp = Matrix4x4.Multiply(transformMatrix, ViewProjectionMatrix);
             Matrix4x4.Invert(mvp, out var mvpInv);
             
             foreach (var plane in _planeList)
             {
-                var isp = new Plane(plane);
+                var isp = Plane.Create(plane);
                 isp.Transform(mvpInv);
                 var res = isp.Intersect(bb);
                 if (res < 0) return false;  // Outside the clipping set
