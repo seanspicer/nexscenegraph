@@ -8,7 +8,7 @@ namespace Veldrid.SceneGraph
         IBoundingBox InitialBoundingBox { get; set; }
         VertexLayoutDescription VertexLayout { get; set; }
         List<IPrimitiveSet> PrimitiveSets { get; }
-        PipelineState PipelineState { get; set; }
+        IPipelineState PipelineState { get; set; }
         bool HasPipelineState { get; }
         void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory);
         DeviceBuffer GetVertexBufferForDevice(GraphicsDevice device);

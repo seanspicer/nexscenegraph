@@ -33,7 +33,7 @@ namespace Veldrid.SceneGraph
         bool CullingActive { get; set; }
         int NumChildrenWithCullingDisabled { get; set; }
         bool IsCullingActive { get; }
-        PipelineState PipelineState { get; set; }
+        IPipelineState PipelineState { get; set; }
         bool HasPipelineState { get; }
         IBoundingSphere InitialBound { get; set; }
         int GetNumChildrenRequiringEventTraversal();

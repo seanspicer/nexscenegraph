@@ -44,7 +44,7 @@ namespace Veldrid.SceneGraph
     /// <summary>
     /// Base class for all visitors
     /// </summary>
-    public class NodeVisitor
+    public class NodeVisitor : INodeVisitor
     {
         
         public enum TraversalModeType
@@ -94,7 +94,7 @@ namespace Veldrid.SceneGraph
         
         public NodePath NodePath { get; } = new NodePath();
         
-        public NodeVisitor(VisitorType type, TraversalModeType traversalMode = TraversalModeType.TraverseNone)
+        protected NodeVisitor(VisitorType type, TraversalModeType traversalMode = TraversalModeType.TraverseNone)
         {
             Type = type;
             TraversalMode = traversalMode;

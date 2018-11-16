@@ -163,8 +163,8 @@ namespace MultiTexturedCube
                     "MultiTexturedCubeShader", ShaderStages.Fragment),
                 "FS");
             
-            geometry.PipelineState.TextureList.Add(
-                new Texture2D(Texture2D.ImageFormatType.Png,
+            geometry.PipelineState.AddTexture(
+                Texture2D.Create(Texture2D.ImageFormatType.Png,
                     ShaderTools.ReadEmbeddedAssetBytes(
                         "MultiTexturedCube.Textures.spnza_bricks_a_diff.png",
                         typeof(Program).Assembly),
@@ -173,8 +173,8 @@ namespace MultiTexturedCube
                     "SurfaceSampler")
             );
             
-            geometry.PipelineState.TextureList.Add(
-                new Texture2D(Texture2D.ImageFormatType.Png,
+            geometry.PipelineState.AddTexture(
+                Texture2D.Create(Texture2D.ImageFormatType.Png,
                     ShaderTools.ReadEmbeddedAssetBytes(
                         "MultiTexturedCube.Textures.tree.png",
                         typeof(Program).Assembly),

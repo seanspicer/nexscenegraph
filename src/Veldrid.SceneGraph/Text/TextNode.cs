@@ -93,8 +93,8 @@ namespace Veldrid.SceneGraph.Text
             PipelineState.VertexShaderDescription = Texture2DShader.Instance.VertexShaderDescription;
             PipelineState.FragmentShaderDescription = Texture2DShader.Instance.FragmentShaderDescription;;
 
-            PipelineState.TextureList.Add(
-                new Texture2D(BuildTexture(),
+            PipelineState.AddTexture(
+                Texture2D.Create(BuildTexture(),
                     1,
                     "SurfaceTexture", 
                     "SurfaceSampler"));

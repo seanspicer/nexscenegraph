@@ -51,10 +51,10 @@ namespace Veldrid.SceneGraph
         public event Func<Drawable, BoundingBox> ComputeBoundingBoxCallback;
         public event Action<CommandList, Drawable> DrawImplementationCallback;
 
-        private PipelineState _pipelineState = null;
-        public PipelineState PipelineState
+        private IPipelineState _pipelineState = null;
+        public IPipelineState PipelineState
         {
-            get => _pipelineState ?? (_pipelineState = new PipelineState());
+            get => _pipelineState ?? (_pipelineState = Veldrid.SceneGraph.PipelineState.Create());
             set => _pipelineState = value;
         }
         

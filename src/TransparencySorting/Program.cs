@@ -198,9 +198,9 @@ namespace TransparencySorting
         }
         
         
-        private static PipelineState CreateSharedState()
+        private static IPipelineState CreateSharedState()
         {
-            var pso = new PipelineState();
+            var pso = PipelineState.Create();
 
             pso.VertexShaderDescription = Vertex3Color4Shader.Instance.VertexShaderDescription;
             pso.FragmentShaderDescription = Vertex3Color4Shader.Instance.FragmentShaderDescription;

@@ -149,8 +149,8 @@ namespace TexturedCube
             geometry.PipelineState.VertexShaderDescription = Texture2DShader.Instance.VertexShaderDescription;
             geometry.PipelineState.FragmentShaderDescription = Texture2DShader.Instance.FragmentShaderDescription;
             
-            geometry.PipelineState.TextureList.Add(
-                new Texture2D(Texture2D.ImageFormatType.Png,
+            geometry.PipelineState.AddTexture(
+                Texture2D.Create(Texture2D.ImageFormatType.Png,
                 ShaderTools.ReadEmbeddedAssetBytes(
                     "TexturedCube.Textures.spnza_bricks_a_diff.png",
                     typeof(Program).Assembly),

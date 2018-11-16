@@ -29,7 +29,7 @@ using AssetProcessor;
 
 namespace Veldrid.SceneGraph
 {
-    public class Texture2D
+    public class Texture2D : ITexture2D
     {
         public enum ImageFormatType
         {
@@ -46,7 +46,26 @@ namespace Veldrid.SceneGraph
         public string TextureName { get; set; } = string.Empty;
         public string SamplerName { get; set; } = string.Empty;
 
-        public Texture2D(ImageFormatType imgageFormat, byte[] imageBytes, uint resourceSetNo, string textureName, string samplerName)
+        public static ITexture2D Create(
+            ImageFormatType imageFormat, 
+            byte[] imageBytes, 
+            uint resourceSetNo,
+            string textureName, 
+            string samplerName)
+        {
+            return new Texture2D(imageFormat, imageBytes, resourceSetNo, textureName, samplerName);
+        }
+
+        public static ITexture2D Create(
+            ProcessedTexture processedTexture, 
+            uint resourceSetNo, 
+            string textureName,
+            string samplerName)
+        {
+            return new Texture2D(processedTexture, resourceSetNo, textureName, samplerName);
+        }
+        
+        private Texture2D(ImageFormatType imageFormat, byte[] imageBytes, uint resourceSetNo, string textureName, string samplerName)
         {
             if (null == textureName || null == samplerName)
             {
@@ -56,7 +75,7 @@ namespace Veldrid.SceneGraph
             ResourceSetNo = resourceSetNo;
             TextureName = textureName;
             SamplerName = samplerName;
-            ImageFormat = imgageFormat;
+            ImageFormat = imageFormat;
             ImageBytes = imageBytes;
             
             if (null != ImageBytes)
@@ -79,7 +98,7 @@ namespace Veldrid.SceneGraph
             }
         }
 
-        public Texture2D(ProcessedTexture processedTexture, uint resourceSetNo, string textureName, string samplerName)
+        private Texture2D(ProcessedTexture processedTexture, uint resourceSetNo, string textureName, string samplerName)
         {
             ResourceSetNo = resourceSetNo;
             TextureName = textureName;

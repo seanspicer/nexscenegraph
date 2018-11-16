@@ -47,7 +47,7 @@ namespace Veldrid.SceneGraph.RenderGraph
 
         public Stack<Matrix4x4> ModelMatrixStack { get; set; } = new Stack<Matrix4x4>();
 
-        public Stack<PipelineState> PipelineStateStack = new Stack<PipelineState>();
+        public Stack<IPipelineState> PipelineStateStack = new Stack<IPipelineState>();
 
         public bool Valid => null != GraphicsDevice;
 
@@ -158,7 +158,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             var bb = geode.GetBoundingBox();
             if (IsCulled(bb, ModelMatrixStack.Peek())) return;
             
-            PipelineState pso = null;
+            IPipelineState pso = null;
 
             // Node specific state
             if (geode.HasPipelineState)
@@ -175,7 +175,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             // Fallback
             else
             {
-                pso = new PipelineState();
+                pso = PipelineState.Create();
             }
 
             foreach (var drawable in geode.Drawables)
@@ -239,7 +239,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             var bb = billboard.GetBoundingBox();
             if (IsCulled(bb, ModelMatrixStack.Peek())) return;
             
-            PipelineState pso = null;
+            IPipelineState pso = null;
 
             // Node specific state
             if (billboard.HasPipelineState)
@@ -256,7 +256,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             // Fallback
             else
             {
-                pso = new PipelineState();
+                pso = PipelineState.Create();
             }
 
             var eyeLocal = GetEyeLocal();

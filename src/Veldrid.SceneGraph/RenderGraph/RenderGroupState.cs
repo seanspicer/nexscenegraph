@@ -15,7 +15,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             public DeviceBuffer ModelViewBuffer;
         } 
        
-        private PipelineState PipelineState;
+        private IPipelineState PipelineState;
         private PrimitiveTopology PrimitiveTopology;
         private VertexLayoutDescription VertexLayout;
 
@@ -23,7 +23,7 @@ namespace Veldrid.SceneGraph.RenderGraph
 
         private Dictionary<Tuple<GraphicsDevice, ResourceFactory>, RenderInfo> RenderInfoCache;
 
-        public RenderGroupState(PipelineState pso, PrimitiveTopology pt, VertexLayoutDescription vertexLayout)
+        public RenderGroupState(IPipelineState pso, PrimitiveTopology pt, VertexLayoutDescription vertexLayout)
         {
             PipelineState = pso;
             PrimitiveTopology = pt;

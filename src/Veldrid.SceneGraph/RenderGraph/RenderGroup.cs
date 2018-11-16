@@ -42,11 +42,11 @@ namespace Veldrid.SceneGraph.RenderGraph
             return RenderGroupStateCache.Count > 0;
         }
         
-        private Dictionary<Tuple<PipelineState, PrimitiveTopology, VertexLayoutDescription>, RenderGroupState> RenderGroupStateCache;
+        private Dictionary<Tuple<IPipelineState, PrimitiveTopology, VertexLayoutDescription>, RenderGroupState> RenderGroupStateCache;
 
         public RenderGroup()
         {
-            RenderGroupStateCache = new Dictionary<Tuple<PipelineState, PrimitiveTopology, VertexLayoutDescription>, RenderGroupState>();
+            RenderGroupStateCache = new Dictionary<Tuple<IPipelineState, PrimitiveTopology, VertexLayoutDescription>, RenderGroupState>();
         }
 
         public void Reset()
@@ -62,9 +62,9 @@ namespace Veldrid.SceneGraph.RenderGraph
             return RenderGroupStateCache.Values;
         }
         
-        public RenderGroupState GetOrCreateState(PipelineState pso, PrimitiveTopology pt, VertexLayoutDescription vl)
+        public RenderGroupState GetOrCreateState(IPipelineState pso, PrimitiveTopology pt, VertexLayoutDescription vl)
         {
-            var key = new Tuple<PipelineState, PrimitiveTopology, VertexLayoutDescription>(pso, pt, vl);
+            var key = new Tuple<IPipelineState, PrimitiveTopology, VertexLayoutDescription>(pso, pt, vl);
             if (RenderGroupStateCache.TryGetValue(key, out var renderGroupState)) return renderGroupState;
             
             renderGroupState = new RenderGroupState(pso, pt, vl);

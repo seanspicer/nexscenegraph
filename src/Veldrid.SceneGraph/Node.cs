@@ -65,10 +65,10 @@ namespace Veldrid.SceneGraph
 
         public bool IsCullingActive => NumChildrenWithCullingDisabled == 0 && CullingActive && GetBound().Valid();
            
-        private PipelineState _pipelineState = null;
-        public PipelineState PipelineState
+        private IPipelineState _pipelineState = null;
+        public IPipelineState PipelineState
         {
-            get => _pipelineState ?? (_pipelineState = new PipelineState());
+            get => _pipelineState ?? (_pipelineState = Veldrid.SceneGraph.PipelineState.Create());
             set => _pipelineState = value;
         }
         

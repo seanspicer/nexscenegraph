@@ -287,9 +287,9 @@ public struct VertexPositionColor : IPrimitiveElement
         }
         
         
-        private static PipelineState TransparentState()
+        private static IPipelineState TransparentState()
         {
-            var pso = new PipelineState();
+            var pso = PipelineState.Create();
 
             pso.VertexShaderDescription = Vertex3Color4Shader.Instance.VertexShaderDescription;
             pso.FragmentShaderDescription = Vertex3Color4Shader.Instance.FragmentShaderDescription;
@@ -300,9 +300,9 @@ public struct VertexPositionColor : IPrimitiveElement
             return pso;
         }
 
-        private static PipelineState OpaqueState()
+        private static IPipelineState OpaqueState()
         {
-            var pso = new PipelineState();
+            var pso = PipelineState.Create();
 
             pso.VertexShaderDescription = Vertex3Color4Shader.Instance.VertexShaderDescription;
             pso.FragmentShaderDescription = Vertex3Color4Shader.Instance.FragmentShaderDescription;
