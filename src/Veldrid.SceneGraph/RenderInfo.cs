@@ -28,9 +28,6 @@ namespace Veldrid.SceneGraph
     public class RenderInfo
     {
         public View View { get; set; }= null;
-        public State State { get; set; }= null;
-        public Stack<Camera> CameraStack { get; set; } = new Stack<Camera>();
-        public Stack<RenderBin> RenderBinStack { get; set; } = new Stack<RenderBin>();
 
         public GraphicsDevice GraphicsDevice { get; set; }
         public ResourceFactory ResourceFactory { get; set; }
@@ -46,18 +43,14 @@ namespace Veldrid.SceneGraph
         {
         }
 
-        public RenderInfo(State state, View view)
+        public RenderInfo(View view)
         {
-            State = state;
             View = view;
         }
 
         public RenderInfo(RenderInfo renderInfo)
         {
-            State = renderInfo.State;
             View = renderInfo.View;
-            CameraStack = renderInfo.CameraStack;
-            RenderBinStack = renderInfo.RenderBinStack;
         }
     }
 }

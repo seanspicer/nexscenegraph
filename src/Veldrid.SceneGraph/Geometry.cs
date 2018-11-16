@@ -34,8 +34,6 @@ namespace Veldrid.SceneGraph
         public int SizeOfVertexData => Marshal.SizeOf(default(T));
         
         public ushort[] IndexData { get; set; }
-
-        private bool _dirtyFlag = true;
         
         private Dictionary<GraphicsDevice, DeviceBuffer> _vertexBufferCache 
             = new Dictionary<GraphicsDevice, DeviceBuffer>();

@@ -39,7 +39,6 @@ namespace Veldrid.SceneGraph
         private float _fov = 1f;
         private float _near = 0.1f;
         private float _far = 10000.0f;
-        private float _dist = 5.0f;
         private float _windowWidth;
         private float _windowHeight;
         
@@ -50,7 +49,6 @@ namespace Veldrid.SceneGraph
         private Vector3 _position = new Vector3(0, 0, 5.0f);
         private Vector3 _lookDirection = Vector3.UnitZ;
         private Vector3 _upDirection = Vector3.UnitY;
-        private float _moveSpeed = 10.0f;
         
         public float Yaw { get => _yaw; set { _yaw = value; UpdateViewMatrix(); } }
         public float Pitch { get => _pitch; set { _pitch = value; UpdateViewMatrix(); } }

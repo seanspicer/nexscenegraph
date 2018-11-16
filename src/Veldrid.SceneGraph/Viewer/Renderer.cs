@@ -45,8 +45,6 @@ namespace Veldrid.SceneGraph.Viewer
         private bool _initialized = false;
 
         private RenderInfo _renderInfo;
-
-        private int _culledObjectCount = 0;
         
         private Stopwatch _stopWatch = new Stopwatch();
 
@@ -133,9 +131,6 @@ namespace Veldrid.SceneGraph.Viewer
             // TODO Set from Camera color ?
             _commandList.ClearColorTarget(0, RgbaFloat.Grey);
             _commandList.ClearDepthStencil(1f);
-
-            
-            _culledObjectCount = 0;
             
             //
             // Draw Opaque Geometry

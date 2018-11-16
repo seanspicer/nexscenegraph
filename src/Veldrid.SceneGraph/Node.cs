@@ -64,36 +64,7 @@ namespace Veldrid.SceneGraph
         public int NumChildrenWithCullingDisabled { get; set; } = 0;
 
         public bool IsCullingActive => NumChildrenWithCullingDisabled == 0 && CullingActive && GetBound().Valid();
-            
-        public StateSet StateSet
-        {
-            get => _stateSet;
-            set
-            {
-                if (value == _stateSet) return;
-                
-                var deltaUpdate = 0;
-                var deltaEvent = 0;
-                
-                if (null != _stateSet)
-                {
-                    _stateSet.RemoveParent(this);
-                    if (_stateSet.RequiresUpdateTraversal()) --deltaUpdate;
-                    if (_stateSet.RequiresEventTraversal()) --deltaEvent;
-                }
-                
-                if (deltaUpdate!=0)
-                {
-                    SetNumChildrenRequiringUpdateTraversal(GetNumChildrenRequiringUpdateTraversal()+deltaUpdate);
-                }
-
-                if (deltaEvent!=0)
-                {
-                    SetNumChildrenRequiringEventTraversal(GetNumChildrenRequiringEventTraversal()+deltaEvent);
-                }
-            } 
-        }
-
+           
         private PipelineState _pipelineState = null;
         public PipelineState PipelineState
         {
@@ -127,8 +98,6 @@ namespace Veldrid.SceneGraph
         }
 
         // Protected/Private fields
-
-        protected StateSet _stateSet = null;
         private List<IGroup> _parents;
         protected bool _boundingSphereComputed = false;
         protected BoundingSphere _boundingSphere = new BoundingSphere();
@@ -152,18 +121,6 @@ namespace Veldrid.SceneGraph
             Id = Guid.NewGuid();
 
             _parents = new List<IGroup>();
-        }
-
-        public StateSet GetOrCreateStateSet()
-        {
-            if (null == _stateSet)
-            {
-                _stateSet = new StateSet();
-            }
-            
-            return _stateSet;
-            
-            
         }
 
         public void AddParent(IGroup parent)

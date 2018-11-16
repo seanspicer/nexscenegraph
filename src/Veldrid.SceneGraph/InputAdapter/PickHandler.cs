@@ -36,7 +36,7 @@ namespace Veldrid.SceneGraph.InputAdapter
             _camera = camera;
         }
         
-        public void HandleInput(InputStateSnapshot snapshot)
+        public override void HandleInput(InputStateSnapshot snapshot)
         {
             base.HandleInput(snapshot);
             

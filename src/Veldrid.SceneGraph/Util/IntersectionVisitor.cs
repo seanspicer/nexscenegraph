@@ -29,7 +29,6 @@ namespace Veldrid.SceneGraph.Util
     public class IntersectionVisitor : NodeVisitor
     {
         private Stack<Intersector> _intersectorStack = new Stack<Intersector>();
-        private bool _eyePointDirty = true;
         private Stack<Matrix4x4> _viewMatrixStack = new Stack<Matrix4x4>();
         private Stack<Matrix4x4> _modelMatrixStack = new Stack<Matrix4x4>();
         
@@ -113,13 +112,11 @@ namespace Veldrid.SceneGraph.Util
         private void PushMatrix(Matrix4x4 matrix, Stack<Matrix4x4> stack)
         {
             stack.Push(matrix);
-            _eyePointDirty = true;
         }
 
         private void PopMatrix(Stack<Matrix4x4> stack)
         {
             stack.Pop();
-            _eyePointDirty = true;
         }
 
         protected void Reset()

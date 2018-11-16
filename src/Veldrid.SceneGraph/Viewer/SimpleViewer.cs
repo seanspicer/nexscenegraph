@@ -68,7 +68,6 @@ namespace Veldrid.SceneGraph.Viewer
         public event Action<GraphicsDevice, ResourceFactory, Swapchain> GraphicsDeviceCreated;
         public event Action GraphicsDeviceDestroyed;
         public event Action Resized;
-        public event Action<KeyEvent> KeyPressed;
 
         #endregion
 

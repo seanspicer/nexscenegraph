@@ -49,14 +49,6 @@ namespace Veldrid.SceneGraph.RenderGraph
 
         public Stack<PipelineState> PipelineStateStack = new Stack<PipelineState>();
 
-        private int _currVertexBufferIndex = 0;
-        private uint _currVertexBufferOffset = 0;
-        public List<DeviceBuffer> VertexBufferList { get; } = new List<DeviceBuffer>();
-        
-        private int _currIndexBufferIndex = 0;
-        private uint _currIndexBufferOffset = 0;
-        public List<DeviceBuffer> IndexBufferList { get; } = new List<DeviceBuffer>();
-
         public bool Valid => null != GraphicsDevice;
         
         private Polytope CullingFrustum { get; set; } = new Polytope();
@@ -79,13 +71,6 @@ namespace Veldrid.SceneGraph.RenderGraph
             ModelMatrixStack.Push(Matrix4x4.Identity);
             
             PipelineStateStack.Clear();
-
-            _currIndexBufferIndex = 0;
-            _currVertexBufferOffset = 0;
-
-            _currVertexBufferIndex = 0;
-            _currIndexBufferOffset = 0;
-            
             OpaqueRenderGroup.Reset();
             TransparentRenderGroup.Reset();
             

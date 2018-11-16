@@ -33,7 +33,6 @@ namespace Veldrid.SceneGraph
         bool CullingActive { get; set; }
         int NumChildrenWithCullingDisabled { get; set; }
         bool IsCullingActive { get; }
-        StateSet StateSet { get; set; }
         PipelineState PipelineState { get; set; }
         bool HasPipelineState { get; }
         BoundingSphere InitialBound { get; set; }
@@ -42,7 +41,6 @@ namespace Veldrid.SceneGraph
         void SetNumChildrenRequiringEventTraversal(int i);
         void SetNumChildrenRequiringUpdateTraversal(int i);
         event Func<Node, BoundingSphere> ComputeBoundCallback;
-        StateSet GetOrCreateStateSet();
         void AddParent(IGroup parent);
         void RemoveParent(IGroup parent);
 

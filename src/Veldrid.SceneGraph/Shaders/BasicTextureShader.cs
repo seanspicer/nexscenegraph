@@ -28,10 +28,14 @@ using static ShaderGen.ShaderBuiltins;
 
 namespace Veldrid.SceneGraph.Shaders
 {
+    
+    #pragma warning disable 649
+    
     internal class BasicTextureShader
     {
         [ResourceSet(0)]
         public Matrix4x4 Projection;
+
         [ResourceSet(0)]
         public Matrix4x4 View;
 
@@ -82,4 +86,5 @@ namespace Veldrid.SceneGraph.Shaders
             [TextureCoordinateSemantic] public Vector2 TexCoords;
         }
     }
+    #pragma warning restore 649
 }

@@ -64,7 +64,6 @@ namespace Veldrid.SceneGraph
                 var texProcessor = new ImageSharpProcessor();
                 using (var stream = new MemoryStream(ImageBytes))
                 {
-                    ProcessedTexture processedTexture = null;
                     switch (ImageFormat)
                     {
                         case ImageFormatType.Jpeg:
