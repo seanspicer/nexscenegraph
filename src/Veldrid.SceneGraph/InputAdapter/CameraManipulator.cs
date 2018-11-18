@@ -92,17 +92,17 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         protected virtual void HandleMouseButtonPushed()
         {
-            Console.WriteLine("Button Pushed!");
+            //Console.WriteLine("Button Pushed!");
         }
 
         protected virtual void HandleMouseButtonReleased()
         {
-            Console.WriteLine("Button Released!");
+            //Console.WriteLine("Button Released!");
         }
 
         protected virtual void HandleWheelDelta()
         {
-            Console.WriteLine("Wheel Delta");
+            //Console.WriteLine("Wheel Delta");
         }
 
         protected virtual bool PerformMovement()
