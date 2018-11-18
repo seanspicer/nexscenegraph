@@ -62,8 +62,8 @@ namespace Veldrid.SceneGraph
         /// <returns></returns>
         IBoundingSphere ComputeBound();
 
-        void Accept(NodeVisitor nv);
-        void Ascend(NodeVisitor nv);
-        void Traverse(NodeVisitor nv);
+        void Accept(INodeVisitor nv);
+        void Ascend(INodeVisitor nv);
+        void Traverse(INodeVisitor nv);
     }
 }

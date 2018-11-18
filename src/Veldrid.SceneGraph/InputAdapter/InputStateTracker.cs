@@ -41,7 +41,7 @@ namespace Veldrid.SceneGraph.InputAdapter
         
         
         
-        public InputStateSnapshot FrameSnapshot { get; private set; }
+        public IInputStateSnapshot FrameSnapshot { get; private set; }
         
 
         internal InputStateTracker()
@@ -97,7 +97,7 @@ namespace Veldrid.SceneGraph.InputAdapter
         }
         
         
-        public void UpdateFrameInput(InputStateSnapshot snapshot)
+        public void UpdateFrameInput(IInputStateSnapshot snapshot)
         {
             FrameSnapshot = snapshot;
             _newKeysThisFrame.Clear();

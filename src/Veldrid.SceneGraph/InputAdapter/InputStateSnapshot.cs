@@ -3,11 +3,16 @@ using System.Numerics;
 
 namespace Veldrid.SceneGraph.InputAdapter
 {
-    public class InputStateSnapshot : InputSnapshot
+    public class InputStateSnapshot : InputSnapshot, IInputStateSnapshot
     {
         private InputSnapshot _snapshot;
+
+        public static IInputStateSnapshot Create(InputSnapshot snapshot, int width, int height)
+        {
+            return new InputStateSnapshot(snapshot, width, height);
+        }
         
-        public InputStateSnapshot(InputSnapshot snapshot, int width, int height)
+        protected InputStateSnapshot(InputSnapshot snapshot, int width, int height)
         {
             WindowWidth = width;
             WindowHeight = height;

@@ -35,8 +35,13 @@ namespace Veldrid.SceneGraph.InputAdapter
         private Vector3 _center = Vector3.Zero;
         private float _distance = 5.0f;
         private float _trackballSize = 0.8f;
-        
-        public OrbitManipulator()
+
+        public static ICameraManipulator Create()
+        {
+            return new OrbitManipulator();
+        } 
+       
+        protected OrbitManipulator()
         {
             
         }

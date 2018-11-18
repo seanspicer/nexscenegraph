@@ -67,8 +67,8 @@ namespace MultiTexturedCube
             
             var allNames = asm.GetManifestResourceNames();
             
-            var viewer = new SimpleViewer("Textured Cube Scene Graph");
-            viewer.View.CameraManipulator = new TrackballManipulator();
+            var viewer = SimpleViewer.Create("Textured Cube Scene Graph");
+            viewer.View.CameraManipulator = TrackballManipulator.Create();
 
             var root = Group.Create();
             
@@ -76,12 +76,12 @@ namespace MultiTexturedCube
             
             root.AddChild(cube);
 
-            viewer.SceneData = root;
+            viewer.View.SceneData = root;
 
             viewer.Run();
         }
 
-        static Geode CreateCube()
+        static IGeode CreateCube()
         {
             var geometry = Geometry<VertexPositionTexture>.Create();
 
@@ -183,7 +183,7 @@ namespace MultiTexturedCube
                     "TreeSampler")
                 );
 
-            var geode = new Geode();
+            var geode = Geode.Create();
             geode.AddDrawable(geometry);
             return geode;
         }

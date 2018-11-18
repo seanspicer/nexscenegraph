@@ -24,11 +24,16 @@ using System;
 
 namespace Veldrid.SceneGraph
 {
-    public class View
+    public class View : IView
     {
         public ICamera Camera { get; set; }
 
-        public View()
+        public static IView Create()
+        {
+            return new View();
+        }
+        
+        protected View()
         {
             Camera = Veldrid.SceneGraph.Camera.Create(DisplaySettings.Instance.ScreenWidth, DisplaySettings.Instance.ScreenHeight);
             Camera.View = this;

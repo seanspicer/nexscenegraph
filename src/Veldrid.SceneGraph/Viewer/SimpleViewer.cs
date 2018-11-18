@@ -55,7 +55,7 @@ namespace Veldrid.SceneGraph.Viewer
             set => _view.SceneData = value;
         }
         
-        public View View
+        public IView View
         {
             get => _view;
         }
@@ -93,7 +93,7 @@ namespace Veldrid.SceneGraph.Viewer
 
         private event Action<GraphicsDevice, ResourceFactory> GraphicsDeviceOperations;
 
-        private event Action<InputStateSnapshot> InputSnapshotEvent;
+        private event Action<IInputStateSnapshot> InputSnapshotEvent;
 
         private const uint NFramesInBuffer = 30;
         private ulong _frameCounter = 0;
@@ -115,6 +115,11 @@ namespace Veldrid.SceneGraph.Viewer
 
         #region PUBLIC_METHODS
 
+        public static IViewer Create(string title)
+        {
+            return new SimpleViewer(title);
+        }
+        
         /// <summary>
         /// Constructor
         /// </summary>
@@ -122,7 +127,7 @@ namespace Veldrid.SceneGraph.Viewer
         //
         // TODO: remove unsafe once Veldrid.SDL2 implements resize fix.
         //
-        public unsafe SimpleViewer(string title)
+        protected unsafe SimpleViewer(string title)
         {
             _windowTitle = title;
             
@@ -165,7 +170,10 @@ namespace Veldrid.SceneGraph.Viewer
             
         }
 
-
+        public void Run()
+        {
+            Run(null);
+        }
 
         /// <summary>
         /// Run the viewer
@@ -189,7 +197,7 @@ namespace Veldrid.SceneGraph.Viewer
                 // TODO: Can remove InputTracker?
                 //InputTracker.UpdateFrameInput(inputSnapshot);
                 
-                InputSnapshotEvent?.Invoke(new InputStateSnapshot(inputSnapshot, _window.Width, _window.Height));
+                InputSnapshotEvent?.Invoke(InputStateSnapshot.Create(inputSnapshot, _window.Width, _window.Height));
                 
                 Frame();
             }

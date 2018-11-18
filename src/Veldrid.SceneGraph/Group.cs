@@ -113,7 +113,7 @@ namespace Veldrid.SceneGraph
             // Do nothing by default
         }
         
-        public override void Traverse(NodeVisitor nv)
+        public override void Traverse(INodeVisitor nv)
         {
             foreach (var child in _children)
             {

@@ -65,8 +65,8 @@ namespace TransparencySorting
             
             var allNames = asm.GetManifestResourceNames();
             
-            var viewer = new SimpleViewer("Transparancy Sorting Demo");
-            viewer.View.CameraManipulator = new TrackballManipulator();
+            var viewer = SimpleViewer.Create("Transparancy Sorting Demo");
+            viewer.View.CameraManipulator = TrackballManipulator.Create();
 
             var root = Group.Create();
 
@@ -74,14 +74,14 @@ namespace TransparencySorting
 
             root.PipelineState = CreateSharedState();
             
-            viewer.SceneData = root;
+            viewer.View.SceneData = root;
 
             viewer.Run();
         }
 
-        static Geode CreateCube()
+        static IGeode CreateCube()
         {
-            var geode = new Geode();
+            var geode = Geode.Create();
             
             var vertices = new List<VertexPositionColor>
             {

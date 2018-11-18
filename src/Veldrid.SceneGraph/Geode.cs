@@ -35,13 +35,18 @@ namespace Veldrid.SceneGraph
         protected IBoundingBox _initialBoundingBox = BoundingBox.Create();
 
         public event Func<INode, IBoundingBox> ComputeBoundingBoxCallback;
+
+        public static IGeode Create()
+        {
+            return new Geode();
+        }
         
-        public Geode()
+        protected Geode()
         {
             
         }
         
-        public override void Accept(NodeVisitor nv)
+        public override void Accept(INodeVisitor nv)
         {
             if (nv.ValidNodeMask(this))
             {

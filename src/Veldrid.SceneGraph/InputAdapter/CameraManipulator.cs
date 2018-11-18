@@ -25,13 +25,13 @@ using System.Numerics;
 
 namespace Veldrid.SceneGraph.InputAdapter
 {
-    public abstract class CameraManipulator : InputEventHandler
+    public abstract class CameraManipulator : InputEventHandler, ICameraManipulator
     {
         public event Action RequestRedrawAction;
         
         protected abstract Matrix4x4 InverseMatrix { get; }
         
-        public CameraManipulator()
+        protected CameraManipulator()
         {
             
         }
@@ -42,7 +42,7 @@ namespace Veldrid.SceneGraph.InputAdapter
             camera.ViewMatrix = InverseMatrix;
         }
         
-        public override void HandleInput(InputStateSnapshot snapshot)
+        public override void HandleInput(IInputStateSnapshot snapshot)
         {
             base.HandleInput(snapshot);
 

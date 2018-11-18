@@ -64,20 +64,20 @@ namespace ColoredCube
             
             var allNames = asm.GetManifestResourceNames();
             
-            var viewer = new SimpleViewer("Colored Cube Scene Graph");
-            viewer.View.CameraManipulator = new TrackballManipulator();
+            var viewer = SimpleViewer.Create("Colored Cube Scene Graph");
+            viewer.View.CameraManipulator = TrackballManipulator.Create();
 
             var root = Group.Create();
             var cube = CreateCube();
             
             root.AddChild(cube);
 
-            viewer.SceneData = root;
+            viewer.View.SceneData = root;
 
             viewer.Run();
         }
 
-        static Geode CreateCube()
+        static IGeode CreateCube()
         {
             
             var geometry = Geometry<VertexPositionColor>.Create();
@@ -154,7 +154,7 @@ namespace ColoredCube
             geometry.PipelineState.VertexShaderDescription = Vertex3Color4Shader.Instance.VertexShaderDescription;
             geometry.PipelineState.FragmentShaderDescription = Vertex3Color4Shader.Instance.FragmentShaderDescription;
 
-            var geode = new Geode();
+            var geode = Geode.Create();
             geode.AddDrawable(geometry);
 
             return geode;

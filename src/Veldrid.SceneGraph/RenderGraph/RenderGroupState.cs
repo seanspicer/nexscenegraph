@@ -5,16 +5,16 @@ using Veldrid.Utilities;
 
 namespace Veldrid.SceneGraph.RenderGraph
 {
-    public class RenderGroupState
+    public class RenderInfo
     {
-        public class RenderInfo
-        {
-            public Pipeline Pipeline;
-            public ResourceLayout ResourceLayout;
-            public ResourceSet ResourceSet;
-            public DeviceBuffer ModelViewBuffer;
-        } 
-       
+        public Pipeline Pipeline;
+        public ResourceLayout ResourceLayout;
+        public ResourceSet ResourceSet;
+        public DeviceBuffer ModelViewBuffer;
+    }
+    
+    public class RenderGroupState : IRenderGroupState
+    {
         private IPipelineState PipelineState;
         private PrimitiveTopology PrimitiveTopology;
         private VertexLayoutDescription VertexLayout;
@@ -23,7 +23,12 @@ namespace Veldrid.SceneGraph.RenderGraph
 
         private Dictionary<Tuple<GraphicsDevice, ResourceFactory>, RenderInfo> RenderInfoCache;
 
-        public RenderGroupState(IPipelineState pso, PrimitiveTopology pt, VertexLayoutDescription vertexLayout)
+        public static IRenderGroupState Create(IPipelineState pso, PrimitiveTopology pt, VertexLayoutDescription vertexLayout)
+        {
+            return new RenderGroupState(pso, pt, vertexLayout);
+        }
+        
+        protected RenderGroupState(IPipelineState pso, PrimitiveTopology pt, VertexLayoutDescription vertexLayout)
         {
             PipelineState = pso;
             PrimitiveTopology = pt;
@@ -148,5 +153,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             }
         }
     }
+
+
 }
 

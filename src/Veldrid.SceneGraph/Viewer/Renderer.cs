@@ -33,7 +33,7 @@ namespace Veldrid.SceneGraph.Viewer
 {
     public class Renderer : IGraphicsDeviceOperation
     {
-        private CullVisitor _cullVisitor;
+        private ICullVisitor _cullVisitor;
         private ICamera _camera;
         
         private DeviceBuffer _projectionBuffer;
@@ -53,7 +53,7 @@ namespace Veldrid.SceneGraph.Viewer
         public Renderer(ICamera camera)
         {
             _camera = camera;
-            _cullVisitor = new CullVisitor();
+            _cullVisitor = CullVisitor.Create();
         }
 
         private void Initialize(GraphicsDevice device, ResourceFactory factory)
@@ -196,7 +196,7 @@ namespace Veldrid.SceneGraph.Viewer
             //
             // First sort the transparent render elements by distance to eye point (if not culled).
             //
-            var drawOrderMap = new SortedList<float, List<Tuple<RenderGroupState, RenderGroupElement, IPrimitiveSet>>>();
+            var drawOrderMap = new SortedList<float, List<Tuple<IRenderGroupState, RenderGroupElement, IPrimitiveSet>>>();
             drawOrderMap.Capacity = _cullVisitor.RenderElementCount;
             var transparentRenderGroupStates = _cullVisitor.TransparentRenderGroup.GetStateList();
             foreach (var state in transparentRenderGroupStates)
@@ -216,7 +216,7 @@ namespace Veldrid.SceneGraph.Viewer
 
                         if (!drawOrderMap.TryGetValue(dist, out var renderList))
                         {
-                            renderList = new List<Tuple<RenderGroupState, RenderGroupElement, IPrimitiveSet>>();
+                            renderList = new List<Tuple<IRenderGroupState, RenderGroupElement, IPrimitiveSet>>();
                             drawOrderMap.Add(dist, renderList);
                         }
 
@@ -229,8 +229,8 @@ namespace Veldrid.SceneGraph.Viewer
             DeviceBuffer boundIndexBuffer = null;
             
             // Now draw transparent elements, back to front
-            RenderGroupState lastState = null;
-            RenderGroupState.RenderInfo ri = null;
+            IRenderGroupState lastState = null;
+            RenderGraph.RenderInfo ri = null;
 
             var currModelViewMatrix = Matrix4x4.Identity;
             

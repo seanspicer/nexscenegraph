@@ -37,6 +37,9 @@ namespace Veldrid.SceneGraph.Viewer
         uint Width { get; }
         uint Height { get; }
 
+        IView View { get; }
+
+        void Run();
         void Run(GraphicsBackend? preferredBackend);
     }
 }

@@ -44,7 +44,7 @@ namespace Veldrid.SceneGraph
         }
         
         // Required for double-dispatch
-        public override void Accept(NodeVisitor nv)
+        public override void Accept(INodeVisitor nv)
         {
             if (nv.ValidNodeMask(this))
             {

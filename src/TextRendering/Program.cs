@@ -37,19 +37,19 @@ namespace TextRendering
             
             var allNames = asm.GetManifestResourceNames();
             
-            var viewer = new SimpleViewer("Text Rendering Demo");
-            viewer.View.CameraManipulator = new TrackballManipulator();
+            var viewer = SimpleViewer.Create("Text Rendering Demo");
+            viewer.View.CameraManipulator = TrackballManipulator.Create();
 
             var root = Group.Create();
 
-            var textNode = new TextNode("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor");
+            var textNode = TextNode.Create("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor");
             
-            var geode = new Geode();
+            var geode = Geode.Create();
             geode.AddDrawable(textNode);
             
             root.AddChild(geode);
 
-            viewer.SceneData = root;
+            viewer.View.SceneData = root;
 
             viewer.Run();
         }

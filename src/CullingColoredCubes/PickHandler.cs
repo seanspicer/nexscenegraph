@@ -23,9 +23,12 @@
 using System;
 using System.Linq;
 using System.Numerics;
+using Veldrid;
+using Veldrid.SceneGraph;
+using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Util;
 
-namespace Veldrid.SceneGraph.InputAdapter
+namespace CullingColoredCubes
 {
     public class PickHandler : InputEventHandler
     {
@@ -36,7 +39,7 @@ namespace Veldrid.SceneGraph.InputAdapter
             _camera = camera;
         }
         
-        public override void HandleInput(InputStateSnapshot snapshot)
+        public override void HandleInput(IInputStateSnapshot snapshot)
         {
             base.HandleInput(snapshot);
             
@@ -54,17 +57,17 @@ namespace Veldrid.SceneGraph.InputAdapter
             }
         }
         
-        private void DoPick(InputStateSnapshot snapshot)
+        private void DoPick(IInputStateSnapshot snapshot)
         {
             var norm = GetNormalizedMousePosition();
             
             var startPos = _camera.NormalizedScreenToWorld(new Vector3(norm.X, norm.Y, 0.0f)); // Near plane
             var endPos = _camera.NormalizedScreenToWorld(new Vector3(norm.X, norm.Y, 1.0f)); // Far plane
-            var intersector = new LineSegmentIntersector(startPos, endPos);
+            var intersector = LineSegmentIntersector.Create(startPos, endPos);
             
-            var intersectionVisitor = new IntersectionVisitor(intersector);
+            var intersectionVisitor = IntersectionVisitor.Create(intersector);
             
-            var view = (Viewer.View) _camera.View;
+            var view = (Veldrid.SceneGraph.Viewer.View) _camera.View;
             view.SceneData?.Accept(intersectionVisitor);
 
             if (intersector.Intersections.Any())

@@ -175,7 +175,7 @@ namespace Veldrid.SceneGraph
             return BoundingSphere.Create();
         }
         
-        public virtual void Accept(NodeVisitor nv)
+        public virtual void Accept(INodeVisitor nv)
         {
             if (nv.ValidNodeMask(this))
             {
@@ -185,7 +185,7 @@ namespace Veldrid.SceneGraph
             };
         }
 
-        public virtual void Ascend(NodeVisitor nv)
+        public virtual void Ascend(INodeVisitor nv)
         {
             foreach (var parent in _parents)
             {
@@ -194,7 +194,7 @@ namespace Veldrid.SceneGraph
         }
 
         // Traverse downward - call children's accept method with Node Visitor
-        public virtual void Traverse(NodeVisitor nv)
+        public virtual void Traverse(INodeVisitor nv)
         {
             // Do nothing by default
         }

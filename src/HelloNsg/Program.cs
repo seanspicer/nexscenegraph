@@ -27,12 +27,12 @@ using ShaderGen;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
+using Veldrid.SceneGraph.Shaders.Standard;
 using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Viewer;
 
 namespace HelloNsg
 {
-    
     public struct VertexPositionColor : IPrimitiveElement
     {
         public const uint SizeInBytes = 24;
@@ -63,8 +63,8 @@ namespace HelloNsg
             
             var allNames = asm.GetManifestResourceNames();
             
-            var viewer = new SimpleViewer("Hello Veldrid Scene Graph");
-            viewer.View.CameraManipulator = new TrackballManipulator();
+            var viewer = SimpleViewer.Create("Hello Veldrid Scene Graph");
+            viewer.View.CameraManipulator = TrackballManipulator.Create();
 
             var root = Group.Create();
             
@@ -83,42 +83,30 @@ namespace HelloNsg
             ushort[] quadIndices = { 0, 1, 2, 3 };
             geometry.IndexData = quadIndices;
             
+            geometry.VertexLayout = new VertexLayoutDescription(
+                new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float2),
+                new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
+
             var pSet = DrawElements<VertexPositionColor>.Create(
                 geometry, 
                 PrimitiveTopology.TriangleStrip,
-                (uint)quadIndices.Length, 
+                (uint)geometry.IndexData.Length, 
                 1, 
                 0, 
                 0, 
                 0);
             
             geometry.PrimitiveSets.Add(pSet);
-            geometry.PrimitiveSets.Add(pSet);
 
-            geometry.VertexLayout = new VertexLayoutDescription(
-                new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float2),
-                new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
+            geometry.PipelineState.VertexShaderDescription = Vertex2Color4Shader.Instance.VertexShaderDescription;
+            geometry.PipelineState.FragmentShaderDescription = Vertex2Color4Shader.Instance.FragmentShaderDescription;
 
-            geometry.PipelineState.VertexShaderDescription = new ShaderDescription(
-                ShaderStages.Vertex,
-                ShaderTools.LoadShaderBytes(DisplaySettings.Instance.GraphicsBackend,
-                    typeof(Program).Assembly,
-                    "HelloShaders", ShaderStages.Vertex), 
-                "VS");
-            
-            geometry.PipelineState.FragmentShaderDescription = new ShaderDescription(
-                ShaderStages.Fragment, 
-                ShaderTools.LoadShaderBytes(DisplaySettings.Instance.GraphicsBackend,
-                    typeof(Program).Assembly,
-                    "HelloShaders", ShaderStages.Fragment),
-                "FS");
-                        
-            var geode = new Geode();
+            var geode = Geode.Create();
             geode.AddDrawable(geometry);
             
             root.AddChild(geode);
 
-            viewer.SceneData = root;
+            viewer.View.SceneData = root;
 
             viewer.Run();
 

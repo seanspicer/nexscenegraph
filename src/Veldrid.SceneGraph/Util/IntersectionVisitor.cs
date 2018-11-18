@@ -26,14 +26,23 @@ using System.Numerics;
 
 namespace Veldrid.SceneGraph.Util
 {
-    public class IntersectionVisitor : NodeVisitor
+    public class IntersectionVisitor : NodeVisitor, IIntersectionVisitor
     {
-        private Stack<Intersector> _intersectorStack = new Stack<Intersector>();
+        private Stack<IIntersector> _intersectorStack = new Stack<IIntersector>();
         private Stack<Matrix4x4> _viewMatrixStack = new Stack<Matrix4x4>();
         private Stack<Matrix4x4> _modelMatrixStack = new Stack<Matrix4x4>();
+
+        public static IIntersectionVisitor Create(
+                IIntersector intersector,
+                VisitorType type = VisitorType.IntersectionVisitor, 
+                TraversalModeType traversalMode = TraversalModeType.TraverseActiveChildren) 
+            
+        {
+            return new IntersectionVisitor(intersector, type, traversalMode);
+        }
         
-        public IntersectionVisitor(
-            Intersector intersector,
+        protected IntersectionVisitor(
+            IIntersector intersector,
             VisitorType type = VisitorType.IntersectionVisitor, 
             TraversalModeType traversalMode = TraversalModeType.TraverseActiveChildren) 
             : base(type, traversalMode)
@@ -41,7 +50,7 @@ namespace Veldrid.SceneGraph.Util
             SetIntersector(intersector);
         }
 
-        public void SetIntersector(Intersector intersector)
+        public void SetIntersector(IIntersector intersector)
         {
             _intersectorStack.Clear();
             

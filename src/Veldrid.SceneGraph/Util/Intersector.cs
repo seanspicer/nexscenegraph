@@ -27,7 +27,7 @@ namespace Veldrid.SceneGraph.Util
     /// <summary>
     /// Base class for all intersectors
     /// </summary>
-    public abstract class Intersector
+    public abstract class Intersector : IIntersector
     {
         public enum IntersectionLimitModes
         {
@@ -42,14 +42,14 @@ namespace Veldrid.SceneGraph.Util
         /// <summary>
         /// Constructor
         /// </summary>
-        public Intersector()
+        protected Intersector()
         {
             IntersectionLimit = IntersectionLimitModes.NoLimit;
         }
 
-        public abstract Intersector Clone(IntersectionVisitor iv);
+        public abstract Intersector Clone(IIntersectionVisitor iv);
         
-        public abstract void Intersect(IntersectionVisitor iv, IDrawable drawable);
+        public abstract void Intersect(IIntersectionVisitor iv, IDrawable drawable);
 
         public abstract bool Enter(INode node);
 

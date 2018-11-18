@@ -61,8 +61,8 @@ namespace BillboardExample
             
             var allNames = asm.GetManifestResourceNames();
             
-            var viewer = new SimpleViewer("Hello Veldrid Scene Graph");
-            viewer.View.CameraManipulator = new TrackballManipulator();
+            var viewer = SimpleViewer.Create("Hello Veldrid Scene Graph");
+            viewer.View.CameraManipulator = TrackballManipulator.Create();
 
             var root = Group.Create();
             
@@ -97,7 +97,7 @@ namespace BillboardExample
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
                         
-            var geode = new Geode();
+            var geode = Geode.Create();
             geode.AddDrawable(geometry);
             
             var billboard = Billboard.Create();
@@ -113,7 +113,7 @@ namespace BillboardExample
             root.AddChild(rightXForm);
             root.PipelineState = CreateSharedState();
 
-            viewer.SceneData = root;
+            viewer.View.SceneData = root;
 
             viewer.Run();
 

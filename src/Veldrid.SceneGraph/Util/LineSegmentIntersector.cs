@@ -26,7 +26,7 @@ using System.Numerics;
 
 namespace Veldrid.SceneGraph.Util
 {
-    public class LineSegmentIntersector : Intersector
+    public class LineSegmentIntersector : Intersector, ILineSegmentIntersector
     {
         public class Intersection : IComparable<Intersection>
         {
@@ -71,12 +71,17 @@ namespace Veldrid.SceneGraph.Util
             }
         }
 
-        public SortedMultiSet<Intersection> Intersections = new SortedMultiSet<Intersection>();
+        public SortedMultiSet<Intersection> Intersections { get; }= new SortedMultiSet<Intersection>();
         
         protected Vector3 Start { get; set; }
         protected Vector3 End { get; set; }
 
         protected LineSegmentIntersector Parent { get; set; } = null;
+
+        public static ILineSegmentIntersector Create(Vector3 start, Vector3 end)
+        {
+            return new LineSegmentIntersector(start, end);
+        }
         
         /// <summary>
         /// Constructor for LineSegment Intersector given start and end points in
@@ -84,13 +89,13 @@ namespace Veldrid.SceneGraph.Util
         /// </summary>
         /// <param name="start"></param>
         /// <param name="end"></param>
-        public LineSegmentIntersector(Vector3 start, Vector3 end)
+        protected LineSegmentIntersector(Vector3 start, Vector3 end)
         {
             Start = start;
             End = end;
         }
         
-        public override Intersector Clone(IntersectionVisitor iv)
+        public override Intersector Clone(IIntersectionVisitor iv)
         {
             Matrix4x4 matrix;
             Matrix4x4.Invert(iv.GetModelMatrix(), out matrix);
@@ -117,7 +122,7 @@ namespace Veldrid.SceneGraph.Util
             }
         }
 
-        public override void Intersect(IntersectionVisitor iv, IDrawable drawable)
+        public override void Intersect(IIntersectionVisitor iv, IDrawable drawable)
         {
             var bb = drawable.GetBoundingBox();
             if (Intersects(BoundingSphere.Create(drawable.GetBoundingBox())))

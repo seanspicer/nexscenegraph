@@ -38,7 +38,7 @@ namespace Veldrid.SceneGraph
 
         public Modes Mode { get; set; }
 
-        public static IBillboard Create()
+        public new static IBillboard Create()
         {
             return new Billboard();
         }
@@ -48,7 +48,7 @@ namespace Veldrid.SceneGraph
             Mode = Modes.Screen;
         }
         
-        public override void Accept(NodeVisitor visitor)
+        public override void Accept(INodeVisitor visitor)
         {
             visitor.Apply(this);
         }

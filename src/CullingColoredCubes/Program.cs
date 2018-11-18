@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using CullingColoredCubes;
 using ShaderGen;
 using SharpDX.Mathematics.Interop;
 using Veldrid;
@@ -64,9 +65,9 @@ namespace ColoredCube
             
             var allNames = asm.GetManifestResourceNames();
             
-            var viewer = new SimpleViewer("Culling Colored Cube Scene Graph");
-            viewer.View.CameraManipulator = new TrackballManipulator();
-            viewer.View.PickHandler = new PickHandler(viewer.View.Camera);
+            var viewer = SimpleViewer.Create("Culling Colored Cube Scene Graph");
+            viewer.View.CameraManipulator = TrackballManipulator.Create();
+            viewer.View.AddInputEventHandler(new PickHandler(viewer.View.Camera));
 
             var root = Group.Create();
             root.NameString = "Root";
@@ -92,12 +93,12 @@ namespace ColoredCube
 
             root.PipelineState = CreateSharedState();
             
-            viewer.SceneData = root;
+            viewer.View.SceneData = root;
 
             viewer.Run();
         }
 
-        static Geode CreateCube()
+        static IGeode CreateCube()
         {
             var geometry = Geometry<VertexPositionColor>.Create();
 
@@ -171,7 +172,7 @@ namespace ColoredCube
             
             geometry.PrimitiveSets.Add(pSet);
 
-            var geode = new Geode();
+            var geode = Geode.Create();
             geode.NameString = "Cube Geode";
             geometry.Name = "Colored Cube";
             geode.AddDrawable(geometry);

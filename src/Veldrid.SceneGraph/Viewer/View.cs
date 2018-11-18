@@ -25,14 +25,14 @@ using Veldrid.SceneGraph.InputAdapter;
 
 namespace Veldrid.SceneGraph.Viewer
 {
-    public class View : Veldrid.SceneGraph.View
+    public class View : Veldrid.SceneGraph.View, IView
     {
         public IGroup SceneData { get; set; }
 
-        private Action<InputStateSnapshot> HandleInputSnapshot;
+        private Action<IInputStateSnapshot> HandleInputSnapshot;
 
-        private CameraManipulator _cameraManipulator = null;
-        public CameraManipulator CameraManipulator
+        private ICameraManipulator _cameraManipulator = null;
+        public ICameraManipulator CameraManipulator
         {
             get => _cameraManipulator;
             set
@@ -46,29 +46,17 @@ namespace Veldrid.SceneGraph.Viewer
             }
         }
 
-        private PickHandler _pickHandler = null;
-
-        public PickHandler PickHandler
-        {
-            get => _pickHandler;
-            set
-            {
-                if (null != _pickHandler)
-                {
-                    throw new Exception("Setting camera manipulator twice.  Don't do that.");
-                }
-
-                _pickHandler = value;
-                HandleInputSnapshot += _pickHandler.HandleInput;
-            }
-        }
-    
         public View()
         {
             Camera.Renderer = new Renderer(Camera);
         }
 
-        public void OnInputEvent(InputStateSnapshot snapshot)
+        public void AddInputEventHandler(IInputEventHandler handler)
+        {
+            HandleInputSnapshot += handler.HandleInput;
+        }
+        
+        public void OnInputEvent(IInputStateSnapshot snapshot)
         {
             HandleInputSnapshot?.Invoke(snapshot);
 

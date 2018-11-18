@@ -60,12 +60,17 @@ namespace Veldrid.SceneGraph.Text
         }
     }
     
-    public class TextNode : Geometry<VertexPositionTexture>
+    public class TextNode : Geometry<VertexPositionTexture>, ITextNode
     {
         private Font Font { get; set; }
         public string Text { get; private set; }
 
-        public TextNode(string text)
+        public static ITextNode Create(string text)
+        {
+            return new TextNode(text);
+        }
+        
+        protected TextNode(string text)
         {
             Text = text;
             

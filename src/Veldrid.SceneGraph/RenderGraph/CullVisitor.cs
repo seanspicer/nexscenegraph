@@ -36,18 +36,18 @@ using Veldrid.Utilities;
 
 namespace Veldrid.SceneGraph.RenderGraph
 {
-    public class CullVisitor : NodeVisitor
+    public class CullVisitor : NodeVisitor, ICullVisitor
     {
-        public RenderGroup OpaqueRenderGroup { get; set; } = new RenderGroup();
-        public RenderGroup TransparentRenderGroup { get; set; } = new RenderGroup();
+        public IRenderGroup OpaqueRenderGroup { get; set; } = RenderGroup.Create();
+        public IRenderGroup TransparentRenderGroup { get; set; } = RenderGroup.Create();
 
         public GraphicsDevice GraphicsDevice { get; set; } = null;
         public ResourceFactory ResourceFactory { get; set; } = null;
         public ResourceLayout ResourceLayout { get; set; } = null;
 
-        public Stack<Matrix4x4> ModelMatrixStack { get; set; } = new Stack<Matrix4x4>();
+        private Stack<Matrix4x4> ModelMatrixStack { get; set; } = new Stack<Matrix4x4>();
 
-        public Stack<IPipelineState> PipelineStateStack = new Stack<IPipelineState>();
+        private readonly Stack<IPipelineState> PipelineStateStack = new Stack<IPipelineState>();
 
         public bool Valid => null != GraphicsDevice;
 
@@ -57,9 +57,13 @@ namespace Veldrid.SceneGraph.RenderGraph
 
         private Matrix4x4 ViewMatrix { get; set; } = Matrix4x4.Identity;
         private Matrix4x4 ProjectionMatrix { get; set; } = Matrix4x4.Identity;
-       
+
+        public static ICullVisitor Create()
+        {
+            return new CullVisitor();
+        }
         
-        public CullVisitor() : 
+        protected CullVisitor() : 
             base(VisitorType.CullAndAssembleVisitor, TraversalModeType.TraverseActiveChildren)
         {
             ModelMatrixStack.Push(Matrix4x4.Identity);
@@ -193,7 +197,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                 //
                 drawable.ConfigureDeviceBuffers(GraphicsDevice, ResourceFactory);
 
-                var renderElementCache = new Dictionary<RenderGroupState, RenderGroupElement>();
+                var renderElementCache = new Dictionary<IRenderGroupState, RenderGroupElement>();
                 
                 foreach (var pset in drawable.PrimitiveSets)
                 {
@@ -202,7 +206,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                     //            
                     // Sort into appropriate render group
                     // 
-                    RenderGroupState renderGroupState = null;
+                    IRenderGroupState renderGroupState = null;
                     if (drawablePso.BlendStateDescription.AttachmentStates.Contains(BlendAttachmentDescription.AlphaBlend))
                     {
                         renderGroupState = TransparentRenderGroup.GetOrCreateState(drawablePso, pset.PrimitiveTopology, drawable.VertexLayout);
@@ -280,7 +284,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                 //
                 drawable.ConfigureDeviceBuffers(GraphicsDevice, ResourceFactory);
 
-                var renderElementCache = new Dictionary<RenderGroupState, RenderGroupElement>();
+                var renderElementCache = new Dictionary<IRenderGroupState, RenderGroupElement>();
                 
                 foreach (var pset in drawable.PrimitiveSets)
                 {
@@ -290,7 +294,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                     //            
                     // Sort into appropriate render group
                     // 
-                    RenderGroupState renderGroupState = null;
+                    IRenderGroupState renderGroupState = null;
                     if (drawablePso.BlendStateDescription.AttachmentStates.Contains(BlendAttachmentDescription.AlphaBlend))
                     {
                         renderGroupState = TransparentRenderGroup.GetOrCreateState(drawablePso, pset.PrimitiveTopology, drawable.VertexLayout);
