@@ -63,7 +63,7 @@ namespace ColoredCube
         {
             var viewer = SimpleViewer.Create("Culling Colored Cube Scene Graph");
             viewer.SetCameraManipulator(TrackballManipulator.Create());
-            viewer.AddInputEventHandler(new CustomInputEventHandler(viewer.View));
+            viewer.AddInputEventHandler(new PickEventHandler(viewer.View));
 
             var root = Group.Create();
             root.NameString = "Root";
@@ -74,7 +74,7 @@ namespace ColoredCube
             var cube = CreateCube();
             scale_xform.AddChild(cube);
 
-            var gridSize = 3;
+            var gridSize = 5;
             var transF = 1.0f / gridSize;
             for (var i = -gridSize; i <= gridSize; ++i)
             {

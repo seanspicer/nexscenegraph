@@ -30,11 +30,11 @@ using Veldrid.SceneGraph.Util;
 
 namespace CullingColoredCubes
 {
-    public class CustomInputEventHandler : InputEventHandler
+    public class PickEventHandler : InputEventHandler
     {
         private Veldrid.SceneGraph.Viewer.IView _view;
         
-        public CustomInputEventHandler(Veldrid.SceneGraph.Viewer.IView view)
+        public PickEventHandler(Veldrid.SceneGraph.Viewer.IView view)
         {
             _view = view;
         }
