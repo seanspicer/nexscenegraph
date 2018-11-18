@@ -60,19 +60,17 @@ namespace ColoredCube
     {
         static void Main(string[] args)
         {
-            var asm = typeof(Program).Assembly;
-            
-            var allNames = asm.GetManifestResourceNames();
+
             
             var viewer = SimpleViewer.Create("Colored Cube Scene Graph");
-            viewer.View.CameraManipulator = TrackballManipulator.Create();
+            viewer.SetCameraManipulator(TrackballManipulator.Create());
 
             var root = Group.Create();
             var cube = CreateCube();
             
             root.AddChild(cube);
 
-            viewer.View.SceneData = root;
+            viewer.SetSceneData(root);
 
             viewer.ViewAll();
             

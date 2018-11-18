@@ -38,7 +38,7 @@ namespace TextRendering
             var allNames = asm.GetManifestResourceNames();
             
             var viewer = SimpleViewer.Create("Text Rendering Demo");
-            viewer.View.CameraManipulator = TrackballManipulator.Create();
+            viewer.SetCameraManipulator(TrackballManipulator.Create());
 
             var root = Group.Create();
 
@@ -49,7 +49,7 @@ namespace TextRendering
             
             root.AddChild(geode);
 
-            viewer.View.SceneData = root;
+            viewer.SetSceneData(root);
 
             viewer.ViewAll();            
             viewer.Run();

@@ -59,12 +59,10 @@ namespace TexturedCube
     {
         static void Main(string[] args)
         {
-            var asm = typeof(Program).Assembly;
-            
-            var allNames = asm.GetManifestResourceNames();
+
             
             var viewer = SimpleViewer.Create("Textured Cube Scene Graph");
-            viewer.View.CameraManipulator = TrackballManipulator.Create();
+            viewer.SetCameraManipulator(TrackballManipulator.Create());
 
             var root = Group.Create();
             
@@ -75,7 +73,7 @@ namespace TexturedCube
             
             root.AddChild(scaleXform);
 
-            viewer.View.SceneData = root;
+            viewer.SetSceneData(root);
             viewer.ViewAll();            
             viewer.Run();
         }

@@ -175,6 +175,21 @@ namespace Veldrid.SceneGraph.Viewer
             _view.CameraManipulator?.ViewAll();
         }
 
+        public void SetSceneData(IGroup root)
+        {
+            _view.SceneData = root;
+        }
+
+        public void SetCameraManipulator(ICameraManipulator cameraManipulator)
+        {
+            _view.CameraManipulator = cameraManipulator;
+        }
+
+        public void AddInputEventHandler(IInputEventHandler handler)
+        {
+            _view.AddInputEventHandler(handler);
+        }
+        
         public void Run()
         {
             Run(null);

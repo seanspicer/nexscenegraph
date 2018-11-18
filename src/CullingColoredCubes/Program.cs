@@ -61,13 +61,9 @@ namespace ColoredCube
     {
         static void Main(string[] args)
         {
-            var asm = typeof(Program).Assembly;
-            
-            var allNames = asm.GetManifestResourceNames();
-            
             var viewer = SimpleViewer.Create("Culling Colored Cube Scene Graph");
-            viewer.View.CameraManipulator = TrackballManipulator.Create();
-            viewer.View.AddInputEventHandler(new CustomInputEventHandler(viewer.View));
+            viewer.SetCameraManipulator(TrackballManipulator.Create());
+            viewer.AddInputEventHandler(new CustomInputEventHandler(viewer.View));
 
             var root = Group.Create();
             root.NameString = "Root";
@@ -93,7 +89,7 @@ namespace ColoredCube
 
             root.PipelineState = CreateSharedState();
             
-            viewer.View.SceneData = root;
+            viewer.SetSceneData(root);
             viewer.ViewAll();
             viewer.Run();
         }

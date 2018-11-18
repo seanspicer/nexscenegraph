@@ -22,6 +22,7 @@
 
 using System;
 using Veldrid;
+using Veldrid.SceneGraph.InputAdapter;
 
 namespace Veldrid.SceneGraph.Viewer
 {
@@ -39,6 +40,9 @@ namespace Veldrid.SceneGraph.Viewer
 
         IView View { get; }
 
+        void AddInputEventHandler(IInputEventHandler handler);
+        void SetCameraManipulator(ICameraManipulator manipulator);
+        void SetSceneData(IGroup root);
         void ViewAll();
         
         void Run();

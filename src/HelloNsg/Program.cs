@@ -59,12 +59,10 @@ namespace HelloNsg
     {
         static void Main(string[] args)
         {
-            var asm = typeof(Program).Assembly;
-            
-            var allNames = asm.GetManifestResourceNames();
+
             
             var viewer = SimpleViewer.Create("Hello Veldrid Scene Graph");
-            viewer.View.CameraManipulator = TrackballManipulator.Create();
+            viewer.SetCameraManipulator(TrackballManipulator.Create());
 
             var root = Group.Create();
             
@@ -106,7 +104,7 @@ namespace HelloNsg
             
             root.AddChild(geode);
 
-            viewer.View.SceneData = root;
+            viewer.SetSceneData(root);
 
             viewer.ViewAll();
             

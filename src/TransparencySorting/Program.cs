@@ -61,12 +61,10 @@ namespace TransparencySorting
     {
         static void Main(string[] args)
         {
-            var asm = typeof(Program).Assembly;
+
             
-            var allNames = asm.GetManifestResourceNames();
-            
-            var viewer = SimpleViewer.Create("Transparancy Sorting Demo");
-            viewer.View.CameraManipulator = TrackballManipulator.Create();
+            var viewer = SimpleViewer.Create("Transparency Sorting Demo");
+            viewer.SetCameraManipulator(TrackballManipulator.Create());
 
             var root = Group.Create();
 
@@ -74,7 +72,7 @@ namespace TransparencySorting
 
             root.PipelineState = CreateSharedState();
             
-            viewer.View.SceneData = root;
+            viewer.SetSceneData(root);
             viewer.ViewAll();            
             viewer.Run();
         }

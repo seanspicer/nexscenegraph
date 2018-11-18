@@ -57,12 +57,10 @@ namespace BillboardExample
     {
         static void Main(string[] args)
         {
-            var asm = typeof(Program).Assembly;
-            
-            var allNames = asm.GetManifestResourceNames();
+
             
             var viewer = SimpleViewer.Create("Hello Veldrid Scene Graph");
-            viewer.View.CameraManipulator = TrackballManipulator.Create();
+            viewer.SetCameraManipulator(TrackballManipulator.Create());
 
             var root = Group.Create();
             
@@ -113,7 +111,7 @@ namespace BillboardExample
             root.AddChild(rightXForm);
             root.PipelineState = CreateSharedState();
 
-            viewer.View.SceneData = root;
+            viewer.SetSceneData(root);
             viewer.ViewAll();            
             viewer.Run();
 
