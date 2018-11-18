@@ -51,6 +51,7 @@ namespace TextRendering
 
             viewer.View.SceneData = root;
 
+            viewer.ViewAll();            
             viewer.Run();
         }
     }

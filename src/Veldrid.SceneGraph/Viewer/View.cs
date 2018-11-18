@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Numerics;
 using Veldrid.SceneGraph.InputAdapter;
 
 namespace Veldrid.SceneGraph.Viewer
@@ -42,11 +43,17 @@ namespace Veldrid.SceneGraph.Viewer
                     throw new Exception("Setting camera manipulator twice.  Don't do that.");
                 }
                 _cameraManipulator = value;
+                _cameraManipulator.SetCamera(Camera);
                 HandleInputSnapshot += _cameraManipulator.HandleInput;
             }
         }
 
-        public View()
+        public new static IView Create()
+        {
+            return new View();
+        }
+        
+        protected View()
         {
             Camera.Renderer = new Renderer(Camera);
         }
@@ -59,9 +66,6 @@ namespace Veldrid.SceneGraph.Viewer
         public void OnInputEvent(IInputStateSnapshot snapshot)
         {
             HandleInputSnapshot?.Invoke(snapshot);
-
-            // Update the camera on input
-            _cameraManipulator?.UpdateCamera(Camera);
 
         }
     }

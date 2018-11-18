@@ -39,17 +39,31 @@ namespace Veldrid.SceneGraph
         private float _fov = 1f;
         private float _near = 0.1f;
         private float _far = 10000.0f;
-        private float _windowWidth;
-        private float _windowHeight;
+        private float _aspectRatio = 1;
         
         private float _yaw = 0.45f;
         private float _pitch = -0.55f;
         
         // View info
         private Vector3 _position = new Vector3(0, 0, 5.0f);
+        private Vector3 _target = new Vector3(0, 0, 0);
         private Vector3 _lookDirection = Vector3.UnitZ;
         private Vector3 _upDirection = Vector3.UnitY;
         
+        public Vector3 Up => _upDirection;
+
+        public Vector3 Look => _lookDirection;
+
+        public Vector3 Position => _position;
+
+        public float Near => _near;
+
+        public float Far => _far;
+
+        public float AspectRatio => _aspectRatio;
+
+        public float Fov => _fov;
+
         public float Yaw { get => _yaw; set { _yaw = value; UpdateViewMatrix(); } }
         public float Pitch { get => _pitch; set { _pitch = value; UpdateViewMatrix(); } }
         
@@ -62,8 +76,7 @@ namespace Veldrid.SceneGraph
         
         protected Camera(float width, float height)
         {
-            _windowWidth = width;
-            _windowHeight = height;
+            _aspectRatio = width / height;
             ProjectionMatrix = Matrix4x4.Identity;
             ViewMatrix = Matrix4x4.Identity;
             UpdateProjectionMatrix();
@@ -80,7 +93,21 @@ namespace Veldrid.SceneGraph
         /// <param name="zFar"></param>
         public void SetProjectionMatrixAsPerspective(float vfov, float aspectRatio, float zNear, float zFar)
         {
-            ProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(vfov, aspectRatio, zNear, zFar);
+            _fov = vfov;
+            _near = zNear;
+            _far = zFar;
+            _aspectRatio = aspectRatio;
+            
+            UpdateProjectionMatrix();
+        }
+
+        public void SetViewMatrixToLookAt(Vector3 position, Vector3 target, Vector3 upDirection)
+        {
+            _position = position;
+            _target = target;
+            _upDirection = upDirection;
+            
+            UpdateViewMatrix();
         }
 
         public Vector3 NormalizedScreenToWorld(Vector3 screenCoords)
@@ -115,12 +142,12 @@ namespace Veldrid.SceneGraph
 
         private void UpdateViewMatrix()
         {
-            ViewMatrix = Matrix4x4.CreateLookAt(_position, new Vector3(0, 0, 0), _upDirection);
+            ViewMatrix = Matrix4x4.CreateLookAt(_position, _target, _upDirection);
         }
 
-        private void UpdateProjectionMatrix()
+        public void UpdateProjectionMatrix()
         {
-            ProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(_fov, _windowWidth/_windowHeight, _near, _far);
+            ProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(_fov, _aspectRatio, _near, _far);
         }
     }
 }

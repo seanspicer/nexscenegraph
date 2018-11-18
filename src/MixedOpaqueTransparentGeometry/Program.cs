@@ -120,6 +120,7 @@ public struct VertexPositionColor : IPrimitiveElement
             
             viewer.View.SceneData = root;
 
+            viewer.ViewAll();            
             viewer.Run();
         }
 

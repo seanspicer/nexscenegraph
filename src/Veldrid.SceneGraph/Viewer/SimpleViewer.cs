@@ -89,7 +89,7 @@ namespace Veldrid.SceneGraph.Viewer
         private Stopwatch _stopwatch = null;
         private double _previousElapsed = 0;
         private GraphicsBackend _preferredBackend = DisplaySettings.Instance.GraphicsBackend;
-        private View _view;
+        private IView _view;
 
         private event Action<GraphicsDevice, ResourceFactory> GraphicsDeviceOperations;
 
@@ -164,10 +164,15 @@ namespace Veldrid.SceneGraph.Viewer
 
 
             _window.KeyDown += OnKeyDown;
-            _view = new View();
+            _view = Viewer.View.Create();
             GraphicsDeviceOperations += _view.Camera.Renderer.HandleOperation;
             InputSnapshotEvent += _view.OnInputEvent;
             
+        }
+
+        public void ViewAll()
+        {
+            _view.CameraManipulator?.ViewAll();
         }
 
         public void Run()

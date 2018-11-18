@@ -76,7 +76,7 @@ namespace TexturedCube
             root.AddChild(scaleXform);
 
             viewer.View.SceneData = root;
-
+            viewer.ViewAll();            
             viewer.Run();
         }
 

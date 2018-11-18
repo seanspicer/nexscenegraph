@@ -77,7 +77,7 @@ namespace MultiTexturedCube
             root.AddChild(cube);
 
             viewer.View.SceneData = root;
-
+            viewer.ViewAll();            
             viewer.Run();
         }
 

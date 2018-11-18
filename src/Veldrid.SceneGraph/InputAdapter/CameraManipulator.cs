@@ -27,19 +27,30 @@ namespace Veldrid.SceneGraph.InputAdapter
 {
     public abstract class CameraManipulator : InputEventHandler, ICameraManipulator
     {
-        public event Action RequestRedrawAction;
-        
         protected abstract Matrix4x4 InverseMatrix { get; }
+
+        protected ICamera _camera;
         
         protected CameraManipulator()
         {
-            
         }
 
-        // Update a camera
-        public virtual void UpdateCamera(ICamera camera)
+        public void SetCamera(ICamera camera)
         {
-            camera.ViewMatrix = InverseMatrix;
+            _camera = camera;
+        }
+
+        public void ViewAll()
+        {
+            ViewAll(20);
+        }
+
+        public abstract void ViewAll(float slack);
+
+        // Update a camera
+        public void UpdateCamera()
+        {
+            _camera.ViewMatrix = InverseMatrix;
         }
         
         public override void HandleInput(IInputStateSnapshot snapshot)
@@ -74,7 +85,8 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         protected void RequestRedraw()
         {
-            RequestRedrawAction?.Invoke();
+            // TODO: This doesn't really make a request to redraw...
+            UpdateCamera();
         }
         
         protected virtual void HandleDrag()

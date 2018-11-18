@@ -114,7 +114,7 @@ namespace BillboardExample
             root.PipelineState = CreateSharedState();
 
             viewer.View.SceneData = root;
-
+            viewer.ViewAll();            
             viewer.Run();
 
         }

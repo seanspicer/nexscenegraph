@@ -74,6 +74,8 @@ namespace ColoredCube
 
             viewer.View.SceneData = root;
 
+            viewer.ViewAll();
+            
             viewer.Run();
         }
 

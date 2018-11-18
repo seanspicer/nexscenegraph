@@ -7,10 +7,23 @@ namespace Veldrid.SceneGraph
         View View { get; set; }
         Matrix4x4 ProjectionMatrix { get; set; }
         Matrix4x4 ViewMatrix { get; set; }
+        
+        Vector3 Up { get; }
+        Vector3 Look { get; }
+        Vector3 Position { get; }
+        
+        float AspectRatio { get; }
+        float Fov { get; }
+        
+        float Near { get; }
+        float Far { get; }
+        
         float Yaw { get; set; }
         float Pitch { get; set; }
         IGraphicsDeviceOperation Renderer { get; set; }
 
+        void SetViewMatrixToLookAt(Vector3 position, Vector3 target, Vector3 upDirection);
+        
         /// <summary>
         /// Create a symmetrical perspective projection. 
         /// </summary>

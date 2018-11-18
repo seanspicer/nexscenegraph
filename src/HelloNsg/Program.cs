@@ -108,6 +108,8 @@ namespace HelloNsg
 
             viewer.View.SceneData = root;
 
+            viewer.ViewAll();
+            
             viewer.Run();
 
         }
