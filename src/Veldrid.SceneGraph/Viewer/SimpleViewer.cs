@@ -29,6 +29,7 @@ using System.Threading;
 using Veldrid;
 using Veldrid.OpenGLBinding;
 using Veldrid.SceneGraph.InputAdapter;
+using Veldrid.SceneGraph.Logging;
 using Veldrid.Sdl2;
 using Veldrid.Utilities;
 using Veldrid.StartupUtilities;
@@ -103,6 +104,8 @@ namespace Veldrid.SceneGraph.Viewer
         private readonly double[] _frameTimeBuff = new double[NFramesInBuffer];
 
         private SDL_EventFilter ResizeEventFilter = null;
+
+        private IVeldridSceneGraphLogger _logger;
         
         #endregion
 
@@ -129,6 +132,8 @@ namespace Veldrid.SceneGraph.Viewer
         //
         protected unsafe SimpleViewer(string title)
         {
+            _logger = LoggingService.Instance.GetLogger();
+            
             _windowTitle = title;
             
             var wci = new WindowCreateInfo()
@@ -298,6 +303,8 @@ namespace Veldrid.SceneGraph.Viewer
 #if DEBUG
             options.Debug = true;
 #endif
+            _logger.Info(() => $"Creating Graphics Device with {_preferredBackend} Backend");
+            
             _graphicsDevice = VeldridStartup.CreateGraphicsDevice(_window, options, _preferredBackend);
             _factory = new DisposeCollectorResourceFactory(_graphicsDevice.ResourceFactory);
             GraphicsDeviceCreated?.Invoke(_graphicsDevice, _factory, _graphicsDevice.MainSwapchain);

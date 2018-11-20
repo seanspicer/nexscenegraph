@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Examples.Common;
 using ShaderGen;
 using SharpDX.Mathematics.Interop;
 using Veldrid;
@@ -60,7 +61,7 @@ namespace ColoredCube
     {
         static void Main(string[] args)
         {
-
+            Bootstrapper.Configure();
             
             var viewer = SimpleViewer.Create("Colored Cube Scene Graph");
             viewer.SetCameraManipulator(TrackballManipulator.Create());

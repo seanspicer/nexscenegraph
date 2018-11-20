@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Examples.Common;
 using ShaderGen;
 using SharpDX.Mathematics.Interop;
 using Veldrid;
@@ -60,7 +61,7 @@ public struct VertexPositionColor : IPrimitiveElement
     {
         static void Main(string[] args)
         {
-
+            Bootstrapper.Configure();
             
             var viewer = SimpleViewer.Create("Transparancy Sorting Demo");
             viewer.SetCameraManipulator(TrackballManipulator.Create());

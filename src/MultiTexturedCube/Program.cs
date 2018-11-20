@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
+using Examples.Common;
 using MultiTexturedCube.Shaders;
 using ShaderGen;
 using Veldrid;
@@ -63,7 +64,7 @@ namespace MultiTexturedCube
     {
         static void Main(string[] args)
         {
-
+            Bootstrapper.Configure();
             
             var viewer = SimpleViewer.Create("Textured Cube Scene Graph");
             viewer.SetCameraManipulator(TrackballManipulator.Create());

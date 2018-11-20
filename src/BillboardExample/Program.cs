@@ -22,6 +22,7 @@
 
 using System;
 using System.Numerics;
+using Examples.Common;
 using ShaderGen;
 using Veldrid;
 using Veldrid.SceneGraph;
@@ -57,7 +58,7 @@ namespace BillboardExample
     {
         static void Main(string[] args)
         {
-
+            Bootstrapper.Configure();
             
             var viewer = SimpleViewer.Create("Hello Veldrid Scene Graph");
             viewer.SetCameraManipulator(TrackballManipulator.Create());

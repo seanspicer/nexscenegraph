@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Examples.Common;
 using ShaderGen;
 using SharpDX.Mathematics.Interop;
 using Veldrid;
@@ -61,7 +62,7 @@ namespace TransparencySorting
     {
         static void Main(string[] args)
         {
-
+            Bootstrapper.Configure();
             
             var viewer = SimpleViewer.Create("Transparency Sorting Demo");
             viewer.SetCameraManipulator(TrackballManipulator.Create());

@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Examples.Common;
 using ShaderGen;
 using Veldrid;
 using Veldrid.SceneGraph;
@@ -59,7 +60,7 @@ namespace TexturedCube
     {
         static void Main(string[] args)
         {
-
+            Bootstrapper.Configure();
             
             var viewer = SimpleViewer.Create("Textured Cube Scene Graph");
             viewer.SetCameraManipulator(TrackballManipulator.Create());

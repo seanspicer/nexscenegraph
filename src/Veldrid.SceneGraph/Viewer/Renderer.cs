@@ -27,6 +27,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using Veldrid.MetalBindings;
+using Veldrid.SceneGraph.Logging;
 using Veldrid.SceneGraph.RenderGraph;
 
 namespace Veldrid.SceneGraph.Viewer
@@ -49,11 +50,14 @@ namespace Veldrid.SceneGraph.Viewer
         private Stopwatch _stopWatch = new Stopwatch();
 
         private List<Tuple<uint, ResourceSet>> _defaultResourceSets = new List<Tuple<uint, ResourceSet>>();
+
+        private IVeldridSceneGraphLogger _logger;
         
         public Renderer(ICamera camera)
         {
             _camera = camera;
             _cullVisitor = CullVisitor.Create();
+            _logger = LoggingService.Instance.GetLogger();
         }
 
         private void Initialize(GraphicsDevice device, ResourceFactory factory)
@@ -340,13 +344,12 @@ namespace Veldrid.SceneGraph.Viewer
             
             var postSwap = _stopWatch.ElapsedMilliseconds;
             
-            // Todo move to logger
-//            Console.WriteLine("Update = {0} ms, Cull = {1} ms, Record = {2}, Draw = {3} ms, Swap = {4} ms",
-//                postUpdate, 
-//                postCull-postUpdate,
-//                postRecord-postCull,
-//                postDraw-postRecord,
-//                postSwap-postDraw);
+            _logger.Verbose(() => string.Format("Update = {0} ms, Cull = {1} ms, Record = {2}, Draw = {3} ms, Swap = {4} ms",
+                postUpdate, 
+                postCull-postUpdate,
+                postRecord-postCull,
+                postDraw-postRecord,
+                postSwap-postDraw));
         }
     }
 }

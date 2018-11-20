@@ -23,6 +23,7 @@
 using System;
 using System.Linq;
 using System.Numerics;
+using Serilog;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
@@ -33,9 +34,12 @@ namespace CullingColoredCubes
     public class PickEventHandler : InputEventHandler
     {
         private Veldrid.SceneGraph.Viewer.IView _view;
+
+        private readonly ILogger _logger;
         
         public PickEventHandler(Veldrid.SceneGraph.Viewer.IView view)
         {
+            _logger = Log.Logger.ForContext("Source", "CullingColoredCubes");
             _view = view;
         }
         
@@ -75,11 +79,11 @@ namespace CullingColoredCubes
                 var idx = 0;
                 foreach (var intersection in intersector.Intersections)
                 {
-                    Console.WriteLine($"Intersected [{idx}]: {intersection.Drawable.Name}");
+                    _logger.Information($"Intersected [{idx}]: {intersection.Drawable.Name}");
                     var jdx = 0;
                     foreach (var node in intersection.NodePath)
                     {
-                        Console.WriteLine($"  Path[{jdx}]: {node.NameString}");
+                        _logger.Information($"  Path[{jdx}]: {node.NameString}");
                         ++jdx;
                     }
                     ++idx;
@@ -88,7 +92,7 @@ namespace CullingColoredCubes
             }
             else
             {
-                Console.WriteLine("No Intersections");
+                _logger.Information("No Intersections");
             }
         }
     }
