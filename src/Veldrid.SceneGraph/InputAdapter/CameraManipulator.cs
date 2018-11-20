@@ -22,7 +22,7 @@
 
 using System;
 using System.Numerics;
-using Veldrid.SceneGraph.Logging;
+using Common.Logging;
 
 namespace Veldrid.SceneGraph.InputAdapter
 {
@@ -32,11 +32,11 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         protected ICamera _camera;
 
-        private IVeldridSceneGraphLogger _logger;
+        private ILog _logger;
         
         protected CameraManipulator()
         {
-            _logger = LoggingService.Instance.GetLogger();
+            _logger = LogManager.GetLogger<CameraManipulator>();
         }
 
         public void SetCamera(ICamera camera)
@@ -103,22 +103,22 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         protected virtual void HandleMouseMove()
         {
-            _logger.Debug(() => "Move Event!");
+            _logger.Debug(m => m("Move Event!"));
         }
 
         protected virtual void HandleMouseButtonPushed()
         {
-            _logger.Debug(() =>"Button Pushed!");
+            _logger.Debug(m => m("Button Pushed!"));
         }
 
         protected virtual void HandleMouseButtonReleased()
         {
-            _logger.Debug(() =>"Button Released!");
+            _logger.Debug(m => m("Button Released!"));
         }
 
         protected virtual void HandleWheelDelta()
         {
-            _logger.Debug(() =>"Wheel Delta");
+            _logger.Debug(m => m("Wheel Delta"));
         }
 
         protected virtual bool PerformMovement()

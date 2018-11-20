@@ -1,3 +1,5 @@
+using Common.Logging;
+using Common.Logging.Serilog;
 using Serilog;
 using SharpDX.Win32;
 
@@ -15,12 +17,11 @@ namespace Examples.Common
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .MinimumLevel.Information()
-                .WriteTo.ColoredConsole(outputTemplate: "{Timestamp:HH:mm} [{Level}] [{Source}] : {Message}{NewLine}")
-                .CreateLogger()
-                .ForContext("Source", "Application");
+                .WriteTo.ColoredConsole(outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm::ss} [{Level}]: {Message}{NewLine}")
+                .CreateLogger();
+
+            LogManager.Adapter = new SerilogFactoryAdapter(Log.Logger);
             
-            Veldrid.SceneGraph.Logging.LoggingService.Instance.RegisterLogger(
-                new Logger(Log.Logger.ForContext("Source", "Veldrid.SceneGraph")));
         }
     }
 }
