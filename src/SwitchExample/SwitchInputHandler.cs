@@ -1,3 +1,4 @@
+using Common.Logging;
 using SharpDX.DXGI;
 using Veldrid;
 using Veldrid.SceneGraph;
@@ -9,9 +10,12 @@ namespace SwitchExample
     {
         private ISwitch _switch;
         private int _pos;
+
+        private ILog _logger;
         
         public SwitchInputHandler(ISwitch switchNode)
         {
+            _logger = LogManager.GetLogger<SwitchInputHandler>();
             _switch = switchNode;
             _pos = -1;
         }
@@ -39,15 +43,18 @@ namespace SwitchExample
             if (_pos == -1)
             {
                 _switch.SetAllChildrenOff();
+                _logger.Info(m => m("All Children Off"));
                 
             }
             else if (_pos == _switch.GetNumChildren())
             {
                 _switch.SetAllChildrenOn();
+                _logger.Info(m => m("All Children On"));
             }
             else
             {
                 _switch.SetValue(_pos, true);
+                _logger.Info(m => m($"Enabled Child At => {_pos}"));
             }
 
             _pos++;
