@@ -22,14 +22,15 @@
 
 namespace Veldrid.SceneGraph
 {
-    public interface IGroup : INode
+    public interface ISwitch : IGroup
     {
-        bool AddChild(INode child);
-        bool InsertChild(int index, INode child);
-        bool RemoveChild(INode child);
-        bool RemoveChildren(int pos, int numChildrenToRemove);
-        void ChildInserted(int index);
-        void ChildRemoved(int index, int count);
-        int GetNumChildren();
+        bool AddChild(INode child, bool value);
+        bool InsertChild(int index, INode child, bool visible);
+        void SetValue(int pos, bool value);
+        bool GetValue(int pos, bool value);
+        void SetChildValue(INode child, bool value);
+        bool GetChildValue(INode child, bool value);
+        void SetAllChildrenOff();
+        void SetAllChildrenOn();
     }
 }

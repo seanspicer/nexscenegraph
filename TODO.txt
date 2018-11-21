@@ -3,8 +3,6 @@ Overall
 + Review Copyright Notices
 + Review Public API surface
 
-
-
 SceneGraph
 ~~~~~~~~~~
 + Implement RenderGraph instead of DrawVisitor [DONE]
@@ -19,8 +17,8 @@ Viewer
 
 [x] - Basic Single Window Viewer
     [x] GUI Action Adapter Structure
-    [ ] ViewAll Logic
-    [ ] Delegate Event Propagation
+    [x] ViewAll Logic
+    [x] Delegate Event Propagation
 [x] - View Abstraction (organizing cameras, scenegraph root, and the renderer)
 [x] - Configurable Orthographic and Perspective Cameras
 [x] - Basic Trackball and Orbit Camera Manipulators
@@ -32,7 +30,7 @@ Viewer
                   [x] Camera
                   [ ] PositionAttitudeTransform
                   [ ] AntiSquish
-              [ ] Switch
+              [x] Switch
               [ ] Clip
               [x] Geode
                   [x] Billboard
@@ -44,8 +42,8 @@ Viewer
 [x] - Visitor Structure
     [x] NodeVisitor
         [x] TransformVisitor
-        [x] AssemblyVisitor (For constructing RenderGroups)
-        [x] Update Visitor
+        [x] CullVisitor (For constructing RenderGroups)
+        [ ] Update Visitor
 		[x] Intersection Visitor
 [x] - Renderer
     [x] Efficient View Frustum Culling of RenderGroup Objects
