@@ -26,6 +26,8 @@ using ShaderGen;
 
 namespace Veldrid.SceneGraph.Shaders
 {
+    #pragma warning disable 649
+    
     internal class Vertex3Color4ShaderSource
     {
         public struct VertexInput
@@ -70,5 +72,5 @@ namespace Veldrid.SceneGraph.Shaders
             return input.Color;
         }
     }
-    
+    #pragma warning restore 649
 }

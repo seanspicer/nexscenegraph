@@ -22,27 +22,42 @@
 
 using System;
 using System.Numerics;
+using Common.Logging;
 
 namespace Veldrid.SceneGraph.InputAdapter
 {
-    public abstract class CameraManipulator : InputEventHandler
+    public abstract class CameraManipulator : InputEventHandler, ICameraManipulator
     {
-        public event Action RequestRedrawAction;
-        
         protected abstract Matrix4x4 InverseMatrix { get; }
+
+        protected ICamera _camera;
+
+        private ILog _logger;
         
-        public CameraManipulator()
+        protected CameraManipulator()
         {
-            
+            _logger = LogManager.GetLogger<CameraManipulator>();
         }
 
-        // Update a camera
-        public virtual void UpdateCamera(Camera camera)
+        public void SetCamera(ICamera camera)
         {
-            camera.ViewMatrix = InverseMatrix;
+            _camera = camera;
+        }
+
+        public void ViewAll()
+        {
+            ViewAll(20);
+        }
+
+        public abstract void ViewAll(float slack);
+
+        // Update a camera
+        public void UpdateCamera()
+        {
+            _camera.ViewMatrix = InverseMatrix;
         }
         
-        public override void HandleInput(InputStateSnapshot snapshot)
+        public override void HandleInput(IInputStateSnapshot snapshot)
         {
             base.HandleInput(snapshot);
 
@@ -74,7 +89,8 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         protected void RequestRedraw()
         {
-            RequestRedrawAction?.Invoke();
+            // TODO: This doesn't really make a request to redraw...
+            UpdateCamera();
         }
         
         protected virtual void HandleDrag()
@@ -87,22 +103,22 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         protected virtual void HandleMouseMove()
         {
-            //Console.WriteLine("Move Event!");
+            _logger.Debug(m => m("Move Event!"));
         }
 
         protected virtual void HandleMouseButtonPushed()
         {
-            Console.WriteLine("Button Pushed!");
+            _logger.Debug(m => m("Button Pushed!"));
         }
 
         protected virtual void HandleMouseButtonReleased()
         {
-            Console.WriteLine("Button Released!");
+            _logger.Debug(m => m("Button Released!"));
         }
 
         protected virtual void HandleWheelDelta()
         {
-            Console.WriteLine("Wheel Delta");
+            _logger.Debug(m => m("Wheel Delta"));
         }
 
         protected virtual bool PerformMovement()

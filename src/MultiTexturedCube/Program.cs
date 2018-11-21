@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
+using Examples.Common;
 using MultiTexturedCube.Shaders;
 using ShaderGen;
 using Veldrid;
@@ -63,30 +64,25 @@ namespace MultiTexturedCube
     {
         static void Main(string[] args)
         {
-            var asm = typeof(Program).Assembly;
+            Bootstrapper.Configure();
             
-            var allNames = asm.GetManifestResourceNames();
-            
-            var viewer = new SimpleViewer("Textured Cube Scene Graph");
-            viewer.View.CameraManipulator = new TrackballManipulator();
+            var viewer = SimpleViewer.Create("Textured Cube Scene Graph");
+            viewer.SetCameraManipulator(TrackballManipulator.Create());
 
-            var root = new Group();
+            var root = Group.Create();
             
-            var scale_xform = new MatrixTransform();
-            scale_xform.Matrix = Matrix4x4.CreateScale(0.25f);
- 
             var cube = CreateCube();
             
             root.AddChild(cube);
 
-            viewer.SceneData = root;
-
+            viewer.SetSceneData(root);
+            viewer.ViewAll();            
             viewer.Run();
         }
 
-        static Geode CreateCube()
+        static IGeode CreateCube()
         {
-            var geometry = new Geometry<VertexPositionTexture>();
+            var geometry = Geometry<VertexPositionTexture>.Create();
 
             var vertices = new VertexPositionTexture[]
             {
@@ -141,7 +137,7 @@ namespace MultiTexturedCube
                 new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
 
-            var pSet = new DrawElements<VertexPositionTexture>(
+            var pSet = DrawElements<VertexPositionTexture>.Create(
                 geometry, 
                 PrimitiveTopology.TriangleList, 
                 (uint)geometry.IndexData.Length, 
@@ -166,8 +162,8 @@ namespace MultiTexturedCube
                     "MultiTexturedCubeShader", ShaderStages.Fragment),
                 "FS");
             
-            geometry.PipelineState.TextureList.Add(
-                new Texture2D(Texture2D.ImageFormatType.Png,
+            geometry.PipelineState.AddTexture(
+                Texture2D.Create(Texture2D.ImageFormatType.Png,
                     ShaderTools.ReadEmbeddedAssetBytes(
                         "MultiTexturedCube.Textures.spnza_bricks_a_diff.png",
                         typeof(Program).Assembly),
@@ -176,8 +172,8 @@ namespace MultiTexturedCube
                     "SurfaceSampler")
             );
             
-            geometry.PipelineState.TextureList.Add(
-                new Texture2D(Texture2D.ImageFormatType.Png,
+            geometry.PipelineState.AddTexture(
+                Texture2D.Create(Texture2D.ImageFormatType.Png,
                     ShaderTools.ReadEmbeddedAssetBytes(
                         "MultiTexturedCube.Textures.tree.png",
                         typeof(Program).Assembly),
@@ -186,8 +182,8 @@ namespace MultiTexturedCube
                     "TreeSampler")
                 );
 
-            var geode = new Geode();
-            geode.Drawables.Add(geometry);
+            var geode = Geode.Create();
+            geode.AddDrawable(geometry);
             return geode;
         }
     }

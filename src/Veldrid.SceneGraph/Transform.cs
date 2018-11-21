@@ -28,7 +28,7 @@ namespace Veldrid.SceneGraph
     /// <summary>
     /// A Transform is a node which transforms all children
     /// </summary>
-    public class Transform : Group
+    public class Transform : Group, ITransform
     {
         public enum ReferenceFrameType
         {
@@ -38,13 +38,13 @@ namespace Veldrid.SceneGraph
         
         public ReferenceFrameType ReferenceFrame { get; set; }
 
-        public Transform()
+        protected Transform()
         {
             ReferenceFrame = ReferenceFrameType.Relative;
         }
         
         // Required for double-dispatch
-        public override void Accept(NodeVisitor nv)
+        public override void Accept(INodeVisitor nv)
         {
             if (nv.ValidNodeMask(this))
             {
@@ -76,7 +76,7 @@ namespace Veldrid.SceneGraph
             return true;
         }
 
-        public override BoundingSphere ComputeBound()
+        public override IBoundingSphere ComputeBound()
         {
             var bsphere = base.ComputeBound();
             if (!bsphere.Valid()) return bsphere;

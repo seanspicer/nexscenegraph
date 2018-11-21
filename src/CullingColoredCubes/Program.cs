@@ -23,6 +23,8 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using CullingColoredCubes;
+using Examples.Common;
 using ShaderGen;
 using SharpDX.Mathematics.Interop;
 using Veldrid;
@@ -60,33 +62,29 @@ namespace ColoredCube
     {
         static void Main(string[] args)
         {
-            var asm = typeof(Program).Assembly;
+            Bootstrapper.Configure();
             
-            var allNames = asm.GetManifestResourceNames();
-            
-            var viewer = new SimpleViewer("Culling Colored Cube Scene Graph");
-            viewer.View.CameraManipulator = new TrackballManipulator();
-            viewer.View.PickHandler = new PickHandler(viewer.View.Camera);
+            var viewer = SimpleViewer.Create("Culling Colored Cube Scene Graph");
+            viewer.SetCameraManipulator(TrackballManipulator.Create());
+            viewer.AddInputEventHandler(new PickEventHandler(viewer.View));
 
-            var root = new Group();
+            var root = Group.Create();
             root.NameString = "Root";
             
-            var scale_xform = new MatrixTransform();
+            var scale_xform = MatrixTransform.Create(Matrix4x4.CreateScale(0.05f));
             scale_xform.NameString = "Scale XForm";
-            scale_xform.Matrix = Matrix4x4.CreateScale(0.05f);
             
             var cube = CreateCube();
             scale_xform.AddChild(cube);
 
-            var gridSize = 3;
+            var gridSize = 5;
             var transF = 1.0f / gridSize;
             for (var i = -gridSize; i <= gridSize; ++i)
             {
                 for (var j = -gridSize; j <= gridSize; ++j)
                 {
-                    var xform = new MatrixTransform();
+                    var xform = MatrixTransform.Create(Matrix4x4.CreateTranslation(transF*i, transF*j, 0.0f));
                     xform.NameString = $"XForm[{i}, {j}]";
-                    xform.Matrix = Matrix4x4.CreateTranslation(transF*i, transF*j, 0.0f);
                     xform.AddChild(scale_xform);
                     root.AddChild(xform);
                 }
@@ -94,14 +92,14 @@ namespace ColoredCube
 
             root.PipelineState = CreateSharedState();
             
-            viewer.SceneData = root;
-
+            viewer.SetSceneData(root);
+            viewer.ViewAll();
             viewer.Run();
         }
 
-        static Geode CreateCube()
+        static IGeode CreateCube()
         {
-            var geometry = new Geometry<VertexPositionColor>();
+            var geometry = Geometry<VertexPositionColor>.Create();
 
             // TODO - make this a color index cube
             Vector3[] cubeVertices =
@@ -161,7 +159,7 @@ namespace ColoredCube
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
 
-            var pSet = new DrawElements<VertexPositionColor>(
+            var pSet = DrawElements<VertexPositionColor>.Create(
                 geometry, 
                 PrimitiveTopology.TriangleList,
                 (uint)geometry.IndexData.Length, 
@@ -173,16 +171,16 @@ namespace ColoredCube
             
             geometry.PrimitiveSets.Add(pSet);
 
-            var geode = new Geode();
+            var geode = Geode.Create();
             geode.NameString = "Cube Geode";
             geometry.Name = "Colored Cube";
-            geode.Drawables.Add(geometry);
+            geode.AddDrawable(geometry);
             return geode;
         }
         
-        private static PipelineState CreateSharedState()
+        private static IPipelineState CreateSharedState()
         {
-            var pso = new PipelineState();
+            var pso = PipelineState.Create();
 
             pso.VertexShaderDescription = Vertex3Color4Shader.Instance.VertexShaderDescription;
             pso.FragmentShaderDescription = Vertex3Color4Shader.Instance.FragmentShaderDescription;

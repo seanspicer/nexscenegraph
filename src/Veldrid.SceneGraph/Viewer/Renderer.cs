@@ -26,6 +26,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
+using Common.Logging;
 using Veldrid.MetalBindings;
 using Veldrid.SceneGraph.RenderGraph;
 
@@ -33,8 +34,8 @@ namespace Veldrid.SceneGraph.Viewer
 {
     public class Renderer : IGraphicsDeviceOperation
     {
-        private CullVisitor _cullVisitor;
-        private Camera _camera;
+        private ICullVisitor _cullVisitor;
+        private ICamera _camera;
         
         private DeviceBuffer _projectionBuffer;
         private DeviceBuffer _viewBuffer;
@@ -45,17 +46,18 @@ namespace Veldrid.SceneGraph.Viewer
         private bool _initialized = false;
 
         private RenderInfo _renderInfo;
-
-        private int _culledObjectCount = 0;
         
         private Stopwatch _stopWatch = new Stopwatch();
 
         private List<Tuple<uint, ResourceSet>> _defaultResourceSets = new List<Tuple<uint, ResourceSet>>();
+
+        private ILog _logger;
         
-        public Renderer(Camera camera)
+        public Renderer(ICamera camera)
         {
             _camera = camera;
-            _cullVisitor = new CullVisitor();
+            _cullVisitor = CullVisitor.Create();
+            _logger = LogManager.GetLogger<Renderer>();
         }
 
         private void Initialize(GraphicsDevice device, ResourceFactory factory)
@@ -133,9 +135,6 @@ namespace Veldrid.SceneGraph.Viewer
             // TODO Set from Camera color ?
             _commandList.ClearColorTarget(0, RgbaFloat.Grey);
             _commandList.ClearDepthStencil(1f);
-
-            
-            _culledObjectCount = 0;
             
             //
             // Draw Opaque Geometry
@@ -201,7 +200,7 @@ namespace Veldrid.SceneGraph.Viewer
             //
             // First sort the transparent render elements by distance to eye point (if not culled).
             //
-            var drawOrderMap = new SortedList<float, List<Tuple<RenderGroupState, RenderGroupElement, PrimitiveSet>>>();
+            var drawOrderMap = new SortedList<float, List<Tuple<IRenderGroupState, RenderGroupElement, IPrimitiveSet>>>();
             drawOrderMap.Capacity = _cullVisitor.RenderElementCount;
             var transparentRenderGroupStates = _cullVisitor.TransparentRenderGroup.GetStateList();
             foreach (var state in transparentRenderGroupStates)
@@ -221,7 +220,7 @@ namespace Veldrid.SceneGraph.Viewer
 
                         if (!drawOrderMap.TryGetValue(dist, out var renderList))
                         {
-                            renderList = new List<Tuple<RenderGroupState, RenderGroupElement, PrimitiveSet>>();
+                            renderList = new List<Tuple<IRenderGroupState, RenderGroupElement, IPrimitiveSet>>();
                             drawOrderMap.Add(dist, renderList);
                         }
 
@@ -234,8 +233,8 @@ namespace Veldrid.SceneGraph.Viewer
             DeviceBuffer boundIndexBuffer = null;
             
             // Now draw transparent elements, back to front
-            RenderGroupState lastState = null;
-            RenderGroupState.RenderInfo ri = null;
+            IRenderGroupState lastState = null;
+            RenderGraph.RenderInfo ri = null;
 
             var currModelViewMatrix = Matrix4x4.Identity;
             
@@ -345,13 +344,12 @@ namespace Veldrid.SceneGraph.Viewer
             
             var postSwap = _stopWatch.ElapsedMilliseconds;
             
-            // Todo move to logger
-//            Console.WriteLine("Update = {0} ms, Cull = {1} ms, Record = {2}, Draw = {3} ms, Swap = {4} ms",
-//                postUpdate, 
-//                postCull-postUpdate,
-//                postRecord-postCull,
-//                postDraw-postRecord,
-//                postSwap-postDraw);
+            _logger.Trace(m => m(string.Format("Update = {0} ms, Cull = {1} ms, Record = {2}, Draw = {3} ms, Swap = {4} ms",
+                postUpdate, 
+                postCull-postUpdate,
+                postRecord-postCull,
+                postDraw-postRecord,
+                postSwap-postDraw)));
         }
     }
 }

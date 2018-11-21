@@ -24,14 +24,14 @@ using System;
 
 namespace Veldrid.SceneGraph
 {
-    public abstract class PrimitiveSet : Object
+    public abstract class PrimitiveSet : Object, IPrimitiveSet
     {
         protected bool _boundingSphereComputed = false;
-        protected BoundingSphere _boundingSphere = new BoundingSphere();
+        protected IBoundingSphere _boundingSphere = BoundingSphere.Create();
         
-        protected BoundingBox _boundingBox;
-        protected BoundingBox _initialBoundingBox = new BoundingBox();
-        public BoundingBox InitialBoundingBox
+        protected IBoundingBox _boundingBox;
+        protected IBoundingBox _initialBoundingBox = BoundingBox.Create();
+        public IBoundingBox InitialBoundingBox
         {
             get => _initialBoundingBox;
             set
@@ -41,14 +41,14 @@ namespace Veldrid.SceneGraph
             }
         } 
         
-        public event Func<PrimitiveSet, BoundingBox> ComputeBoundingBoxCallback;
+        public event Func<PrimitiveSet, IBoundingBox> ComputeBoundingBoxCallback;
         
-        public Drawable Drawable { get; }
+        public IDrawable Drawable { get; }
 
         
         public PrimitiveTopology PrimitiveTopology { get; set; }
         
-        protected PrimitiveSet(Drawable drawable, PrimitiveTopology primitiveTopology)
+        protected PrimitiveSet(IDrawable drawable, PrimitiveTopology primitiveTopology)
         {
             PrimitiveTopology = primitiveTopology;
             Drawable = drawable;
@@ -61,7 +61,7 @@ namespace Veldrid.SceneGraph
             _boundingSphereComputed = false;
         }
         
-        public BoundingBox GetBoundingBox()
+        public IBoundingBox GetBoundingBox()
         {
             if (_boundingSphereComputed) return _boundingBox;
             
@@ -87,7 +87,7 @@ namespace Veldrid.SceneGraph
         
         public abstract void Draw(CommandList commandList);
 
-        protected abstract BoundingBox ComputeBoundingBox();
+        protected abstract IBoundingBox ComputeBoundingBox();
 
     }
 }

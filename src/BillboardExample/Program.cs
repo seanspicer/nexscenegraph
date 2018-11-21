@@ -22,6 +22,7 @@
 
 using System;
 using System.Numerics;
+using Examples.Common;
 using ShaderGen;
 using Veldrid;
 using Veldrid.SceneGraph;
@@ -57,16 +58,14 @@ namespace BillboardExample
     {
         static void Main(string[] args)
         {
-            var asm = typeof(Program).Assembly;
+            Bootstrapper.Configure();
             
-            var allNames = asm.GetManifestResourceNames();
-            
-            var viewer = new SimpleViewer("Hello Veldrid Scene Graph");
-            viewer.View.CameraManipulator = new TrackballManipulator();
+            var viewer = SimpleViewer.Create("Hello Veldrid Scene Graph");
+            viewer.SetCameraManipulator(TrackballManipulator.Create());
 
-            var root = new Group();
+            var root = Group.Create();
             
-            var geometry = new Geometry<VertexPositionColor>();
+            var geometry = Geometry<VertexPositionColor>.Create();
             
             VertexPositionColor[] quadVertices =
             {
@@ -81,7 +80,7 @@ namespace BillboardExample
             ushort[] quadIndices = { 0, 1, 2, 3 };
             geometry.IndexData = quadIndices;
             
-            var pSet = new DrawElements<VertexPositionColor>(
+            var pSet = DrawElements<VertexPositionColor>.Create(
                 geometry, 
                 PrimitiveTopology.TriangleStrip,
                 (uint)quadIndices.Length, 
@@ -97,33 +96,31 @@ namespace BillboardExample
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
                         
-            var geode = new Geode();
-            geode.Drawables.Add(geometry);
+            var geode = Geode.Create();
+            geode.AddDrawable(geometry);
             
-            var billboard = new Billboard();
-            billboard.Drawables.Add(geometry);
+            var billboard = Billboard.Create();
+            billboard.AddDrawable(geometry);
             
-            var leftXForm = new MatrixTransform();
-            leftXForm.Matrix = Matrix4x4.CreateTranslation(1, 0, 0);
+            var leftXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(1, 0, 0));
             leftXForm.AddChild(geode);
             
-            var rightXForm = new MatrixTransform();
-            rightXForm.Matrix = Matrix4x4.CreateTranslation(-1, 0, 0);
+            var rightXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(-1, 0, 0));
             rightXForm.AddChild(billboard);
             
             root.AddChild(leftXForm);
             root.AddChild(rightXForm);
             root.PipelineState = CreateSharedState();
 
-            viewer.SceneData = root;
-
+            viewer.SetSceneData(root);
+            viewer.ViewAll();            
             viewer.Run();
 
         }
         
-        private static PipelineState CreateSharedState()
+        private static IPipelineState CreateSharedState()
         {
-            var pso = new PipelineState();
+            var pso = PipelineState.Create();
 
             pso.VertexShaderDescription = Vertex3Color4Shader.Instance.VertexShaderDescription;
             pso.FragmentShaderDescription = Vertex3Color4Shader.Instance.FragmentShaderDescription;

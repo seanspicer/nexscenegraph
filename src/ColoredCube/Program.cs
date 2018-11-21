@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Examples.Common;
 using ShaderGen;
 using SharpDX.Mathematics.Interop;
 using Veldrid;
@@ -60,27 +61,27 @@ namespace ColoredCube
     {
         static void Main(string[] args)
         {
-            var asm = typeof(Program).Assembly;
+            Bootstrapper.Configure();
             
-            var allNames = asm.GetManifestResourceNames();
-            
-            var viewer = new SimpleViewer("Colored Cube Scene Graph");
-            viewer.View.CameraManipulator = new TrackballManipulator();
+            var viewer = SimpleViewer.Create("Colored Cube Scene Graph");
+            viewer.SetCameraManipulator(TrackballManipulator.Create());
 
-            var root = new Group();
+            var root = Group.Create();
             var cube = CreateCube();
             
             root.AddChild(cube);
 
-            viewer.SceneData = root;
+            viewer.SetSceneData(root);
 
+            viewer.ViewAll();
+            
             viewer.Run();
         }
 
-        static Geode CreateCube()
+        static IGeode CreateCube()
         {
             
-            var geometry = new Geometry<VertexPositionColor>();
+            var geometry = Geometry<VertexPositionColor>.Create();
 
             // TODO - make this a color index cube
             Vector3[] cubeVertices =
@@ -140,7 +141,7 @@ namespace ColoredCube
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
 
-            var pSet = new DrawElements<VertexPositionColor>(
+            var pSet = DrawElements<VertexPositionColor>.Create(
                 geometry, 
                 PrimitiveTopology.TriangleList,
                 (uint)geometry.IndexData.Length, 
@@ -154,8 +155,8 @@ namespace ColoredCube
             geometry.PipelineState.VertexShaderDescription = Vertex3Color4Shader.Instance.VertexShaderDescription;
             geometry.PipelineState.FragmentShaderDescription = Vertex3Color4Shader.Instance.FragmentShaderDescription;
 
-            var geode = new Geode();
-            geode.Drawables.Add(geometry);
+            var geode = Geode.Create();
+            geode.AddDrawable(geometry);
 
             return geode;
         }

@@ -28,11 +28,11 @@ namespace Veldrid.SceneGraph
     /// <summary>
     /// Singleton class to capture information required for rendering
     /// </summary>
-    public class DisplaySettings
+    public class DisplaySettings : IDisplaySettings
     {
-        private static readonly Lazy<DisplaySettings> lazy = new Lazy<DisplaySettings>(() => new DisplaySettings());
+        private static readonly Lazy<IDisplaySettings> lazy = new Lazy<IDisplaySettings>(() => new DisplaySettings());
 
-        public static DisplaySettings Instance => lazy.Value;
+        public static IDisplaySettings Instance => lazy.Value;
 
         public float ScreenWidth { get; set; }
         public float ScreenHeight { get; set; }

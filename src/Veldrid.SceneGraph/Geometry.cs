@@ -28,15 +28,12 @@ using Veldrid;
 
 namespace Veldrid.SceneGraph
 {    
-    public class Geometry<T> : Drawable 
-        where T : struct, IPrimitiveElement
+    public class Geometry<T> : Drawable, IGeometry<T> where T : struct, IPrimitiveElement
     {
         public T[] VertexData { get; set; }
         public int SizeOfVertexData => Marshal.SizeOf(default(T));
         
         public ushort[] IndexData { get; set; }
-
-        private bool _dirtyFlag = true;
         
         private Dictionary<GraphicsDevice, DeviceBuffer> _vertexBufferCache 
             = new Dictionary<GraphicsDevice, DeviceBuffer>();
@@ -44,8 +41,13 @@ namespace Veldrid.SceneGraph
         private Dictionary<GraphicsDevice, DeviceBuffer> _indexBufferCache 
             = new Dictionary<GraphicsDevice, DeviceBuffer>();
         
-        public Geometry()
+        protected Geometry()
         {
+        }
+
+        public static IGeometry<T> Create()
+        {
+            return new Geometry<T>();
         }
 
         public override void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory)
@@ -75,9 +77,9 @@ namespace Veldrid.SceneGraph
             }
         }
 
-        protected override BoundingBox ComputeBoundingBox()
+        protected override IBoundingBox ComputeBoundingBox()
         {
-            var bb = new BoundingBox();
+            var bb = BoundingBox.Create();
             foreach (var pset in PrimitiveSets)
             {
                 bb.ExpandBy(pset.GetBoundingBox());

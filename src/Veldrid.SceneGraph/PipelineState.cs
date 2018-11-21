@@ -24,14 +24,13 @@ using System.Collections.Generic;
 
 namespace Veldrid.SceneGraph
 {
-    public class PipelineState
+    public class PipelineState : IPipelineState
     {
         public ShaderDescription? VertexShaderDescription { get; set; }
         public ShaderDescription? FragmentShaderDescription { get; set; }
         
-        public string FragmentShaderEntryPoint { get; set; }
-        
-        public List<Texture2D> TextureList { get; } = new List<Texture2D>();
+        private List<ITexture2D> _textureList = new List<ITexture2D>();
+        public IReadOnlyList<ITexture2D> TextureList => _textureList;
 
         public BlendStateDescription BlendStateDescription { get; set; } = BlendStateDescription.SingleOverrideBlend;
 
@@ -39,11 +38,20 @@ namespace Veldrid.SceneGraph
             DepthStencilStateDescription.DepthOnlyLessEqual;
 
         public RasterizerStateDescription RasterizerStateDescription { get; set; } = RasterizerStateDescription.Default;
-        
 
-        public PipelineState()
+        public static IPipelineState Create()
+        {
+            return new PipelineState();
+        }
+        
+        private PipelineState()
         {
             // Nothing to see here.
+        }
+
+        public void AddTexture(ITexture2D texture)
+        {
+            _textureList.Add(texture);
         }
     }
 }

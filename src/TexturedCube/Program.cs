@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Examples.Common;
 using ShaderGen;
 using Veldrid;
 using Veldrid.SceneGraph;
@@ -59,31 +60,28 @@ namespace TexturedCube
     {
         static void Main(string[] args)
         {
-            var asm = typeof(Program).Assembly;
+            Bootstrapper.Configure();
             
-            var allNames = asm.GetManifestResourceNames();
-            
-            var viewer = new SimpleViewer("Textured Cube Scene Graph");
-            viewer.View.CameraManipulator = new TrackballManipulator();
+            var viewer = SimpleViewer.Create("Textured Cube Scene Graph");
+            viewer.SetCameraManipulator(TrackballManipulator.Create());
 
-            var root = new Group();
+            var root = Group.Create();
             
-            var scale_xform = new MatrixTransform();
-            scale_xform.Matrix = Matrix4x4.CreateScale(0.75f);
+            var scaleXform = MatrixTransform.Create(Matrix4x4.CreateScale(0.75f));
  
             var cube = CreateCube();
-            scale_xform.AddChild(cube);
+            scaleXform.AddChild(cube);
             
-            root.AddChild(scale_xform);
+            root.AddChild(scaleXform);
 
-            viewer.SceneData = root;
-
+            viewer.SetSceneData(root);
+            viewer.ViewAll();            
             viewer.Run();
         }
 
-        static Geode CreateCube()
+        static IGeode CreateCube()
         {
-            var geometry = new Geometry<VertexPositionTexture>();
+            var geometry = Geometry<VertexPositionTexture>.Create();
 
             var vertices = new VertexPositionTexture[]
             {
@@ -136,7 +134,7 @@ namespace TexturedCube
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2));
 
-            var pSet = new DrawElements<VertexPositionTexture>(
+            var pSet = DrawElements<VertexPositionTexture>.Create(
                 geometry, 
                 PrimitiveTopology.TriangleList,
                 (uint)geometry.IndexData.Length, 
@@ -150,8 +148,8 @@ namespace TexturedCube
             geometry.PipelineState.VertexShaderDescription = Texture2DShader.Instance.VertexShaderDescription;
             geometry.PipelineState.FragmentShaderDescription = Texture2DShader.Instance.FragmentShaderDescription;
             
-            geometry.PipelineState.TextureList.Add(
-                new Texture2D(Texture2D.ImageFormatType.Png,
+            geometry.PipelineState.AddTexture(
+                Texture2D.Create(Texture2D.ImageFormatType.Png,
                 ShaderTools.ReadEmbeddedAssetBytes(
                     "TexturedCube.Textures.spnza_bricks_a_diff.png",
                     typeof(Program).Assembly),
@@ -159,8 +157,8 @@ namespace TexturedCube
                 "SurfaceTexture", 
                 "SurfaceSampler"));
 
-            var geode = new Geode();
-            geode.Drawables.Add(geometry);
+            var geode = Geode.Create();
+            geode.AddDrawable(geometry);
 
             return geode;
         }

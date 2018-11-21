@@ -20,28 +20,38 @@
 // SOFTWARE.
 //
 
+using System;
 using System.Numerics;
+using System.Xml.Schema;
 
 namespace Veldrid.SceneGraph
 {
-    public class Plane
+    public class Plane : IPlane
     {
         private System.Numerics.Plane _internalPlane;
         private uint _upperBBCorner = 0;
         private uint _lowerBBCorner = 0;
 
-        public Plane(float nX, float nY, float nZ, float D)
+        public float Nx => _internalPlane.Normal.X;
+        public float Ny => _internalPlane.Normal.Y;
+        public float Nz => _internalPlane.Normal.Z;
+        public float D => _internalPlane.D;
+        
+        public static IPlane Create(float nX, float nY, float nZ, float D)
+        {
+            return new Plane(nX, nY, nZ, D);
+        }
+
+        public static IPlane Create(IPlane other)
+        {
+            return new Plane(other.Nx, other.Ny, other.Nz, other.D);
+        }
+
+        protected Plane(float nX, float nY, float nZ, float D)
         {
             _internalPlane = System.Numerics.Plane.Normalize(new System.Numerics.Plane(nX, nY, nZ, D));
             
             ComputeBBCorners();
-        }
-
-        public Plane(Plane plane)
-        {
-            _internalPlane = plane._internalPlane;
-            _upperBBCorner = plane._upperBBCorner;
-            _lowerBBCorner = plane._lowerBBCorner;
         }
 
         public void Transform(Matrix4x4 matrix)
@@ -76,7 +86,7 @@ namespace Veldrid.SceneGraph
         /// return 0 if the bb intersects the plane,
         /// return -1 if the bb is completely below the plane.
         /// </returns>
-        public int Intersect(BoundingBox bb)
+        public int Intersect(IBoundingBox bb)
         {
             var lowerBBCorner = bb.Corner(_lowerBBCorner);
             var distLower = Distance(lowerBBCorner);

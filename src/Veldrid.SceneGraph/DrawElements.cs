@@ -32,9 +32,35 @@ namespace Veldrid.SceneGraph
         private readonly int _vertexOffset = 0;
         private readonly uint _instanceStart = 0;
 
-        private readonly Geometry<T> _geometry;
+        private readonly IGeometry<T> _geometry;
 
-        public DrawElements(Geometry<T> geometry, PrimitiveTopology primitiveTopology, uint indexCount, uint instanceCount, uint indexStart, int vertexOffset, uint instanceStart)
+        public static IPrimitiveSet Create(
+            IGeometry<T> geometry, 
+            PrimitiveTopology primitiveTopology, 
+            uint indexCount, 
+            uint instanceCount, 
+            uint indexStart, 
+            int vertexOffset, 
+            uint instanceStart)
+        {
+            return new DrawElements<T>(
+                geometry,
+                primitiveTopology,
+                indexCount,
+                instanceCount,
+                indexStart, 
+                vertexOffset, 
+                instanceStart);
+        }
+         
+        protected DrawElements(
+            IGeometry<T> geometry, 
+            PrimitiveTopology primitiveTopology, 
+            uint indexCount, 
+            uint instanceCount, 
+            uint indexStart, 
+            int vertexOffset, 
+            uint instanceStart)
             : base(geometry, primitiveTopology) 
         {
             _geometry = geometry;
@@ -55,9 +81,9 @@ namespace Veldrid.SceneGraph
                 instanceStart: _instanceStart);
         }
         
-        protected override BoundingBox ComputeBoundingBox()
+        protected override IBoundingBox ComputeBoundingBox()
         {
-            var bb = new BoundingBox();
+            var bb = BoundingBox.Create();
             for(var idx = _indexStart; idx < (_indexStart+_indexCount); ++idx)
             {
                 bb.ExpandBy(_geometry.VertexData[_geometry.IndexData[idx]].VertexPosition);

@@ -27,17 +27,17 @@ namespace Veldrid.SceneGraph
 {
     public class CollectParentPaths : NodeVisitor
     {
-        private Node _haltTraversalAtNode;
-        private List<LinkedList<Node>> _nodePaths;
+        private INode _haltTraversalAtNode;
+        private List<LinkedList<INode>> _nodePaths;
         
-        public CollectParentPaths(Node haltTraversalAtNode = null) :
+        public CollectParentPaths(INode haltTraversalAtNode = null) :
             base(VisitorType.NodeVisitor, TraversalModeType.TraverseParents)
         {
             _haltTraversalAtNode = haltTraversalAtNode;
-            _nodePaths = new List<LinkedList<Node>>();
+            _nodePaths = new List<LinkedList<INode>>();
         }
 
-        public override void Apply(Node node)
+        public override void Apply(INode node)
         {
             if (node.NumParents == 0 || node == _haltTraversalAtNode)
             {
@@ -50,7 +50,7 @@ namespace Veldrid.SceneGraph
         }
     }
    
-    public abstract class Node : Object
+    public abstract class Node : Object, INode
     {
         // Public Fields
         public Guid Id { get; private set; }
@@ -64,40 +64,11 @@ namespace Veldrid.SceneGraph
         public int NumChildrenWithCullingDisabled { get; set; } = 0;
 
         public bool IsCullingActive => NumChildrenWithCullingDisabled == 0 && CullingActive && GetBound().Valid();
-
-        public StateSet StateSet
+           
+        private IPipelineState _pipelineState = null;
+        public IPipelineState PipelineState
         {
-            get => _stateSet;
-            set
-            {
-                if (value == _stateSet) return;
-                
-                var deltaUpdate = 0;
-                var deltaEvent = 0;
-                
-                if (null != _stateSet)
-                {
-                    _stateSet.RemoveParent(this);
-                    if (_stateSet.RequiresUpdateTraversal()) --deltaUpdate;
-                    if (_stateSet.RequiresEventTraversal()) --deltaEvent;
-                }
-                
-                if (deltaUpdate!=0)
-                {
-                    SetNumChildrenRequiringUpdateTraversal(GetNumChildrenRequiringUpdateTraversal()+deltaUpdate);
-                }
-
-                if (deltaEvent!=0)
-                {
-                    SetNumChildrenRequiringEventTraversal(GetNumChildrenRequiringEventTraversal()+deltaEvent);
-                }
-            } 
-        }
-
-        private PipelineState _pipelineState = null;
-        public PipelineState PipelineState
-        {
-            get => _pipelineState ?? (_pipelineState = new PipelineState());
+            get => _pipelineState ?? (_pipelineState = Veldrid.SceneGraph.PipelineState.Create());
             set => _pipelineState = value;
         }
         
@@ -106,36 +77,34 @@ namespace Veldrid.SceneGraph
             get => null != _pipelineState;
         }
 
-        private int GetNumChildrenRequiringEventTraversal()
+        public int GetNumChildrenRequiringEventTraversal()
         {
             throw new NotImplementedException();
         }
 
-        private int GetNumChildrenRequiringUpdateTraversal()
+        public int GetNumChildrenRequiringUpdateTraversal()
         {
             throw new NotImplementedException();
         }
 
-        private void SetNumChildrenRequiringEventTraversal(int i)
+        public void SetNumChildrenRequiringEventTraversal(int i)
         {
             throw new NotImplementedException();
         }
 
-        private void SetNumChildrenRequiringUpdateTraversal(int i)
+        public void SetNumChildrenRequiringUpdateTraversal(int i)
         {
             throw new NotImplementedException();
         }
 
         // Protected/Private fields
-
-        protected StateSet _stateSet = null;
-        private List<Group> _parents;
+        private List<IGroup> _parents;
         protected bool _boundingSphereComputed = false;
-        protected BoundingSphere _boundingSphere = new BoundingSphere();
+        protected IBoundingSphere _boundingSphere = BoundingSphere.Create();
 
        
-        private BoundingSphere _initialBound = new BoundingSphere();
-        public BoundingSphere InitialBound
+        private IBoundingSphere _initialBound = BoundingSphere.Create();
+        public IBoundingSphere InitialBound
         {
             get { return _initialBound; }
             set
@@ -147,31 +116,19 @@ namespace Veldrid.SceneGraph
 
         public event Func<Node, BoundingSphere> ComputeBoundCallback;
         
-        public Node()
+        protected Node()
         {
             Id = Guid.NewGuid();
 
-            _parents = new List<Group>();
+            _parents = new List<IGroup>();
         }
 
-        public StateSet GetOrCreateStateSet()
-        {
-            if (null == _stateSet)
-            {
-                _stateSet = new StateSet();
-            }
-            
-            return _stateSet;
-            
-            
-        }
-
-        protected internal void AddParent(Group parent)
+        public void AddParent(IGroup parent)
         {
             _parents.Add(parent);
         }
 
-        protected internal void RemoveParent(Group parent)
+        public void RemoveParent(IGroup parent)
         {
             _parents.RemoveAll(x => x.Id == parent.Id);
         }
@@ -196,7 +153,7 @@ namespace Veldrid.SceneGraph
         /// Get the bounding sphere for this node.
         /// </summary>
         /// <returns></returns>
-        public BoundingSphere GetBound()
+        public IBoundingSphere GetBound()
         {
             if (_boundingSphereComputed) return _boundingSphere;
             
@@ -213,12 +170,12 @@ namespace Veldrid.SceneGraph
         /// Compute the bounding sphere of this geometry
         /// </summary>
         /// <returns></returns>
-        public virtual BoundingSphere ComputeBound()
+        public virtual IBoundingSphere ComputeBound()
         {
-            return new BoundingSphere();
+            return BoundingSphere.Create();
         }
         
-        public virtual void Accept(NodeVisitor nv)
+        public virtual void Accept(INodeVisitor nv)
         {
             if (nv.ValidNodeMask(this))
             {
@@ -228,7 +185,7 @@ namespace Veldrid.SceneGraph
             };
         }
 
-        public virtual void Ascend(NodeVisitor nv)
+        public virtual void Ascend(INodeVisitor nv)
         {
             foreach (var parent in _parents)
             {
@@ -237,7 +194,7 @@ namespace Veldrid.SceneGraph
         }
 
         // Traverse downward - call children's accept method with Node Visitor
-        public virtual void Traverse(NodeVisitor nv)
+        public virtual void Traverse(INodeVisitor nv)
         {
             // Do nothing by default
         }

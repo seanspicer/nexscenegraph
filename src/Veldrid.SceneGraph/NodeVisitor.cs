@@ -27,7 +27,7 @@ using Veldrid.SceneGraph.Text;
 
 namespace Veldrid.SceneGraph
 {
-    public class NodePath : LinkedList<Node>
+    public class NodePath : LinkedList<INode>
     {
         public NodePath Copy()
         {
@@ -44,7 +44,7 @@ namespace Veldrid.SceneGraph
     /// <summary>
     /// Base class for all visitors
     /// </summary>
-    public class NodeVisitor
+    public class NodeVisitor : INodeVisitor
     {
         
         public enum TraversalModeType
@@ -94,13 +94,13 @@ namespace Veldrid.SceneGraph
         
         public NodePath NodePath { get; } = new NodePath();
         
-        public NodeVisitor(VisitorType type, TraversalModeType traversalMode = TraversalModeType.TraverseNone)
+        protected NodeVisitor(VisitorType type, TraversalModeType traversalMode = TraversalModeType.TraverseNone)
         {
             Type = type;
             TraversalMode = traversalMode;
         }
 
-        public void PushOntoNodePath(Node node)
+        public void PushOntoNodePath(INode node)
         {
             if (TraversalMode != TraversalModeType.TraverseParents)
             {
@@ -112,7 +112,7 @@ namespace Veldrid.SceneGraph
             }
         }
 
-        public void PopFromNodePath(Node node)
+        public void PopFromNodePath(INode node)
         {
             if (TraversalMode != TraversalModeType.TraverseParents)
             {
@@ -135,12 +135,12 @@ namespace Veldrid.SceneGraph
         /// </summary>
         /// <param name="node"></param>
         /// <returns></returns>
-        public bool ValidNodeMask(Node node)
+        public bool ValidNodeMask(INode node)
         {
             return (TraversalMask & (NodeMaskOverride | node.NodeMask)) != 0;
         }
         
-        protected void Traverse(Node node)
+        protected void Traverse(INode node)
         {
             if (TraversalMode == TraversalModeType.TraverseParents) node.Ascend(this);
             else if(TraversalMode != TraversalModeType.TraverseNone) node.Traverse(this);
@@ -149,7 +149,7 @@ namespace Veldrid.SceneGraph
         //
         // Default implementation for Generic Node
         //
-        public virtual void Apply(Node node)
+        public virtual void Apply(INode node)
         {
             Traverse(node);
         }
@@ -157,26 +157,26 @@ namespace Veldrid.SceneGraph
         //
         // Default implementation for Geometry Node
         // 
-        public virtual void Apply(Geode geode)
+        public virtual void Apply(IGeode geode)
         {
-            Apply((Node)geode);
+            Apply((INode)geode);
         }
 
         /// <summary>
         /// Default Implementation for Billboard
         /// </summary>
         /// <param name="billboard"></param>
-        public virtual void Apply(Billboard billboard)
+        public virtual void Apply(IBillboard billboard)
         {
-            Apply((Geode)billboard);
+            Apply((IGeode)billboard);
         }
 
         // 
         // Default implementation for Transform node
         // 
-        public virtual void Apply(Transform transform)
+        public virtual void Apply(ITransform transform)
         {
-            Apply((Node)transform);
+            Apply((INode)transform);
         }
     }
 }

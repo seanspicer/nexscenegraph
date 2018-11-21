@@ -26,15 +26,23 @@ using System.Numerics;
 
 namespace Veldrid.SceneGraph.Util
 {
-    public class IntersectionVisitor : NodeVisitor
+    public class IntersectionVisitor : NodeVisitor, IIntersectionVisitor
     {
-        private Stack<Intersector> _intersectorStack = new Stack<Intersector>();
-        private bool _eyePointDirty = true;
+        private Stack<IIntersector> _intersectorStack = new Stack<IIntersector>();
         private Stack<Matrix4x4> _viewMatrixStack = new Stack<Matrix4x4>();
         private Stack<Matrix4x4> _modelMatrixStack = new Stack<Matrix4x4>();
+
+        public static IIntersectionVisitor Create(
+                IIntersector intersector,
+                VisitorType type = VisitorType.IntersectionVisitor, 
+                TraversalModeType traversalMode = TraversalModeType.TraverseActiveChildren) 
+            
+        {
+            return new IntersectionVisitor(intersector, type, traversalMode);
+        }
         
-        public IntersectionVisitor(
-            Intersector intersector,
+        protected IntersectionVisitor(
+            IIntersector intersector,
             VisitorType type = VisitorType.IntersectionVisitor, 
             TraversalModeType traversalMode = TraversalModeType.TraverseActiveChildren) 
             : base(type, traversalMode)
@@ -42,7 +50,7 @@ namespace Veldrid.SceneGraph.Util
             SetIntersector(intersector);
         }
 
-        public void SetIntersector(Intersector intersector)
+        public void SetIntersector(IIntersector intersector)
         {
             _intersectorStack.Clear();
             
@@ -62,12 +70,12 @@ namespace Veldrid.SceneGraph.Util
             return _viewMatrixStack.Any() ? _viewMatrixStack.Peek() : Matrix4x4.Identity;
         }
         
-        protected void Intersect(Drawable drawable)
+        protected void Intersect(IDrawable drawable)
         {
             _intersectorStack.Peek().Intersect(this, drawable);
         }
 
-        protected bool Enter(Node node)
+        protected bool Enter(INode node)
         {
             return _intersectorStack.Peek().Enter(node);
         }
@@ -113,13 +121,11 @@ namespace Veldrid.SceneGraph.Util
         private void PushMatrix(Matrix4x4 matrix, Stack<Matrix4x4> stack)
         {
             stack.Push(matrix);
-            _eyePointDirty = true;
         }
 
         private void PopMatrix(Stack<Matrix4x4> stack)
         {
             stack.Pop();
-            _eyePointDirty = true;
         }
 
         protected void Reset()
@@ -129,7 +135,7 @@ namespace Veldrid.SceneGraph.Util
             SetIntersector(intersector);
         }
         
-        public override void Apply(Node node)
+        public override void Apply(INode node)
         {
             if (false == Enter(node)) return;
 
@@ -138,7 +144,7 @@ namespace Veldrid.SceneGraph.Util
             Leave();
         }
 
-        public override void Apply(Geode geode)
+        public override void Apply(IGeode geode)
         {
             if (false == Enter(geode)) return;
 
@@ -150,7 +156,7 @@ namespace Veldrid.SceneGraph.Util
             Leave();
         }
 
-        public override void Apply(Transform transform)
+        public override void Apply(ITransform transform)
         {
             if (false == Enter(transform)) return;
 
@@ -182,7 +188,7 @@ namespace Veldrid.SceneGraph.Util
             Leave();
         }
 
-        public override void Apply(Billboard billboard)
+        public override void Apply(IBillboard billboard)
         {
             // TODO IMPLEMENT FOR BILLBOARDS
             base.Apply(billboard);

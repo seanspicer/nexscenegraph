@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) 2018 Sean Spicer
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,18 +19,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
+using System.Numerics;
 
 namespace Veldrid.SceneGraph
 {
-    public class Edge
+    public interface IPolytope
     {
-        public Node Parent { get; private set; }
-        public Node Child { get; private set; }
+        Matrix4x4 ViewProjectionMatrix { get; }
+        void SetViewProjectionMatrix(Matrix4x4 viewProjectionMatrix);
 
-        public Edge(Node parent, Node child)
-        {
-            Parent = parent;
-            Child = child;
-        }
+        void SetToViewProjectionFrustum(
+            Matrix4x4 viewProjectionMatrix, 
+            bool withNear=true, 
+            bool withFar = true);
+
+        bool Contains(IBoundingBox bb);
+        bool Contains(IBoundingBox bb, Matrix4x4 transformMatrix);
     }
 }

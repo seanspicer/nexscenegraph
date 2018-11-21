@@ -20,11 +20,18 @@
 // SOFTWARE.
 //
 
+using System.Reflection.Metadata.Ecma335;
+
 namespace Veldrid.SceneGraph.InputAdapter
 {
     public class TrackballManipulator : OrbitManipulator
     {
-        public TrackballManipulator() : base()
+        public new static ICameraManipulator Create()
+        {
+            return new TrackballManipulator();
+        }
+        
+        protected TrackballManipulator() : base()
         {
             VerticalAxisFixed = false;
         }

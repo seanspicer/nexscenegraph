@@ -20,39 +20,17 @@
 // SOFTWARE.
 //
 
-using System.Collections.Generic;
-
-namespace Veldrid.SceneGraph.Util
+namespace Veldrid.SceneGraph
 {
-    public class RenderBin
+    public interface ISwitch : IGroup
     {
-        public enum SortModeTypes
-        {
-            SortByState,
-            SortByStateThenFrontToBack,
-            SortFrontToBack,
-            SortBackToFront,
-            TraversalOrder
-        };
-
-        public SortModeTypes SortMode { get; set; } = SortModeTypes.SortByState;
-        public StateGraph StateGraph { get; set; } = null;
-        public StateSet StateSet { get; set; } = null;
-        public RenderBin Parent { get; set; } = null;
-        public RenderStage Stage { get; set; } = null;
-        public uint BinNumber { get; set; } = 0;
-        public Dictionary<uint, RenderBin> RenderBinDict { get; set; } = new Dictionary<uint, RenderBin>();
-        public List<StateGraph> StateGraphList { get; set; } = new List<StateGraph>();
-        public List<RenderLeaf> RenderLeafList { get; set; } = new List<RenderLeaf>();
-
-        public RenderBin()
-        {
-            
-        }
-
-        public virtual void Draw(RenderInfo renderInfo, RenderLeaf previous)
-        {
-            
-        }
+        bool AddChild(INode child, bool value);
+        bool InsertChild(int index, INode child, bool visible);
+        void SetValue(int pos, bool value);
+        bool GetValue(int pos, bool value);
+        void SetChildValue(INode child, bool value);
+        bool GetChildValue(INode child, bool value);
+        void SetAllChildrenOff();
+        void SetAllChildrenOn();
     }
 }

@@ -28,7 +28,7 @@ using System.Linq;
 namespace Veldrid.SceneGraph.Util
 {
     /// <summary>
-    /// Implementation of Softed Multiset based on SO Answer:
+    /// Implementation of Sorted Multiset based on SO Answer:
     /// https://stackoverflow.com/questions/2597691/are-there-any-implementations-of-multiset-for-net/36315344
     /// </summary>
     /// <typeparam name="T"></typeparam>

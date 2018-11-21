@@ -26,6 +26,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Common.Logging;
 using Veldrid;
 using Veldrid.OpenGLBinding;
 using Veldrid.SceneGraph.InputAdapter;
@@ -49,13 +50,13 @@ namespace Veldrid.SceneGraph.Viewer
         public uint Width => (uint) _window.Width;
         public uint Height => (uint) _window.Height;
 
-        public Group SceneData
+        public IGroup SceneData
         {
             get => _view?.SceneData;
             set => _view.SceneData = value;
         }
         
-        public View View
+        public IView View
         {
             get => _view;
         }
@@ -68,7 +69,6 @@ namespace Veldrid.SceneGraph.Viewer
         public event Action<GraphicsDevice, ResourceFactory, Swapchain> GraphicsDeviceCreated;
         public event Action GraphicsDeviceDestroyed;
         public event Action Resized;
-        public event Action<KeyEvent> KeyPressed;
 
         #endregion
 
@@ -90,11 +90,11 @@ namespace Veldrid.SceneGraph.Viewer
         private Stopwatch _stopwatch = null;
         private double _previousElapsed = 0;
         private GraphicsBackend _preferredBackend = DisplaySettings.Instance.GraphicsBackend;
-        private View _view;
+        private IView _view;
 
         private event Action<GraphicsDevice, ResourceFactory> GraphicsDeviceOperations;
 
-        private event Action<InputStateSnapshot> InputSnapshotEvent;
+        private event Action<IInputStateSnapshot> InputSnapshotEvent;
 
         private const uint NFramesInBuffer = 30;
         private ulong _frameCounter = 0;
@@ -104,6 +104,8 @@ namespace Veldrid.SceneGraph.Viewer
         private readonly double[] _frameTimeBuff = new double[NFramesInBuffer];
 
         private SDL_EventFilter ResizeEventFilter = null;
+
+        private ILog _logger;
         
         #endregion
 
@@ -116,6 +118,11 @@ namespace Veldrid.SceneGraph.Viewer
 
         #region PUBLIC_METHODS
 
+        public static IViewer Create(string title)
+        {
+            return new SimpleViewer(title);
+        }
+        
         /// <summary>
         /// Constructor
         /// </summary>
@@ -123,8 +130,10 @@ namespace Veldrid.SceneGraph.Viewer
         //
         // TODO: remove unsafe once Veldrid.SDL2 implements resize fix.
         //
-        public unsafe SimpleViewer(string title)
+        protected unsafe SimpleViewer(string title)
         {
+            _logger = LogManager.GetLogger<SimpleViewer>();
+            
             _windowTitle = title;
             
             var wci = new WindowCreateInfo()
@@ -160,13 +169,36 @@ namespace Veldrid.SceneGraph.Viewer
 
 
             _window.KeyDown += OnKeyDown;
-            _view = new View();
+            _view = Viewer.View.Create();
             GraphicsDeviceOperations += _view.Camera.Renderer.HandleOperation;
             InputSnapshotEvent += _view.OnInputEvent;
             
         }
 
+        public void ViewAll()
+        {
+            _view.CameraManipulator?.ViewAll();
+        }
 
+        public void SetSceneData(IGroup root)
+        {
+            _view.SceneData = root;
+        }
+
+        public void SetCameraManipulator(ICameraManipulator cameraManipulator)
+        {
+            _view.CameraManipulator = cameraManipulator;
+        }
+
+        public void AddInputEventHandler(IInputEventHandler handler)
+        {
+            _view.AddInputEventHandler(handler);
+        }
+        
+        public void Run()
+        {
+            Run(null);
+        }
 
         /// <summary>
         /// Run the viewer
@@ -190,7 +222,7 @@ namespace Veldrid.SceneGraph.Viewer
                 // TODO: Can remove InputTracker?
                 //InputTracker.UpdateFrameInput(inputSnapshot);
                 
-                InputSnapshotEvent?.Invoke(new InputStateSnapshot(inputSnapshot, _window.Width, _window.Height));
+                InputSnapshotEvent?.Invoke(InputStateSnapshot.Create(inputSnapshot, _window.Width, _window.Height));
                 
                 Frame();
             }
@@ -271,6 +303,8 @@ namespace Veldrid.SceneGraph.Viewer
 #if DEBUG
             options.Debug = true;
 #endif
+            _logger.Info(m => m($"Creating Graphics Device with {_preferredBackend} Backend"));
+            
             _graphicsDevice = VeldridStartup.CreateGraphicsDevice(_window, options, _preferredBackend);
             _factory = new DisposeCollectorResourceFactory(_graphicsDevice.ResourceFactory);
             GraphicsDeviceCreated?.Invoke(_graphicsDevice, _factory, _graphicsDevice.MainSwapchain);

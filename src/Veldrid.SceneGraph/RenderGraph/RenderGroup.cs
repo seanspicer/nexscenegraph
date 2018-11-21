@@ -27,26 +27,31 @@ using System.Numerics;
 
 namespace Veldrid.SceneGraph.RenderGraph
 {
-    public class RenderGroupElement
+    public struct RenderGroupElement
     {
-        public List<PrimitiveSet> PrimitiveSets;
+        public List<IPrimitiveSet> PrimitiveSets;
         public Matrix4x4 ModelViewMatrix;
         public DeviceBuffer VertexBuffer;
         public DeviceBuffer IndexBuffer;
     }
     
-    public class RenderGroup
+    public class RenderGroup : IRenderGroup
     {
         public bool HasDrawableElements()
         {
             return RenderGroupStateCache.Count > 0;
         }
         
-        private Dictionary<Tuple<PipelineState, PrimitiveTopology, VertexLayoutDescription>, RenderGroupState> RenderGroupStateCache;
+        private Dictionary<Tuple<IPipelineState, PrimitiveTopology, VertexLayoutDescription>, IRenderGroupState> RenderGroupStateCache;
 
-        public RenderGroup()
+        public static IRenderGroup Create()
         {
-            RenderGroupStateCache = new Dictionary<Tuple<PipelineState, PrimitiveTopology, VertexLayoutDescription>, RenderGroupState>();
+            return new RenderGroup();
+        }
+        
+        protected RenderGroup()
+        {
+            RenderGroupStateCache = new Dictionary<Tuple<IPipelineState, PrimitiveTopology, VertexLayoutDescription>, IRenderGroupState>();
         }
 
         public void Reset()
@@ -57,17 +62,17 @@ namespace Veldrid.SceneGraph.RenderGraph
             }
         }
         
-        public IEnumerable<RenderGroupState> GetStateList()
+        public IEnumerable<IRenderGroupState> GetStateList()
         {
             return RenderGroupStateCache.Values;
         }
         
-        public RenderGroupState GetOrCreateState(PipelineState pso, PrimitiveTopology pt, VertexLayoutDescription vl)
+        public IRenderGroupState GetOrCreateState(IPipelineState pso, PrimitiveTopology pt, VertexLayoutDescription vl)
         {
-            var key = new Tuple<PipelineState, PrimitiveTopology, VertexLayoutDescription>(pso, pt, vl);
+            var key = new Tuple<IPipelineState, PrimitiveTopology, VertexLayoutDescription>(pso, pt, vl);
             if (RenderGroupStateCache.TryGetValue(key, out var renderGroupState)) return renderGroupState;
             
-            renderGroupState = new RenderGroupState(pso, pt, vl);
+            renderGroupState = RenderGroupState.Create(pso, pt, vl);
             RenderGroupStateCache.Add(key, renderGroupState);
 
             return renderGroupState;

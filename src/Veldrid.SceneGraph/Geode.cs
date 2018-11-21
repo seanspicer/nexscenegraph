@@ -25,30 +25,28 @@ using System.Collections.Generic;
 
 namespace Veldrid.SceneGraph
 {
-    public class Geode : Node
+
+    public class Geode : Node, IGeode
     {
-        public List<Drawable> Drawables { get; } = new List<Drawable>();
+        private List<IDrawable> _drawables = new List<IDrawable>();
+        public IReadOnlyList<IDrawable> Drawables => _drawables;
         
-        protected BoundingBox _boundingBox;
-        protected BoundingBox _initialBoundingBox = new BoundingBox();
-        public BoundingBox InitialBoundingBox
+        protected IBoundingBox _boundingBox;
+        protected IBoundingBox _initialBoundingBox = BoundingBox.Create();
+
+        public event Func<INode, IBoundingBox> ComputeBoundingBoxCallback;
+
+        public static IGeode Create()
         {
-            get => _initialBoundingBox;
-            set
-            {
-                _initialBoundingBox = value;
-                DirtyBound();
-            }
+            return new Geode();
         }
         
-        public event Func<Node, BoundingBox> ComputeBoundingBoxCallback;
-        
-        public Geode()
+        protected Geode()
         {
             
         }
         
-        public override void Accept(NodeVisitor nv)
+        public override void Accept(INodeVisitor nv)
         {
             if (nv.ValidNodeMask(this))
             {
@@ -58,12 +56,12 @@ namespace Veldrid.SceneGraph
             };
         }
 
-        public virtual void AddDrawable(Drawable drawable)
+        public virtual void AddDrawable(IDrawable drawable)
         {
-            Drawables.Add(drawable);
+            _drawables.Add(drawable);
         }
         
-        public BoundingBox GetBoundingBox()
+        public IBoundingBox GetBoundingBox()
         {
             if (_boundingSphereComputed) return _boundingBox;
             
@@ -87,9 +85,9 @@ namespace Veldrid.SceneGraph
             return _boundingBox;
         }
 
-        protected BoundingBox ComputeBoundingBox()
+        protected IBoundingBox ComputeBoundingBox()
         {
-            var bb = new BoundingBox();
+            var bb = BoundingBox.Create();
             foreach (var drawable in Drawables)
             {
                 bb.ExpandBy(drawable.GetBoundingBox());

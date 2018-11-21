@@ -6,7 +6,7 @@ namespace Veldrid.SceneGraph.InputAdapter
     {
         protected InputStateTracker InputStateTracker { get; }= new InputStateTracker();
 
-        public virtual void HandleInput(InputStateSnapshot snapshot)
+        public virtual void HandleInput(IInputStateSnapshot snapshot)
         {
             InputStateTracker.UpdateFrameInput(snapshot);
         }

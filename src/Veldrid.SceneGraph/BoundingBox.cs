@@ -26,7 +26,7 @@ using System.Xml.Schema;
 
 namespace Veldrid.SceneGraph
 {
-    public class BoundingBox
+    public class BoundingBox : IBoundingBox
     {
         public float XMin => _min.X;
         public float YMin => _min.Y;
@@ -42,20 +42,45 @@ namespace Veldrid.SceneGraph
 
         private Vector3 _min;
         private Vector3 _max;
-       
-        public BoundingBox()
+
+        public Vector3 Min => _min;
+        public Vector3 Max => _max;
+
+        public static IBoundingBox Create()
+        {
+            return new BoundingBox();
+        }
+        
+        public static IBoundingBox Create(IBoundingBox bb)
+        {
+            return new BoundingBox(bb);
+        }
+        
+        public static IBoundingBox Create(
+            float xmin, float ymin, float zmin,
+            float xmax, float ymax, float zmax)
+        {
+            return new BoundingBox(xmin, ymin, zmin, xmax, ymax, zmax);
+        }
+        
+        public static IBoundingBox Create(Vector3 min, Vector3 max)
+        {
+            return new BoundingBox(min, max);
+        }
+        
+        protected BoundingBox()
         {
             _min = Vector3.Multiply(Vector3.One, float.PositiveInfinity);
             _max = Vector3.Multiply(Vector3.One, float.NegativeInfinity);
         }
 
-        public BoundingBox(BoundingBox bb)
+        protected BoundingBox(IBoundingBox bb)
         {
-            _min = bb._min;
-            _max = bb._max;
+            _min = bb.Min;
+            _max = bb.Max;
         }
 
-        public BoundingBox(
+        protected BoundingBox(
             float xmin, float ymin, float zmin,
             float xmax, float ymax, float zmax)
         {
@@ -63,7 +88,7 @@ namespace Veldrid.SceneGraph
             _max = new Vector3(xmax, ymax, zmax);
         }
 
-        public BoundingBox(Vector3 min, Vector3 max)
+        protected BoundingBox(Vector3 min, Vector3 max)
         {
             _min = min;
             _max = max;
@@ -194,18 +219,18 @@ namespace Veldrid.SceneGraph
         /// Expand the bounding box to include the given bounding box.
         /// </summary>
         /// <param name="bb"></param>
-        public void ExpandBy(BoundingBox bb)
+        public void ExpandBy(IBoundingBox bb)
         {
             if (!bb.Valid()) return;
 
-            if(bb._min.X<_min.X) _min.X = bb._min.X;
-            if(bb._max.X>_max.X) _max.X = bb._max.X;
+            if(bb.XMin <_min.X) _min.X = bb.XMin;
+            if(bb.XMax>_max.X) _max.X = bb.XMax;
 
-            if(bb._min.Y<_min.Y) _min.Y = bb._min.Y;
-            if(bb._max.Y>_max.Y) _max.Y = bb._max.Y;
+            if(bb.YMin<_min.Y) _min.Y = bb.YMin;
+            if(bb.YMax>_max.Y) _max.Y = bb.YMax;
 
-            if(bb._min.Z<_min.Z) _min.Z = bb._min.Z;
-            if(bb._max.Z>_max.Z) _max.Z = bb._max.Z;
+            if(bb.ZMin<_min.Z) _min.Z = bb.ZMin;
+            if(bb.ZMax>_max.Z) _max.Z = bb.ZMax;
         }
 
         /// <summary>
@@ -213,7 +238,7 @@ namespace Veldrid.SceneGraph
         /// </summary>
         /// <param name="sh"></param>
         /// <exception cref="NotImplementedException"></exception>
-        public void ExpandBy(BoundingSphere sh)
+        public void ExpandBy(IBoundingSphere sh)
         {
             if (!sh.Valid()) return;
             
@@ -227,14 +252,14 @@ namespace Veldrid.SceneGraph
             if(sh.Center.Z+sh.Radius>_max.Z) _max.Z = sh.Center.Z+sh.Radius;
         }
 
-        public BoundingBox Intersect(BoundingBox bb)
+        public IBoundingBox Intersect(IBoundingBox bb)
         {
             return new BoundingBox(
                 Math.Max(XMin, bb.XMin), Math.Max(YMin, bb.YMin), Math.Max(ZMin, bb.ZMin),
                 Math.Min(XMax, bb.XMax), Math.Min(YMax, bb.YMax), Math.Min(ZMax, bb.ZMax));
         }
         
-        public bool Intersects(BoundingBox bb)
+        public bool Intersects(IBoundingBox bb)
         {
             return Math.Max(XMin, bb.XMin) <= Math.Min(XMax, bb.XMax) &&
                    Math.Max(YMin, bb.YMin) <= Math.Min(YMax, bb.YMax) &&

@@ -36,38 +36,34 @@ using Veldrid.Utilities;
 
 namespace Veldrid.SceneGraph.RenderGraph
 {
-    public class CullVisitor : NodeVisitor
+    public class CullVisitor : NodeVisitor, ICullVisitor
     {
-        public RenderGroup OpaqueRenderGroup { get; set; } = new RenderGroup();
-        public RenderGroup TransparentRenderGroup { get; set; } = new RenderGroup();
+        public IRenderGroup OpaqueRenderGroup { get; set; } = RenderGroup.Create();
+        public IRenderGroup TransparentRenderGroup { get; set; } = RenderGroup.Create();
 
         public GraphicsDevice GraphicsDevice { get; set; } = null;
         public ResourceFactory ResourceFactory { get; set; } = null;
         public ResourceLayout ResourceLayout { get; set; } = null;
 
-        public Stack<Matrix4x4> ModelMatrixStack { get; set; } = new Stack<Matrix4x4>();
+        private Stack<Matrix4x4> ModelMatrixStack { get; set; } = new Stack<Matrix4x4>();
 
-        public Stack<PipelineState> PipelineStateStack = new Stack<PipelineState>();
-
-        private int _currVertexBufferIndex = 0;
-        private uint _currVertexBufferOffset = 0;
-        public List<DeviceBuffer> VertexBufferList { get; } = new List<DeviceBuffer>();
-        
-        private int _currIndexBufferIndex = 0;
-        private uint _currIndexBufferOffset = 0;
-        public List<DeviceBuffer> IndexBufferList { get; } = new List<DeviceBuffer>();
+        private readonly Stack<IPipelineState> PipelineStateStack = new Stack<IPipelineState>();
 
         public bool Valid => null != GraphicsDevice;
-        
-        private Polytope CullingFrustum { get; set; } = new Polytope();
+
+        private IPolytope CullingFrustum { get; set; } = Polytope.Create();
 
         public int RenderElementCount { get; private set; } = 0;
 
         private Matrix4x4 ViewMatrix { get; set; } = Matrix4x4.Identity;
         private Matrix4x4 ProjectionMatrix { get; set; } = Matrix4x4.Identity;
-       
+
+        public static ICullVisitor Create()
+        {
+            return new CullVisitor();
+        }
         
-        public CullVisitor() : 
+        protected CullVisitor() : 
             base(VisitorType.CullAndAssembleVisitor, TraversalModeType.TraverseActiveChildren)
         {
             ModelMatrixStack.Push(Matrix4x4.Identity);
@@ -79,13 +75,6 @@ namespace Veldrid.SceneGraph.RenderGraph
             ModelMatrixStack.Push(Matrix4x4.Identity);
             
             PipelineStateStack.Clear();
-
-            _currIndexBufferIndex = 0;
-            _currVertexBufferOffset = 0;
-
-            _currVertexBufferIndex = 0;
-            _currIndexBufferOffset = 0;
-            
             OpaqueRenderGroup.Reset();
             TransparentRenderGroup.Reset();
             
@@ -106,7 +95,7 @@ namespace Veldrid.SceneGraph.RenderGraph
         public void Prepare()
         {
             var vp = ViewMatrix.PostMultiply(ProjectionMatrix);
-            CullingFrustum.VPMatrix = vp;
+            CullingFrustum.SetViewProjectionMatrix(vp);
         }
 
         private Matrix4x4 GetModelViewMatrix()
@@ -132,14 +121,14 @@ namespace Veldrid.SceneGraph.RenderGraph
             return Vector3.Transform(eyeWorld, modelViewInverse);
         }
         
-        private bool IsCulled(BoundingBox bb, Matrix4x4 modelMatrix)
+        private bool IsCulled(IBoundingBox bb, Matrix4x4 modelMatrix)
         {
             var culled = !CullingFrustum.Contains(bb, modelMatrix);
 
             return culled;
         }
 
-        public override void Apply(Node node)
+        public override void Apply(INode node)
         {
             var needsPop = false;
             if (node.HasPipelineState)
@@ -156,7 +145,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             }
         }
 
-        public override void Apply(Transform transform)
+        public override void Apply(ITransform transform)
         {
             var curModel = ModelMatrixStack.Peek();
             transform.ComputeLocalToWorldMatrix(ref curModel, this);
@@ -168,12 +157,12 @@ namespace Veldrid.SceneGraph.RenderGraph
 
         }
 
-        public override void Apply(Geode geode)
+        public override void Apply(IGeode geode)
         {
             var bb = geode.GetBoundingBox();
             if (IsCulled(bb, ModelMatrixStack.Peek())) return;
             
-            PipelineState pso = null;
+            IPipelineState pso = null;
 
             // Node specific state
             if (geode.HasPipelineState)
@@ -190,7 +179,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             // Fallback
             else
             {
-                pso = new PipelineState();
+                pso = PipelineState.Create();
             }
 
             foreach (var drawable in geode.Drawables)
@@ -208,7 +197,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                 //
                 drawable.ConfigureDeviceBuffers(GraphicsDevice, ResourceFactory);
 
-                var renderElementCache = new Dictionary<RenderGroupState, RenderGroupElement>();
+                var renderElementCache = new Dictionary<IRenderGroupState, RenderGroupElement>();
                 
                 foreach (var pset in drawable.PrimitiveSets)
                 {
@@ -217,7 +206,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                     //            
                     // Sort into appropriate render group
                     // 
-                    RenderGroupState renderGroupState = null;
+                    IRenderGroupState renderGroupState = null;
                     if (drawablePso.BlendStateDescription.AttachmentStates.Contains(BlendAttachmentDescription.AlphaBlend))
                     {
                         renderGroupState = TransparentRenderGroup.GetOrCreateState(drawablePso, pset.PrimitiveTopology, drawable.VertexLayout);
@@ -234,7 +223,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                             ModelViewMatrix = GetModelViewMatrix(),
                             VertexBuffer = drawable.GetVertexBufferForDevice(GraphicsDevice),
                             IndexBuffer = drawable.GetIndexBufferForDevice(GraphicsDevice),
-                            PrimitiveSets = new List<PrimitiveSet>()
+                            PrimitiveSets = new List<IPrimitiveSet>()
                         };
                         renderGroupState.Elements.Add(renderElement);
                         
@@ -249,12 +238,12 @@ namespace Veldrid.SceneGraph.RenderGraph
         /// Cull Visitor for billboard 
         /// </summary>
         /// <param name="billboard"></param>
-        public override void Apply(Billboard billboard)
+        public override void Apply(IBillboard billboard)
         {
             var bb = billboard.GetBoundingBox();
             if (IsCulled(bb, ModelMatrixStack.Peek())) return;
             
-            PipelineState pso = null;
+            IPipelineState pso = null;
 
             // Node specific state
             if (billboard.HasPipelineState)
@@ -271,7 +260,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             // Fallback
             else
             {
-                pso = new PipelineState();
+                pso = PipelineState.Create();
             }
 
             var eyeLocal = GetEyeLocal();
@@ -295,7 +284,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                 //
                 drawable.ConfigureDeviceBuffers(GraphicsDevice, ResourceFactory);
 
-                var renderElementCache = new Dictionary<RenderGroupState, RenderGroupElement>();
+                var renderElementCache = new Dictionary<IRenderGroupState, RenderGroupElement>();
                 
                 foreach (var pset in drawable.PrimitiveSets)
                 {
@@ -305,7 +294,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                     //            
                     // Sort into appropriate render group
                     // 
-                    RenderGroupState renderGroupState = null;
+                    IRenderGroupState renderGroupState = null;
                     if (drawablePso.BlendStateDescription.AttachmentStates.Contains(BlendAttachmentDescription.AlphaBlend))
                     {
                         renderGroupState = TransparentRenderGroup.GetOrCreateState(drawablePso, pset.PrimitiveTopology, drawable.VertexLayout);
@@ -322,7 +311,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                             ModelViewMatrix = billboardMatrix.PostMultiply(modelView),
                             VertexBuffer = drawable.GetVertexBufferForDevice(GraphicsDevice),
                             IndexBuffer = drawable.GetIndexBufferForDevice(GraphicsDevice),
-                            PrimitiveSets = new List<PrimitiveSet>()
+                            PrimitiveSets = new List<IPrimitiveSet>()
                         };
                         renderGroupState.Elements.Add(renderElement);
                         

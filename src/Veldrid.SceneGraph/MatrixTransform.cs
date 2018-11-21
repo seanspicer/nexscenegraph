@@ -26,14 +26,14 @@ using Veldrid.SceneGraph.Viewer;
 
 namespace Veldrid.SceneGraph
 {
-    public class MatrixTransform : Transform
+    public class MatrixTransform : Transform, IMatrixTransform
     {
         private Matrix4x4 _matrix = Matrix4x4.Identity;
 
         public Matrix4x4 Matrix
         {
             get => _matrix;
-            set { 
+            private set { 
                 _matrix = value;
                 _inverseDirty = true;
                 DirtyBound();
@@ -56,14 +56,24 @@ namespace Veldrid.SceneGraph
             }
         }
 
-        public virtual void PreMultiply(Matrix4x4 mat)
+        protected MatrixTransform(Matrix4x4 matrix)
+        {
+            Matrix = matrix;
+        }
+
+        public static IMatrixTransform Create(Matrix4x4 matrix)
+        {
+            return new MatrixTransform(matrix);
+        }
+
+        public void PreMultiply(Matrix4x4 mat)
         {
             _matrix = _matrix.PreMultiply(mat);
             _inverseDirty = true;
             DirtyBound();
         }
         
-        public virtual void PostMultiply(Matrix4x4 mat)
+        public void PostMultiply(Matrix4x4 mat)
         {
             _matrix = _matrix.PostMultiply(mat);
             _inverseDirty = true;

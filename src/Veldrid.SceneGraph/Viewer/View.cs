@@ -21,18 +21,19 @@
 //
 
 using System;
+using System.Numerics;
 using Veldrid.SceneGraph.InputAdapter;
 
 namespace Veldrid.SceneGraph.Viewer
 {
-    public class View : Veldrid.SceneGraph.View
+    public class View : Veldrid.SceneGraph.View, IView
     {
-        public Group SceneData { get; set; }
+        public IGroup SceneData { get; set; }
 
-        private Action<InputStateSnapshot> HandleInputSnapshot;
+        private Action<IInputStateSnapshot> HandleInputSnapshot;
 
-        private CameraManipulator _cameraManipulator = null;
-        public CameraManipulator CameraManipulator
+        private ICameraManipulator _cameraManipulator = null;
+        public ICameraManipulator CameraManipulator
         {
             get => _cameraManipulator;
             set
@@ -42,38 +43,29 @@ namespace Veldrid.SceneGraph.Viewer
                     throw new Exception("Setting camera manipulator twice.  Don't do that.");
                 }
                 _cameraManipulator = value;
+                _cameraManipulator.SetCamera(Camera);
                 HandleInputSnapshot += _cameraManipulator.HandleInput;
             }
         }
 
-        private PickHandler _pickHandler = null;
-
-        public PickHandler PickHandler
+        public new static IView Create()
         {
-            get => _pickHandler;
-            set
-            {
-                if (null != _pickHandler)
-                {
-                    throw new Exception("Setting camera manipulator twice.  Don't do that.");
-                }
-
-                _pickHandler = value;
-                HandleInputSnapshot += _pickHandler.HandleInput;
-            }
+            return new View();
         }
-    
-        public View()
+        
+        protected View()
         {
             Camera.Renderer = new Renderer(Camera);
         }
 
-        public void OnInputEvent(InputStateSnapshot snapshot)
+        public void AddInputEventHandler(IInputEventHandler handler)
+        {
+            HandleInputSnapshot += handler.HandleInput;
+        }
+        
+        public void OnInputEvent(IInputStateSnapshot snapshot)
         {
             HandleInputSnapshot?.Invoke(snapshot);
-
-            // Update the camera on input
-            _cameraManipulator?.UpdateCamera(Camera);
 
         }
     }

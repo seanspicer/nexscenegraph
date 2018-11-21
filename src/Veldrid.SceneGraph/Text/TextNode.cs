@@ -60,12 +60,17 @@ namespace Veldrid.SceneGraph.Text
         }
     }
     
-    public class TextNode : Geometry<VertexPositionTexture>
+    public class TextNode : Geometry<VertexPositionTexture>, ITextNode
     {
         private Font Font { get; set; }
         public string Text { get; private set; }
 
-        public TextNode(string text)
+        public static ITextNode Create(string text)
+        {
+            return new TextNode(text);
+        }
+        
+        protected TextNode(string text)
         {
             Text = text;
             
@@ -83,7 +88,7 @@ namespace Veldrid.SceneGraph.Text
                 0, 1, 2, 0, 2, 3,
             };
             
-            var pSet = new DrawElements<VertexPositionTexture>(this, PrimitiveTopology.TriangleList, (uint)IndexData.Length, 1, 0, 0, 0);
+            var pSet = DrawElements<VertexPositionTexture>.Create(this, PrimitiveTopology.TriangleList, (uint)IndexData.Length, 1, 0, 0, 0);
             PrimitiveSets.Add(pSet);
             
             VertexLayout = new VertexLayoutDescription(
@@ -93,8 +98,8 @@ namespace Veldrid.SceneGraph.Text
             PipelineState.VertexShaderDescription = Texture2DShader.Instance.VertexShaderDescription;
             PipelineState.FragmentShaderDescription = Texture2DShader.Instance.FragmentShaderDescription;;
 
-            PipelineState.TextureList.Add(
-                new Texture2D(BuildTexture(),
+            PipelineState.AddTexture(
+                Texture2D.Create(BuildTexture(),
                     1,
                     "SurfaceTexture", 
                     "SurfaceSampler"));

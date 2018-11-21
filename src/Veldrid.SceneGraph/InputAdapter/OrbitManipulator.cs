@@ -35,8 +35,13 @@ namespace Veldrid.SceneGraph.InputAdapter
         private Vector3 _center = Vector3.Zero;
         private float _distance = 5.0f;
         private float _trackballSize = 0.8f;
-        
-        public OrbitManipulator()
+
+        public static ICameraManipulator Create()
+        {
+            return new OrbitManipulator();
+        } 
+       
+        protected OrbitManipulator()
         {
             
         }
@@ -45,6 +50,8 @@ namespace Veldrid.SceneGraph.InputAdapter
                                                       Matrix4x4.CreateFromQuaternion(Quaternion.Inverse(_rotation)) *
                                                       Matrix4x4.CreateTranslation(new Vector3(0.0f, 0.0f, -_distance));
 
+        
+        
         protected override bool PerformMovementLeftMouseButton(float dx, float dy)
         {
             // rotate camera
@@ -153,6 +160,69 @@ namespace Veldrid.SceneGraph.InputAdapter
                     _distance = minDist;
                 }
             }
+        }
+        
+        public override void HandleInput(IInputStateSnapshot snapshot)
+        {
+            base.HandleInput(snapshot);
+            
+            foreach (var keyEvent in snapshot.KeyEvents)
+            {
+                if (keyEvent.Down)
+                {
+                    switch (keyEvent.Key)
+                    {
+                        case Key.V:
+                            ViewAll();
+                            break;
+                    }
+                    
+                }
+            }
+        }
+
+        public override void ViewAll(float slack = 1)
+        {
+            // Find the bounding sphere of the scene
+            var sceneView = _camera.View as SceneGraph.Viewer.IView;  // TODO: fixme this is just bad.
+            var bSphere = sceneView.SceneData.GetBound();
+            var radius = bSphere.Radius;
+            var center = bSphere.Center;
+
+            // Compute an aspect-radius to ensure that the 
+            // scene will be inside the viewing volume
+            var aspect = _camera.AspectRatio;
+            if (aspect >= 1.0) {
+                aspect = 1.0f;
+            }
+            var aspectRadius = radius / aspect;
+
+            // Compute the direction of motion for the camera
+            // between it's current position and the scene center
+            var direction = _camera.Position - center; 
+            var normDirection = Vector3.Normalize(direction);
+
+            // Compute the length to move the camera by examining
+            // the tangent to the bounding sphere
+            var moveLen = radius + aspectRadius / Math.Tan(_camera.Fov / 2.0);
+
+            // Compute the new camera position
+            var moveDirection = normDirection * (float)moveLen;
+            var cameraPos = center + moveDirection;
+
+            // Compute the near and far plane locations
+            const double epsilon = 0.001;
+            var distToMid = (cameraPos - center).Length();
+            var zNear = (float) Math.Max(distToMid * epsilon, distToMid - radius * slack);
+            var zFar = distToMid + radius * slack;
+
+            // Set the camera view and projection matrices.
+            //Camera.SetViewMatrixToLookAt(cameraPos, center, new Vector3(0, 1, 0));
+            _center = center;
+            _distance = distToMid;
+            _camera.SetProjectionMatrixAsPerspective(_camera.Fov, _camera.AspectRatio, zNear, zFar);
+            
+            RequestRedraw();
         }
     }
 }

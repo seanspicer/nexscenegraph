@@ -23,20 +23,27 @@
 using System;
 using System.Linq;
 using System.Numerics;
+using Serilog;
+using Veldrid;
+using Veldrid.SceneGraph;
+using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Util;
 
-namespace Veldrid.SceneGraph.InputAdapter
+namespace CullingColoredCubes
 {
-    public class PickHandler : InputEventHandler
+    public class PickEventHandler : InputEventHandler
     {
-        private Camera _camera;
+        private Veldrid.SceneGraph.Viewer.IView _view;
+
+        private readonly ILogger _logger;
         
-        public PickHandler(Camera camera)
+        public PickEventHandler(Veldrid.SceneGraph.Viewer.IView view)
         {
-            _camera = camera;
+            _logger = Log.Logger.ForContext("Source", "CullingColoredCubes");
+            _view = view;
         }
         
-        public void HandleInput(InputStateSnapshot snapshot)
+        public override void HandleInput(IInputStateSnapshot snapshot)
         {
             base.HandleInput(snapshot);
             
@@ -50,33 +57,33 @@ namespace Veldrid.SceneGraph.InputAdapter
                             DoPick(snapshot);
                             break;
                     }
+                    
                 }
             }
         }
-        
-        private void DoPick(InputStateSnapshot snapshot)
+
+        private void DoPick(IInputStateSnapshot snapshot)
         {
             var norm = GetNormalizedMousePosition();
             
-            var startPos = _camera.NormalizedScreenToWorld(new Vector3(norm.X, norm.Y, 0.0f)); // Near plane
-            var endPos = _camera.NormalizedScreenToWorld(new Vector3(norm.X, norm.Y, 1.0f)); // Far plane
-            var intersector = new LineSegmentIntersector(startPos, endPos);
+            var startPos = _view.Camera.NormalizedScreenToWorld(new Vector3(norm.X, norm.Y, 0.0f)); // Near plane
+            var endPos = _view.Camera.NormalizedScreenToWorld(new Vector3(norm.X, norm.Y, 1.0f)); // Far plane
+            var intersector = LineSegmentIntersector.Create(startPos, endPos);
             
-            var intersectionVisitor = new IntersectionVisitor(intersector);
+            var intersectionVisitor = IntersectionVisitor.Create(intersector);
             
-            var view = (Viewer.View) _camera.View;
-            view.SceneData?.Accept(intersectionVisitor);
+            _view.SceneData?.Accept(intersectionVisitor);
 
             if (intersector.Intersections.Any())
             {
                 var idx = 0;
                 foreach (var intersection in intersector.Intersections)
                 {
-                    Console.WriteLine($"Intersected [{idx}]: {intersection.Drawable.Name}");
+                    _logger.Information($"Intersected [{idx}]: {intersection.Drawable.Name}");
                     var jdx = 0;
                     foreach (var node in intersection.NodePath)
                     {
-                        Console.WriteLine($"  Path[{jdx}]: {node.NameString}");
+                        _logger.Information($"  Path[{jdx}]: {node.NameString}");
                         ++jdx;
                     }
                     ++idx;
@@ -85,7 +92,7 @@ namespace Veldrid.SceneGraph.InputAdapter
             }
             else
             {
-                Console.WriteLine("No Intersections");
+                _logger.Information("No Intersections");
             }
         }
     }

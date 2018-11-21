@@ -22,6 +22,7 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
+using Examples.Common;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Text;
@@ -33,24 +34,23 @@ namespace TextRendering
     {
         static void Main(string[] args)
         {
-            var asm = typeof(TextNode).Assembly;
+            Bootstrapper.Configure();
             
-            var allNames = asm.GetManifestResourceNames();
-            
-            var viewer = new SimpleViewer("Text Rendering Demo");
-            viewer.View.CameraManipulator = new TrackballManipulator();
+            var viewer = SimpleViewer.Create("Text Rendering Demo");
+            viewer.SetCameraManipulator(TrackballManipulator.Create());
 
-            var root = new Group();
+            var root = Group.Create();
 
-            var textNode = new TextNode("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor");
+            var textNode = TextNode.Create("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor");
             
-            var geode = new Geode();
-            geode.Drawables.Add(textNode);
+            var geode = Geode.Create();
+            geode.AddDrawable(textNode);
             
             root.AddChild(geode);
 
-            viewer.SceneData = root;
+            viewer.SetSceneData(root);
 
+            viewer.ViewAll();            
             viewer.Run();
         }
     }

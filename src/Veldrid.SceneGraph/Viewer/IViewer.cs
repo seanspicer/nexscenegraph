@@ -22,6 +22,7 @@
 
 using System;
 using Veldrid;
+using Veldrid.SceneGraph.InputAdapter;
 
 namespace Veldrid.SceneGraph.Viewer
 {
@@ -33,11 +34,18 @@ namespace Veldrid.SceneGraph.Viewer
         event Action<GraphicsDevice, ResourceFactory, Swapchain> GraphicsDeviceCreated;
         event Action GraphicsDeviceDestroyed;
         event Action Resized;
-        event Action<KeyEvent> KeyPressed;
 
         uint Width { get; }
         uint Height { get; }
 
+        IView View { get; }
+
+        void AddInputEventHandler(IInputEventHandler handler);
+        void SetCameraManipulator(ICameraManipulator manipulator);
+        void SetSceneData(IGroup root);
+        void ViewAll();
+        
+        void Run();
         void Run(GraphicsBackend? preferredBackend);
     }
 }

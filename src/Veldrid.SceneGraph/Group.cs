@@ -20,40 +20,62 @@
 // SOFTWARE.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Common.Logging;
 
 namespace Veldrid.SceneGraph
 {
-    public class Group : Node
+    public class Group : Node, IGroup
     {
-        private List<Node> _children = new List<Node>();
+        protected List<Tuple<INode, bool>> _children = new List<Tuple<INode, bool>>();
+
+        private ILog _logger;
         
-        public Group() {}
+        protected Group()
+        {
+            _logger = LogManager.GetLogger<Group>();
+        }
+
+        public static IGroup Create()
+        {
+            return new Group();
+        }
         
-        public virtual bool AddChild(Node child)
+        public bool AddChild(INode child)
         {
             return InsertChild(_children.Count, child);
         }
 
-        public virtual bool InsertChild(int index, Node child)
+        public virtual bool AddChild(INode child, bool value)
+        {
+            return InsertChild(_children.Count, child, value);
+        }
+
+        public bool InsertChild(int index, INode child)
+        {
+            return InsertChild(index, child, true);
+        }
+
+        public bool InsertChild(int index, INode child, bool value)
         {
             if (null == child) return false;
             
-            if (_children.Exists(x => x.Id == child.Id))
+            if (_children.Exists(x => x.Item1.Id == child.Id))
             {
-                // TODO Insert logging message
+                _logger.Error(m => m($"Child [{child.Id}] already exists in group!"));
                 return false;
             }
 
             if (index >= _children.Count)
             {
                 index = _children.Count;
-                _children.Add(child);
+                _children.Add(Tuple.Create(child, value));
             }
             else
             {
-                _children.Add(child);
+                _children.Insert(index, Tuple.Create(child, value));
             }
 
             child.AddParent(this);
@@ -65,9 +87,9 @@ namespace Veldrid.SceneGraph
             return true;
         }
 
-        public virtual bool RemoveChild(Node child)
+        public virtual bool RemoveChild(INode child)
         {
-            var pos = _children.FindIndex(x => x.Id == child.Id);
+            var pos = _children.FindIndex(x => x.Item1.Id == child.Id);
             return pos < _children.Count && RemoveChildren(pos, 1);
         }
 
@@ -85,7 +107,7 @@ namespace Veldrid.SceneGraph
             for (var i = pos; i < endOfRemoveRange; ++i)
             {
                 var child = _children[i];
-                child.RemoveParent(this);
+                child.Item1.RemoveParent(this);
             }
 
             _children.RemoveRange(pos, numChildrenToRemove);
@@ -96,29 +118,34 @@ namespace Veldrid.SceneGraph
 
             return true;
         }
-        
 
-        protected virtual void ChildInserted(int index)
+
+        public virtual void ChildInserted(int index)
         {
             // Do nothing by default
         }
 
-        protected virtual void ChildRemoved(int index, int count)
+        public virtual void ChildRemoved(int index, int count)
         {
             // Do nothing by default
         }
-        
-        public override void Traverse(NodeVisitor nv)
+
+        public int GetNumChildren()
+        {
+            return _children.Count;
+        }
+
+        public override void Traverse(INodeVisitor nv)
         {
             foreach (var child in _children)
             {
-                child.Accept(nv);
+                child.Item1.Accept(nv);
             }
         }
 
-        public override BoundingSphere ComputeBound()
+        public override IBoundingSphere ComputeBound()
         {
-            var bsphere = new BoundingSphere();
+            var bsphere = BoundingSphere.Create();
             if (0 == _children.Count)
             {
                 return bsphere;
@@ -128,11 +155,10 @@ namespace Veldrid.SceneGraph
             // such that only Transforms which are relative to their parents coordinates frame (i.e this group)
             // are handled, Transform relative to and absolute reference frame are ignored.
 
-            var bb = new BoundingBox();
-            bb.Init();
+            var bb = BoundingBox.Create();
             foreach(var child in _children)
             {
-                switch (child)
+                switch (child.Item1)
                 {
                     case Transform transform when transform.ReferenceFrame != Transform.ReferenceFrameType.Relative:
                         continue;
@@ -140,7 +166,7 @@ namespace Veldrid.SceneGraph
                         bb.ExpandBy(geode.GetBoundingBox());
                         break;
                     default:
-                        var bs = child.GetBound();
+                        var bs = child.Item1.GetBound();
                         bb.ExpandBy(bs);
                         break;
                 }
@@ -155,9 +181,9 @@ namespace Veldrid.SceneGraph
             bsphere.Radius = 0.0f;
             foreach(var child in _children)
             {
-                if (child is Transform transform &&
+                if (child.Item1 is Transform transform &&
                     transform.ReferenceFrame != Transform.ReferenceFrameType.Relative) continue;
-                var bs = child.GetBound();
+                var bs = child.Item1.GetBound();
                 bsphere.ExpandRadiusBy(bs);
             }
 

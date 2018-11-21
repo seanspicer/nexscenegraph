@@ -24,7 +24,7 @@ using System.Numerics;
 
 namespace Veldrid.SceneGraph
 {
-    public class TransformVisitor : NodeVisitor
+    public class TransformVisitor : NodeVisitor, ITransformVisitor
     {
         public enum CoordMode
         {
@@ -32,11 +32,16 @@ namespace Veldrid.SceneGraph
             LocalToWorld
         }
 
-        private CoordMode _coordMode;
+        private readonly CoordMode _coordMode;
         private Matrix4x4 _matrix;
-        private bool _ignoreCameras;
+        private readonly bool _ignoreCameras;
+
+        public static ITransformVisitor Create(Matrix4x4 matrix, CoordMode coordMode, bool ignoreCameras)
+        {
+            return new TransformVisitor(matrix, coordMode, ignoreCameras);
+        }
         
-        public TransformVisitor(Matrix4x4 matrix, CoordMode coordMode, bool ignoreCameras) 
+        protected TransformVisitor(Matrix4x4 matrix, CoordMode coordMode, bool ignoreCameras) 
             : base(VisitorType.NodeVisitor)
         {
             _matrix = matrix;
@@ -44,7 +49,7 @@ namespace Veldrid.SceneGraph
             _ignoreCameras = ignoreCameras;
         }
 
-        public override void Apply(Transform transform)
+        public override void Apply(ITransform transform)
         {
             if (_coordMode==CoordMode.LocalToWorld)
             {

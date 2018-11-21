@@ -25,16 +25,16 @@ using System.Collections.Generic;
 
 namespace Veldrid.SceneGraph
 {
-    public abstract class Drawable : Object
+    public abstract class Drawable : Object, IDrawable
     {
         public string Name { get; set; } = string.Empty;
         
         protected bool _boundingSphereComputed = false;
-        protected BoundingSphere _boundingSphere = new BoundingSphere();
+        protected IBoundingSphere _boundingSphere = BoundingSphere.Create();
         
-        protected BoundingBox _boundingBox;
-        protected BoundingBox _initialBoundingBox = new BoundingBox();
-        public BoundingBox InitialBoundingBox
+        protected IBoundingBox _boundingBox;
+        protected IBoundingBox _initialBoundingBox = BoundingBox.Create();
+        public IBoundingBox InitialBoundingBox
         {
             get => _initialBoundingBox;
             set
@@ -46,21 +46,25 @@ namespace Veldrid.SceneGraph
         
         public VertexLayoutDescription VertexLayout { get; set; }
         
-        public List<PrimitiveSet> PrimitiveSets { get; } = new List<PrimitiveSet>();
+        public List<IPrimitiveSet> PrimitiveSets { get; } = new List<IPrimitiveSet>();
         
         public event Func<Drawable, BoundingBox> ComputeBoundingBoxCallback;
         public event Action<CommandList, Drawable> DrawImplementationCallback;
 
-        private PipelineState _pipelineState = null;
-        public PipelineState PipelineState
+        private IPipelineState _pipelineState = null;
+        public IPipelineState PipelineState
         {
-            get => _pipelineState ?? (_pipelineState = new PipelineState());
+            get => _pipelineState ?? (_pipelineState = Veldrid.SceneGraph.PipelineState.Create());
             set => _pipelineState = value;
         }
         
         public bool HasPipelineState
         {
             get => null != _pipelineState;
+        }
+
+        protected Drawable()
+        {
         }
         
         public void Draw(GraphicsDevice device, List<Tuple<uint, ResourceSet>> resourceSets, CommandList commandList)
@@ -95,7 +99,7 @@ namespace Veldrid.SceneGraph
             _boundingSphereComputed = false;
         }
         
-        public BoundingBox GetBoundingBox()
+        public IBoundingBox GetBoundingBox()
         {
             if (_boundingSphereComputed) return _boundingBox;
             
@@ -119,7 +123,7 @@ namespace Veldrid.SceneGraph
             return _boundingBox;
         }
 
-        protected abstract BoundingBox ComputeBoundingBox();
+        protected abstract IBoundingBox ComputeBoundingBox();
 
         public abstract DeviceBuffer GetVertexBufferForDevice(GraphicsDevice device);
 

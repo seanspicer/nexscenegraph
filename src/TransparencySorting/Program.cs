@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Examples.Common;
 using ShaderGen;
 using SharpDX.Mathematics.Interop;
 using Veldrid;
@@ -61,27 +62,25 @@ namespace TransparencySorting
     {
         static void Main(string[] args)
         {
-            var asm = typeof(Program).Assembly;
+            Bootstrapper.Configure();
             
-            var allNames = asm.GetManifestResourceNames();
-            
-            var viewer = new SimpleViewer("Transparancy Sorting Demo");
-            viewer.View.CameraManipulator = new TrackballManipulator();
+            var viewer = SimpleViewer.Create("Transparency Sorting Demo");
+            viewer.SetCameraManipulator(TrackballManipulator.Create());
 
-            var root = new Group();
+            var root = Group.Create();
 
             root.AddChild(CreateCube());
 
             root.PipelineState = CreateSharedState();
             
-            viewer.SceneData = root;
-
+            viewer.SetSceneData(root);
+            viewer.ViewAll();            
             viewer.Run();
         }
 
-        static Geode CreateCube()
+        static IGeode CreateCube()
         {
-            var geode = new Geode();
+            var geode = Geode.Create();
             
             var vertices = new List<VertexPositionColor>
             {
@@ -134,7 +133,7 @@ namespace TransparencySorting
             var sceneVertices = new List<VertexPositionColor>();
             var sceneIndices = new List<ushort>();
             
-            var geometry = new Geometry<VertexPositionColor>();
+            var geometry = Geometry<VertexPositionColor>.Create();
             
             var gridSize = 3;
             var transF = 1.0f / gridSize;
@@ -170,7 +169,7 @@ namespace TransparencySorting
                             }
                             
                             var drawElements =
-                                new DrawElements<VertexPositionColor>(
+                                DrawElements<VertexPositionColor>.Create(
                                     geometry,
                                     PrimitiveTopology.TriangleList,
                                     6,
@@ -192,15 +191,15 @@ namespace TransparencySorting
                 new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
                 new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
             
-            geode.Drawables.Add(geometry);
+            geode.AddDrawable(geometry);
 
             return geode;
         }
         
         
-        private static PipelineState CreateSharedState()
+        private static IPipelineState CreateSharedState()
         {
-            var pso = new PipelineState();
+            var pso = PipelineState.Create();
 
             pso.VertexShaderDescription = Vertex3Color4Shader.Instance.VertexShaderDescription;
             pso.FragmentShaderDescription = Vertex3Color4Shader.Instance.FragmentShaderDescription;
