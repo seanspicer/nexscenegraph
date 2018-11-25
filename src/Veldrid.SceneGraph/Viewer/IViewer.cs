@@ -21,19 +21,29 @@
 //
 
 using System;
+using System.Dynamic;
 using Veldrid;
 using Veldrid.SceneGraph.InputAdapter;
 
 namespace Veldrid.SceneGraph.Viewer
 {
+    public interface IEndFrameEvent
+    {
+        float FrameTime { get; }
+    }
+    
+    public interface IResizedEvent
+    {
+        int Width { get; }
+        int Height { get; }
+    }
+    
     public interface IViewer
     {
         Platform PlatformType { get; }
-        
-        event Action<float> Rendering;
-        event Action<GraphicsDevice, ResourceFactory, Swapchain> GraphicsDeviceCreated;
-        event Action GraphicsDeviceDestroyed;
-        event Action Resized;
+
+        IObservable<IEndFrameEvent> EndFrameEvents { get; }
+        IObservable<IResizedEvent> ResizeEvents { get; }
 
         uint Width { get; }
         uint Height { get; }

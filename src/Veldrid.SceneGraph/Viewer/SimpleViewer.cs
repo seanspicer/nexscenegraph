@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -37,6 +38,29 @@ using static Veldrid.Sdl2.Sdl2Native;
 
 namespace Veldrid.SceneGraph.Viewer
 {
+    internal class EndFrameEvent : IEndFrameEvent
+    {
+        public float FrameTime { get; }
+
+        internal EndFrameEvent(float frameTime)
+        {
+            FrameTime = frameTime;
+        }
+    }
+    
+    internal class ResizedEvent : IResizedEvent
+    {
+        public int Width { get; }
+        public int Height { get; }
+        
+        internal ResizedEvent(int width, int height)
+        {
+            Width = width;
+            Height = height;
+        }
+
+    }
+    
     public class SimpleViewer : IViewer
     {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -44,8 +68,6 @@ namespace Veldrid.SceneGraph.Viewer
         // PUBLIC Properties
         //
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-        #region PUBLIC_PROPERTIES
 
         public uint Width => (uint) _window.Width;
         public uint Height => (uint) _window.Height;
@@ -65,22 +87,24 @@ namespace Veldrid.SceneGraph.Viewer
         public GraphicsDevice GraphicsDevice => _graphicsDevice;
         public GraphicsBackend Backend => GraphicsDevice.ResourceFactory.BackendType;
         public Platform PlatformType { get; }
-        public event Action<float> Rendering;
-        public event Action<GraphicsDevice, ResourceFactory, Swapchain> GraphicsDeviceCreated;
-        public event Action GraphicsDeviceDestroyed;
-        public event Action Resized;
 
-        #endregion
-
+        public IObservable<IResizedEvent> ResizeEvents => _resizeEvents;
+        public IObservable<IEndFrameEvent> EndFrameEvents => _endFrameEvents;
+        public IObservable<IInputStateSnapshot> ViewerInputEvents => _viewerInputEvents;
+        
+        //public IObservable<
+        
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         //
         // PRIVATE Properties
         //
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        #region PRIVATE_PROPERTIES
-
         private string _windowTitle = string.Empty;
+
+        private ISubject<IResizedEvent> _resizeEvents;
+        private ISubject<IEndFrameEvent> _endFrameEvents;
+        private ISubject<IInputStateSnapshot> _viewerInputEvents;
         
         private GraphicsDevice _graphicsDevice;
         private DisposeCollectorResourceFactory _factory;
@@ -93,9 +117,9 @@ namespace Veldrid.SceneGraph.Viewer
         private IView _view;
 
         private event Action<GraphicsDevice, ResourceFactory> GraphicsDeviceOperations;
-
-        private event Action<IInputStateSnapshot> InputSnapshotEvent;
-
+        
+        
+        
         private const uint NFramesInBuffer = 30;
         private ulong _frameCounter = 0;
         private ulong _globalFrameCounter = 0;
@@ -107,16 +131,12 @@ namespace Veldrid.SceneGraph.Viewer
 
         private ILog _logger;
         
-        #endregion
-
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         //
         // PUBLIC Methods
         //
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-        #region PUBLIC_METHODS
 
         public static IViewer Create(string title)
         {
@@ -133,6 +153,11 @@ namespace Veldrid.SceneGraph.Viewer
         protected unsafe SimpleViewer(string title)
         {
             _logger = LogManager.GetLogger<SimpleViewer>();
+            
+            // Create Subjects
+            _viewerInputEvents = new Subject<IInputStateSnapshot>();
+            _endFrameEvents = new Subject<IEndFrameEvent>();
+            _resizeEvents = new Subject<IResizedEvent>();
             
             _windowTitle = title;
             
@@ -171,8 +196,8 @@ namespace Veldrid.SceneGraph.Viewer
             _window.KeyDown += OnKeyDown;
             _view = Viewer.View.Create();
             GraphicsDeviceOperations += _view.Camera.Renderer.HandleOperation;
-            InputSnapshotEvent += _view.OnInputEvent;
-            
+            _view.InputEvents = ViewerInputEvents;
+
         }
 
         public void ViewAll()
@@ -221,24 +246,26 @@ namespace Veldrid.SceneGraph.Viewer
                 
                 // TODO: Can remove InputTracker?
                 //InputTracker.UpdateFrameInput(inputSnapshot);
+
+                var inputStateSnap = InputStateSnapshot.Create(inputSnapshot, _window.Width, _window.Height);
                 
-                InputSnapshotEvent?.Invoke(InputStateSnapshot.Create(inputSnapshot, _window.Width, _window.Height));
+                _viewerInputEvents.OnNext(inputStateSnap);
                 
                 Frame();
             }
+            
+            _viewerInputEvents.OnCompleted();
+            _endFrameEvents.OnCompleted();
+            _resizeEvents.OnCompleted();
 
             DisposeResources();
         }
-
-        #endregion
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         //
         // PROTECTED Methods
         //
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-        #region PROTECTED_METHODS
 
         //
         // Dispose Properly
@@ -249,7 +276,6 @@ namespace Veldrid.SceneGraph.Viewer
             _factory.DisposeCollector.DisposeAll();
             _graphicsDevice.Dispose();
             _graphicsDevice = null;
-            GraphicsDeviceDestroyed?.Invoke();
         }
 
         // 
@@ -260,16 +286,11 @@ namespace Veldrid.SceneGraph.Viewer
             //KeyPressed?.Invoke(keyEvent);
         }
 
-        #endregion
-
-
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         //
         // PRIVATE Methods
         //
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-        #region PRIVATE_METHODS
 
         //
         // This is a "trick" to get continuous resize behavior
@@ -283,7 +304,7 @@ namespace Veldrid.SceneGraph.Viewer
             var windowEvent = Unsafe.Read<SDL_WindowEvent>(@event);
             if (windowEvent.@event == SDL_WindowEventID.Resized)
             {
-                var inputSnapshot = _window.PumpEvents();
+                _window.PumpEvents();
             }
 
             return 0;
@@ -307,7 +328,6 @@ namespace Veldrid.SceneGraph.Viewer
             
             _graphicsDevice = VeldridStartup.CreateGraphicsDevice(_window, options, _preferredBackend);
             _factory = new DisposeCollectorResourceFactory(_graphicsDevice.ResourceFactory);
-            GraphicsDeviceCreated?.Invoke(_graphicsDevice, _factory, _graphicsDevice.MainSwapchain);
             _stopwatch = Stopwatch.StartNew();
             _previousElapsed = _stopwatch.Elapsed.TotalSeconds;
         }
@@ -367,7 +387,7 @@ namespace Veldrid.SceneGraph.Viewer
 
             RenderingTraversals();
 
-            Rendering?.Invoke(deltaSeconds);
+            _endFrameEvents.OnNext(new EndFrameEvent(deltaSeconds));
         }
 
         //
@@ -381,17 +401,11 @@ namespace Veldrid.SceneGraph.Viewer
                 _graphicsDevice.ResizeMainWindow((uint) _window.Width, (uint) _window.Height);
                 DisplaySettings.Instance.ScreenWidth = _window.Width;
                 DisplaySettings.Instance.ScreenHeight = _window.Height;
-                Resized?.Invoke();
+                _resizeEvents.OnNext(new ResizedEvent(_window.Width, _window.Height));
             }
-
-            // TODO: Implement Update Traversal
-            // TODO: Implement Update Uniforms Traversal
-            // TODO: Implement Cull Traversal
-
-            // Get the view, the associated camera, its renderer, and draw.
+            
             GraphicsDeviceOperations?.Invoke(_graphicsDevice, _factory);
         }
 
-        #endregion
     }
 }
