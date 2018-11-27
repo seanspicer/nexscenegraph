@@ -30,7 +30,7 @@ namespace Veldrid.SceneGraph
     {
         private List<bool> switchVals = new List<bool>();
         
-        public static ISwitch Create()
+        public new static ISwitch Create()
         {
             return new Switch();
         }

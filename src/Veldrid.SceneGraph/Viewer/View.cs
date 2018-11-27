@@ -22,6 +22,7 @@
 
 using System;
 using System.Numerics;
+using System.Reactive.Subjects;
 using Veldrid.SceneGraph.InputAdapter;
 
 namespace Veldrid.SceneGraph.Viewer
@@ -30,7 +31,7 @@ namespace Veldrid.SceneGraph.Viewer
     {
         public IGroup SceneData { get; set; }
 
-        private Action<IInputStateSnapshot> HandleInputSnapshot;
+        public IObservable<IInputStateSnapshot> InputEvents { get; set; }
 
         private ICameraManipulator _cameraManipulator = null;
         public ICameraManipulator CameraManipulator
@@ -44,7 +45,8 @@ namespace Veldrid.SceneGraph.Viewer
                 }
                 _cameraManipulator = value;
                 _cameraManipulator.SetCamera(Camera);
-                HandleInputSnapshot += _cameraManipulator.HandleInput;
+
+                InputEvents.Subscribe(_cameraManipulator.HandleInput);
             }
         }
 
@@ -60,13 +62,7 @@ namespace Veldrid.SceneGraph.Viewer
 
         public void AddInputEventHandler(IInputEventHandler handler)
         {
-            HandleInputSnapshot += handler.HandleInput;
-        }
-        
-        public void OnInputEvent(IInputStateSnapshot snapshot)
-        {
-            HandleInputSnapshot?.Invoke(snapshot);
-
+            InputEvents.Subscribe(handler.HandleInput);
         }
     }
 }
