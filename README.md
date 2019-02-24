@@ -1,5 +1,7 @@
 # NexSceneGraph
-####February 2019
+
+###February 2019
+
 NexSeceneGraph is an ongoing experiment to design a scene graph around modern low-level graphics APIs using .NET Core.  The genesis of this work arose from the need for an Open-Source, robust, Scene Graph API for scientific visualization applications in .NET.    An early decision was made to build upon [Veldrid](https://github.com/mellinoe/veldrid), by Eric Mellinoe - as this project has already accomplished of the difficult work involved with low-level binding to backed APIs and presentation of the underlying features in a common API surface.   Common to Veldird, our intent is to support the following backends:
 
 * Direct3D 11
@@ -20,32 +22,32 @@ NexSceneGraph  uses the standard .NET Core tooling. [Install the tools](https://
 
 There are a number of examples available highlighting current syntax.  These are evolving and should be considered in-flux at present.  Examples are in the "Examples" Solution Directory.   All examples use a common viewer that implements a trackball manipulator (left-mouse button) including zoom (right mouse button).
 
-* Hello Nsg
+* Hello Nsg:
   This example is the "Hello, world" of NexSceneGraph
 
-* Colored Cube
+* Colored Cube:
   This example demonstrates construction of a Geometry Node and specifying of a basic shader
 
-* Culling Colored Cubes
+* Culling Colored Cubes"
   This example demonstrates view frustum culling, which occurs on a per-primitive basis.  (Hint - check the frame rate as you zoom in)
 
-* Textured Cube
+* Textured Cube:
   This example demonstrates texture mapping on a simple cube
 
-* Multi Textured Cube
+* Multi Textured Cube:
   This example demonstrates applying multiple textures to a geometry and using a shader to manipulate the final color
 
-* Billbord
+* Billbord:
   This example demonstrate a simple billboard geometry node
 
-* Text Rendering
+* Text Rendering:
   This exmaple demonstrates a text geometry node
 
-* Switch Example
+* Switch Example:
   This example demonstrates the use of a switch geometry node
 
-* Transparency Sorting
+* Transparency Sorting:
   This example demonstrates efficient sorting of transparent geometry.  Transparency sorting is performed on a per-primitive basis.
 
-* Mixed Transparent Opaque Geometry
+* Mixed Transparent Opaque Geometry:
   This example demonstrates integrating both opaque and transparent geometry in a scene - this is often one of the most challenging rendering scenarios to get correct, and NexSceneGraph handles the common case (per-primitive sorting) out-of-the-box.
