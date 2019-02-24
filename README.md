@@ -22,7 +22,7 @@ NexSceneGraph  uses the standard .NET Core tooling. [Install the tools](https://
 
 There are a number of examples available highlighting current syntax.  These are evolving and should be considered in-flux at present.  Examples are in the "Examples" Solution Directory.   All examples use a common viewer that implements a trackball manipulator (left-mouse button) including zoom (right mouse button).
 
-* Hello Nsg:
+* __Hello Nsg:__  
   This example is the "Hello, world" of NexSceneGraph
 
 * Colored Cube:
