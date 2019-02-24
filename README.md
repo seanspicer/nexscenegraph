@@ -14,11 +14,15 @@ Developers familiar with scene graphs will recognize a strong API resemblence to
 
 This code should be considered __early-alpha__.   The core APIs are still changing, and much work remains.   If you are interested in contributing, please look at the "TODO.txt" file in the repository, contact me, and start working on your feature.   All pull requests will be considered, but I very much appreciate a heads-up on what you are working on so that  I can coordinate muliple devlopers so that work at this early stage doesn't overlap too much.
 
-### Build instructions
+## License
+
+This code is licensed under the Apache 2.0 License
+
+## Build instructions
 
 NexSceneGraph  uses the standard .NET Core tooling. [Install the tools](https://www.microsoft.com/net/download/core) and build normally (`dotnet build`).
 
-### Examples
+## Examples
 
 There are a number of examples available highlighting current syntax.  These are evolving and should be considered in-flux at present.  Examples are in the "Examples" Solution Directory.   All examples use a common viewer that implements a trackball manipulator (left-mouse button) including zoom (right mouse button).
 
