@@ -25,29 +25,29 @@ There are a number of examples available highlighting current syntax.  These are
 * __Hello Nsg:__  
   This example is the "Hello, world" of NexSceneGraph
 
-* __Colored Cube:__ . 
+* __Colored Cube:__  
   This example demonstrates construction of a Geometry Node and specifying of a basic shader
 
-* __Culling Colored Cubes:__ . 
+* __Culling Colored Cubes:__  
   This example demonstrates view frustum culling, which occurs on a per-primitive basis.  (Hint - check the frame rate as you zoom in)
 
-* __Textured Cube:__ . 
+* __Textured Cube:__  
   This example demonstrates texture mapping on a simple cube
 
-* __Multi Textured Cube:__ . 
+* __Multi Textured Cube:__  
   This example demonstrates applying multiple textures to a geometry and using a shader to manipulate the final color
 
-* __Billbord:__ . 
+* __Billbord:__   
   This example demonstrate a simple billboard geometry node
 
-* __Text Rendering:__ . 
+* __Text Rendering:__   
   This exmaple demonstrates a text geometry node
 
-* __Switch Example:__ . 
+* __Switch Example:__   
   This example demonstrates the use of a switch geometry node
 
-* __Transparency Sorting:__ . 
+* __Transparency Sorting:__  
   This example demonstrates efficient sorting of transparent geometry.  Transparency sorting is performed on a per-primitive basis.
 
-* __Mixed Transparent Opaque Geometry:__ . 
+* __Mixed Transparent Opaque Geometry:__  
   This example demonstrates integrating both opaque and transparent geometry in a scene - this is often one of the most challenging rendering scenarios to get correct, and NexSceneGraph handles the common case (per-primitive sorting) out-of-the-box.
