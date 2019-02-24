@@ -10,7 +10,7 @@ NexSeceneGraph is an ongoing experiment to design a scene graph around modern lo
 * OpenGL 3
 * OpenGL ES 3
 
-Developers familiar with scene graphs will recognize a strong API resemblence to [OpenSceneGraph](http://www.openscenegraph.org/) by Robert Osfield - this is by design.  Much of the OpenSceneGraph API is very stable and well-accepted, and we attempt (as much as possible) to mirror OSG concepts in order to give developers familiar with it a smooth on-ramp to use of NexSceneGraph.
+Developers familiar with scene graphs will recognize a strong API resemblence to [OpenSceneGraph](http://www.openscenegraph.org/) by Robert Osfield.  _This is by design_.  Much of the OpenSceneGraph API is very stable and well-accepted, and we attempt (as much as possible) to mirror OSG concepts in order to give developers familiar with it a smooth on-ramp to use of NexSceneGraph.
 
 This code should be considered __early-alpha__.   The core APIs are still changing, and much work remains.   If you are interested in contributing, please look at the "TODO.txt" file in the repository, contact me, and start working on your feature.   All pull requests will be considered, but I very much appreciate a heads-up on what you are working on so that  I can coordinate muliple devlopers so that work at this early stage doesn't overlap too much.
 
