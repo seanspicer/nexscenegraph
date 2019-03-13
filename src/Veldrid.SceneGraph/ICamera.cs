@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 using System.Numerics;
+using Veldrid.SceneGraph.Viewer;
 
 namespace Veldrid.SceneGraph
 {
@@ -37,6 +38,8 @@ namespace Veldrid.SceneGraph
         float Pitch { get; set; }
         IGraphicsDeviceOperation Renderer { get; set; }
 
+        void HandleResizeEvent(IResizedEvent resizedEvent);
+        
         void SetViewMatrixToLookAt(Vector3 position, Vector3 target, Vector3 upDirection);
         
         /// <summary>

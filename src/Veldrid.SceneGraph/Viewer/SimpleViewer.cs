@@ -188,7 +188,7 @@ namespace Veldrid.SceneGraph.Viewer
 
 
             _window.KeyDown += OnKeyDown;
-            _view = Viewer.View.Create();
+            _view = Viewer.View.Create(_resizeEvents);
             GraphicsDeviceOperations += _view.Camera.Renderer.HandleOperation;
             _view.InputEvents = ViewerInputEvents;
 
@@ -337,8 +337,6 @@ namespace Veldrid.SceneGraph.Viewer
                 _firstFrame = false;
             }
 
-            
-            
             if (!_window.Exists) return;
 
             var newElapsed = _stopwatch.Elapsed.TotalSeconds;
