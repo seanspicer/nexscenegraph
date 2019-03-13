@@ -164,6 +164,14 @@ namespace Veldrid.SceneGraph.Viewer
                 
                 _commandList.SetPipeline(ri.Pipeline);
                 
+                var nDrawables = (uint)state.Elements.Count;
+                var modelMatrixViewBuffer = new Matrix4x4[nDrawables];
+                for(var i=0; i<nDrawables; ++i)
+                {
+                    modelMatrixViewBuffer[i] = state.Elements[i].ModelViewMatrix;
+                }
+                _commandList.UpdateBuffer(ri.ModelViewBuffer, 0, modelMatrixViewBuffer);
+                
                 foreach (var element in state.Elements)
                 {
                     _commandList.SetVertexBuffer(0, element.VertexBuffer);
@@ -173,13 +181,14 @@ namespace Veldrid.SceneGraph.Viewer
                     _commandList.SetGraphicsResourceSet(0, _resourceSet);
                     
                     _commandList.SetGraphicsResourceSet(1, ri.ResourceSet);
+                   
                     
                     // TODO Optimize with uniform buffer later on
-                    if (element.ModelViewMatrix != currModelViewMatrix)
-                    {
-                        _commandList.UpdateBuffer(ri.ModelViewBuffer, 0, element.ModelViewMatrix);
-                        currModelViewMatrix = element.ModelViewMatrix;
-                    }
+                    //if (element.ModelViewMatrix != currModelViewMatrix)
+                    //{
+                    //    _commandList.UpdateBuffer(ri.ModelViewBuffer, 0, element.ModelViewMatrix);
+                    //    currModelViewMatrix = element.ModelViewMatrix;
+                    //}
                     
                     foreach (var primitiveSet in element.PrimitiveSets)
                     {
@@ -197,8 +206,20 @@ namespace Veldrid.SceneGraph.Viewer
             var drawOrderMap = new SortedList<float, List<Tuple<IRenderGroupState, RenderGroupElement, IPrimitiveSet>>>();
             drawOrderMap.Capacity = _cullVisitor.RenderElementCount;
             var transparentRenderGroupStates = _cullVisitor.TransparentRenderGroup.GetStateList();
+            
+            var stateToUniformDict = new Dictionary<IRenderGroupState, Matrix4x4[]>();
+            
             foreach (var state in transparentRenderGroupStates)
             {
+                var nDrawables = (uint)state.Elements.Count;
+                var modelMatrixViewBuffer = new Matrix4x4[nDrawables];
+                for(var i=0; i<nDrawables; ++i)
+                {
+                    modelMatrixViewBuffer[i] = state.Elements[i].ModelViewMatrix;
+                }
+                
+                stateToUniformDict.Add(state, modelMatrixViewBuffer);
+                
                 // Iterate over all elements in this state
                 foreach (var renderElement in state.Elements)
                 {
@@ -245,6 +266,8 @@ namespace Veldrid.SceneGraph.Viewer
                         // Set this state's pipeline
                         _commandList.SetPipeline(ri.Pipeline);
 
+                       // _commandList.UpdateBuffer(ri.ModelViewBuffer, 0, stateToUniformDict[state]);
+                        
                         // Set the resources
                         _commandList.SetGraphicsResourceSet(0, _resourceSet);
 
@@ -252,11 +275,11 @@ namespace Veldrid.SceneGraph.Viewer
                         _commandList.SetGraphicsResourceSet(1, ri.ResourceSet);
                     }
 
-                    if (element.Item2.ModelViewMatrix != currModelViewMatrix)
-                    {
-                        _commandList.UpdateBuffer(ri.ModelViewBuffer, 0, element.Item2.ModelViewMatrix);
-                        currModelViewMatrix = element.Item2.ModelViewMatrix;
-                    }
+//                    if (element.Item2.ModelViewMatrix != currModelViewMatrix)
+//                    {
+//                       _commandList.UpdateBuffer(ri.ModelViewBuffer, 0, element.Item2.ModelViewMatrix);
+//                        currModelViewMatrix = element.Item2.ModelViewMatrix;
+//                    }
                     
                     
                     var renderGroupElement = element.Item2;
