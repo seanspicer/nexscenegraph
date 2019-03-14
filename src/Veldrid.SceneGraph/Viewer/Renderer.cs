@@ -172,24 +172,19 @@ namespace Veldrid.SceneGraph.Viewer
                 }
                 _commandList.UpdateBuffer(ri.ModelViewBuffer, 0, modelMatrixViewBuffer);
                 
-                foreach (var element in state.Elements)
+                for(var i=0; i<nDrawables; ++i)
                 {
+                    var element = state.Elements[i];
+                    var offset = (uint)i*64;
+                    
                     _commandList.SetVertexBuffer(0, element.VertexBuffer);
                     
                     _commandList.SetIndexBuffer(element.IndexBuffer, IndexFormat.UInt16);
                     
                     _commandList.SetGraphicsResourceSet(0, _resourceSet);
-                    
-                    _commandList.SetGraphicsResourceSet(1, ri.ResourceSet);
-                   
-                    
-                    // TODO Optimize with uniform buffer later on
-                    //if (element.ModelViewMatrix != currModelViewMatrix)
-                    //{
-                    //    _commandList.UpdateBuffer(ri.ModelViewBuffer, 0, element.ModelViewMatrix);
-                    //    currModelViewMatrix = element.ModelViewMatrix;
-                    //}
-                    
+
+                    _commandList.SetGraphicsResourceSet(1, ri.ResourceSet, 1, ref offset);
+           
                     foreach (var primitiveSet in element.PrimitiveSets)
                     {
                         primitiveSet.Draw(_commandList);
@@ -203,7 +198,7 @@ namespace Veldrid.SceneGraph.Viewer
             //
             // First sort the transparent render elements by distance to eye point (if not culled).
             //
-            var drawOrderMap = new SortedList<float, List<Tuple<IRenderGroupState, RenderGroupElement, IPrimitiveSet>>>();
+            var drawOrderMap = new SortedList<float, List<Tuple<IRenderGroupState, RenderGroupElement, IPrimitiveSet,uint>>>();
             drawOrderMap.Capacity = _cullVisitor.RenderElementCount;
             var transparentRenderGroupStates = _cullVisitor.TransparentRenderGroup.GetStateList();
             
@@ -213,16 +208,13 @@ namespace Veldrid.SceneGraph.Viewer
             {
                 var nDrawables = (uint)state.Elements.Count;
                 var modelMatrixViewBuffer = new Matrix4x4[nDrawables];
-                for(var i=0; i<nDrawables; ++i)
-                {
-                    modelMatrixViewBuffer[i] = state.Elements[i].ModelViewMatrix;
-                }
-                
-                stateToUniformDict.Add(state, modelMatrixViewBuffer);
                 
                 // Iterate over all elements in this state
-                foreach (var renderElement in state.Elements)
+                for(var j=0; j<nDrawables; ++j)
                 {
+                    var renderElement = state.Elements[j];
+                    modelMatrixViewBuffer[j] = state.Elements[j].ModelViewMatrix;
+                    
                     // Iterate over all primitive sets in this state
                     foreach (var pset in renderElement.PrimitiveSets)
                     {
@@ -235,13 +227,14 @@ namespace Veldrid.SceneGraph.Viewer
 
                         if (!drawOrderMap.TryGetValue(dist, out var renderList))
                         {
-                            renderList = new List<Tuple<IRenderGroupState, RenderGroupElement, IPrimitiveSet>>();
+                            renderList = new List<Tuple<IRenderGroupState, RenderGroupElement, IPrimitiveSet, uint>>();
                             drawOrderMap.Add(dist, renderList);
                         }
 
-                        renderList.Add(Tuple.Create(state, renderElement, pset));
+                        renderList.Add(Tuple.Create(state, renderElement, pset, (uint)j));
                     }
                 }
+                stateToUniformDict.Add(state, modelMatrixViewBuffer);
             }
 
             DeviceBuffer boundVertexBuffer = null;
@@ -266,21 +259,16 @@ namespace Veldrid.SceneGraph.Viewer
                         // Set this state's pipeline
                         _commandList.SetPipeline(ri.Pipeline);
 
-                       // _commandList.UpdateBuffer(ri.ModelViewBuffer, 0, stateToUniformDict[state]);
+                        _commandList.UpdateBuffer(ri.ModelViewBuffer, 0, stateToUniformDict[state]);
                         
                         // Set the resources
                         _commandList.SetGraphicsResourceSet(0, _resourceSet);
-
-                        // Set state-local resources
-                        _commandList.SetGraphicsResourceSet(1, ri.ResourceSet);
                     }
 
-//                    if (element.Item2.ModelViewMatrix != currModelViewMatrix)
-//                    {
-//                       _commandList.UpdateBuffer(ri.ModelViewBuffer, 0, element.Item2.ModelViewMatrix);
-//                        currModelViewMatrix = element.Item2.ModelViewMatrix;
-//                    }
-                    
+                    uint offset = element.Item4*64;
+                        
+                    // Set state-local resources
+                    _commandList.SetGraphicsResourceSet(1, ri.ResourceSet, 1, ref offset);                    
                     
                     var renderGroupElement = element.Item2;
 

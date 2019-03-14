@@ -89,7 +89,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             // TODO - this shouldn't be allocated here!
             
             resourceLayoutElementDescriptionList.Add(
-                new ResourceLayoutElementDescription("Model", ResourceKind.UniformBuffer, ShaderStages.Vertex));
+                new ResourceLayoutElementDescription("Model", ResourceKind.UniformBuffer, ShaderStages.Vertex, ResourceLayoutElementOptions.DynamicBinding));
 
             //bindableResourceList.Add(ri.ModelViewBuffer);
             bindableResourceList.Add(new DeviceBufferRange(ri.ModelViewBuffer, 0, 64*nDrawables));
