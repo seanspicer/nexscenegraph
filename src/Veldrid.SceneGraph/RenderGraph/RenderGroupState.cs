@@ -69,28 +69,30 @@ namespace Veldrid.SceneGraph.RenderGraph
 //
 // TODO - CASE 1 - implement this when Veldrid supports dynamic uniform buffers.
 //
-//            var nDrawables = (uint)Elements.Count;
-//            ri.ModelBuffer =
-//                resourceFactory.CreateBuffer(new BufferDescription(64*nDrawables, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
-//            
-//            var modelMatrixBuffer = new Matrix4x4[nDrawables];
-//            for(var i=0; i<nDrawables; ++i)
-//            {
-//                modelMatrixBuffer[i] = Elements[i].ModelMatrix;
-//            }
+            var nDrawables = (uint)Elements.Count;
+            //ri.ModelBuffer =
+            //    resourceFactory.CreateBuffer(new BufferDescription(64*nDrawables, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
+            
+            var modelMatrixViewBuffer = new Matrix4x4[nDrawables];
+            for(var i=0; i<nDrawables; ++i)
+            {
+                modelMatrixViewBuffer[i] = Elements[i].ModelViewMatrix;
+            }
             
             // TODO - this shouldn't be allocated here!
-            var modelMatrixBuffer = Matrix4x4.Identity;
-            ri.ModelViewBuffer =
-                resourceFactory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
+            //var modelMatrixBuffer = Matrix4x4.Identity;
             
-            graphicsDevice.UpdateBuffer(ri.ModelViewBuffer, 0, modelMatrixBuffer);
+            ri.ModelViewBuffer =
+                resourceFactory.CreateBuffer(new BufferDescription(64*nDrawables, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
+            
+            graphicsDevice.UpdateBuffer(ri.ModelViewBuffer, 0, modelMatrixViewBuffer);
             // TODO - this shouldn't be allocated here!
             
             resourceLayoutElementDescriptionList.Add(
-                new ResourceLayoutElementDescription("Model", ResourceKind.UniformBuffer, ShaderStages.Vertex));
+                new ResourceLayoutElementDescription("Model", ResourceKind.UniformBuffer, ShaderStages.Vertex, ResourceLayoutElementOptions.DynamicBinding));
 
-            bindableResourceList.Add(ri.ModelViewBuffer);
+            //bindableResourceList.Add(ri.ModelViewBuffer);
+            bindableResourceList.Add(new DeviceBufferRange(ri.ModelViewBuffer, 0, 64*nDrawables));
 
             // Process Attached Textures
             foreach (var tex2d in PipelineState.TextureList)
