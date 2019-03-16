@@ -109,7 +109,8 @@ namespace Veldrid.SceneGraph
         } 
 
         public event Func<Node, BoundingSphere> ComputeBoundCallback;
-        
+        public event EventHandler<NodeVisitor> UpdateCallback;
+
         protected Node()
         {
             Id = Guid.NewGuid();

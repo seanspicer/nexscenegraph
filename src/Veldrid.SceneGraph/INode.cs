@@ -35,6 +35,7 @@ namespace Veldrid.SceneGraph
         void SetNumChildrenRequiringEventTraversal(int i);
         void SetNumChildrenRequiringUpdateTraversal(int i);
         event Func<Node, BoundingSphere> ComputeBoundCallback;
+        event EventHandler<NodeVisitor> UpdateCallback;
         void AddParent(IGroup parent);
         void RemoveParent(IGroup parent);
 
