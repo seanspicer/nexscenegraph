@@ -18,6 +18,11 @@ namespace Veldrid.SceneGraph.Util
 {
     public class UpdateVisitor : NodeVisitor, IUpdateVisitor
     {
+        public static IUpdateVisitor Create()
+        {
+            return new UpdateVisitor();
+        }
+        
         protected UpdateVisitor() : 
             base(VisitorType.UpdateVisitor, TraversalModeType.TraverseAllChildren)
         {
@@ -25,7 +30,7 @@ namespace Veldrid.SceneGraph.Util
 
         public override void Apply(INode node)
         {
-            base.Apply(node);
+            HandleCallbacksAndTraverse(node);
         }
 
         public override void Apply(IGeode geode)
@@ -55,10 +60,8 @@ namespace Veldrid.SceneGraph.Util
                 HandleCallbacks(node.PipelineState);
             }
 
-            if (null != node.UpdateCallback)
-            {
-                node.UpdateCallback(this);
-            }
+            var updateCallback = node.GetUpdateCallback();
+            updateCallback?.Invoke(this, node);
 
             if (node.GetNumChildrenRequiringUpdateTraversal() > 0)
             {

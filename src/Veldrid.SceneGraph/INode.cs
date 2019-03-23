@@ -15,6 +15,8 @@
 //
 
 using System;
+using Veldrid.SceneGraph.Util;
+using Veldrid.SceneGraph.Viewer;
 
 namespace Veldrid.SceneGraph
 {
@@ -35,7 +37,11 @@ namespace Veldrid.SceneGraph
         void SetNumChildrenRequiringEventTraversal(int i);
         void SetNumChildrenRequiringUpdateTraversal(int i);
         event Func<Node, BoundingSphere> ComputeBoundCallback;
-        event EventHandler<NodeVisitor> UpdateCallback;
+
+        void SetUpdateCallback(Action<INodeVisitor, INode> callback);
+        Action<INodeVisitor, INode> GetUpdateCallback();
+        
+        
         void AddParent(IGroup parent);
         void RemoveParent(IGroup parent);
 

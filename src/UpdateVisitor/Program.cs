@@ -54,6 +54,14 @@ namespace UpdateVisitor
             
             var rightXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(5, 0, 0));
             rightXForm.AddChild(cube);
+
+            Action<INodeVisitor, INode> updateCallback = (nodeVisitor, node) =>
+            {
+                Console.WriteLine("UpdateCallback");
+            };
+            
+            rightXForm.SetUpdateCallback(updateCallback);
+            
             
             root.AddChild(leftXForm);
             root.AddChild(centerXForm);
