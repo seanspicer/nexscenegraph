@@ -26,6 +26,11 @@ namespace Veldrid.SceneGraph
         private INode _haltTraversalAtNode;
         private List<LinkedList<INode>> _nodePaths;
         
+        public IReadOnlyList<LinkedList<INode>> NodePaths
+        {
+            get => _nodePaths;
+        }
+        
         public CollectParentPaths(INode haltTraversalAtNode = null) :
             base(VisitorType.NodeVisitor, TraversalModeType.TraverseParents)
         {
@@ -90,7 +95,7 @@ namespace Veldrid.SceneGraph
         }
 
         public void SetNumChildrenRequiringUpdateTraversal(int i)
-        {
+        {            
             _numChildrentRequiringUpdateTraversal = i;
         }
 
@@ -115,14 +120,22 @@ namespace Veldrid.SceneGraph
 
         private Action<INodeVisitor, INode> _updateCallback;
 
+        
+        
         public virtual void SetUpdateCallback(Action<INodeVisitor, INode> callback)
         {
             _updateCallback = callback;
 
-            foreach (var parent in this._parents)
-            {
-                parent.SetNumChildrenRequiringUpdateTraversal(parent.GetNumChildrenRequiringUpdateTraversal()+1);
-            }
+//            var collectParentsVisitor = new CollectParentPaths();
+//            Accept(collectParentsVisitor);
+//            
+//            foreach (var parentNodePath in collectParentsVisitor.NodePaths)
+//            {
+//                foreach(var parentNode in parentNodePath)
+//                {
+//                    parentNode.SetNumChildrenRequiringUpdateTraversal(parentNode.GetNumChildrenRequiringUpdateTraversal()+1);
+//                }
+//            }
         }
         public virtual Action<INodeVisitor, INode> GetUpdateCallback()
         {

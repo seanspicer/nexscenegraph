@@ -62,11 +62,9 @@ namespace Veldrid.SceneGraph.Util
 
             var updateCallback = node.GetUpdateCallback();
             updateCallback?.Invoke(this, node);
-
-            if (node.GetNumChildrenRequiringUpdateTraversal() > 0)
-            {
-                Traverse(node);
-            }
+            
+            Traverse(node);
+            
         }
     }
 }
