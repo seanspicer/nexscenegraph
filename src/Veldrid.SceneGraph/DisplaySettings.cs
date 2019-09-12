@@ -53,7 +53,7 @@ namespace Veldrid.SceneGraph
             }
             else
             {
-                GraphicsBackend = GraphicsBackend.Vulkan;
+                GraphicsBackend = GraphicsBackend.OpenGL;
             }
         }
     }
