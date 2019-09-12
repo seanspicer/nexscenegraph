@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 
-using System.Reflection.Metadata.Ecma335;
 
 namespace Veldrid.SceneGraph.InputAdapter
 {
