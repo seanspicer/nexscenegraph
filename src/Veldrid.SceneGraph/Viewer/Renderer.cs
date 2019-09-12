@@ -23,12 +23,15 @@ using System.Numerics;
 using Common.Logging;
 using Veldrid.MetalBindings;
 using Veldrid.SceneGraph.RenderGraph;
+using Veldrid.SceneGraph.Util;
 
 namespace Veldrid.SceneGraph.Viewer
 {
     public class Renderer : IGraphicsDeviceOperation
     {
+        private IUpdateVisitor _updateVisitor;
         private ICullVisitor _cullVisitor;
+        
         private ICamera _camera;
         
         private DeviceBuffer _projectionBuffer;
@@ -50,6 +53,7 @@ namespace Veldrid.SceneGraph.Viewer
         public Renderer(ICamera camera)
         {
             _camera = camera;
+            _updateVisitor = UpdateVisitor.Create();
             _cullVisitor = CullVisitor.Create();
             _logger = LogManager.GetLogger<Renderer>();
         }
@@ -97,6 +101,12 @@ namespace Veldrid.SceneGraph.Viewer
             _initialized = true;
         }
 
+        private void Update()
+        {
+            var view = (Viewer.View) _camera.View;
+            view.SceneData?.Accept(_updateVisitor);
+        }
+        
         private void Cull(GraphicsDevice device, ResourceFactory factory)
         {    
             // Reset the visitor
@@ -328,6 +338,9 @@ namespace Veldrid.SceneGraph.Viewer
             
             _stopWatch.Reset();
             _stopWatch.Start();
+
+            // Run Update Traversal.
+            Update();
             
             UpdateUniforms(device, factory);
 

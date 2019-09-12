@@ -16,6 +16,8 @@
 
 using System;
 using System.Collections.Generic;
+using Veldrid.SceneGraph.Util;
+using Veldrid.SceneGraph.Viewer;
 
 namespace Veldrid.SceneGraph
 {
@@ -23,6 +25,11 @@ namespace Veldrid.SceneGraph
     {
         private INode _haltTraversalAtNode;
         private List<LinkedList<INode>> _nodePaths;
+        
+        public IReadOnlyList<LinkedList<INode>> NodePaths
+        {
+            get => _nodePaths;
+        }
         
         public CollectParentPaths(INode haltTraversalAtNode = null) :
             base(VisitorType.NodeVisitor, TraversalModeType.TraverseParents)
@@ -76,9 +83,10 @@ namespace Veldrid.SceneGraph
             throw new NotImplementedException();
         }
 
+        private int _numChildrentRequiringUpdateTraversal = 0;
         public int GetNumChildrenRequiringUpdateTraversal()
         {
-            throw new NotImplementedException();
+            return _numChildrentRequiringUpdateTraversal;
         }
 
         public void SetNumChildrenRequiringEventTraversal(int i)
@@ -87,8 +95,8 @@ namespace Veldrid.SceneGraph
         }
 
         public void SetNumChildrenRequiringUpdateTraversal(int i)
-        {
-            throw new NotImplementedException();
+        {            
+            _numChildrentRequiringUpdateTraversal = i;
         }
 
         // Protected/Private fields
@@ -109,11 +117,36 @@ namespace Veldrid.SceneGraph
         } 
 
         public event Func<Node, BoundingSphere> ComputeBoundCallback;
+
+        private Action<INodeVisitor, INode> _updateCallback;
+
         
+        
+        public virtual void SetUpdateCallback(Action<INodeVisitor, INode> callback)
+        {
+            _updateCallback = callback;
+
+//            var collectParentsVisitor = new CollectParentPaths();
+//            Accept(collectParentsVisitor);
+//            
+//            foreach (var parentNodePath in collectParentsVisitor.NodePaths)
+//            {
+//                foreach(var parentNode in parentNodePath)
+//                {
+//                    parentNode.SetNumChildrenRequiringUpdateTraversal(parentNode.GetNumChildrenRequiringUpdateTraversal()+1);
+//                }
+//            }
+        }
+        public virtual Action<INodeVisitor, INode> GetUpdateCallback()
+        {
+            return _updateCallback;
+        }
+
         protected Node()
         {
             Id = Guid.NewGuid();
-
+            _updateCallback = null;
+            
             _parents = new List<IGroup>();
         }
 
@@ -191,6 +224,8 @@ namespace Veldrid.SceneGraph
         public virtual void Traverse(INodeVisitor nv)
         {
             // Do nothing by default
+            
+            
         }
     }
 }
