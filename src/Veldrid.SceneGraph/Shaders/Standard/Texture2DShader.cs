@@ -39,8 +39,8 @@ namespace Veldrid.SceneGraph.Shaders.Standard
                 typeof(TextNode).Assembly,
                 "BasicTextureShader", ShaderStages.Fragment);
             
-            VertexShaderDescription = new ShaderDescription(ShaderStages.Vertex, vertexShaderBytes, "VS");
-            FragmentShaderDescription = new ShaderDescription(ShaderStages.Fragment, fragmentShaderBytes, "FS");
+            VertexShaderDescription = new ShaderDescription(ShaderStages.Vertex, vertexShaderBytes, "main");
+            FragmentShaderDescription = new ShaderDescription(ShaderStages.Fragment, fragmentShaderBytes, "main");
         }
     }
 }

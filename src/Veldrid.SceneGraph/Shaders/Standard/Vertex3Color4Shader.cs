@@ -38,8 +38,8 @@ namespace Veldrid.SceneGraph.Shaders.Standard
                 typeof(Vertex3Color4Shader).Assembly,
                 "Vertex3Color4ShaderSource", ShaderStages.Fragment);
             
-            VertexShaderDescription = new ShaderDescription(ShaderStages.Vertex, vertexShaderBytes, "VS");
-            FragmentShaderDescription = new ShaderDescription(ShaderStages.Fragment, fragmentShaderBytes, "FS");
+            VertexShaderDescription = new ShaderDescription(ShaderStages.Vertex, vertexShaderBytes, "main");
+            FragmentShaderDescription = new ShaderDescription(ShaderStages.Fragment, fragmentShaderBytes, "main");
         }
     }
 }

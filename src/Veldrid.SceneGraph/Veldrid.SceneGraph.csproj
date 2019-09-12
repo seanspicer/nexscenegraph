@@ -14,14 +14,14 @@
     <PackageReference Include="Common.Logging" Version="3.4.1" />
     <PackageReference Include="ShaderGen.Build" Version="1.2.0-beta2" />
     <PackageReference Include="ShaderGen.Primitives" Version="1.2.0-beta2" />
-    <PackageReference Include="SixLabors.Fonts" Version="1.0.0-beta0007" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0005" />
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0005" />
-    <PackageReference Include="SixLabors.Shapes.Text" Version="1.0.0-beta0007" />
-    <PackageReference Include="System.Reactive" Version="4.1.2" />
-    <PackageReference Include="Veldrid" Version="4.5.0" />
-    <PackageReference Include="Veldrid.StartupUtilities" Version="4.5.0" />
-    <PackageReference Include="Veldrid.Utilities" Version="4.5.0" />
+    <PackageReference Include="SixLabors.Fonts" Version="1.0.0-beta0009" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0007" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0007" />
+    <PackageReference Include="SixLabors.Shapes.Text" Version="1.0.0-beta0009" />
+    <PackageReference Include="System.Reactive" Version="4.1.6" />
+    <PackageReference Include="Veldrid" Version="4.7.0" />
+    <PackageReference Include="Veldrid.StartupUtilities" Version="4.7.0" />
+    <PackageReference Include="Veldrid.Utilities" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AssetProcessor\AssetProcessor.csproj" />

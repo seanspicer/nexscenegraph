@@ -147,14 +147,14 @@ namespace MultiTexturedCube
                 ShaderTools.LoadShaderBytes(DisplaySettings.Instance.GraphicsBackend,
                     typeof(Program).Assembly,
                     "MultiTexturedCubeShader", ShaderStages.Vertex), 
-                "VS");
+                "main");
             
             geometry.PipelineState.FragmentShaderDescription = new ShaderDescription(
                 ShaderStages.Fragment, 
                 ShaderTools.LoadShaderBytes(DisplaySettings.Instance.GraphicsBackend,
                     typeof(Program).Assembly,
                     "MultiTexturedCubeShader", ShaderStages.Fragment),
-                "FS");
+                "main");
             
             geometry.PipelineState.AddTexture(
                 Texture2D.Create(Texture2D.ImageFormatType.Png,
