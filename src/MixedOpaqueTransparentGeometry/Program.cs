@@ -168,8 +168,8 @@ public struct VertexPositionColor : IPrimitiveElement
             var faces = new int[] {0, 1, 2, 3, 4, 5};
             
             var vld = new VertexLayoutDescription(
-                new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
-                new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
+                new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
+                new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4));
             
             foreach(var f in faces)
             {
@@ -260,8 +260,8 @@ public struct VertexPositionColor : IPrimitiveElement
             geometry.IndexData = cubeTriangleIndices.ToArray();
 
             geometry.VertexLayout = new VertexLayoutDescription(
-                new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
-                new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
+                new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
+                new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4));
             
             var pSet = DrawElements<VertexPositionColor>.Create(
                 geometry, 

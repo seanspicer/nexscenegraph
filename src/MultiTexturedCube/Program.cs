@@ -127,9 +127,9 @@ namespace MultiTexturedCube
             geometry.IndexData = indices;
 
             geometry.VertexLayout = new VertexLayoutDescription(
-                new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
+                new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
                 new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
-                new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
+                new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4));
 
             var pSet = DrawElements<VertexPositionTexture>.Create(
                 geometry, 
@@ -142,20 +142,12 @@ namespace MultiTexturedCube
             
             geometry.PrimitiveSets.Add(pSet);
 
-            geometry.PipelineState.VertexShaderDescription = new ShaderDescription(
-                ShaderStages.Vertex,
-                ShaderTools.LoadShaderBytes(DisplaySettings.Instance.GraphicsBackend,
-                    typeof(Program).Assembly,
-                    "MultiTexturedCubeShader", ShaderStages.Vertex), 
-                "main");
+            var vsBytes = ShaderTools.LoadBytecode(GraphicsBackend.Vulkan, "MultiTexturedCubeShader", ShaderStages.Vertex);
+            var fsBytes = ShaderTools.LoadBytecode(GraphicsBackend.Vulkan, "MultiTexturedCubeShader", ShaderStages.Fragment);
             
-            geometry.PipelineState.FragmentShaderDescription = new ShaderDescription(
-                ShaderStages.Fragment, 
-                ShaderTools.LoadShaderBytes(DisplaySettings.Instance.GraphicsBackend,
-                    typeof(Program).Assembly,
-                    "MultiTexturedCubeShader", ShaderStages.Fragment),
-                "main");
-            
+            geometry.PipelineState.VertexShaderDescription = new ShaderDescription(ShaderStages.Vertex, vsBytes, "main", true);
+            geometry.PipelineState.FragmentShaderDescription = new ShaderDescription(ShaderStages.Fragment, fsBytes, "main", true);
+
             geometry.PipelineState.AddTexture(
                 Texture2D.Create(Texture2D.ImageFormatType.Png,
                     ShaderTools.ReadEmbeddedAssetBytes(

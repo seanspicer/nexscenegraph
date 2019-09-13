@@ -31,16 +31,11 @@ namespace Veldrid.SceneGraph.Shaders.Standard
         
         private Texture2DShader()
         {
-            var vertexShaderBytes = ShaderTools.LoadShaderBytes(DisplaySettings.Instance.GraphicsBackend,
-                typeof(TextNode).Assembly,
-                "BasicTextureShader", ShaderStages.Vertex);
+            var vsBytes = ShaderTools.LoadBytecode(GraphicsBackend.Vulkan, "BasicTextureShader", ShaderStages.Vertex);
+            var fsBytes = ShaderTools.LoadBytecode(GraphicsBackend.Vulkan, "BasicTextureShader", ShaderStages.Fragment);
             
-            var fragmentShaderBytes = ShaderTools.LoadShaderBytes(DisplaySettings.Instance.GraphicsBackend,
-                typeof(TextNode).Assembly,
-                "BasicTextureShader", ShaderStages.Fragment);
-            
-            VertexShaderDescription = new ShaderDescription(ShaderStages.Vertex, vertexShaderBytes, "main");
-            FragmentShaderDescription = new ShaderDescription(ShaderStages.Fragment, fragmentShaderBytes, "main");
+            VertexShaderDescription = new ShaderDescription(ShaderStages.Vertex, vsBytes, "main", true);
+            FragmentShaderDescription = new ShaderDescription(ShaderStages.Fragment, fsBytes, "main", true);
         }
     }
 }

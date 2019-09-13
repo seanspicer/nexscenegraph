@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Veldrid.SPIRV;
 using Veldrid.Utilities;
 
 namespace Veldrid.SceneGraph.RenderGraph
@@ -132,12 +133,18 @@ namespace Veldrid.SceneGraph.RenderGraph
 
             if (null != PipelineState.VertexShaderDescription && null != PipelineState.FragmentShaderDescription)
             {
-                var vertexShaderProg = resourceFactory.CreateShader(PipelineState.VertexShaderDescription.Value);
-                var fragmentShaderProg = resourceFactory.CreateShader(PipelineState.FragmentShaderDescription.Value);
+                Shader[] shaders = resourceFactory.CreateFromSpirv(
+                    PipelineState.VertexShaderDescription.Value,
+                    PipelineState.FragmentShaderDescription.Value,
+                    GetOptions(graphicsDevice)
+                );
+                
+                Shader vs = shaders[0];
+                Shader fs = shaders[1];
 
                 pd.ShaderSet = new ShaderSetDescription(
                     vertexLayouts: new VertexLayoutDescription[] {VertexLayout},
-                    shaders: new Shader[] {vertexShaderProg, fragmentShaderProg});
+                    shaders: new Shader[] {vs, fs});
             }
 
             pd.ResourceLayouts = new[] {vpLayout, ri.ResourceLayout};
@@ -151,6 +158,35 @@ namespace Veldrid.SceneGraph.RenderGraph
             return ri;
         }
 
+        private static CrossCompileOptions GetOptions(GraphicsDevice gd)
+        {
+            SpecializationConstant[] specializations = GetSpecializations(gd);
+
+            bool fixClipZ = (gd.BackendType == GraphicsBackend.OpenGL || gd.BackendType == GraphicsBackend.OpenGLES)
+                            && !gd.IsDepthRangeZeroToOne;
+            
+            bool invertY = false;
+
+            return new CrossCompileOptions(fixClipZ, invertY, specializations);
+        }
+        
+        public static SpecializationConstant[] GetSpecializations(GraphicsDevice gd)
+        {
+            bool glOrGles = gd.BackendType == GraphicsBackend.OpenGL || gd.BackendType == GraphicsBackend.OpenGLES;
+
+            List<SpecializationConstant> specializations = new List<SpecializationConstant>();
+            specializations.Add(new SpecializationConstant(100, gd.IsClipSpaceYInverted));
+            specializations.Add(new SpecializationConstant(101, glOrGles)); // TextureCoordinatesInvertedY
+            specializations.Add(new SpecializationConstant(102, gd.IsDepthRangeZeroToOne));
+
+            PixelFormat swapchainFormat = gd.MainSwapchain.Framebuffer.OutputDescription.ColorAttachments[0].Format;
+            bool swapchainIsSrgb = swapchainFormat == PixelFormat.B8_G8_R8_A8_UNorm_SRgb
+                                   || swapchainFormat == PixelFormat.R8_G8_B8_A8_UNorm_SRgb;
+            specializations.Add(new SpecializationConstant(103, swapchainIsSrgb));
+
+            return specializations.ToArray();
+        }
+        
         public void ReleaseUnmanagedResources()
         {
             foreach (var entry in RenderInfoCache)

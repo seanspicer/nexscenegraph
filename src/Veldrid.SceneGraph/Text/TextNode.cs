@@ -86,7 +86,7 @@ namespace Veldrid.SceneGraph.Text
             PrimitiveSets.Add(pSet);
             
             VertexLayout = new VertexLayoutDescription(
-                new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
+                new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
                 new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2));
 
             PipelineState.VertexShaderDescription = Texture2DShader.Instance.VertexShaderDescription;

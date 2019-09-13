@@ -30,19 +30,11 @@ namespace Veldrid.SceneGraph.Shaders.Standard
         
         private Vertex2Color4Shader()
         {
-            var vsBytes = ShaderTools.LoadShaderBytes(DisplaySettings.Instance.GraphicsBackend,
-                typeof(Vertex2Color4Shader).Assembly,
-                "Vertex2Color4ShaderSource", ShaderStages.Vertex);
+            var vsBytes = ShaderTools.LoadBytecode(GraphicsBackend.Vulkan, "Vertex2Color4", ShaderStages.Vertex);
+            var fsBytes = ShaderTools.LoadBytecode(GraphicsBackend.Vulkan, "Vertex2Color4", ShaderStages.Fragment);
             
-            var fsBytes = ShaderTools.LoadShaderBytes(DisplaySettings.Instance.GraphicsBackend,
-                typeof(Vertex2Color4Shader).Assembly,
-                "Vertex2Color4ShaderSource", ShaderStages.Fragment);
-
-            //var vsBytes = ShaderTools.LoadBytecode(GraphicsBackend.OpenGL, "Vertex2Color4", ShaderStages.Vertex);
-            //var fsbytes = ShaderTools.LoadBytecode(GraphicsBackend.OpenGL, "Vertex2Color4", ShaderStages.Fragment);
-            
-            VertexShaderDescription = new ShaderDescription(ShaderStages.Vertex, vsBytes, "main");
-            FragmentShaderDescription = new ShaderDescription(ShaderStages.Fragment, fsBytes, "main");
+            VertexShaderDescription = new ShaderDescription(ShaderStages.Vertex, vsBytes, "main", true);
+            FragmentShaderDescription = new ShaderDescription(ShaderStages.Fragment, fsBytes, "main", true);
         }
     }
 }

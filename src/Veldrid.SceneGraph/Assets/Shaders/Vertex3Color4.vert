@@ -4,7 +4,7 @@
 #extension GL_ARB_shading_language_420pack : enable
 struct VertexInput 
 {
-    vec2 Position;
+    vec3 Position;
     vec4 Color;
 };
 
@@ -33,11 +33,11 @@ FragmentInput Calculate(VertexInput input_)
 {
     FragmentInput output_;
     output_.Color = input_.Color;
-    output_.Position = field_Projection * field_View * field_Model * vec4(input_.Position.x, input_.Position.y, 0.0f, 1.f);
+    output_.Position = field_Projection * field_View * field_Model * vec4(input_.Position, 1.f);
     return output_;
 }
 
-layout(location = 0) in vec2 Position;
+layout(location = 0) in vec3 Position;
 layout(location = 1) in vec4 Color;
 layout(location = 0) out vec4 fsin_0;
 

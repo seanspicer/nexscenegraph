@@ -23,6 +23,15 @@
         <PackageReference Include="ShaderGen.Build" Version="1.2.0-beta2" />
         <PackageReference Include="ShaderGen.Primitives" Version="1.2.0-beta2" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <None Update="Assets\Shaders\MultiTexturedCubeShader.frag.spv">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Assets\Shaders\MultiTexturedCubeShader.vert.spv">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
 
     <Target Name="IncludeGeneratedShaderEmbeddedResource" AfterTargets="AssignTargetPaths" Condition="'$(ShaderContentIncludePath)' != ''">
         <ItemGroup>
