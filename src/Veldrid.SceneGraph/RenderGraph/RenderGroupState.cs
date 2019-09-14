@@ -67,24 +67,36 @@ namespace Veldrid.SceneGraph.RenderGraph
             GraphicsPipelineDescription pd = new GraphicsPipelineDescription();
             pd.PrimitiveTopology = PrimitiveTopology;
 
-//
-// TODO - CASE 1 - implement this when Veldrid supports dynamic uniform buffers.
-//
-            var nDrawables = (uint)Elements.Count;
-            //ri.ModelBuffer =
-            //    resourceFactory.CreateBuffer(new BufferDescription(64*nDrawables, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
+            //
+            // TODO - THIS WILL FAIL IF nDrawables * multiplier > 64K (max size of a uniform buffer).  Need to account for this and
+            // break into multiple Render Groups.
+            //
             
-            var modelMatrixViewBuffer = new Matrix4x4[nDrawables];
-            for(var i=0; i<nDrawables; ++i)
+            var nDrawables = (uint)Elements.Count;
+
+            var alignment = graphicsDevice.UniformBufferMinOffsetAlignment;
+            
+            var stride = 1u;
+            var multiplier = 64u;
+            if (alignment > 64u)
             {
-                modelMatrixViewBuffer[i] = Elements[i].ModelViewMatrix;
+                multiplier = alignment;
+                stride = alignment / 64u;
+            }
+            
+            var buffsize = nDrawables*stride;
+            
+            var modelMatrixViewBuffer = new Matrix4x4[buffsize];
+            
+            for(var i=0; i<nDrawables; i++)
+            {
+                modelMatrixViewBuffer[i*stride] = Elements[i].ModelViewMatrix;
             }
             
             // TODO - this shouldn't be allocated here!
             //var modelMatrixBuffer = Matrix4x4.Identity;
-            
             ri.ModelViewBuffer =
-                resourceFactory.CreateBuffer(new BufferDescription(64*nDrawables, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
+                resourceFactory.CreateBuffer(new BufferDescription(multiplier*nDrawables, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
             
             graphicsDevice.UpdateBuffer(ri.ModelViewBuffer, 0, modelMatrixViewBuffer);
             // TODO - this shouldn't be allocated here!
@@ -93,7 +105,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                 new ResourceLayoutElementDescription("Model", ResourceKind.UniformBuffer, ShaderStages.Vertex, ResourceLayoutElementOptions.DynamicBinding));
 
             //bindableResourceList.Add(ri.ModelViewBuffer);
-            bindableResourceList.Add(new DeviceBufferRange(ri.ModelViewBuffer, 0, 64*nDrawables));
+            bindableResourceList.Add(new DeviceBufferRange(ri.ModelViewBuffer, 0, multiplier*nDrawables));
 
             // Process Attached Textures
             foreach (var tex2d in PipelineState.TextureList)
