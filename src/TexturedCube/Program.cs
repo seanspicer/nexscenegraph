@@ -125,7 +125,7 @@ namespace TexturedCube
             geometry.IndexData = indices;
 
             geometry.VertexLayout = new VertexLayoutDescription(
-                new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
+                new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
                 new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2));
 
             var pSet = DrawElements<VertexPositionTexture>.Create(

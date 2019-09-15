@@ -71,8 +71,8 @@ namespace ColoredCube
             var cube = CreateCube();
             scale_xform.AddChild(cube);
 
-            var gridSize = 5;
-            var transF = 1.0f / gridSize;
+            var gridSize = 10;
+            var transF = 2.0f / gridSize;
             for (var i = -gridSize; i <= gridSize; ++i)
             {
                 for (var j = -gridSize; j <= gridSize; ++j)
@@ -150,8 +150,8 @@ namespace ColoredCube
             geometry.IndexData = cubeTriangleIndices.ToArray();
 
             geometry.VertexLayout = new VertexLayoutDescription(
-                new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
-                new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
+                new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
+                new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4));
 
             var pSet = DrawElements<VertexPositionColor>.Create(
                 geometry, 

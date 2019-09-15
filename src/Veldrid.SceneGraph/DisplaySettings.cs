@@ -53,7 +53,7 @@ namespace Veldrid.SceneGraph
             }
             else
             {
-                GraphicsBackend = GraphicsBackend.OpenGL;
+                GraphicsBackend = GraphicsBackend.Direct3D11;
             }
         }
     }

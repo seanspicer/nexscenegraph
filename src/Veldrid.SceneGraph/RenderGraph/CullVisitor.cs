@@ -202,11 +202,11 @@ namespace Veldrid.SceneGraph.RenderGraph
                     IRenderGroupState renderGroupState = null;
                     if (drawablePso.BlendStateDescription.AttachmentStates.Contains(BlendAttachmentDescription.AlphaBlend))
                     {
-                        renderGroupState = TransparentRenderGroup.GetOrCreateState(drawablePso, pset.PrimitiveTopology, drawable.VertexLayout);
+                        renderGroupState = TransparentRenderGroup.GetOrCreateState(GraphicsDevice, drawablePso, pset.PrimitiveTopology, drawable.VertexLayout);
                     }
                     else
                     {
-                        renderGroupState = OpaqueRenderGroup.GetOrCreateState(drawablePso, pset.PrimitiveTopology, drawable.VertexLayout);
+                        renderGroupState = OpaqueRenderGroup.GetOrCreateState(GraphicsDevice, drawablePso, pset.PrimitiveTopology, drawable.VertexLayout);
                     }
 
                     if (false == renderElementCache.TryGetValue(renderGroupState, out var renderElement))
@@ -290,11 +290,11 @@ namespace Veldrid.SceneGraph.RenderGraph
                     IRenderGroupState renderGroupState = null;
                     if (drawablePso.BlendStateDescription.AttachmentStates.Contains(BlendAttachmentDescription.AlphaBlend))
                     {
-                        renderGroupState = TransparentRenderGroup.GetOrCreateState(drawablePso, pset.PrimitiveTopology, drawable.VertexLayout);
+                        renderGroupState = TransparentRenderGroup.GetOrCreateState(GraphicsDevice, drawablePso, pset.PrimitiveTopology, drawable.VertexLayout);
                     }
                     else
                     {
-                        renderGroupState = OpaqueRenderGroup.GetOrCreateState(drawablePso, pset.PrimitiveTopology, drawable.VertexLayout);
+                        renderGroupState = OpaqueRenderGroup.GetOrCreateState(GraphicsDevice, drawablePso, pset.PrimitiveTopology, drawable.VertexLayout);
                     }
 
                     if (false == renderElementCache.TryGetValue(renderGroupState, out var renderElement))

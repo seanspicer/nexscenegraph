@@ -87,8 +87,8 @@ namespace BillboardExample
             geometry.PrimitiveSets.Add(pSet);
 
             geometry.VertexLayout = new VertexLayoutDescription(
-                new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
-                new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
+                new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
+                new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4));
                         
             var geode = Geode.Create();
             geode.AddDrawable(geometry);

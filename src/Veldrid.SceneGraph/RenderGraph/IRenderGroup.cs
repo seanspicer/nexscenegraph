@@ -23,6 +23,6 @@ namespace Veldrid.SceneGraph.RenderGraph
         bool HasDrawableElements();
         void Reset();
         IEnumerable<IRenderGroupState> GetStateList();
-        IRenderGroupState GetOrCreateState(IPipelineState pso, PrimitiveTopology pt, VertexLayoutDescription vl);
+        IRenderGroupState GetOrCreateState(GraphicsDevice device, IPipelineState pso, PrimitiveTopology pt, VertexLayoutDescription vl);
     }
 }

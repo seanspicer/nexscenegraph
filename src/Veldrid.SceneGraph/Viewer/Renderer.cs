@@ -167,7 +167,15 @@ namespace Veldrid.SceneGraph.Viewer
 
         private void DrawOpaqueRenderGroups(GraphicsDevice device, ResourceFactory factory)
         {
-            var currModelViewMatrix = Matrix4x4.Identity;
+            var alignment = device.UniformBufferMinOffsetAlignment;
+            var modelBuffStride = 64u;
+            var hostBuffStride = 1u;
+            if (alignment > 64u)
+            {
+                hostBuffStride = alignment / 64u;
+                modelBuffStride = alignment;
+            }
+            
             foreach (var state in _cullVisitor.OpaqueRenderGroup.GetStateList())
             {
                 var ri = state.GetPipelineAndResources(device, factory, _resourceLayout);
@@ -175,17 +183,17 @@ namespace Veldrid.SceneGraph.Viewer
                 _commandList.SetPipeline(ri.Pipeline);
                 
                 var nDrawables = (uint)state.Elements.Count;
-                var modelMatrixViewBuffer = new Matrix4x4[nDrawables];
+                var modelMatrixViewBuffer = new Matrix4x4[nDrawables*hostBuffStride]; // TODO - do we need to allocate this every frame?
                 for(var i=0; i<nDrawables; ++i)
                 {
-                    modelMatrixViewBuffer[i] = state.Elements[i].ModelViewMatrix;
+                    modelMatrixViewBuffer[i*hostBuffStride] = state.Elements[i].ModelViewMatrix;
                 }
                 _commandList.UpdateBuffer(ri.ModelViewBuffer, 0, modelMatrixViewBuffer);
                 
                 for(var i=0; i<nDrawables; ++i)
                 {
                     var element = state.Elements[i];
-                    var offset = (uint)i*64;
+                    var offset = (uint)i*modelBuffStride;
                     
                     _commandList.SetVertexBuffer(0, element.VertexBuffer);
                     
@@ -205,6 +213,15 @@ namespace Veldrid.SceneGraph.Viewer
         
         private void DrawTransparentRenderGroups(GraphicsDevice device, ResourceFactory factory)
         {
+            var alignment = device.UniformBufferMinOffsetAlignment;
+            var modelBuffStride = 64u;
+            var hostBuffStride = 1u;
+            if (alignment > 64u)
+            {
+                hostBuffStride = alignment / 64u;
+                modelBuffStride = alignment;
+            }
+            
             //
             // First sort the transparent render elements by distance to eye point (if not culled).
             //
@@ -217,13 +234,13 @@ namespace Veldrid.SceneGraph.Viewer
             foreach (var state in transparentRenderGroupStates)
             {
                 var nDrawables = (uint)state.Elements.Count;
-                var modelMatrixViewBuffer = new Matrix4x4[nDrawables];
+                var modelMatrixViewBuffer = new Matrix4x4[nDrawables*hostBuffStride];
                 
                 // Iterate over all elements in this state
                 for(var j=0; j<nDrawables; ++j)
                 {
                     var renderElement = state.Elements[j];
-                    modelMatrixViewBuffer[j] = state.Elements[j].ModelViewMatrix;
+                    modelMatrixViewBuffer[j*hostBuffStride] = state.Elements[j].ModelViewMatrix;
                     
                     // Iterate over all primitive sets in this state
                     foreach (var pset in renderElement.PrimitiveSets)
@@ -275,7 +292,7 @@ namespace Veldrid.SceneGraph.Viewer
                         _commandList.SetGraphicsResourceSet(0, _resourceSet);
                     }
 
-                    uint offset = element.Item4*64;
+                    uint offset = element.Item4*modelBuffStride;
                         
                     // Set state-local resources
                     _commandList.SetGraphicsResourceSet(1, ri.ResourceSet, 1, ref offset);                    

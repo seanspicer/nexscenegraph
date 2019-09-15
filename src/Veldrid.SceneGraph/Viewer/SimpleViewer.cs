@@ -312,15 +312,19 @@ namespace Veldrid.SceneGraph.Viewer
         {
             var options = new GraphicsDeviceOptions(
                 debug: false,
-                swapchainDepthFormat: PixelFormat.R16_UNorm,
+                swapchainDepthFormat: PixelFormat.R32_Float,
                 syncToVerticalBlank: true,
-                resourceBindingModel: ResourceBindingModel.Improved);
+                resourceBindingModel: ResourceBindingModel.Improved,
+                preferDepthRangeZeroToOne: true,
+                preferStandardClipSpaceYDirection: true,
+                swapchainSrgbFormat: false);
 #if DEBUG
             options.Debug = true;
 #endif
             _logger.Info(m => m($"Creating Graphics Device with {_preferredBackend} Backend"));
             
             _graphicsDevice = VeldridStartup.CreateGraphicsDevice(_window, options, _preferredBackend);
+            bool isDirect3DSupported = GraphicsDevice.IsBackendSupported(GraphicsBackend.Direct3D11);
             _factory = new DisposeCollectorResourceFactory(_graphicsDevice.ResourceFactory);
             _stopwatch = Stopwatch.StartNew();
             _previousElapsed = _stopwatch.Elapsed.TotalSeconds;

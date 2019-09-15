@@ -6,8 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0005" />
-    <PackageReference Include="Veldrid" Version="4.5.0" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0007" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.2" />
+    <PackageReference Include="Veldrid" Version="4.7.0" />
     <ProjectReference Include="..\AssetPrimitives\AssetPrimitives.csproj" />
   </ItemGroup>
 

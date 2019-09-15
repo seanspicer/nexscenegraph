@@ -45,7 +45,7 @@ namespace AssetProcessor
         
         public unsafe override ProcessedTexture ProcessT(Stream stream, string extension)
         {
-            Image<Rgba32> image = Image.Load(stream);
+            Image<Rgba32> image = (Image<Rgba32>)Image.Load(stream);
             Image<Rgba32>[] mipmaps = GenerateMipmaps(image, out int totalSize);
 
             byte[] allTexData = new byte[totalSize];

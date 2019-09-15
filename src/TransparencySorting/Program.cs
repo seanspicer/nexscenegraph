@@ -182,8 +182,8 @@ namespace TransparencySorting
             geometry.VertexData = sceneVertices.ToArray();
             geometry.IndexData = sceneIndices.ToArray();
             geometry.VertexLayout = new VertexLayoutDescription(
-                new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
-                new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
+                new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
+                new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4));
             
             geode.AddDrawable(geometry);
 
