@@ -71,8 +71,8 @@ namespace ColoredCube
             var cube = CreateCube();
             scale_xform.AddChild(cube);
 
-            var gridSize = 7;
-            var transF = 1.0f / gridSize;
+            var gridSize = 10;
+            var transF = 2.0f / gridSize;
             for (var i = -gridSize; i <= gridSize; ++i)
             {
                 for (var j = -gridSize; j <= gridSize; ++j)

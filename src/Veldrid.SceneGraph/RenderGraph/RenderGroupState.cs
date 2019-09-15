@@ -66,11 +66,6 @@ namespace Veldrid.SceneGraph.RenderGraph
 
             GraphicsPipelineDescription pd = new GraphicsPipelineDescription();
             pd.PrimitiveTopology = PrimitiveTopology;
-
-            //
-            // TODO - THIS WILL FAIL IF nDrawables * multiplier > 64K (max size of a uniform buffer).  Need to account for this and
-            // break into multiple Render Groups.
-            //
             
             var nDrawables = (uint)Elements.Count;
 
