@@ -4,4 +4,7 @@
         <TargetFramework>net48</TargetFramework>
         <UseWPF>true</UseWPF>
     </PropertyGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\Veldrid.SceneGraph\Veldrid.SceneGraph.csproj" />
+    </ItemGroup>
 </Project>
