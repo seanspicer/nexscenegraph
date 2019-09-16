@@ -1,9 +1,14 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Reactive.Subjects;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media;
 using Veldrid;
+using Veldrid.SceneGraph.InputAdapter;
+using Veldrid.SceneGraph.Viewer;
+using Veldrid.Utilities;
 using PixelFormat = Veldrid.PixelFormat;
 
 //using PixelFormat = System.Windows.Media.PixelFormat;
@@ -11,11 +16,49 @@ using PixelFormat = Veldrid.PixelFormat;
 namespace Veldrid.SceneGraph.Wpf
 {
     // This extends from the "Win32HwndControl" from the SharpDX example code.
-    public class VeldridComponent : Win32HwndControl
+    public class VeldridSceneGraphComponent : Win32HwndControl
     {
+        public IGroup SceneData
+        {
+            get => ((View)_view)?.SceneData;
+            set => ((View)_view).SceneData = value;
+        }
+        
+        public IView View
+        {
+            get => _view;
+        }
+        
+        public IObservable<IResizedEvent> ResizeEvents => _resizeEvents;
+        public IObservable<IEndFrameEvent> EndFrameEvents => _endFrameEvents;
+        public IObservable<IInputStateSnapshot> ViewerInputEvents => _viewerInputEvents;
+        
         //private Swapchain _sc;
         private CommandList _cl;
         private GraphicsDevice _gd;
+
+        private string _windowTitle = string.Empty;
+
+        private ISubject<IResizedEvent> _resizeEvents;
+        private ISubject<IEndFrameEvent> _endFrameEvents;
+        private ISubject<IInputStateSnapshot> _viewerInputEvents;
+        
+        private GraphicsDevice _graphicsDevice;
+        private DisposeCollectorResourceFactory _factory;
+        private bool _windowResized = true;
+        private bool _firstFrame = true;
+        private Stopwatch _stopwatch = null;
+        private double _previousElapsed = 0;
+        private GraphicsBackend _preferredBackend = DisplaySettings.Instance.GraphicsBackend;
+        private IView _view;
+        private event Action<GraphicsDevice, ResourceFactory> GraphicsDeviceOperations;
+        
+        private const uint NFramesInBuffer = 30;
+        private ulong _frameCounter = 0;
+        private ulong _globalFrameCounter = 0;
+        private double _frameTimeAccumulator = 0.0;
+        private double _fpsDrawTimeAccumulator = 0.0;
+        private readonly double[] _frameTimeBuff = new double[NFramesInBuffer];
 
         public bool Rendering { get; private set; }
 
@@ -46,8 +89,36 @@ namespace Veldrid.SceneGraph.Wpf
             _gd = GraphicsDevice.CreateD3D11(options, swapchainDesc);
             _cl = _gd.ResourceFactory.CreateCommandList();
             
+            DisplaySettings.Instance.ScreenWidth = width;
+            DisplaySettings.Instance.ScreenHeight = height;
+            DisplaySettings.Instance.ScreenDistance = 1000.0f;
+            
+            //_view = Veldrid.SceneGraph.Wpf.View.Create(_resizeEvents);
+            //GraphicsDeviceOperations += _view.Camera.Renderer.HandleOperation;
+            //((View)_view).InputEvents = ViewerInputEvents;
+            
             Rendering = true;
             CompositionTarget.Rendering += OnCompositionTargetRendering;
+        }
+        
+        public void ViewAll()
+        {
+            ((View)_view).CameraManipulator?.ViewAll();
+        }
+        
+        public void SetSceneData(IGroup root)
+        {
+            ((View)_view).SceneData = root;
+        }
+
+        public void SetCameraManipulator(ICameraManipulator cameraManipulator)
+        {
+            ((View)_view).CameraManipulator = cameraManipulator;
+        }
+
+        public void AddInputEventHandler(IInputEventHandler handler)
+        {
+            ((View)_view).AddInputEventHandler(handler);
         }
 
         protected override sealed void Uninitialize()
@@ -68,7 +139,7 @@ namespace Veldrid.SceneGraph.Wpf
             if (!Rendering)
                 return;
 
-            Render();
+            Frame();
         }
 
         private double GetDpiScale()
@@ -80,7 +151,7 @@ namespace Veldrid.SceneGraph.Wpf
 
         protected virtual SwapchainSource GetSwapchainSource()
         {
-            Module mainModule = typeof(VeldridComponent).Module;
+            Module mainModule = typeof(VeldridSceneGraphComponent).Module;
             IntPtr hinstance = Marshal.GetHINSTANCE(mainModule);
             return SwapchainSource.CreateWin32(Hwnd, hinstance);
 //            SwapchainDescription scDesc = new SwapchainDescription(win32Source, width, height, PixelFormat.R32_Float, true);
@@ -101,7 +172,7 @@ namespace Veldrid.SceneGraph.Wpf
             _gd.ResizeMainWindow(width, height);
         }
 
-        protected virtual void Render()
+        protected virtual void Frame()
         {
             _cl.Begin();
             _cl.SetFramebuffer(_gd.SwapchainFramebuffer);

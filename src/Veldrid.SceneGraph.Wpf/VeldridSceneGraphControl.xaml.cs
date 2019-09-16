@@ -10,7 +10,7 @@ namespace Veldrid.SceneGraph.Wpf
     public partial class VeldridSceneGraphControl : UserControl
     {
         private Application _app;
-        private VeldridComponent _veldridControl;
+        private VeldridSceneGraphComponent _veldridSceneGraphControl;
         private Window _myWindow;
         
         public VeldridSceneGraphControl()
@@ -22,8 +22,8 @@ namespace Veldrid.SceneGraph.Wpf
         {
             _app = Application.Current;
             _myWindow = _app.MainWindow;
-            _veldridControl = new VeldridComponent();
-            ControlHostElement.Child = _veldridControl;
+            _veldridSceneGraphControl = new VeldridSceneGraphComponent();
+            ControlHostElement.Child = _veldridSceneGraphControl;
         }
     }
 }
