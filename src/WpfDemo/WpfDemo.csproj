@@ -5,6 +5,7 @@
         <UseWPF>true</UseWPF>
     </PropertyGroup>
     <ItemGroup>
+      <ProjectReference Include="..\Veldrid.SceneGraph.Wpf\Veldrid.SceneGraph.Wpf.csproj" />
       <ProjectReference Include="..\Veldrid.SceneGraph\Veldrid.SceneGraph.csproj" />
     </ItemGroup>
 </Project>
