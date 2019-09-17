@@ -15,15 +15,61 @@ using PixelFormat = Veldrid.PixelFormat;
 
 namespace Veldrid.SceneGraph.Wpf
 {
+    internal class EndFrameEvent : IEndFrameEvent
+    {
+        public float FrameTime { get; }
+
+        internal EndFrameEvent(float frameTime)
+        {
+            FrameTime = frameTime;
+        }
+    }
+    
+    internal class ResizedEvent : IResizedEvent
+    {
+        public int Width { get; }
+        public int Height { get; }
+        
+        internal ResizedEvent(int width, int height)
+        {
+            Width = width;
+            Height = height;
+        }
+
+    }
+    
     // This extends from the "Win32HwndControl" from the SharpDX example code.
     public class VeldridSceneGraphComponent : Win32HwndControl
     {
+        private IGroup _sceneData;
         public IGroup SceneData
         {
-            get => ((View)_view)?.SceneData;
-            set => ((View)_view).SceneData = value;
+            get => _sceneData;
+            set
+            {
+                _sceneData = value;
+                if (null != _view)
+                {
+                    ((View) _view).SceneData = _sceneData;
+                }
+            }
         }
-        
+
+        private ICameraManipulator _cameraManipulator;
+
+        public ICameraManipulator CameraManipulator
+        {
+            get => _cameraManipulator;
+            set
+            {
+                _cameraManipulator = value;
+                if (null != _view)
+                {
+                    ((View) _view).CameraManipulator = _cameraManipulator;
+                }
+            }
+        }
+
         public IView View
         {
             get => _view;
@@ -34,8 +80,8 @@ namespace Veldrid.SceneGraph.Wpf
         public IObservable<IInputStateSnapshot> ViewerInputEvents => _viewerInputEvents;
         
         //private Swapchain _sc;
-        private CommandList _cl;
-        private GraphicsDevice _gd;
+        //private CommandList _cl;
+        //private GraphicsDevice _gd;
 
         private string _windowTitle = string.Empty;
 
@@ -64,6 +110,11 @@ namespace Veldrid.SceneGraph.Wpf
 
         protected override sealed void Initialize()
         {
+            // Create Subjects
+            _viewerInputEvents = new Subject<IInputStateSnapshot>();
+            _endFrameEvents = new Subject<IEndFrameEvent>();
+            _resizeEvents = new Subject<IResizedEvent>();
+            
             var options = new GraphicsDeviceOptions(
                 debug: false,
                 swapchainDepthFormat: PixelFormat.R32_Float,
@@ -86,19 +137,31 @@ namespace Veldrid.SceneGraph.Wpf
                 options.SyncToVerticalBlank,
                 options.SwapchainSrgbFormat);
             
-            _gd = GraphicsDevice.CreateD3D11(options, swapchainDesc);
-            _cl = _gd.ResourceFactory.CreateCommandList();
+            _graphicsDevice = GraphicsDevice.CreateD3D11(options, swapchainDesc);
+            
+            _factory = new DisposeCollectorResourceFactory(_graphicsDevice.ResourceFactory);
+            _stopwatch = Stopwatch.StartNew();
+            _previousElapsed = _stopwatch.Elapsed.TotalSeconds;
+            
+            //_cl = _gd.ResourceFactory.CreateCommandList();
             
             DisplaySettings.Instance.ScreenWidth = width;
             DisplaySettings.Instance.ScreenHeight = height;
             DisplaySettings.Instance.ScreenDistance = 1000.0f;
             
-            //_view = Veldrid.SceneGraph.Wpf.View.Create(_resizeEvents);
-            //GraphicsDeviceOperations += _view.Camera.Renderer.HandleOperation;
-            //((View)_view).InputEvents = ViewerInputEvents;
+            var view = Veldrid.SceneGraph.Wpf.View.Create(_resizeEvents);
+            view.InputEvents = ViewerInputEvents;
+            view.SceneData = _sceneData;
+            view.CameraManipulator = _cameraManipulator;
+            
+            GraphicsDeviceOperations += view.Camera.Renderer.HandleOperation;
+            
+            _view = view;
             
             Rendering = true;
             CompositionTarget.Rendering += OnCompositionTargetRendering;
+            
+            CameraManipulator.ViewAll();
         }
         
         public void ViewAll()
@@ -125,8 +188,22 @@ namespace Veldrid.SceneGraph.Wpf
         {
             Rendering = false;
             CompositionTarget.Rendering -= OnCompositionTargetRendering;
-
+            
             DestroySwapchain();
+            
+            _viewerInputEvents.OnCompleted();
+            _endFrameEvents.OnCompleted();
+            _resizeEvents.OnCompleted();
+
+            DisposeResources();
+        }
+        
+        protected void DisposeResources()
+        {
+            _graphicsDevice.WaitForIdle();
+            _factory.DisposeCollector.DisposeAll();
+            _graphicsDevice.Dispose();
+            _graphicsDevice = null;
         }
 
         protected sealed override void Resized()
@@ -169,25 +246,68 @@ namespace Veldrid.SceneGraph.Wpf
             double dpiScale = GetDpiScale();
             uint width = (uint)(ActualWidth < 0 ? 0 : Math.Ceiling(ActualWidth * dpiScale));
             uint height = (uint)(ActualHeight < 0 ? 0 : Math.Ceiling(ActualHeight * dpiScale));
-            _gd.ResizeMainWindow(width, height);
+            _graphicsDevice.ResizeMainWindow(width, height);
         }
 
         protected virtual void Frame()
         {
-            _cl.Begin();
-            _cl.SetFramebuffer(_gd.SwapchainFramebuffer);
-            Random r = new Random();
-            _cl.ClearColorTarget(
-                0,
-                new RgbaFloat((float)r.NextDouble(), 0, 0, 1));
-            _cl.ClearDepthStencil(1);
+            var newElapsed = _stopwatch.Elapsed.TotalSeconds;
+            var deltaSeconds = (float) (newElapsed - _previousElapsed);
+            //
+            // Rudimentary FPS Calc
+            // 
+            {
 
-            // Do your rendering here (or call a subclass, etc.)
+                _frameTimeAccumulator -= _frameTimeBuff[_frameCounter];
+                _frameTimeBuff[_frameCounter] = deltaSeconds;
+                _frameTimeAccumulator += deltaSeconds;
 
-            _cl.End();
-            _gd.SubmitCommands(_cl);
-            _gd.SwapBuffers();
+                _fpsDrawTimeAccumulator += deltaSeconds;
+                if (_fpsDrawTimeAccumulator > 0.03333)
+                {
+                    var avgFps = (NFramesInBuffer/_frameTimeAccumulator);
+                
+                    //_window.Title = _windowTitle + ": FPS: " + avgFps.ToString("#.0");
+                    _fpsDrawTimeAccumulator = 0.0;
+                }
+                
+                // RingBuffer
+                if (_frameCounter == NFramesInBuffer - 1)
+                {
+                    _frameCounter = 0;
+                    
+                }
+                else
+                {
+                    _frameCounter++;
+                }
+            }
+            
+            _globalFrameCounter++;
+            _previousElapsed = newElapsed;
+
+            if (null == _graphicsDevice) return;
+
+            GraphicsDeviceOperations?.Invoke(_graphicsDevice, _factory);
+
+            _endFrameEvents.OnNext(new EndFrameEvent(deltaSeconds));
+            
+//            _cl.Begin();
+//            _cl.SetFramebuffer(_gd.SwapchainFramebuffer);
+//            Random r = new Random();
+//            _cl.ClearColorTarget(
+//                0,
+//                new RgbaFloat((float)r.NextDouble(), 0, 0, 1));
+//            _cl.ClearDepthStencil(1);
+//
+//            // Do your rendering here (or call a subclass, etc.)
+//
+//            _cl.End();
+//            _gd.SubmitCommands(_cl);
+//            _gd.SwapBuffers();
         }
+        
+        
     }
 }
     

@@ -4,11 +4,17 @@ using Veldrid.SceneGraph.Viewer;
 
 namespace Veldrid.SceneGraph.Wpf
 {
-    public class View : Veldrid.SceneGraph.View, IView
+    public class View : Veldrid.SceneGraph.View, Veldrid.SceneGraph.Viewer.IView
     {
         public IGroup SceneData { get; set; }
 
-        public IObservable<IInputStateSnapshot> InputEvents { get; set; }
+        private IObservable<IInputStateSnapshot> _inputEvents;
+
+        public IObservable<IInputStateSnapshot> InputEvents
+        {
+            get => _inputEvents;
+            set => _inputEvents = value;
+        }
         public IObservable<IResizedEvent> ResizeEvent { get; set; }
 
         private ICameraManipulator _cameraManipulator = null;
@@ -25,10 +31,11 @@ namespace Veldrid.SceneGraph.Wpf
                 _cameraManipulator.SetCamera(Camera);
 
                 InputEvents.Subscribe(_cameraManipulator.HandleInput);
+                
             }
         }
 
-        public static IView Create(IObservable<IResizedEvent> resizeEvents)
+        public static View Create(IObservable<IResizedEvent> resizeEvents)
         {
             return new View(resizeEvents);
         }

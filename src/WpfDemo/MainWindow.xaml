@@ -7,5 +7,7 @@
         xmlns:wpf="clr-namespace:Veldrid.SceneGraph.Wpf;assembly=Veldrid.SceneGraph.Wpf"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
-    <wpf:VeldridSceneGraphControl/>
+    <wpf:VeldridSceneGraphControl 
+        SceneRoot="{Binding SceneRoot}" 
+        CameraManipulator="{Binding CameraManipulator}"/>
 </Window>

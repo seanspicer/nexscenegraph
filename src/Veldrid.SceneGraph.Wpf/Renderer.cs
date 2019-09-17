@@ -25,7 +25,7 @@ using Veldrid.MetalBindings;
 using Veldrid.SceneGraph.RenderGraph;
 using Veldrid.SceneGraph.Util;
 
-namespace Veldrid.SceneGraph.Viewer
+namespace Veldrid.SceneGraph.Wpf
 {
     internal class Renderer : IGraphicsDeviceOperation
     {
@@ -75,11 +75,11 @@ namespace Veldrid.SceneGraph.Viewer
 
             _cullVisitor.ResourceLayout = _resourceLayout;
             
-            if (_camera.View.GetType() != typeof(Viewer.View))
+            if (_camera.View.GetType() != typeof(Wpf.View))
             {
                 throw new InvalidCastException("Camera View type is not correct");
             }
-            var view = (Viewer.View) _camera.View;
+            var view = (Wpf.View) _camera.View;
             view.SceneData?.Accept(_cullVisitor);
 
             _resourceSet = factory.CreateResourceSet(
@@ -103,7 +103,7 @@ namespace Veldrid.SceneGraph.Viewer
 
         private void Update()
         {
-            var view = (Viewer.View) _camera.View;
+            var view = (Wpf.View) _camera.View;
             view.SceneData?.Accept(_updateVisitor);
         }
         
@@ -119,7 +119,7 @@ namespace Veldrid.SceneGraph.Viewer
             // Prep
             _cullVisitor.Prepare();
 
-            var view = (Viewer.View) _camera.View;
+            var view = (Wpf.View) _camera.View;
             view.SceneData?.Accept(_cullVisitor);
         }
         

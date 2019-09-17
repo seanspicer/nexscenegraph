@@ -11,6 +11,7 @@ namespace WpfDemo
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = new MainWindowViewModel();
         }
     }
 }
