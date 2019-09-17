@@ -8,6 +8,7 @@ using System.Windows.Media;
 using Veldrid;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Viewer;
+using Veldrid.SceneGraph.Wpf.Controls;
 using Veldrid.Utilities;
 using PixelFormat = Veldrid.PixelFormat;
 
@@ -39,7 +40,7 @@ namespace Veldrid.SceneGraph.Wpf
     }
     
     // This extends from the "Win32HwndControl" from the SharpDX example code.
-    public class VeldridSceneGraphComponent : Win32HwndControl
+    public class VeldridSceneGraphComponent : HwndWrapper
     {
         private IGroup _sceneData;
         public IGroup SceneData
@@ -211,7 +212,7 @@ namespace Veldrid.SceneGraph.Wpf
             ResizeSwapchain();
         }
 
-        private void OnCompositionTargetRendering(object sender, EventArgs eventArgs)
+        protected override void Render(IntPtr windowHandle)
         {
             if (!Rendering)
                 return;

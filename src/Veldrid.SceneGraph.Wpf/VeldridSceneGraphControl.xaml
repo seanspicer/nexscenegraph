@@ -8,7 +8,32 @@
         d:DesignHeight="300" 
         d:DesignWidth="300"
         Loaded="On_UIReady">
-    <Border Name="ControlHostElement"
-            BorderBrush="Red"
-            BorderThickness="0"/>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <!-- <Rectangle Grid.Row="0" Grid.ZIndex="2"> -->
+        <!--     <Rectangle.Fill> -->
+        <!--         <SolidColorBrush Color="Blue" Opacity=".5"/> -->
+        <!--     </Rectangle.Fill> -->
+        <!-- </Rectangle> -->
+        <!-- <Rectangle Grid.Row="0" Grid.ZIndex="1" -->
+        <!--            Fill="Red"/> -->
+        <Grid x:Name="Overlay" Grid.Row="0" Panel.ZIndex="1000" Visibility="Collapsed">
+            <Grid.Background>
+                <SolidColorBrush Color="Black" Opacity=".5"/>
+            </Grid.Background>
+            <Rectangle>
+                <Rectangle.Fill>
+                    <SolidColorBrush Color="Blue" Opacity=".5"/>
+                </Rectangle.Fill>
+            </Rectangle>
+            <!-- Add controls as needed -->
+        </Grid>
+        <Border Grid.Row="0" Grid.ZIndex="1"
+                Name="ControlHostElement"
+                Visibility="Visible"
+                BorderBrush="Red"
+                BorderThickness="0"/>
+    </Grid>
 </UserControl>
