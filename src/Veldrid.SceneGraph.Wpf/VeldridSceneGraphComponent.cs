@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Data.Common;
 using System.Diagnostics;
+using System.Numerics;
 using System.Reactive.Subjects;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using Veldrid;
 using Veldrid.SceneGraph.InputAdapter;
@@ -107,12 +110,15 @@ namespace Veldrid.SceneGraph.Wpf
 
         public bool Rendering { get; private set; }
 
+        private WpfInputStateSnapshot _inputState;
+        
         protected override sealed void Initialize()
         {
             // Create Subjects
             _viewerInputEvents = new Subject<IInputStateSnapshot>();
             _endFrameEvents = new Subject<IEndFrameEvent>();
             _resizeEvents = new Subject<IResizedEvent>();
+            _inputState = new WpfInputStateSnapshot();
             
             var options = new GraphicsDeviceOptions(
                 debug: false,
@@ -160,8 +166,70 @@ namespace Veldrid.SceneGraph.Wpf
             Rendering = true;
             
             CameraManipulator.ViewAll();
+
+            HwndLButtonDown += OnMouseLButtonDown;
+            HwndLButtonUp += OnMouseLButtonUp;
+            HwndMouseMove += OnMouseMove;
+        }
+
+        private void OnMouseMove(object sender, HwndMouseEventArgs e)
+        {
+            var pos = e.GetPosition(this);
+            _inputState.MousePosition = new Vector2((float)pos.X, (float)pos.Y);
+            ProcessEvents();
+        }
+
+        private void OnMouseLButtonDown(object sender, HwndMouseEventArgs e)
+        {
+            var pos = e.GetPosition(this);
+            _inputState.MousePosition = new Vector2((float)pos.X, (float)pos.Y);
+            
+            var mouseEvent = new MouseEvent(MouseButton.Left, true);
+            _inputState.MouseDown[(int) MouseButton.Left] = true;
+            _inputState.MouseEventList.Add(mouseEvent);
+             ProcessEvents();
         }
         
+        private void OnMouseLButtonUp(object sender, HwndMouseEventArgs e)
+        {
+            var pos = e.GetPosition(this);
+            _inputState.MousePosition = new Vector2((float)pos.X, (float)pos.Y);
+            
+            var mouseEvent = new MouseEvent(MouseButton.Left, false);
+            _inputState.MouseDown[(int) MouseButton.Left] = false;
+            _inputState.MouseEventList.Add(mouseEvent);
+            ProcessEvents();
+        }
+
+        private void ProcessEvents()
+        {
+            double dpiScale = GetDpiScale();
+            int width =  (ActualWidth < 0 ? 0 : (int)Math.Ceiling(ActualWidth * dpiScale));
+            int height = (ActualHeight < 0 ? 0 : (int)Math.Ceiling(ActualHeight * dpiScale));
+
+            //var posx = _inputState.MousePosition.X; 
+            //var posy = height - _inputState.MousePosition.Y;
+            
+            //_inputState.MousePosition = new Vector2(posx, posy);
+            
+            var inputStateSnap = InputStateSnapshot.Create(_inputState, width, height);
+            _viewerInputEvents.OnNext(inputStateSnap);
+            _inputState.MouseEventList.Clear();
+            _inputState.KeyEventList.Clear();
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+            Console.WriteLine("key down event");
+        }
+
+        protected override void OnMouseDown(MouseButtonEventArgs e)
+        {
+            base.OnMouseDown(e);
+            Console.WriteLine("foo");
+        }
+
         public void ViewAll()
         {
             ((View)_view).CameraManipulator?.ViewAll();
@@ -241,9 +309,12 @@ namespace Veldrid.SceneGraph.Wpf
         private void ResizeSwapchain()
         {
             double dpiScale = GetDpiScale();
-            uint width = (uint)(ActualWidth < 0 ? 0 : Math.Ceiling(ActualWidth * dpiScale));
-            uint height = (uint)(ActualHeight < 0 ? 0 : Math.Ceiling(ActualHeight * dpiScale));
+            uint width = (uint) (ActualWidth < 0 ? 0 : Math.Ceiling(ActualWidth * dpiScale));
+            uint height = (uint) (ActualHeight < 0 ? 0 : Math.Ceiling(ActualHeight * dpiScale));
             _graphicsDevice.ResizeMainWindow(width, height);
+            DisplaySettings.Instance.ScreenWidth = width;
+            DisplaySettings.Instance.ScreenHeight = height;
+            _resizeEvents.OnNext(new ResizedEvent((int)width, (int)height));
         }
 
         protected virtual void Frame()

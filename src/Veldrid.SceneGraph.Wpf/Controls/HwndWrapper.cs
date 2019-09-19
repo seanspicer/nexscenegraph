@@ -263,6 +263,16 @@ namespace Veldrid.SceneGraph.Wpf.Controls
             Render(_hWnd);
         }
 
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        {
+            UpdateWindowPos();
+
+            base.OnRenderSizeChanged(sizeInfo);
+
+            if (HwndInitialized)
+                Resized();
+        }
+        
         protected abstract void Render(IntPtr windowHandle);
 
         private void OnApplicationActivated(object sender, EventArgs e)
