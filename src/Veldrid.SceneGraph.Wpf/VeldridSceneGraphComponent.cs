@@ -92,8 +92,6 @@ namespace Veldrid.SceneGraph.Wpf
         
         private GraphicsDevice _graphicsDevice;
         private DisposeCollectorResourceFactory _factory;
-        private bool _windowResized = true;
-        private bool _firstFrame = true;
         private Stopwatch _stopwatch = null;
         private double _previousElapsed = 0;
         private GraphicsBackend _preferredBackend = DisplaySettings.Instance.GraphicsBackend;
@@ -160,7 +158,6 @@ namespace Veldrid.SceneGraph.Wpf
             _view = view;
             
             Rendering = true;
-            CompositionTarget.Rendering += OnCompositionTargetRendering;
             
             CameraManipulator.ViewAll();
         }
@@ -188,7 +185,6 @@ namespace Veldrid.SceneGraph.Wpf
         protected override sealed void Uninitialize()
         {
             Rendering = false;
-            CompositionTarget.Rendering -= OnCompositionTargetRendering;
             
             DestroySwapchain();
             
