@@ -21,7 +21,7 @@ namespace Veldrid.SceneGraph.Wpf
         
         public IReadOnlyList<char> KeyCharPresses { get; }
         public Vector2 MousePosition { get; set; }
-        public float WheelDelta { get; }
+        public float WheelDelta { get; set; }
         public int WindowWidth { get; }
         public int WindowHeight { get; }
 

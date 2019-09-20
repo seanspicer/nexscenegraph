@@ -170,6 +170,13 @@ namespace Veldrid.SceneGraph.Wpf
             HwndLButtonDown += OnMouseLButtonDown;
             HwndLButtonUp += OnMouseLButtonUp;
             HwndMouseMove += OnMouseMove;
+            HwndMouseWheel += OnMouseWheel;
+        }
+
+        private void OnMouseWheel(object sender, HwndMouseEventArgs e)
+        {
+            _inputState.WheelDelta += e.WheelDelta;
+            ProcessEvents();
         }
 
         private void OnMouseMove(object sender, HwndMouseEventArgs e)
@@ -216,6 +223,7 @@ namespace Veldrid.SceneGraph.Wpf
             _viewerInputEvents.OnNext(inputStateSnap);
             _inputState.MouseEventList.Clear();
             _inputState.KeyEventList.Clear();
+            _inputState.WheelDelta = 0;
         }
 
         protected override void OnKeyDown(KeyEventArgs e)

@@ -385,7 +385,8 @@ namespace Veldrid.SceneGraph.Wpf.Controls
                 case Win32.NativeMethods.WM_MOUSEWHEEL:
                     if (_mouseInWindow)
                     {
-                        int delta = Win32.NativeMethods.GetWheelDeltaWParam(wParam.ToInt32());
+                        var param = wParam.ToInt64();
+                        int delta = Win32.NativeMethods.GetWheelDeltaWParam((int)param) / 10;
                         RaiseHwndMouseWheel(new HwndMouseEventArgs(_mouseState, delta, 0));
                     }
                     break;
