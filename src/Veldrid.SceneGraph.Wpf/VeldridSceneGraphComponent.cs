@@ -187,8 +187,14 @@ namespace Veldrid.SceneGraph.Wpf
             
             CameraManipulator.ViewAll();
 
+            // Left Button
             HwndLButtonDown += OnMouseLButtonDown;
             HwndLButtonUp += OnMouseLButtonUp;
+            
+            // Right Button
+            HwndRButtonDown += OnMouseRButtonDown;
+            HwndRButtonUp += OnMouseRButtonUp;
+            
             HwndMouseMove += OnMouseMove;
             HwndMouseWheel += OnMouseWheel;
         }
@@ -227,6 +233,28 @@ namespace Veldrid.SceneGraph.Wpf
             _inputState.MouseEventList.Add(mouseEvent);
             ProcessEvents();
         }
+        
+        private void OnMouseRButtonDown(object sender, HwndMouseEventArgs e)
+        {
+            var pos = e.GetPosition(this);
+            _inputState.MousePosition = new Vector2((float)pos.X, (float)pos.Y);
+            
+            var mouseEvent = new MouseEvent(MouseButton.Right, true);
+            _inputState.MouseDown[(int) MouseButton.Right] = true;
+            _inputState.MouseEventList.Add(mouseEvent);
+            ProcessEvents();
+        }
+        
+        private void OnMouseRButtonUp(object sender, HwndMouseEventArgs e)
+        {
+            var pos = e.GetPosition(this);
+            _inputState.MousePosition = new Vector2((float)pos.X, (float)pos.Y);
+
+            var mouseEvent = new MouseEvent(MouseButton.Right, false);
+            _inputState.MouseDown[(int) MouseButton.Right] = false;
+            _inputState.MouseEventList.Add(mouseEvent);
+            ProcessEvents();
+        }
 
         private void ProcessEvents()
         {
@@ -241,24 +269,96 @@ namespace Veldrid.SceneGraph.Wpf
             _inputState.WheelDelta = 0;
         }
 
+        private ModifierKeys _modifierKeys = ModifierKeys.None;
+        
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
-            var keyEvent = new KeyEvent(MapKey(e), e.IsDown, ModifierKeys.None);
-            _inputState.KeyEventList.Add(keyEvent);
-            ProcessEvents();
-            //Console.WriteLine("key down event");
+
+            var key = e.Key;
+            if (key == System.Windows.Input.Key.System)
+            {
+                key = e.SystemKey;
+            }
+
+            switch (key)
+            {
+                case System.Windows.Input.Key.LeftShift:
+                case System.Windows.Input.Key.RightShift:
+                    _modifierKeys |= ModifierKeys.Shift;
+                    break;
+                case System.Windows.Input.Key.LeftCtrl:
+                case System.Windows.Input.Key.RightCtrl:
+                    _modifierKeys |= ModifierKeys.Control;
+                    break;
+                case System.Windows.Input.Key.LeftAlt:
+                case System.Windows.Input.Key.RightAlt:
+                    _modifierKeys |= ModifierKeys.Alt;
+                    break;
+                default:
+                {
+                    var keyEvent = new KeyEvent(MapKey(e), e.IsDown, _modifierKeys);
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
+                    break;
+                }
+            }
+        }
+        
+        protected override void OnKeyUp(KeyEventArgs e)
+        {
+            base.OnKeyUp(e);
+
+            var key = e.Key;
+            if (key == System.Windows.Input.Key.System)
+            {
+                key = e.SystemKey;
+            }
+            
+            switch (key)
+            {
+                case System.Windows.Input.Key.LeftShift:
+                case System.Windows.Input.Key.RightShift:
+                    _modifierKeys &= ~ModifierKeys.Shift;
+                    break;
+                case System.Windows.Input.Key.LeftCtrl:
+                case System.Windows.Input.Key.RightCtrl:
+                    _modifierKeys &= ~ModifierKeys.Control;
+                    break;
+                case System.Windows.Input.Key.LeftAlt:
+                case System.Windows.Input.Key.RightAlt:
+                    _modifierKeys &= ~ModifierKeys.Alt;
+                    break;
+                default:
+                {
+                    var keyEvent = new KeyEvent(MapKey(e), e.IsDown, _modifierKeys);
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
+                    break;
+                }
+            }
         }
 
         private Key MapKey(KeyEventArgs e)
         {
-            switch (e.Key)
+            // Convert A - Z
+            if ((int) e.Key >= 44 && (int) e.Key <= 69)
             {
-                case System.Windows.Input.Key.P:
-                    return Key.P;
+                return (Key) ((int) e.Key + 39);
             }
+            // Convert 0 - 9
+            else if ((int) e.Key >= 34 && (int) e.Key <= 43)
+            {
+                return (Key) ((int) e.Key + 75);
+            }
+            // Convert F1 - F12
+            else if ((int) e.Key >= 90 && (int) e.Key <= 101)
+            {
+                return (Key) ((int) e.Key - 80);
+            }
+            
 
-            return Key.ShiftLeft;
+            return Key.Unknown;
         }
         
         public void ViewAll()
