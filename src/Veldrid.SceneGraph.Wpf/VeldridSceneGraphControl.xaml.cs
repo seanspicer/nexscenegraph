@@ -17,11 +17,13 @@ namespace Veldrid.SceneGraph.Wpf
 
         private ISubject<IGroup> _sceneDataSubject;
         private ISubject<ICameraManipulator> _cameraManipulatorSubject;
+        private ISubject<IInputEventHandler> _eventHandlerSubject;
         
         public VeldridSceneGraphControl()
         {
             _sceneDataSubject = new ReplaySubject<IGroup>();
             _cameraManipulatorSubject = new ReplaySubject<ICameraManipulator>();
+            _eventHandlerSubject = new ReplaySubject<IInputEventHandler>();
             InitializeComponent();
         }
         
@@ -34,6 +36,10 @@ namespace Veldrid.SceneGraph.Wpf
             _cameraManipulatorSubject.Subscribe((cameraManipulator) =>
             {
                 _veldridSceneGraphComponent.CameraManipulator = cameraManipulator;
+            });
+            _eventHandlerSubject.Subscribe((eventHandler) =>
+            {
+                _veldridSceneGraphComponent.EventHandler = eventHandler;
             });
             ControlHostElement.Child = _veldridSceneGraphComponent;
         }
@@ -80,6 +86,27 @@ namespace Veldrid.SceneGraph.Wpf
             _cameraManipulatorSubject.OnNext((ICameraManipulator) e.NewValue); 
         }
         
+        #endregion
+        
+        #region EventHandlerProperty
+        public static readonly DependencyProperty eventHandlerProperty = 
+            DependencyProperty.Register("EventHandler", typeof(IInputEventHandler), typeof(VeldridSceneGraphControl), 
+                new PropertyMetadata(null, new PropertyChangedCallback(OnEventHandlerChanged)));  
+
+        public IInputEventHandler EventHandler 
+        {
+            get => (IInputEventHandler) GetValue(eventHandlerProperty);
+            set => SetValue(eventHandlerProperty, value);
+        }
+        
+        private static void OnEventHandlerChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {  
+            VeldridSceneGraphControl vsgControl = d as VeldridSceneGraphControl;  
+            vsgControl.SetEventHandler(e);  
+        } 
+        
+        private void SetEventHandler(DependencyPropertyChangedEventArgs e) {  
+            _eventHandlerSubject.OnNext((IInputEventHandler) e.NewValue); 
+        }
         #endregion
     }
 }

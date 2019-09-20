@@ -9,5 +9,6 @@
         Title="MainWindow" Height="350" Width="525">
     <wpf:VeldridSceneGraphControl 
         SceneRoot="{Binding SceneRoot}" 
-        CameraManipulator="{Binding CameraManipulator}"/>
+        CameraManipulator="{Binding CameraManipulator}"
+        EventHandler="{Binding EventHandler}"/>
 </Window>

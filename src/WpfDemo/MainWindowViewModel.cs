@@ -55,6 +55,18 @@ namespace WpfDemo
             }
         }
 
+        private IInputEventHandler _eventHandler;
+
+        public IInputEventHandler EventHandler
+        {
+            get => _eventHandler;
+            set
+            {
+                _eventHandler = value;
+                OnPropertyChanged("EventHandler");
+            }
+        }
+
         public MainWindowViewModel()
         {
             var root = Group.Create();
@@ -83,6 +95,7 @@ namespace WpfDemo
 
             SceneRoot = root;
             CameraManipulator = TrackballManipulator.Create();
+            EventHandler = new WpfDemo.PickEventHandler();
         }
         
         static IGeode CreateCube()

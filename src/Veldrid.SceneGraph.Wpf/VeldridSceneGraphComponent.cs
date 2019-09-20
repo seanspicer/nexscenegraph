@@ -13,6 +13,7 @@ using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Viewer;
 using Veldrid.SceneGraph.Wpf.Controls;
 using Veldrid.Utilities;
+using InputEventHandler = System.Windows.Input.InputEventHandler;
 using PixelFormat = Veldrid.PixelFormat;
 
 //using PixelFormat = System.Windows.Media.PixelFormat;
@@ -71,6 +72,23 @@ namespace Veldrid.SceneGraph.Wpf
                 {
                     ((View) _view).CameraManipulator = _cameraManipulator;
                 }
+            }
+        }
+
+        private IInputEventHandler _eventHandler;
+
+        public IInputEventHandler EventHandler
+        {
+            get => _eventHandler;
+            set
+            {
+                _eventHandler = value;
+                if (null != _view)
+                {
+                    _eventHandler.SetView(_view);
+                    ((View) _view).AddInputEventHandler(_eventHandler);
+                }
+                
             }
         }
 
@@ -158,7 +176,9 @@ namespace Veldrid.SceneGraph.Wpf
             view.InputEvents = ViewerInputEvents;
             view.SceneData = _sceneData;
             view.CameraManipulator = _cameraManipulator;
-            
+            _eventHandler.SetView(view);
+            view.AddInputEventHandler(_eventHandler);
+
             GraphicsDeviceOperations += view.Camera.Renderer.HandleOperation;
             
             _view = view;
@@ -214,11 +234,6 @@ namespace Veldrid.SceneGraph.Wpf
             int width =  (ActualWidth < 0 ? 0 : (int)Math.Ceiling(ActualWidth * dpiScale));
             int height = (ActualHeight < 0 ? 0 : (int)Math.Ceiling(ActualHeight * dpiScale));
 
-            //var posx = _inputState.MousePosition.X; 
-            //var posy = height - _inputState.MousePosition.Y;
-            
-            //_inputState.MousePosition = new Vector2(posx, posy);
-            
             var inputStateSnap = InputStateSnapshot.Create(_inputState, width, height);
             _viewerInputEvents.OnNext(inputStateSnap);
             _inputState.MouseEventList.Clear();
@@ -229,15 +244,23 @@ namespace Veldrid.SceneGraph.Wpf
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
-            Console.WriteLine("key down event");
+            var keyEvent = new KeyEvent(MapKey(e), e.IsDown, ModifierKeys.None);
+            _inputState.KeyEventList.Add(keyEvent);
+            ProcessEvents();
+            //Console.WriteLine("key down event");
         }
 
-        protected override void OnMouseDown(MouseButtonEventArgs e)
+        private Key MapKey(KeyEventArgs e)
         {
-            base.OnMouseDown(e);
-            Console.WriteLine("foo");
-        }
+            switch (e.Key)
+            {
+                case System.Windows.Input.Key.P:
+                    return Key.P;
+            }
 
+            return Key.ShiftLeft;
+        }
+        
         public void ViewAll()
         {
             ((View)_view).CameraManipulator?.ViewAll();
