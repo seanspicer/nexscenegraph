@@ -4,11 +4,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfDemo"
-        xmlns:wpf="clr-namespace:Veldrid.SceneGraph.Wpf;assembly=Veldrid.SceneGraph.Wpf"
+        xmlns:wpf1="clr-namespace:Veldrid.SceneGraph.Wpf;assembly=Veldrid.SceneGraph.Wpf"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
-    <wpf:VeldridSceneGraphControl 
-        SceneRoot="{Binding SceneRoot}" 
-        CameraManipulator="{Binding CameraManipulator}"
-        EventHandler="{Binding EventHandler}"/>
+    <wpf1:VeldridSceneGraphElement></wpf1:VeldridSceneGraphElement>
+    <!-- <wpf:VeldridSceneGraphControl  -->
+    <!--     SceneRoot="{Binding SceneRoot}"  -->
+    <!--     CameraManipulator="{Binding CameraManipulator}" -->
+    <!--     EventHandler="{Binding EventHandler}"/> -->
 </Window>
