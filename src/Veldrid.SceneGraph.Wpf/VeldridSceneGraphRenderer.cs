@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Windows;
+using SharpDX;
 using Veldrid.SceneGraph.Wpf.Element;
 using Veldrid.Utilities;
 
 namespace Veldrid.SceneGraph.Wpf
 {
-    public class VeldridSceneGraphRenderer : IDirect3D
+    public class VeldridSceneGraphRenderer : BaseRenderer
     {
         private Swapchain _sc;
         private CommandList _cl;
@@ -19,11 +20,26 @@ namespace Veldrid.SceneGraph.Wpf
         public VeldridSceneGraphRenderer()
         {
             _gd = GraphicsDevice.CreateD3D11(new GraphicsDeviceOptions());
+            
+            var d3d11Device = (SharpDX.Direct3D11.Device) _gd.GetType().GetProperty("Device")?.GetValue(_gd);
+            this.Renderer = new Element.D3D11(d3d11Device);
+            
             _factory = new DisposeCollectorResourceFactory(_gd.ResourceFactory);
             _cl = _gd.ResourceFactory.CreateCommandList();
         }
-        
-        public void Reset(DrawEventArgs args)
+
+        protected override void Attach()
+        {
+            if (Renderer == null)
+                return;
+        }
+
+        protected override void Detach()
+        {
+            _factory.DisposeCollector.DisposeAll();
+        }
+
+        protected override void ResetCore(DrawEventArgs args)
         {
             if (args.RenderSize.Width == 0 || args.RenderSize.Width == 0) return;
             
@@ -39,7 +55,7 @@ namespace Veldrid.SceneGraph.Wpf
             _offscreenFB = _factory.CreateFramebuffer(new FramebufferDescription(offscreenDepth, _offscreenColor));
         }
 
-        public void Render(DrawEventArgs args)
+        public override void RenderCore(DrawEventArgs args)
         {
             _cl.Begin();
             _cl.SetFramebuffer(_offscreenFB);
@@ -55,6 +71,12 @@ namespace Veldrid.SceneGraph.Wpf
             _gd.SubmitCommands(_cl);
             
             // Now just need to copy the offscreen buffer to the render target (I think!)
+            var deviceTexture = (SharpDX.Direct3D11.Texture2D) _offscreenColor.GetType().GetProperty("DeviceTexture")?.GetValue(_offscreenColor);
+            
+            deviceTexture?.Device.ImmediateContext.CopyResource(deviceTexture, Renderer.RenderTarget);
+            
+            Renderer.Device.ImmediateContext.ClearRenderTargetView(Renderer.RenderTargetView, new Color4(0.6f, 0, 0, 0));
+            
         }
     }
 }
