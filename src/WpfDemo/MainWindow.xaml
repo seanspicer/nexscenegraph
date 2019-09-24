@@ -7,7 +7,18 @@
         xmlns:wpf1="clr-namespace:Veldrid.SceneGraph.Wpf;assembly=Veldrid.SceneGraph.Wpf"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
-    <wpf1:VeldridSceneGraphElement></wpf1:VeldridSceneGraphElement>
+    <Grid>
+        <wpf1:VeldridSceneGraphElement></wpf1:VeldridSceneGraphElement>
+        <Canvas>
+             
+            <TextBlock Canvas.Left="9" Canvas.Top="8"
+                       FontSize="18" Margin="12" Foreground="Navy" FontFamily="Verdana"
+                       Text="FOO"   FontWeight="ExtraBold"/>
+        </Canvas>
+        
+    </Grid>
+    
+    
     <!-- <wpf:VeldridSceneGraphControl  -->
     <!--     SceneRoot="{Binding SceneRoot}"  -->
     <!--     CameraManipulator="{Binding CameraManipulator}" -->
