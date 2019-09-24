@@ -39,6 +39,7 @@ namespace Veldrid.SceneGraph.Wpf
         private CommandList _commandList;
         private ResourceLayout _resourceLayout;
         private ResourceSet _resourceSet;
+        private Fence _fence;
 
         private bool _initialized = false;
 
@@ -94,7 +95,7 @@ namespace Veldrid.SceneGraph.Wpf
             _renderInfo.ResourceLayout = _resourceLayout;
             _renderInfo.ResourceSet = _resourceSet;
 
-            //_fence = factory.CreateFence(false);
+            _fence = factory.CreateFence(false);
 
             _defaultResourceSets.Add(Tuple.Create((uint)0, _resourceSet));
             
@@ -159,9 +160,9 @@ namespace Veldrid.SceneGraph.Wpf
         private void Draw(GraphicsDevice device)
         {
             // TODO - this doesn't work on Metal
-            //device.ResetFence(_fence);
+            device.ResetFence(_fence);
             
-            device.SubmitCommands(_commandList);
+            device.SubmitCommands(_commandList, _fence);
             device.WaitForIdle();
         }
 
@@ -343,10 +344,10 @@ namespace Veldrid.SceneGraph.Wpf
         public void HandleOperation(GraphicsDevice device, ResourceFactory factory)
         {
             // TODO - this doesn't work on Metal
-            //if (null != _fence)
-            //{
-            //    device.WaitForFence(_fence);
-            //}
+            if (null != _fence)
+            {
+                device.WaitForFence(_fence);
+            }
             
             if (!_initialized)
             {
