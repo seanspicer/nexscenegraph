@@ -100,8 +100,8 @@ namespace Veldrid.SceneGraph.RenderGraph
                 new ResourceLayoutElementDescription("Model", ResourceKind.UniformBuffer, ShaderStages.Vertex, ResourceLayoutElementOptions.DynamicBinding));
 
             //bindableResourceList.Add(ri.ModelViewBuffer);
-            bindableResourceList.Add(new DeviceBufferRange(ri.ModelViewBuffer, 0, multiplier*nDrawables));
-
+            bindableResourceList.Add(new DeviceBufferRange(ri.ModelViewBuffer, 0, multiplier));
+            
             // Process Attached Textures
             foreach (var tex2d in PipelineState.TextureList)
             {
