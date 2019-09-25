@@ -1,4 +1,5 @@
 ﻿using System;
+using Veldrid.OpenGLBinding;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Viewer;
 
@@ -7,6 +8,14 @@ namespace Veldrid.SceneGraph.Wpf
     public class View : Veldrid.SceneGraph.View, Veldrid.SceneGraph.Viewer.IView
     {
         public IGroup SceneData { get; set; }
+        
+        private Renderer Renderer { get; set; }
+        
+        public Framebuffer Framebuffer 
+        { 
+            get => Renderer.Framebuffer;
+            set => Renderer.Framebuffer = value;
+        }
 
         private IObservable<IInputStateSnapshot> _inputEvents;
 
@@ -42,7 +51,8 @@ namespace Veldrid.SceneGraph.Wpf
         
         protected View(IObservable<IResizedEvent> resizeEvents)
         {
-            Camera.Renderer = new Renderer(Camera);
+            Renderer = new Renderer(Camera);
+            Camera.Renderer = Renderer;
             resizeEvents.Subscribe(Camera.HandleResizeEvent);
         }
 
@@ -50,5 +60,7 @@ namespace Veldrid.SceneGraph.Wpf
         {
             InputEvents.Subscribe(handler.HandleInput);
         }
+        
+        
     }
 }

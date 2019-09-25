@@ -20,6 +20,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
+using System.Windows.Controls;
 //using Common.Logging;
 using Veldrid.MetalBindings;
 using Veldrid.SceneGraph.RenderGraph;
@@ -49,6 +50,8 @@ namespace Veldrid.SceneGraph.Wpf
 
         private List<Tuple<uint, ResourceSet>> _defaultResourceSets = new List<Tuple<uint, ResourceSet>>();
 
+        public Framebuffer Framebuffer { get; set; }
+        
         //private ILog _logger;
         
         public Renderer(ICamera camera)
@@ -56,6 +59,7 @@ namespace Veldrid.SceneGraph.Wpf
             _camera = camera;
             _updateVisitor = UpdateVisitor.Create();
             _cullVisitor = CullVisitor.Create();
+            Framebuffer = null;
             //_logger = LogManager.GetLogger<Renderer>();
         }
 
@@ -98,6 +102,11 @@ namespace Veldrid.SceneGraph.Wpf
             _fence = factory.CreateFence(false);
 
             _defaultResourceSets.Add(Tuple.Create((uint)0, _resourceSet));
+
+            if (null == Framebuffer)
+            {
+                Framebuffer = device.SwapchainFramebuffer;
+            }
             
             _initialized = true;
         }
@@ -135,7 +144,7 @@ namespace Veldrid.SceneGraph.Wpf
             _commandList.Begin();
 
             // We want to render directly to the output window.
-            _commandList.SetFramebuffer(device.SwapchainFramebuffer);
+            _commandList.SetFramebuffer(Framebuffer);
             
             // TODO Set from Camera color ?
             _commandList.ClearColorTarget(0, RgbaFloat.Grey);
@@ -159,10 +168,9 @@ namespace Veldrid.SceneGraph.Wpf
 
         private void Draw(GraphicsDevice device)
         {
-            // TODO - this doesn't work on Metal
             device.ResetFence(_fence);
-            
             device.SubmitCommands(_commandList, _fence);
+            device.WaitForFence(_fence);
             device.WaitForIdle();
         }
 
@@ -332,13 +340,14 @@ namespace Veldrid.SceneGraph.Wpf
             
             // TODO - Remove
             device.UpdateBuffer(_viewBuffer, 0, Matrix4x4.Identity);
-
-
         }
 
         private void SwapBuffers(GraphicsDevice device)
         {
-            device.SwapBuffers();
+            if (Framebuffer == device.SwapchainFramebuffer)
+            {
+                device.SwapBuffers();
+            }
         }
 
         public void HandleOperation(GraphicsDevice device, ResourceFactory factory)
