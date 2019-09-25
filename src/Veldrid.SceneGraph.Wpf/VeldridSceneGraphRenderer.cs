@@ -93,8 +93,11 @@ namespace Veldrid.SceneGraph.Wpf
         {
             _gd = GraphicsDevice.CreateD3D11(new GraphicsDeviceOptions());
             
-            var d3d11Device = (SharpDX.Direct3D11.Device) _gd.GetType().GetProperty("Device")?.GetValue(_gd);
-            this.Renderer = new Element.D3D11(d3d11Device);
+            if (_gd.GetD3D11Info(out var backendInfo))
+            {
+                var d3d11Device = new SharpDX.Direct3D11.Device(backendInfo.Device);
+                this.Renderer = new Element.D3D11(d3d11Device);
+            }
             
             _factory = new DisposeCollectorResourceFactory(_gd.ResourceFactory);
             _cl = _gd.ResourceFactory.CreateCommandList();
@@ -152,15 +155,14 @@ namespace Veldrid.SceneGraph.Wpf
 
             _cl.End();
             _gd.SubmitCommands(_cl, _fence);
-            
-            // Now just need to copy the offscreen buffer to the render target (I think!)
-            var deviceTexture = (SharpDX.Direct3D11.Texture2D) _offscreenColor.GetType().GetProperty("DeviceTexture")?.GetValue(_offscreenColor);
-            
-            Renderer.Device.ImmediateContext.ClearRenderTargetView(Renderer.RenderTargetView, new Color4(0.6f, 0, 0, 1));
 
-            _gd.WaitForFence(_fence);
-            deviceTexture?.Device.ImmediateContext.CopyResource(deviceTexture, Renderer.RenderTarget);
+            if (!_gd.GetD3D11Info(out var backendInfo)) return;
             
+            var d3d11Texture = new SharpDX.Direct3D11.Texture2D(backendInfo.GetTexturePointer(_offscreenColor));
+                
+            _gd.WaitForFence(_fence);
+            d3d11Texture?.Device.ImmediateContext.CopyResource(d3d11Texture, Renderer.RenderTarget);
+
         }
     }
 }
