@@ -53,7 +53,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             RenderInfoCache = new Dictionary<Tuple<GraphicsDevice, ResourceFactory>, RenderInfo>();
         }
 
-        public RenderInfo GetPipelineAndResources(GraphicsDevice graphicsDevice, ResourceFactory resourceFactory, ResourceLayout vpLayout)
+        public RenderInfo GetPipelineAndResources(GraphicsDevice graphicsDevice, ResourceFactory resourceFactory, ResourceLayout vpLayout, Framebuffer framebuffer)
         {
             // TODO Cache this by device, factory
             var key = new Tuple<GraphicsDevice, ResourceFactory>(graphicsDevice, resourceFactory);
@@ -143,7 +143,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                 Shader[] shaders = resourceFactory.CreateFromSpirv(
                     PipelineState.VertexShaderDescription.Value,
                     PipelineState.FragmentShaderDescription.Value,
-                    GetOptions(graphicsDevice)
+                    GetOptions(graphicsDevice, framebuffer)
                 );
                 
                 Shader vs = shaders[0];
@@ -156,7 +156,7 @@ namespace Veldrid.SceneGraph.RenderGraph
 
             pd.ResourceLayouts = new[] {vpLayout, ri.ResourceLayout};
 
-            pd.Outputs = graphicsDevice.SwapchainFramebuffer.OutputDescription;
+            pd.Outputs = framebuffer.OutputDescription;
 
             ri.Pipeline = resourceFactory.CreateGraphicsPipeline(pd);
             
@@ -165,9 +165,9 @@ namespace Veldrid.SceneGraph.RenderGraph
             return ri;
         }
 
-        private static CrossCompileOptions GetOptions(GraphicsDevice gd)
+        private static CrossCompileOptions GetOptions(GraphicsDevice gd, Framebuffer framebuffer)
         {
-            SpecializationConstant[] specializations = GetSpecializations(gd);
+            SpecializationConstant[] specializations = GetSpecializations(gd, framebuffer);
 
             bool fixClipZ = (gd.BackendType == GraphicsBackend.OpenGL || gd.BackendType == GraphicsBackend.OpenGLES)
                             && !gd.IsDepthRangeZeroToOne;
@@ -177,7 +177,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             return new CrossCompileOptions(fixClipZ, invertY, specializations);
         }
         
-        public static SpecializationConstant[] GetSpecializations(GraphicsDevice gd)
+        public static SpecializationConstant[] GetSpecializations(GraphicsDevice gd, Framebuffer framebuffer)
         {
             bool glOrGles = gd.BackendType == GraphicsBackend.OpenGL || gd.BackendType == GraphicsBackend.OpenGLES;
 
@@ -185,11 +185,11 @@ namespace Veldrid.SceneGraph.RenderGraph
             specializations.Add(new SpecializationConstant(100, gd.IsClipSpaceYInverted));
             specializations.Add(new SpecializationConstant(101, glOrGles)); // TextureCoordinatesInvertedY
             specializations.Add(new SpecializationConstant(102, gd.IsDepthRangeZeroToOne));
-
-            PixelFormat swapchainFormat = gd.MainSwapchain.Framebuffer.OutputDescription.ColorAttachments[0].Format;
+            
+            PixelFormat swapchainFormat = framebuffer.OutputDescription.ColorAttachments[0].Format;
             bool swapchainIsSrgb = swapchainFormat == PixelFormat.B8_G8_R8_A8_UNorm_SRgb
                                    || swapchainFormat == PixelFormat.R8_G8_B8_A8_UNorm_SRgb;
-            specializations.Add(new SpecializationConstant(103, swapchainIsSrgb));
+            specializations.Add(new SpecializationConstant(103, false));
 
             return specializations.ToArray();
         }

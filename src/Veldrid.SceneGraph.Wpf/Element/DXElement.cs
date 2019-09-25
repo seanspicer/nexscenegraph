@@ -324,7 +324,7 @@ namespace Veldrid.SceneGraph.Wpf.Element
         /// 
         /// </summary>
         /// <param name="name"></param>
-        private void OnPropertyChanged(string name)
+        protected void OnPropertyChanged(string name)
         {
             var e = PropertyChanged;
             if (e != null)

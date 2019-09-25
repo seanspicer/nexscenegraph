@@ -20,6 +20,9 @@ namespace Veldrid.SceneGraph.Wpf
         private ISubject<IResizedEvent> _resizeEvents;
         private ISubject<IEndFrameEvent> _endFrameEvents;
         private ISubject<IInputStateSnapshot> _viewerInputEvents;
+
+        private ISubject<float> _frameInfoSubject;
+        public IObservable<float> FrameInfo => _frameInfoSubject;
         
         private IGroup _sceneData;
         public IGroup SceneData
@@ -31,6 +34,7 @@ namespace Veldrid.SceneGraph.Wpf
                 if (null != _view)
                 {
                     ((View) _view).SceneData = _sceneData;
+                    CameraManipulator?.ViewAll();
                 }
             }
         }
@@ -46,6 +50,7 @@ namespace Veldrid.SceneGraph.Wpf
                 if (null != _view)
                 {
                     ((View) _view).CameraManipulator = _cameraManipulator;
+                    CameraManipulator?.ViewAll();
                 }
             }
         }
@@ -86,6 +91,7 @@ namespace Veldrid.SceneGraph.Wpf
         
         private Framebuffer _offscreenFB;
         private Texture _offscreenColor;
+        private Texture _offscreenDepth;
 
         private Fence _fence;
         
@@ -121,6 +127,7 @@ namespace Veldrid.SceneGraph.Wpf
             _fence = _factory.CreateFence(false);
             _stopwatch = Stopwatch.StartNew();
             _previousElapsed = _stopwatch.Elapsed.TotalSeconds;
+            _frameInfoSubject = new Subject<float>();
         }
         
         protected override void Attach()
@@ -207,10 +214,12 @@ namespace Veldrid.SceneGraph.Wpf
                 width, height, 1, 1,
                 PixelFormat.B8_G8_R8_A8_UNorm, TextureUsage.RenderTarget | TextureUsage.Sampled));
             
-            Texture offscreenDepth = _factory.CreateTexture(TextureDescription.Texture2D(
-                width, height, 1, 1, PixelFormat.R16_UNorm, TextureUsage.DepthStencil));
-            _offscreenFB = _factory.CreateFramebuffer(new FramebufferDescription(offscreenDepth, _offscreenColor));
+            _offscreenDepth = _factory.CreateTexture(TextureDescription.Texture2D(
+                width, height, 1, 1, PixelFormat.D24_UNorm_S8_UInt, TextureUsage.DepthStencil));
+            _offscreenFB = _factory.CreateFramebuffer(new FramebufferDescription(_offscreenDepth, _offscreenColor));
 
+            var od = _offscreenFB.OutputDescription;
+            
             if (null != _view)
             {
                 _view.Framebuffer = _offscreenFB;
@@ -233,9 +242,9 @@ namespace Veldrid.SceneGraph.Wpf
                 _fpsDrawTimeAccumulator += deltaSeconds;
                 if (_fpsDrawTimeAccumulator > 0.03333)
                 {
-                    var avgFps = (NFramesInBuffer/_frameTimeAccumulator);
+                    var avgFps = (float)(NFramesInBuffer/_frameTimeAccumulator);
                 
-                    //_window.Title = _windowTitle + ": FPS: " + avgFps.ToString("#.0");
+                    _frameInfoSubject.OnNext(avgFps);
                     _fpsDrawTimeAccumulator = 0.0;
                 }
                 
@@ -264,33 +273,17 @@ namespace Veldrid.SceneGraph.Wpf
 
         public override void RenderCore(DrawEventArgs args)
         {
-//            _fence.Reset();
-//            _commandList.Begin();
-//            _commandList.SetFramebuffer(_offscreenFB);
-//            Random r = new Random();
-//            _commandList.ClearColorTarget(
-//                0,
-//                new RgbaFloat((float)r.NextDouble(), 0, 0, 1));
-//            _commandList.ClearDepthStencil(1);
-//
-//            // Do your rendering here (or call a subclass, etc.)
-//
-//            _commandList.End();
-//            _graphicsDevice.SubmitCommands(_commandList, _fence);
-
-
             if (null != _view && _view.Framebuffer != null)
             {
                 Frame();
 
                 if (!_graphicsDevice.GetD3D11Info(out var backendInfo)) return;
-            
-                var d3d11Texture = new SharpDX.Direct3D11.Texture2D(backendInfo.GetTexturePointer(_offscreenColor));
-                
-                d3d11Texture?.Device.ImmediateContext.CopyResource(d3d11Texture, Renderer.RenderTarget);
 
+                // Copy Render Target
+                var d3d11RenderTarget =
+                    new SharpDX.Direct3D11.Texture2D(backendInfo.GetTexturePointer(_offscreenColor));
+                d3d11RenderTarget?.Device.ImmediateContext.CopyResource(d3d11RenderTarget, Renderer.RenderTarget);
             }
-            
         }
     }
 }

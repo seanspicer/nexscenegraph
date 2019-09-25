@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Numerics;
 using System.Reactive.Subjects;
+using System.Runtime.Serialization;
 using System.Windows;
 using System.Windows.Input;
 using Veldrid.SceneGraph.InputAdapter;
@@ -20,6 +21,17 @@ namespace Veldrid.SceneGraph.Wpf
         private VeldridSceneGraphRenderer _vsgRenderer;
         
         private WpfInputStateSnapshot _inputState;
+
+        private string _frameInfo;
+        public string FrameInfo
+        {
+            get => _frameInfo;
+            set
+            {
+                _frameInfo = value;
+                OnPropertyChanged("FrameInfo");
+            }
+        }
         
         public VeldridSceneGraphElement()
         {
@@ -55,6 +67,7 @@ namespace Veldrid.SceneGraph.Wpf
             });
 
             Renderer = _vsgRenderer;
+            _vsgRenderer.FrameInfo.Subscribe((frameInfo) => { this.FrameInfo = $"FPS: {frameInfo.ToString("#.0")}"; });
             _vsgRenderer.DpiScale = GetDpiScale();
         }
         
@@ -69,6 +82,7 @@ namespace Veldrid.SceneGraph.Wpf
             var mouseEvent = new MouseEvent(MouseButton.Left, true);
             _inputState.MouseDown[(int) MouseButton.Left] = true;
             _inputState.MouseEventList.Add(mouseEvent);
+            ProcessEvents();
         }
 
         protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
@@ -80,15 +94,25 @@ namespace Veldrid.SceneGraph.Wpf
             var mouseEvent = new MouseEvent(MouseButton.Left, false);
             _inputState.MouseDown[(int) MouseButton.Left] = false;
             _inputState.MouseEventList.Add(mouseEvent);
+            ProcessEvents();
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
+            base.OnMouseMove(e);
             var pos = e.GetPosition(this);
             _inputState.MousePosition = new Vector2((float)pos.X, (float)pos.Y);
-            base.OnMouseMove(e);
+            ProcessEvents();
+            
         }
-        
+
+        protected override void OnMouseWheel(MouseWheelEventArgs e)
+        {
+            base.OnMouseWheel(e);
+            _inputState.WheelDelta += e.Delta / 10;
+            ProcessEvents();
+        }
+
         private void ProcessEvents()
         {
             double dpiScale = GetDpiScale();
@@ -112,5 +136,70 @@ namespace Veldrid.SceneGraph.Wpf
 
             return 1.0d;
         }
+        
+        #region SceneRoot Property
+        
+        public static readonly DependencyProperty SceneRootProperty = 
+            DependencyProperty.Register("SceneRoot", typeof(IGroup), typeof(VeldridSceneGraphElement), 
+                new PropertyMetadata(Group.Create(), new PropertyChangedCallback(OnSetSceneRootChanged)));  
+        public IGroup SceneRoot 
+        {
+            get => (IGroup) GetValue(SceneRootProperty);
+            set => SetValue(SceneRootProperty, value);
+        }
+        
+        private static void OnSetSceneRootChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {  
+            var element = d as VeldridSceneGraphElement;  
+            element?.SetSceneRoot(e);  
+        }  
+        private void SetSceneRoot(DependencyPropertyChangedEventArgs e) {  
+            _sceneDataSubject.OnNext((IGroup) e.NewValue); 
+        }
+        
+        #endregion
+        
+        #region CameraManipulatorProperty
+        
+        public static readonly DependencyProperty CameraManipulatorProperty = 
+            DependencyProperty.Register("CameraManipulator", typeof(ICameraManipulator), typeof(VeldridSceneGraphElement), 
+                new PropertyMetadata(TrackballManipulator.Create(), new PropertyChangedCallback(OnCameraManipulatorChanged)));  
+
+        public ICameraManipulator CameraManipulator 
+        {
+            get => (ICameraManipulator) GetValue(CameraManipulatorProperty);
+            set => SetValue(CameraManipulatorProperty, value);
+        }
+        
+        private static void OnCameraManipulatorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {  
+            var element = d as VeldridSceneGraphElement;  
+            element?.SetCameraManipulator(e);  
+        } 
+        
+        private void SetCameraManipulator(DependencyPropertyChangedEventArgs e) {  
+            _cameraManipulatorSubject.OnNext((ICameraManipulator) e.NewValue); 
+        }
+        
+        #endregion
+        
+        #region EventHandlerProperty
+        public static readonly DependencyProperty EventHandlerProperty = 
+            DependencyProperty.Register("EventHandler", typeof(IInputEventHandler), typeof(VeldridSceneGraphElement), 
+                new PropertyMetadata(null, new PropertyChangedCallback(OnEventHandlerChanged)));  
+
+        public IInputEventHandler EventHandler 
+        {
+            get => (IInputEventHandler) GetValue(EventHandlerProperty);
+            set => SetValue(EventHandlerProperty, value);
+        }
+        
+        private static void OnEventHandlerChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {  
+            var element = d as VeldridSceneGraphElement;  
+            element?.SetEventHandler(e);  
+        } 
+        
+        private void SetEventHandler(DependencyPropertyChangedEventArgs e) {  
+            _eventHandlerSubject.OnNext((IInputEventHandler) e.NewValue); 
+        }
+        #endregion
     }
 }

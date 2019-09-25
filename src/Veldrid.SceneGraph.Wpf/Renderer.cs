@@ -187,7 +187,7 @@ namespace Veldrid.SceneGraph.Wpf
             
             foreach (var state in _cullVisitor.OpaqueRenderGroup.GetStateList())
             {
-                var ri = state.GetPipelineAndResources(device, factory, _resourceLayout);
+                var ri = state.GetPipelineAndResources(device, factory, _resourceLayout, Framebuffer);
                 
                 _commandList.SetPipeline(ri.Pipeline);
                 
@@ -290,7 +290,7 @@ namespace Veldrid.SceneGraph.Wpf
 
                     if (null == lastState || state != lastState)
                     {
-                        ri = state.GetPipelineAndResources(device, factory, _resourceLayout);
+                        ri = state.GetPipelineAndResources(device, factory, _resourceLayout, Framebuffer);
 
                         // Set this state's pipeline
                         _commandList.SetPipeline(ri.Pipeline);
