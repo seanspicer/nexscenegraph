@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Reactive.Subjects;
 using System.Windows;
 using SharpDX;
 using SharpDX.D3DCompiler;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
+using Veldrid.SceneGraph.InputAdapter;
+using Veldrid.SceneGraph.Viewer;
 using Veldrid.SceneGraph.Wpf.Element;
 using Veldrid.Utilities;
 using Buffer = SharpDX.Direct3D11.Buffer;
@@ -13,6 +16,68 @@ namespace Veldrid.SceneGraph.Wpf
 {
     public class VeldridSceneGraphRenderer : BaseRenderer
     {
+        private ISubject<IResizedEvent> _resizeEvents;
+        private ISubject<IEndFrameEvent> _endFrameEvents;
+        private ISubject<IInputStateSnapshot> _viewerInputEvents;
+        
+        private IGroup _sceneData;
+        public IGroup SceneData
+        {
+            get => _sceneData;
+            set
+            {
+                _sceneData = value;
+                if (null != _view)
+                {
+                    ((View) _view).SceneData = _sceneData;
+                }
+            }
+        }
+
+        private ICameraManipulator _cameraManipulator;
+
+        public ICameraManipulator CameraManipulator
+        {
+            get => _cameraManipulator;
+            set
+            {
+                _cameraManipulator = value;
+                if (null != _view)
+                {
+                    ((View) _view).CameraManipulator = _cameraManipulator;
+                }
+            }
+        }
+
+        private IInputEventHandler _eventHandler;
+
+        public IInputEventHandler EventHandler
+        {
+            get => _eventHandler;
+            set
+            {
+                _eventHandler = value;
+                if (null != _view)
+                {
+                    _eventHandler.SetView(_view);
+                    ((View) _view).AddInputEventHandler(_eventHandler);
+                }
+                
+            }
+        }
+
+        private IView _view;
+        public IView View
+        {
+            get => _view;
+        }
+        
+        public IObservable<IResizedEvent> ResizeEvents => _resizeEvents;
+        public IObservable<IEndFrameEvent> EndFrameEvents => _endFrameEvents;
+        public IObservable<IInputStateSnapshot> ViewerInputEvents => _viewerInputEvents;
+        
+        private WpfInputStateSnapshot _inputState;
+        
         private Swapchain _sc;
         private CommandList _cl;
         private GraphicsDevice _gd;
@@ -34,6 +99,12 @@ namespace Veldrid.SceneGraph.Wpf
             _factory = new DisposeCollectorResourceFactory(_gd.ResourceFactory);
             _cl = _gd.ResourceFactory.CreateCommandList();
             _fence = _factory.CreateFence(false);
+            
+            // Create Subjects
+            _viewerInputEvents = new Subject<IInputStateSnapshot>();
+            _endFrameEvents = new Subject<IEndFrameEvent>();
+            _resizeEvents = new Subject<IResizedEvent>();
+            _inputState = new WpfInputStateSnapshot();
         }
         
         
@@ -41,6 +112,7 @@ namespace Veldrid.SceneGraph.Wpf
         {
             if (Renderer == null)
                 return;
+            
         }
 
         protected override void Detach()
