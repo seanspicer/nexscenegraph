@@ -8,21 +8,21 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        <wpf1:VeldridSceneGraphElement x:Name="VSGElement"
+        <wpf1:VeldridSceneGraphElement 
+            x:Name="VSGElement"
             SceneRoot="{Binding SceneRoot}"
             CameraManipulator="{Binding CameraManipulator}"
             EventHandler="{Binding EventHandler}">
         </wpf1:VeldridSceneGraphElement>
         
         <Canvas>
-             
-            <TextBlock Canvas.Left="9" Canvas.Top="8"
-                       FontSize="18" Margin="12" Foreground="LightGray" FontFamily="Verdana"
+        
+             <TextBlock Canvas.Left="9" Canvas.Top="8" 
+                        FontSize="18" Margin="12" Foreground="LightGray" FontFamily="Verdana"
                        Text="{Binding ElementName=VSGElement, Path=FrameInfo}" FontWeight="ExtraBold"/>
         </Canvas>
         
     </Grid>
-    
     
     <!-- <wpf:VeldridSceneGraphControl  -->
     <!--     SceneRoot="{Binding SceneRoot}"  -->

@@ -21,6 +21,7 @@ namespace Veldrid.SceneGraph.Wpf
         private VeldridSceneGraphRenderer _vsgRenderer;
         
         private WpfInputStateSnapshot _inputState;
+        private ModifierKeys _modifierKeys = ModifierKeys.None;
 
         private string _frameInfo = string.Empty;
         public string FrameInfo
@@ -33,6 +34,8 @@ namespace Veldrid.SceneGraph.Wpf
             }
         }
         
+        private bool ShouldHandleKeyEvents { get; set; }
+        
         public VeldridSceneGraphElement()
         {
             _sceneDataSubject = new ReplaySubject<IGroup>();
@@ -40,12 +43,18 @@ namespace Veldrid.SceneGraph.Wpf
             _eventHandlerSubject = new ReplaySubject<IInputEventHandler>();
             _inputState = new WpfInputStateSnapshot();
 
+            ShouldHandleKeyEvents = false;
+            
+            // TODO: Why do I have to do this?  Seems really silly...the FrameworkElement doesn't receive the event otherwise.
+            EventManager.RegisterClassHandler(typeof(Window), Keyboard.KeyDownEvent, new KeyEventHandler(OnKeyDown), true);
+            EventManager.RegisterClassHandler(typeof(Window), Keyboard.KeyUpEvent, new KeyEventHandler(OnKeyUp), true);
+            
             Loaded += OnLoaded;
         }
+        
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            //_vsgRenderer.Initialize();
         }
 
         protected override void OnInitialized(EventArgs e)
@@ -70,7 +79,18 @@ namespace Veldrid.SceneGraph.Wpf
             _vsgRenderer.FrameInfo.Subscribe((frameInfo) => { this.FrameInfo = $"FPS: {frameInfo.ToString("#.0")}"; });
             _vsgRenderer.DpiScale = GetDpiScale();
         }
-        
+
+        protected override void OnMouseEnter(MouseEventArgs e)
+        {
+            base.OnMouseEnter(e);
+            ShouldHandleKeyEvents = true;
+        }
+
+        protected override void OnMouseLeave(MouseEventArgs e)
+        {
+            base.OnMouseLeave(e);
+            ShouldHandleKeyEvents = false;
+        }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
@@ -96,6 +116,28 @@ namespace Veldrid.SceneGraph.Wpf
             _inputState.MouseEventList.Add(mouseEvent);
             ProcessEvents();
         }
+        
+        protected override void OnMouseRightButtonDown(MouseButtonEventArgs e)
+        {
+            var pos = e.GetPosition(this);
+            _inputState.MousePosition = new Vector2((float)pos.X, (float)pos.Y);
+            
+            var mouseEvent = new MouseEvent(MouseButton.Right, true);
+            _inputState.MouseDown[(int) MouseButton.Right] = true;
+            _inputState.MouseEventList.Add(mouseEvent);
+            ProcessEvents();
+        }
+        
+        protected override void OnMouseRightButtonUp(MouseButtonEventArgs e)
+        {
+            var pos = e.GetPosition(this);
+            _inputState.MousePosition = new Vector2((float)pos.X, (float)pos.Y);
+
+            var mouseEvent = new MouseEvent(MouseButton.Right, false);
+            _inputState.MouseDown[(int) MouseButton.Right] = false;
+            _inputState.MouseEventList.Add(mouseEvent);
+            ProcessEvents();
+        }
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
@@ -111,6 +153,97 @@ namespace Veldrid.SceneGraph.Wpf
             base.OnMouseWheel(e);
             _inputState.WheelDelta += e.Delta / 10;
             ProcessEvents();
+        }
+        
+        protected void OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (!ShouldHandleKeyEvents) return;
+            
+            var key = e.Key;
+            if (key == System.Windows.Input.Key.System)
+            {
+                key = e.SystemKey;
+            }
+
+            switch (key)
+            {
+                case System.Windows.Input.Key.LeftShift:
+                case System.Windows.Input.Key.RightShift:
+                    _modifierKeys |= ModifierKeys.Shift;
+                    break;
+                case System.Windows.Input.Key.LeftCtrl:
+                case System.Windows.Input.Key.RightCtrl:
+                    _modifierKeys |= ModifierKeys.Control;
+                    break;
+                case System.Windows.Input.Key.LeftAlt:
+                case System.Windows.Input.Key.RightAlt:
+                    _modifierKeys |= ModifierKeys.Alt;
+                    break;
+                default:
+                {
+                    var keyEvent = new KeyEvent(MapKey(e), e.IsDown, _modifierKeys);
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
+                    break;
+                }
+            }
+        }
+        
+        protected  void OnKeyUp(object sender, KeyEventArgs e)
+        {
+            if (!ShouldHandleKeyEvents) return;
+            
+            base.OnKeyUp(e);
+
+            var key = e.Key;
+            if (key == System.Windows.Input.Key.System)
+            {
+                key = e.SystemKey;
+            }
+            
+            switch (key)
+            {
+                case System.Windows.Input.Key.LeftShift:
+                case System.Windows.Input.Key.RightShift:
+                    _modifierKeys &= ~ModifierKeys.Shift;
+                    break;
+                case System.Windows.Input.Key.LeftCtrl:
+                case System.Windows.Input.Key.RightCtrl:
+                    _modifierKeys &= ~ModifierKeys.Control;
+                    break;
+                case System.Windows.Input.Key.LeftAlt:
+                case System.Windows.Input.Key.RightAlt:
+                    _modifierKeys &= ~ModifierKeys.Alt;
+                    break;
+                default:
+                {
+                    var keyEvent = new KeyEvent(MapKey(e), e.IsDown, _modifierKeys);
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
+                    break;
+                }
+            }
+        }
+
+        private Key MapKey(KeyEventArgs e)
+        {
+            // Convert A - Z
+            if ((int) e.Key >= 44 && (int) e.Key <= 69)
+            {
+                return (Key) ((int) e.Key + 39);
+            }
+            // Convert 0 - 9
+            else if ((int) e.Key >= 34 && (int) e.Key <= 43)
+            {
+                return (Key) ((int) e.Key + 75);
+            }
+            // Convert F1 - F12
+            else if ((int) e.Key >= 90 && (int) e.Key <= 101)
+            {
+                return (Key) ((int) e.Key - 80);
+            }
+            
+            return Key.Unknown;
         }
 
         private void ProcessEvents()
