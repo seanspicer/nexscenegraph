@@ -22,7 +22,7 @@ namespace Veldrid.SceneGraph.Wpf
         
         private WpfInputStateSnapshot _inputState;
 
-        private string _frameInfo;
+        private string _frameInfo = string.Empty;
         public string FrameInfo
         {
             get => _frameInfo;
