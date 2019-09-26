@@ -19,7 +19,14 @@
         
              <TextBlock Canvas.Left="9" Canvas.Top="8" 
                         FontSize="18" Margin="12" Foreground="LightGray" FontFamily="Verdana"
-                       Text="{Binding ElementName=VSGElement, Path=FrameInfo}" FontWeight="ExtraBold"/>
+                       Text="{Binding ElementName=VSGElement, Path=FrameInfo}" FontWeight="ExtraBold">
+                 <TextBlock.Effect>
+                     <DropShadowEffect ShadowDepth="0"
+                                       Color="Black"
+                                       Opacity="1"
+                                       BlurRadius="5"/>
+                 </TextBlock.Effect>
+             </TextBlock>
         </Canvas>
         
     </Grid>
