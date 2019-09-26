@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -13,7 +14,7 @@ namespace Veldrid.SceneGraph.Wpf.Element
     /// It does no Direct3D work, which is delegated to
     /// the <see cref="IDirect3D"/> <see cref="Renderer"/> object.
     /// </summary>
-    public class DXElement : FrameworkElement, INotifyPropertyChanged
+    public class DXElement : UserControl, INotifyPropertyChanged
     {
         #region Init
 

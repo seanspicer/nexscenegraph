@@ -45,16 +45,14 @@ namespace Veldrid.SceneGraph.Wpf
 
             ShouldHandleKeyEvents = false;
             
-            // TODO: Why do I have to do this?  Seems really silly...the FrameworkElement doesn't receive the event otherwise.
-            EventManager.RegisterClassHandler(typeof(Window), Keyboard.KeyDownEvent, new KeyEventHandler(OnKeyDown), true);
-            EventManager.RegisterClassHandler(typeof(Window), Keyboard.KeyUpEvent, new KeyEventHandler(OnKeyUp), true);
-            
             Loaded += OnLoaded;
         }
         
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
+            // Must be set when loaded - seems like this doesn't propagate if set on construction.
+            Focusable = true;
         }
 
         protected override void OnInitialized(EventArgs e)
@@ -83,6 +81,7 @@ namespace Veldrid.SceneGraph.Wpf
         protected override void OnMouseEnter(MouseEventArgs e)
         {
             base.OnMouseEnter(e);
+            Focus();
             ShouldHandleKeyEvents = true;
         }
 
@@ -155,7 +154,7 @@ namespace Veldrid.SceneGraph.Wpf
             ProcessEvents();
         }
         
-        protected void OnKeyDown(object sender, KeyEventArgs e)
+        protected override void OnKeyDown(KeyEventArgs e)
         {
             if (!ShouldHandleKeyEvents) return;
             
@@ -189,7 +188,7 @@ namespace Veldrid.SceneGraph.Wpf
             }
         }
         
-        protected  void OnKeyUp(object sender, KeyEventArgs e)
+        protected override void OnKeyUp(KeyEventArgs e)
         {
             if (!ShouldHandleKeyEvents) return;
             
