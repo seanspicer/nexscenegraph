@@ -125,7 +125,7 @@ namespace TransparencySorting
             var scaleMatrix = Matrix4x4.CreateScale(0.15f);
 
             var sceneVertices = new List<VertexPositionColor>();
-            var sceneIndices = new List<ushort>();
+            var sceneIndices = new List<uint>();
             
             var geometry = Geometry<VertexPositionColor>.Create();
             

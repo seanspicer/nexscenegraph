@@ -112,7 +112,7 @@ namespace MultiTexturedCube
                 new VertexPositionTexture(new Vector3(-0.5f, -0.5f, +0.5f), new Vector2(0, 1), new Vector4(1, 0, 1, 1)),
             };
             
-            ushort[] indices =
+            uint[] indices =
             {
                 0,1,2, 0,2,3,
                 4,5,6, 4,6,7,

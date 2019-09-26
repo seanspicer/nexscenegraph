@@ -20,6 +20,6 @@ namespace Veldrid.SceneGraph
     {
         T[] VertexData { get; set; }
         int SizeOfVertexData { get; }
-        ushort[] IndexData { get; set; }
+        uint[] IndexData { get; set; }
     }
 }

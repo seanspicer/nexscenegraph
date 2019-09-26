@@ -27,7 +27,7 @@ namespace Veldrid.SceneGraph
         public T[] VertexData { get; set; }
         public int SizeOfVertexData => Marshal.SizeOf(default(T));
         
-        public ushort[] IndexData { get; set; }
+        public uint[] IndexData { get; set; }
         
         private Dictionary<GraphicsDevice, DeviceBuffer> _vertexBufferCache 
             = new Dictionary<GraphicsDevice, DeviceBuffer>();
@@ -54,7 +54,7 @@ namespace Veldrid.SceneGraph
             device.UpdateBuffer(vbo, 0, VertexData);
 
             var idxBufferDesc =
-                new BufferDescription((uint) (IndexData.Length * sizeof(ushort)), BufferUsage.IndexBuffer);
+                new BufferDescription((uint) (IndexData.Length * sizeof(uint)), BufferUsage.IndexBuffer);
             var ibo = factory.CreateBuffer(idxBufferDesc);
             device.UpdateBuffer(ibo, 0, IndexData);
 
