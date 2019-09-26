@@ -17,7 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Common.Logging;
+//using Common.Logging;
 
 namespace Veldrid.SceneGraph
 {
@@ -25,11 +25,11 @@ namespace Veldrid.SceneGraph
     {
         protected List<Tuple<INode, bool>> _children = new List<Tuple<INode, bool>>();
 
-        private ILog _logger;
+        //private ILog _logger;
         
         protected Group()
         {
-            _logger = LogManager.GetLogger<Group>();
+            //_logger = LogManager.GetLogger<Group>();
         }
 
         public static IGroup Create()
@@ -58,7 +58,7 @@ namespace Veldrid.SceneGraph
             
             if (_children.Exists(x => x.Item1.Id == child.Id))
             {
-                _logger.Error(m => m($"Child [{child.Id}] already exists in group!"));
+                //_logger.Error(m => m($"Child [{child.Id}] already exists in group!"));
                 return false;
             }
 

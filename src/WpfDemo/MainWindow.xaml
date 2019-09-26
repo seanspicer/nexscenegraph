@@ -1,0 +1,38 @@
+﻿<Window x:Class="WpfDemo.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfDemo"
+        xmlns:wpf1="clr-namespace:Veldrid.SceneGraph.Wpf;assembly=Veldrid.SceneGraph.Wpf"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="525">
+    <Grid>
+        <wpf1:VeldridSceneGraphControl 
+            x:Name="VSGElement"
+            SceneRoot="{Binding SceneRoot}"
+            CameraManipulator="{Binding CameraManipulator}"
+            EventHandler="{Binding EventHandler}">
+        </wpf1:VeldridSceneGraphControl>
+        
+        <Canvas>
+        
+             <TextBlock Canvas.Left="9" Canvas.Top="8" 
+                        FontSize="18" Margin="12" Foreground="LightGray" FontFamily="Verdana"
+                       Text="{Binding ElementName=VSGElement, Path=FrameInfo}" FontWeight="ExtraBold">
+                 <TextBlock.Effect>
+                     <DropShadowEffect ShadowDepth="0"
+                                       Color="Black"
+                                       Opacity="1"
+                                       BlurRadius="5"/>
+                 </TextBlock.Effect>
+             </TextBlock>
+        </Canvas>
+        
+    </Grid>
+    
+    <!-- <wpf:VeldridSceneGraphHwndControl  -->
+    <!--     SceneRoot="{Binding SceneRoot}"  -->
+    <!--     CameraManipulator="{Binding CameraManipulator}" -->
+    <!--     EventHandler="{Binding EventHandler}"/> -->
+</Window>

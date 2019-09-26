@@ -21,7 +21,7 @@ using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
-using Common.Logging;
+//using Common.Logging;
 using Veldrid;
 using Veldrid.OpenGLBinding;
 using Veldrid.SceneGraph.InputAdapter;
@@ -123,7 +123,7 @@ namespace Veldrid.SceneGraph.Viewer
 
         private SDL_EventFilter ResizeEventFilter = null;
 
-        private ILog _logger;
+        //private ILog _logger;
         
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -146,7 +146,7 @@ namespace Veldrid.SceneGraph.Viewer
         //
         protected unsafe SimpleViewer(string title)
         {
-            _logger = LogManager.GetLogger<SimpleViewer>();
+            //_logger = LogManager.GetLogger<SimpleViewer>();
             
             // Create Subjects
             _viewerInputEvents = new Subject<IInputStateSnapshot>();
@@ -321,7 +321,7 @@ namespace Veldrid.SceneGraph.Viewer
 #if DEBUG
             options.Debug = true;
 #endif
-            _logger.Info(m => m($"Creating Graphics Device with {_preferredBackend} Backend"));
+            //_logger.Info(m => m($"Creating Graphics Device with {_preferredBackend} Backend"));
             
             _graphicsDevice = VeldridStartup.CreateGraphicsDevice(_window, options, _preferredBackend);
             bool isDirect3DSupported = GraphicsDevice.IsBackendSupported(GraphicsBackend.Direct3D11);

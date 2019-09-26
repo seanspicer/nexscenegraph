@@ -20,14 +20,14 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
-using Common.Logging;
+//using Common.Logging;
 using Veldrid.MetalBindings;
 using Veldrid.SceneGraph.RenderGraph;
 using Veldrid.SceneGraph.Util;
 
 namespace Veldrid.SceneGraph.Viewer
 {
-    public class Renderer : IGraphicsDeviceOperation
+    internal class Renderer : IGraphicsDeviceOperation
     {
         private IUpdateVisitor _updateVisitor;
         private ICullVisitor _cullVisitor;
@@ -39,7 +39,8 @@ namespace Veldrid.SceneGraph.Viewer
         private CommandList _commandList;
         private ResourceLayout _resourceLayout;
         private ResourceSet _resourceSet;
-
+        private Fence _fence;
+        
         private bool _initialized = false;
 
         private RenderInfo _renderInfo;
@@ -48,14 +49,14 @@ namespace Veldrid.SceneGraph.Viewer
 
         private List<Tuple<uint, ResourceSet>> _defaultResourceSets = new List<Tuple<uint, ResourceSet>>();
 
-        private ILog _logger;
+        //private ILog _logger;
         
         public Renderer(ICamera camera)
         {
             _camera = camera;
             _updateVisitor = UpdateVisitor.Create();
             _cullVisitor = CullVisitor.Create();
-            _logger = LogManager.GetLogger<Renderer>();
+            //_logger = LogManager.GetLogger<Renderer>();
         }
 
         private void Initialize(GraphicsDevice device, ResourceFactory factory)
@@ -94,7 +95,7 @@ namespace Veldrid.SceneGraph.Viewer
             _renderInfo.ResourceLayout = _resourceLayout;
             _renderInfo.ResourceSet = _resourceSet;
 
-            //_fence = factory.CreateFence(false);
+            _fence = factory.CreateFence(false);
 
             _defaultResourceSets.Add(Tuple.Create((uint)0, _resourceSet));
             
@@ -159,9 +160,9 @@ namespace Veldrid.SceneGraph.Viewer
         private void Draw(GraphicsDevice device)
         {
             // TODO - this doesn't work on Metal
-            //device.ResetFence(_fence);
+            device.ResetFence(_fence);
             
-            device.SubmitCommands(_commandList);
+            device.SubmitCommands(_commandList, _fence);
             device.WaitForIdle();
         }
 
@@ -178,7 +179,7 @@ namespace Veldrid.SceneGraph.Viewer
             
             foreach (var state in _cullVisitor.OpaqueRenderGroup.GetStateList())
             {
-                var ri = state.GetPipelineAndResources(device, factory, _resourceLayout);
+                var ri = state.GetPipelineAndResources(device, factory, _resourceLayout, device.SwapchainFramebuffer);
                 
                 _commandList.SetPipeline(ri.Pipeline);
                 
@@ -281,7 +282,7 @@ namespace Veldrid.SceneGraph.Viewer
 
                     if (null == lastState || state != lastState)
                     {
-                        ri = state.GetPipelineAndResources(device, factory, _resourceLayout);
+                        ri = state.GetPipelineAndResources(device, factory, _resourceLayout, device.SwapchainFramebuffer);
 
                         // Set this state's pipeline
                         _commandList.SetPipeline(ri.Pipeline);
@@ -343,10 +344,10 @@ namespace Veldrid.SceneGraph.Viewer
         public void HandleOperation(GraphicsDevice device, ResourceFactory factory)
         {
             // TODO - this doesn't work on Metal
-            //if (null != _fence)
-            //{
-            //    device.WaitForFence(_fence);
-            //}
+            if (null != _fence)
+            {
+                device.WaitForFence(_fence);
+            }
             
             if (!_initialized)
             {
@@ -379,12 +380,12 @@ namespace Veldrid.SceneGraph.Viewer
             
             var postSwap = _stopWatch.ElapsedMilliseconds;
             
-            _logger.Trace(m => m(string.Format("Update = {0} ms, Cull = {1} ms, Record = {2}, Draw = {3} ms, Swap = {4} ms",
-                postUpdate, 
-                postCull-postUpdate,
-                postRecord-postCull,
-                postDraw-postRecord,
-                postSwap-postDraw)));
+//            _logger.Trace(m => m(string.Format("Update = {0} ms, Cull = {1} ms, Record = {2}, Draw = {3} ms, Swap = {4} ms",
+//                postUpdate, 
+//                postCull-postUpdate,
+//                postRecord-postCull,
+//                postDraw-postRecord,
+//                postSwap-postDraw)));
         }
     }
 }

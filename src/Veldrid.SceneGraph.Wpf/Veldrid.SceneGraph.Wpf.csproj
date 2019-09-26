@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <TargetFramework>net48</TargetFramework>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Veldrid.SceneGraph\Veldrid.SceneGraph.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Remove="NewFile1.txt" />
+    </ItemGroup>
+    <ItemGroup>
+      <Page Update="VeldridSceneGraphHwndControl.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </Page>
+    </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
+      <PackageReference Include="SharpDX.Direct3D9" Version="4.2.0" />
+      <PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
+    </ItemGroup>
+</Project>
