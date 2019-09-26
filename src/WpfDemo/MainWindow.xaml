@@ -8,12 +8,12 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        <wpf1:VeldridSceneGraphElement 
+        <wpf1:VeldridSceneGraphControl 
             x:Name="VSGElement"
             SceneRoot="{Binding SceneRoot}"
             CameraManipulator="{Binding CameraManipulator}"
             EventHandler="{Binding EventHandler}">
-        </wpf1:VeldridSceneGraphElement>
+        </wpf1:VeldridSceneGraphControl>
         
         <Canvas>
         
@@ -31,7 +31,7 @@
         
     </Grid>
     
-    <!-- <wpf:VeldridSceneGraphControl  -->
+    <!-- <wpf:VeldridSceneGraphHwndControl  -->
     <!--     SceneRoot="{Binding SceneRoot}"  -->
     <!--     CameraManipulator="{Binding CameraManipulator}" -->
     <!--     EventHandler="{Binding EventHandler}"/> -->

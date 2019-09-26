@@ -11,7 +11,7 @@
       <None Remove="NewFile1.txt" />
     </ItemGroup>
     <ItemGroup>
-      <Page Update="VeldridSceneGraphControl.xaml">
+      <Page Update="VeldridSceneGraphHwndControl.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
     </ItemGroup>

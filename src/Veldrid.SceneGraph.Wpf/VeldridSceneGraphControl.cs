@@ -12,7 +12,7 @@ using Veldrid.Utilities;
 
 namespace Veldrid.SceneGraph.Wpf
 {
-    public class VeldridSceneGraphElement : DXElement
+    public class VeldridSceneGraphControl : DXElement
     {
         private ISubject<IGroup> _sceneDataSubject;
         private ISubject<ICameraManipulator> _cameraManipulatorSubject;
@@ -36,7 +36,7 @@ namespace Veldrid.SceneGraph.Wpf
         
         private bool ShouldHandleKeyEvents { get; set; }
         
-        public VeldridSceneGraphElement()
+        public VeldridSceneGraphControl()
         {
             _sceneDataSubject = new ReplaySubject<IGroup>();
             _cameraManipulatorSubject = new ReplaySubject<ICameraManipulator>();
@@ -272,7 +272,7 @@ namespace Veldrid.SceneGraph.Wpf
         #region SceneRoot Property
         
         public static readonly DependencyProperty SceneRootProperty = 
-            DependencyProperty.Register("SceneRoot", typeof(IGroup), typeof(VeldridSceneGraphElement), 
+            DependencyProperty.Register("SceneRoot", typeof(IGroup), typeof(VeldridSceneGraphControl), 
                 new PropertyMetadata(Group.Create(), new PropertyChangedCallback(OnSetSceneRootChanged)));  
         public IGroup SceneRoot 
         {
@@ -281,8 +281,8 @@ namespace Veldrid.SceneGraph.Wpf
         }
         
         private static void OnSetSceneRootChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {  
-            var element = d as VeldridSceneGraphElement;  
-            element?.SetSceneRoot(e);  
+            var vsgControl = d as VeldridSceneGraphControl;  
+            vsgControl?.SetSceneRoot(e);  
         }  
         private void SetSceneRoot(DependencyPropertyChangedEventArgs e) {  
             _sceneDataSubject.OnNext((IGroup) e.NewValue); 
@@ -293,7 +293,7 @@ namespace Veldrid.SceneGraph.Wpf
         #region CameraManipulatorProperty
         
         public static readonly DependencyProperty CameraManipulatorProperty = 
-            DependencyProperty.Register("CameraManipulator", typeof(ICameraManipulator), typeof(VeldridSceneGraphElement), 
+            DependencyProperty.Register("CameraManipulator", typeof(ICameraManipulator), typeof(VeldridSceneGraphControl), 
                 new PropertyMetadata(TrackballManipulator.Create(), new PropertyChangedCallback(OnCameraManipulatorChanged)));  
 
         public ICameraManipulator CameraManipulator 
@@ -303,8 +303,8 @@ namespace Veldrid.SceneGraph.Wpf
         }
         
         private static void OnCameraManipulatorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {  
-            var element = d as VeldridSceneGraphElement;  
-            element?.SetCameraManipulator(e);  
+            var vsgControl = d as VeldridSceneGraphControl;  
+            vsgControl?.SetCameraManipulator(e);  
         } 
         
         private void SetCameraManipulator(DependencyPropertyChangedEventArgs e) {  
@@ -315,7 +315,7 @@ namespace Veldrid.SceneGraph.Wpf
         
         #region EventHandlerProperty
         public static readonly DependencyProperty EventHandlerProperty = 
-            DependencyProperty.Register("EventHandler", typeof(IInputEventHandler), typeof(VeldridSceneGraphElement), 
+            DependencyProperty.Register("EventHandler", typeof(IInputEventHandler), typeof(VeldridSceneGraphControl), 
                 new PropertyMetadata(null, new PropertyChangedCallback(OnEventHandlerChanged)));  
 
         public IInputEventHandler EventHandler 
@@ -325,8 +325,8 @@ namespace Veldrid.SceneGraph.Wpf
         }
         
         private static void OnEventHandlerChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {  
-            var element = d as VeldridSceneGraphElement;  
-            element?.SetEventHandler(e);  
+            var vsgControl = d as VeldridSceneGraphControl;  
+            vsgControl?.SetEventHandler(e);  
         } 
         
         private void SetEventHandler(DependencyPropertyChangedEventArgs e) {  
