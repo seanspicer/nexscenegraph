@@ -54,7 +54,7 @@ namespace Veldrid.SceneGraph.IO
             Vector3 center = new Vector3(0.0f);
             
             var vertices = new List<VertexPositionTextureColorNormal>();
-            var indices = new RawList<uint>();
+            var indices = new List<uint>();
 
             VertexCount = 0;
             IndexCount = 0;
@@ -126,7 +126,7 @@ namespace Veldrid.SceneGraph.IO
             }
 
             geometry.VertexData = vertices.ToArray();
-            geometry.IndexData = indices.Items;
+            geometry.IndexData = indices.ToArray();
 
             geometry.VertexLayout = new VertexLayoutDescription(
                 new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
