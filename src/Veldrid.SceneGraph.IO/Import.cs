@@ -144,6 +144,26 @@ namespace Veldrid.SceneGraph.IO
                 0);
             
             geometry.PrimitiveSets.Add(pSet);
+
+            // TODO - Come back to this to handle transparency
+            // Partitioning
+//            var b = 48u;
+//            var nFaces = geometry.IndexData.Length / b;
+//            for (uint i = 0; i < nFaces; ++i)
+//            {
+//                var pSet = DrawElements<VertexPositionTextureColorNormal>.Create(
+//                    geometry, 
+//                    PrimitiveTopology.TriangleList,
+//                    b, 
+//                    1, 
+//                    i*b, 
+//                    0, 
+//                    0);
+//                
+//                geometry.PrimitiveSets.Add(pSet);
+//            }
+            
+            
             
             var geode = Geode.Create();
             geode.AddDrawable(geometry);
