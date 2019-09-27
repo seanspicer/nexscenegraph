@@ -206,7 +206,7 @@ namespace Veldrid.SceneGraph.Wpf
                     
                     _commandList.SetVertexBuffer(0, element.VertexBuffer);
                     
-                    _commandList.SetIndexBuffer(element.IndexBuffer, IndexFormat.UInt16);
+                    _commandList.SetIndexBuffer(element.IndexBuffer, IndexFormat.UInt32);
                     
                     _commandList.SetGraphicsResourceSet(0, _resourceSet);
 
@@ -318,7 +318,7 @@ namespace Veldrid.SceneGraph.Wpf
                     if (boundIndexBuffer != renderGroupElement.IndexBuffer)
                     {
                         // Set index buffer
-                        _commandList.SetIndexBuffer(renderGroupElement.IndexBuffer, IndexFormat.UInt16);
+                        _commandList.SetIndexBuffer(renderGroupElement.IndexBuffer, IndexFormat.UInt32);
                         boundIndexBuffer = renderGroupElement.IndexBuffer;
                     }
                     
