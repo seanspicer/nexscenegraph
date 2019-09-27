@@ -36,8 +36,6 @@ namespace Veldrid.SceneGraph.IO
             PostProcessSteps.FlipWindingOrder | PostProcessSteps.Triangulate | PostProcessSteps.PreTransformVertices
             | PostProcessSteps.CalculateTangentSpace | PostProcessSteps.GenerateSmoothNormals;
         
-        
-
         public IndexFormat IndexFormat { get; private set; } = IndexFormat.UInt32;
         
         public uint IndexCount { get; private set; }
@@ -51,7 +49,7 @@ namespace Veldrid.SceneGraph.IO
             parts.Clear();
             parts.Count = (uint)pScene.Meshes.Count;
 
-            Vector3 scale = new Vector3(1.0f);
+            Vector3 scale = new Vector3(1.0f, 1.0f, 1.0f);
             Vector2 uvscale = new Vector2(1.0f);
             Vector3 center = new Vector3(0.0f);
             
@@ -90,7 +88,7 @@ namespace Veldrid.SceneGraph.IO
                         new Vector3(
                         
                             pPos.X * scale.X + center.X,
-                            -pPos.Y * scale.Y + center.Y,
+                            pPos.Y * scale.Y + center.Y,
                             pPos.Z * scale.Z + center.Z
                         ), 
                         new Vector2(pTexCoord.X * uvscale.X,pTexCoord.Y * uvscale.Y),

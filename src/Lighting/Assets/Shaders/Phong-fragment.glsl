@@ -20,5 +20,5 @@ void main()
         ISpecular = (vec4(0.5f, 0.5f, 0.5f, 1.0f) * pow(clamp(dot(Reflected, Eye), 0.0f, 100000), 16.0f)) * specular;
     }
 
-    fsout_color = vec4(1.0f, 0.0f, 0.0f, 1.0f); //(IAmbient + IDiffuse) * vec4(fsin_color, 1.0f) + ISpecular;
+    fsout_color = (IAmbient + IDiffuse) * vec4(fsin_color, 1.0f) + ISpecular;
 }

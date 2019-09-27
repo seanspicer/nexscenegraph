@@ -18,7 +18,7 @@ namespace Lighting
         {
             Bootstrapper.Configure();
             
-            var viewer = SimpleViewer.Create("Textured Cube Scene Graph");
+            var viewer = SimpleViewer.Create("Phong Shaded Dragon Scene Graph");
             viewer.SetCameraManipulator(TrackballManipulator.Create());
 
             var root = Group.Create();
