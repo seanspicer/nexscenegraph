@@ -37,11 +37,19 @@ void main()
 {
     vec4 LightPos = vec4(0,0,0,1);
     vec4 v4Pos = vec4(Position, 1);
-    fsin_normal = Normal;
     fsin_color = Color;
     gl_Position = field_Projection * field_View * (field_Model * v4Pos);
-    vec4 eyePos = field_View * field_Model * v4Pos;
-    fsin_eyePos = eyePos.xyz;
-    vec4 eyeLightPos = field_View * LightPos;
-    fsin_lightVec = normalize(LightPos.xyz - fsin_eyePos);
+    
+    vec3 vertexPosition_cameraspace = ( field_View * field_Model * v4Pos).xyz;
+    vec3 EyeDirection_cameraspace = vec3(0,0,0) - vertexPosition_cameraspace;
+    
+    vec3 LightPosition_cameraspace = vec3(0, 0, 0); //( field_View * field_Model * vec4(0,0,100,1)).xyz;
+    vec3 LightDirection_cameraspace = LightPosition_cameraspace + EyeDirection_cameraspace;
+    
+    vec3 Normal_cameraspace = ( field_View * transpose(inverse(field_Model)) * vec4(Normal,0)).xyz;
+    
+    fsin_eyePos = vec3(0,0,0);
+    fsin_normal = Normal_cameraspace;
+    fsin_lightVec = LightDirection_cameraspace;
+    
 }

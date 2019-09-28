@@ -8,17 +8,46 @@ layout(location = 0) out vec4 fsout_color;
 
 void main()
 {
-    vec3 Eye = normalize(-fsin_eyePos);
-    vec3 Reflected = normalize(reflect(-fsin_lightVec, fsin_normal));
-    vec4 IAmbient = vec4(0.1f, 0.1f, 0.1f, 1.0f);
-    float diff = clamp(dot(fsin_normal, fsin_lightVec), 0.f, 100000);
-    vec4 IDiffuse = vec4(diff, diff, diff, diff);
-    float specular = 0.75f;
-    vec4 ISpecular = vec4(0.0f, 0.0f, 0.0f, 0.0f);
-    if (dot(fsin_eyePos, fsin_normal) < 0.0)
-    {
-        ISpecular = (vec4(0.5f, 0.5f, 0.5f, 1.0f) * pow(clamp(dot(Reflected, Eye), 0.0f, 100000), 16.0f)) * specular;
-    }
+    // Inputs
+    vec3 n = normalize(fsin_normal);
+    vec3 l = normalize(fsin_lightVec);
+    vec3 e = normalize(fsin_eyePos);
 
-    fsout_color = (IAmbient + IDiffuse) * vec4(fsin_color, 1.0f) + ISpecular;
+    vec3 LightColor = vec3(1,1,1);
+    vec3 MaterialSpecularColor = vec3(1.0, 1.0, 1.0);
+    float LightPower = 30;
+    float SpecularPower = 10;
+    
+    vec3 MaterialDiffuseColor = fsin_color;
+    vec3 MaterialAmbientColor = vec3(0.1,0.1,0.1) * MaterialDiffuseColor;
+    
+    // Compute the Light Power and Attenuation
+    vec3 LightPowerVec = vec3(LightPower, LightPower, LightPower);
+    float distance = distance(vec3(0,0,0), fsin_lightVec);
+    float oneOverDistanceSquared = 1.0f/(distance);
+    vec3 Attenuation = vec3(oneOverDistanceSquared, oneOverDistanceSquared, oneOverDistanceSquared);
+
+    // Compute the Diffuse Shading Modifiers
+    float cosTheta = clamp( dot( n,l ), 0,1 );
+    vec3 CosThetaVec = vec3(cosTheta, cosTheta, cosTheta);
+    
+    // Eye vector (towards the camera)
+    vec3 E = l;
+    
+    // Direction in which the triangle reflects the light
+    vec3 R = reflect(-l,n);
+    
+    // Cosine of the angle between the Eye vector and the Reflect vector
+    float cosAlpha = clamp( dot( E,R ), 0,1 );
+    
+    // Compute the specular width
+    float powCosAlpha = pow(cosAlpha, SpecularPower);
+    vec3 SpecularWidthVec = vec3(powCosAlpha,powCosAlpha,powCosAlpha);
+    
+    vec3 color = MaterialAmbientColor + 
+                 MaterialDiffuseColor * LightColor * LightPowerVec * CosThetaVec * Attenuation + 
+                 MaterialSpecularColor * LightColor * LightPowerVec * SpecularWidthVec * Attenuation;
+    
+    fsout_color = vec4(color, 0.2f);
+
 }

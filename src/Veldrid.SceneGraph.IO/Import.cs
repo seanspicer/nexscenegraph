@@ -93,7 +93,7 @@ namespace Veldrid.SceneGraph.IO
                         ), 
                         new Vector2(pTexCoord.X * uvscale.X,pTexCoord.Y * uvscale.Y),
                         new Vector3(pColor.R, pColor.G, pColor.B),
-                        new Vector3(pNormal.X, -pNormal.Y, pNormal.Z));
+                        new Vector3(pNormal.X, pNormal.Y, pNormal.Z));
                     
                     vertices.Add(vertex);
                     
