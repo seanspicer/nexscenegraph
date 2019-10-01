@@ -23,10 +23,11 @@ namespace Veldrid.SceneGraph
         ShaderDescription? VertexShaderDescription { get; set; }
         ShaderDescription? FragmentShaderDescription { get; set; }
         IReadOnlyList<ITexture2D> TextureList { get; }
+        IReadOnlyList<IBindable> UniformList { get; }
         BlendStateDescription BlendStateDescription { get; set; }
         DepthStencilStateDescription DepthStencilState { get; set; }
         RasterizerStateDescription RasterizerStateDescription { get; set; }
-
         void AddTexture(ITexture2D texture);
+        void AddUniform(IBindable uniform);
     }
 }

@@ -25,7 +25,7 @@ namespace Veldrid.SceneGraph
     public class Geometry<T> : Drawable, IGeometry<T> where T : struct, IPrimitiveElement
     {
         public T[] VertexData { get; set; }
-        public int SizeOfVertexData => Marshal.SizeOf(default(T));
+        private int SizeOfVertexData => Marshal.SizeOf(default(T));
         
         public uint[] IndexData { get; set; }
         

@@ -23,9 +23,12 @@ namespace Veldrid.SceneGraph
         public ShaderDescription? VertexShaderDescription { get; set; }
         public ShaderDescription? FragmentShaderDescription { get; set; }
         
-        private List<ITexture2D> _textureList = new List<ITexture2D>();
+        private readonly List<ITexture2D> _textureList = new List<ITexture2D>();
         public IReadOnlyList<ITexture2D> TextureList => _textureList;
 
+        private readonly List<IBindable> _uniformList = new List<IBindable>();
+        public IReadOnlyList<IBindable> UniformList => _uniformList;
+        
         public BlendStateDescription BlendStateDescription { get; set; } = BlendStateDescription.SingleOverrideBlend;
 
         public DepthStencilStateDescription DepthStencilState { get; set; } =
@@ -46,6 +49,11 @@ namespace Veldrid.SceneGraph
         public void AddTexture(ITexture2D texture)
         {
             _textureList.Add(texture);
+        }
+        
+        public void AddUniform(IBindable uniform)
+        {
+            _uniformList.Add(uniform);
         }
     }
 }

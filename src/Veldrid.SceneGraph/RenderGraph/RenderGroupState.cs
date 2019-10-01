@@ -71,30 +71,14 @@ namespace Veldrid.SceneGraph.RenderGraph
 
             var alignment = graphicsDevice.UniformBufferMinOffsetAlignment;
             
-            var stride = 1u;
             var multiplier = 64u;
             if (alignment > 64u)
             {
                 multiplier = alignment;
-                stride = alignment / 64u;
             }
             
-            var buffsize = nDrawables*stride;
-            
-            var modelMatrixViewBuffer = new Matrix4x4[buffsize];
-            
-            for(var i=0; i<nDrawables; i++)
-            {
-                modelMatrixViewBuffer[i*stride] = Elements[i].ModelViewMatrix;
-            }
-            
-            // TODO - this shouldn't be allocated here!
-            //var modelMatrixBuffer = Matrix4x4.Identity;
             ri.ModelViewBuffer =
                 resourceFactory.CreateBuffer(new BufferDescription(multiplier*nDrawables, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
-            
-            graphicsDevice.UpdateBuffer(ri.ModelViewBuffer, 0, modelMatrixViewBuffer);
-            // TODO - this shouldn't be allocated here!
             
             resourceLayoutElementDescriptionList.Add(
                 new ResourceLayoutElementDescription("Model", ResourceKind.UniformBuffer, ShaderStages.Vertex, ResourceLayoutElementOptions.DynamicBinding));
@@ -122,6 +106,16 @@ namespace Veldrid.SceneGraph.RenderGraph
 
                 bindableResourceList.Add(textureView);
                 bindableResourceList.Add(graphicsDevice.Aniso4xSampler);
+            }
+
+            foreach (var uniform in PipelineState.UniformList)
+            {
+                var deviceBuffer = uniform.ConfigureDeviceBuffers(graphicsDevice, resourceFactory);
+                
+                resourceLayoutElementDescriptionList.Add(uniform.ResourceLayoutElementDescription);
+                
+                bindableResourceList.Add(uniform.DeviceBufferRange);
+                
             }
 
             ri.ResourceLayout = resourceFactory.CreateResourceLayout(
