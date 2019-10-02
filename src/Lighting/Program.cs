@@ -41,8 +41,30 @@ namespace Lighting
             var root = Group.Create();
 
             var model = CreateDragonModel();
+
+            var left = MatrixTransform.Create(Matrix4x4.CreateTranslation(-10f, 0f, 0f));
+            var right = MatrixTransform.Create(Matrix4x4.CreateTranslation(10f, 0f, 0f));
+
+            left.AddChild(model);
+            right.AddChild(model);
+
+            left.PipelineState = CreateHeadlightState(
+                Vector3.One, 
+                100,
+                Vector3.One,
+                30);
             
-            root.AddChild(model);
+            right.PipelineState = CreateHeadlightState(
+                new Vector3(1.0f, 1.0f, 0.0f), 
+                50,
+                Vector3.One,
+                5);
+            
+            var sceneGroup = Group.Create();
+            sceneGroup.AddChild(left);
+            sceneGroup.AddChild(right);
+            
+            root.AddChild(sceneGroup);
 
             viewer.SetSceneData(root);
             viewer.ViewAll();            
@@ -76,6 +98,17 @@ namespace Lighting
                 var importer = new Import();
                 result = importer.LoadColladaModel(dragonModelStream);
             }
+            
+            return result;
+        }
+
+        private static IPipelineState CreateHeadlightState(
+            Vector3 lightColor, 
+            float lightPower, 
+            Vector3 specularColor,
+            float specularPower)
+        {
+            var pso = PipelineState.Create();
 
             var uniform = Uniform<LightData>.Create(
                 "LightData",
@@ -85,25 +118,31 @@ namespace Lighting
             var lights = new LightData[]
             {
                 new LightData(
-                    new Vector3(1.0f, 1.0f, 1.0f), 
-                    30f, 
-                    new Vector3(1.0f, 1.0f, 1.0f),
-                    10f)
+                    lightColor, 
+                    lightPower, 
+                    specularColor,
+                    specularPower)
             };
 
             uniform.UniformData = lights;
             
+            pso.AddUniform(uniform);
+
+            Headlight_Common(ref pso);
+            
+            return pso;
+        }
+
+        private static void Headlight_Common(ref IPipelineState pso)
+        {
             var vtxShader =
                 new ShaderDescription(ShaderStages.Vertex, ReadEmbeddedAssetBytes(@"Lighting.Assets.Shaders.Phong-vertex.glsl"), "main");
             
             var frgShader =
                 new ShaderDescription(ShaderStages.Fragment, ReadEmbeddedAssetBytes(@"Lighting.Assets.Shaders.Phong-fragment.glsl"), "main");
-
-            result.PipelineState.AddUniform(uniform);
-            result.PipelineState.VertexShaderDescription = vtxShader;
-            result.PipelineState.FragmentShaderDescription = frgShader;
             
-            return result;
+            pso.VertexShaderDescription = vtxShader;
+            pso.FragmentShaderDescription = frgShader;
         }
     }
 }
