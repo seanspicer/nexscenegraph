@@ -16,12 +16,16 @@ namespace Lighting
     public struct LightData
     {
         public Vector3 LightColor;
-        private float LightPower;
+        public float LightPower;
+        public Vector3 SpecularColor;
+        public float SpecularPower;
 
-        public LightData(Vector3 lightColor, float lightPower)
+        public LightData(Vector3 lightColor, float lightPower, Vector3 specularColor, float specularPower)
         {
             LightColor = lightColor;
             LightPower = lightPower;
+            SpecularColor = specularColor;
+            SpecularPower = specularPower;
         }
     }
     
@@ -80,7 +84,11 @@ namespace Lighting
             
             var lights = new LightData[]
             {
-                new LightData(new Vector3(1.0f, 1.0f, 1.0f), 30f), 
+                new LightData(
+                    new Vector3(1.0f, 1.0f, 1.0f), 
+                    30f, 
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    10f)
             };
 
             uniform.UniformData = lights;

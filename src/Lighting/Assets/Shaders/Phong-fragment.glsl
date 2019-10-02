@@ -6,6 +6,8 @@ layout(location = 2) in vec3 fsin_eyePos;
 layout(location = 3) in vec3 fsin_lightVec;
 layout(location = 4) in vec3 fsin_light_color;
 layout(location = 5) in float fsin_light_power;
+layout(location = 6) in vec3 fsin_specular_color;
+layout(location = 7) in float fsin_specular_power;
 
 layout(location = 0) out vec4 fsout_color;
 
@@ -17,9 +19,9 @@ void main()
     vec3 e = normalize(fsin_eyePos);
 
     vec3 LightColor = fsin_light_color;
-    vec3 MaterialSpecularColor = vec3(1.0, 1.0, 1.0);
+    vec3 MaterialSpecularColor = fsin_specular_color;
     float LightPower = fsin_light_power;
-    float SpecularPower = 10;
+    float SpecularPower = fsin_specular_power;
     
     vec3 MaterialDiffuseColor = fsin_color;
     vec3 MaterialAmbientColor = vec3(0.1,0.1,0.1) * MaterialDiffuseColor;
@@ -51,6 +53,6 @@ void main()
                  MaterialDiffuseColor * LightColor * LightPowerVec * CosThetaVec * Attenuation + 
                  MaterialSpecularColor * LightColor * LightPowerVec * SpecularWidthVec * Attenuation;
     
-    fsout_color = vec4(color, 0.2f);
+    fsout_color = vec4(color, 1.0f);
 
 }

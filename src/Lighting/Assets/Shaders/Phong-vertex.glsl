@@ -28,6 +28,8 @@ layout(set = 1, binding = 1) uniform LightData
 {
     vec3 light_color;
     float light_power;
+    vec3 specular_color;
+    float specular_power;
 };
 
 layout(location = 0) in vec3 Position;
@@ -40,6 +42,8 @@ layout(location = 2) out vec3 fsin_eyePos;
 layout(location = 3) out vec3 fsin_lightVec;
 layout(location = 4) out vec3 fsin_light_color;
 layout(location = 5) out float fsin_light_power;
+layout(location = 6) out vec3 fsin_specular_color;
+layout(location = 7) out float fsin_specular_power;
 
 void main()
 {
@@ -61,5 +65,6 @@ void main()
     fsin_lightVec = LightDirection_cameraspace;
     fsin_light_color = light_color;
     fsin_light_power = light_power;
-    
+    fsin_specular_color = specular_color;
+    fsin_specular_power = specular_power;
 }
