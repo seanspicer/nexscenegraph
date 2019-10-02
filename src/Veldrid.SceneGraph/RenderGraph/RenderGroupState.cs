@@ -110,12 +110,12 @@ namespace Veldrid.SceneGraph.RenderGraph
 
             foreach (var uniform in PipelineState.UniformList)
             {
-                var deviceBuffer = uniform.ConfigureDeviceBuffers(graphicsDevice, resourceFactory);
+                uniform.ConfigureDeviceBuffers(graphicsDevice, resourceFactory);
                 
                 resourceLayoutElementDescriptionList.Add(uniform.ResourceLayoutElementDescription);
                 
                 bindableResourceList.Add(uniform.DeviceBufferRange);
-                
+
             }
 
             ri.ResourceLayout = resourceFactory.CreateResourceLayout(

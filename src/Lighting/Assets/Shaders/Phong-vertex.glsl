@@ -24,6 +24,12 @@ layout(set = 1, binding = 0) uniform Model
     mat4 field_Model;
 };
 
+layout(set = 1, binding = 1) uniform LightData
+{
+    vec3 light_color;
+    float light_power;
+};
+
 layout(location = 0) in vec3 Position;
 layout(location = 1) in vec2 UV;
 layout(location = 2) in vec3 Color;
@@ -32,6 +38,8 @@ layout(location = 0) out vec3 fsin_normal;
 layout(location = 1) out vec3 fsin_color;
 layout(location = 2) out vec3 fsin_eyePos;
 layout(location = 3) out vec3 fsin_lightVec;
+layout(location = 4) out vec3 fsin_light_color;
+layout(location = 5) out float fsin_light_power;
 
 void main()
 {
@@ -51,5 +59,7 @@ void main()
     fsin_eyePos = vec3(0,0,0);
     fsin_normal = Normal_cameraspace;
     fsin_lightVec = LightDirection_cameraspace;
+    fsin_light_color = light_color;
+    fsin_light_power = light_power;
     
 }

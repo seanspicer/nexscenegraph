@@ -5,7 +5,7 @@ using SharpDX.DXGI;
 
 namespace Veldrid.SceneGraph
 {
-    internal class Uniform<T> : IUniform<T> where T : struct
+    public class Uniform<T> : IUniform<T> where T : struct
     {
         public T[] UniformData { get; set; }
         
@@ -35,6 +35,12 @@ namespace Veldrid.SceneGraph
         {
             BufferUsage = bufferUsage;
             ShaderStages = shaderStages;
+            
+            ResourceLayoutElementDescription = new ResourceLayoutElementDescription(
+                name, 
+                ResourceKind.UniformBuffer, 
+                ShaderStages);
+
         }
 
 
@@ -46,7 +52,7 @@ namespace Veldrid.SceneGraph
             var uniformBuffer = factory.CreateBuffer(BufferDescription);
             
             device.UpdateBuffer(uniformBuffer, 0, UniformData.ToArray());
-
+            
             DeviceBufferRange = new DeviceBufferRange(uniformBuffer, 0, bufsize);
             
             return uniformBuffer;

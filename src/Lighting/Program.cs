@@ -4,6 +4,7 @@ using System.Numerics;
 using System.Reflection;
 using AssetPrimitives;
 using Examples.Common;
+using SixLabors.ImageSharp;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
@@ -12,6 +13,18 @@ using Veldrid.SceneGraph.IO;
 
 namespace Lighting
 {
+    public struct LightData
+    {
+        public Vector3 LightColor;
+        private float LightPower;
+
+        public LightData(Vector3 lightColor, float lightPower)
+        {
+            LightColor = lightColor;
+            LightPower = lightPower;
+        }
+    }
+    
     class Program
     {
         static void Main(string[] args)
@@ -60,12 +73,25 @@ namespace Lighting
                 result = importer.LoadColladaModel(dragonModelStream);
             }
 
+            var uniform = Uniform<LightData>.Create(
+                "LightData",
+                BufferUsage.UniformBuffer | BufferUsage.Dynamic,
+                ShaderStages.Vertex);
+            
+            var lights = new LightData[]
+            {
+                new LightData(new Vector3(1.0f, 1.0f, 1.0f), 30f), 
+            };
+
+            uniform.UniformData = lights;
+            
             var vtxShader =
                 new ShaderDescription(ShaderStages.Vertex, ReadEmbeddedAssetBytes(@"Lighting.Assets.Shaders.Phong-vertex.glsl"), "main");
             
             var frgShader =
                 new ShaderDescription(ShaderStages.Fragment, ReadEmbeddedAssetBytes(@"Lighting.Assets.Shaders.Phong-fragment.glsl"), "main");
 
+            result.PipelineState.AddUniform(uniform);
             result.PipelineState.VertexShaderDescription = vtxShader;
             result.PipelineState.FragmentShaderDescription = frgShader;
             
