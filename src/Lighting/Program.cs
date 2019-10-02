@@ -2,6 +2,7 @@
 using System.IO;
 using System.Numerics;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using AssetPrimitives;
 using Examples.Common;
 using SixLabors.ImageSharp;
@@ -13,19 +14,35 @@ using Veldrid.SceneGraph.IO;
 
 namespace Lighting
 {
+    [StructLayout(LayoutKind.Sequential, Pack=1)]
     public struct LightData
     {
-        public Vector3 LightColor;
+        public Vector3 MaterialColor;
         public float LightPower;
-        public Vector3 SpecularColor;
+        public Vector3 LightColor;
         public float SpecularPower;
+        public Vector3 SpecularColor;
+        public int MaterialOverride;
+        
+        public float Padding1;
+        public float Padding2;
+        public float Padding3;
+        public float Padding4;
 
-        public LightData(Vector3 lightColor, float lightPower, Vector3 specularColor, float specularPower)
+        public LightData(Vector3 lightColor, float lightPower, Vector3 specularColor, float specularPower,
+            Vector3 materialColor, int materialOverride = 0)
         {
+            MaterialOverride = materialOverride;
+            MaterialColor = materialColor;
             LightColor = lightColor;
             LightPower = lightPower;
             SpecularColor = specularColor;
             SpecularPower = specularPower;
+
+            Padding1 = 0f;
+            Padding2 = 0f;
+            Padding3 = 0f;
+            Padding4 = 0f;
         }
     }
     
@@ -120,7 +137,7 @@ namespace Lighting
         {
             var pso = PipelineState.Create();
 
-            pso.AddUniform(CreateLight(lightColor, lightPower, specularColor, specularPower));
+            pso.AddUniform(CreateLight(lightColor, lightPower, specularColor, specularPower, Vector3.One));
 
             Headlight_Common(ref pso);
             
@@ -141,17 +158,21 @@ namespace Lighting
             {
                 // Left Light
                 new LightData(
-                    new Vector3(0.0f, 1.0f, 0.0f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
                     100,
                     new Vector3(1.0f, 1.0f, 1.0f),
-                    5)
+                    5,
+                    new Vector3(0.0f, 1.0f, 0.0f),
+                1)
                 ,
                 // Right Light
                 new LightData(
-                    new Vector3(0.0f, 0.0f, 1.0f),
-                    100,
                     new Vector3(1.0f, 1.0f, 1.0f),
-                    5) 
+                    50,
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    50,
+                    new Vector3(0.0f, 0.0f, 1.0f),
+                    1) 
                 
             };
 
@@ -162,10 +183,12 @@ namespace Lighting
             return pso;
         }
 
-        private static IBindable CreateLight(Vector3 lightColor, 
-            float lightPower, 
+        private static IBindable CreateLight(Vector3 lightColor,
+            float lightPower,
             Vector3 specularColor,
-            float specularPower)
+            float specularPower,
+            Vector3 materialColor,
+            int materialOverride = 0)
         {
             var uniform = Uniform<LightData>.Create(
                 "LightData",
@@ -178,7 +201,9 @@ namespace Lighting
                     lightColor, 
                     lightPower, 
                     specularColor,
-                    specularPower)
+                    specularPower,
+                    materialColor, 
+                    materialOverride)
             };
 
             uniform.UniformData = lights;
