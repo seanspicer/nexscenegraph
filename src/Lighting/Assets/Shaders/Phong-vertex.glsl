@@ -9,6 +9,13 @@ layout(set = 0, binding = 0) uniform UBO
     vec4 LightPos;
 };*/
 
+struct LightDataStruct {
+    vec3 light_color;
+    float light_power;
+    vec3 specular_color;
+    float specular_power;
+};
+
 layout(set = 0, binding = 0) uniform Projection
 {
     mat4 field_Projection;
@@ -26,10 +33,7 @@ layout(set = 1, binding = 0) uniform Model
 
 layout(set = 1, binding = 1) uniform LightData
 {
-    vec3 light_color;
-    float light_power;
-    vec3 specular_color;
-    float specular_power;
+    LightDataStruct ld;
 };
 
 layout(location = 0) in vec3 Position;
@@ -63,8 +67,8 @@ void main()
     fsin_eyePos = vec3(0,0,0);
     fsin_normal = Normal_cameraspace;
     fsin_lightVec = LightDirection_cameraspace;
-    fsin_light_color = light_color;
-    fsin_light_power = light_power;
-    fsin_specular_color = specular_color;
-    fsin_specular_power = specular_power;
+    fsin_light_color = ld.light_color;
+    fsin_light_power = ld.light_power;
+    fsin_specular_color = ld.specular_color;
+    fsin_specular_power = ld.specular_power;
 }

@@ -28,7 +28,10 @@ namespace Veldrid.SceneGraph
 
         private readonly List<IBindable> _uniformList = new List<IBindable>();
         public IReadOnlyList<IBindable> UniformList => _uniformList;
-        
+
+        private readonly Dictionary<IDrawable, IBindable> _uniformDictionary = new Dictionary<IDrawable, IBindable>();
+        public Dictionary<IDrawable, IBindable> UniformDictionary => _uniformDictionary;
+
         public BlendStateDescription BlendStateDescription { get; set; } = BlendStateDescription.SingleOverrideBlend;
 
         public DepthStencilStateDescription DepthStencilState { get; set; } =
@@ -55,5 +58,11 @@ namespace Veldrid.SceneGraph
         {
             _uniformList.Add(uniform);
         }
+
+        public void AddUniform(IDrawable drawable, IBindable uniform)
+        {
+            _uniformDictionary.Add(drawable, uniform);
+        }
+        
     }
 }

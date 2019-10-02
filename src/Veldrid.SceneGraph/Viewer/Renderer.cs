@@ -171,12 +171,12 @@ namespace Veldrid.SceneGraph.Viewer
         private void DrawOpaqueRenderGroups(GraphicsDevice device, ResourceFactory factory)
         {
             var alignment = device.UniformBufferMinOffsetAlignment;
-            var modelBuffStride = 64u;
+            var modelViewMatrixObjSizeInBytes = 64u;
             var hostBuffStride = 1u;
             if (alignment > 64u)
             {
                 hostBuffStride = alignment / 64u;
-                modelBuffStride = alignment;
+                modelViewMatrixObjSizeInBytes = alignment;
             }
             
             foreach (var state in _cullVisitor.OpaqueRenderGroup.GetStateList())
@@ -196,7 +196,14 @@ namespace Veldrid.SceneGraph.Viewer
                 for(var i=0; i<nDrawables; ++i)
                 {
                     var element = state.Elements[i];
-                    var offset = (uint)i*modelBuffStride;
+                    var offsetsList = new List<uint>();
+
+                    foreach (var stride in ri.UniformStrides)
+                    {
+                        offsetsList.Add((uint)i*stride);
+                    }
+                    
+                    var offsets = offsetsList.ToArray();
                     
                     _commandList.SetVertexBuffer(0, element.VertexBuffer);
                     
@@ -204,7 +211,7 @@ namespace Veldrid.SceneGraph.Viewer
                     
                     _commandList.SetGraphicsResourceSet(0, _resourceSet);
 
-                    _commandList.SetGraphicsResourceSet(1, ri.ResourceSet, 1, ref offset);
+                    _commandList.SetGraphicsResourceSet(1, ri.ResourceSet, offsets);
            
                     foreach (var primitiveSet in element.PrimitiveSets)
                     {

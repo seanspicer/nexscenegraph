@@ -28,6 +28,12 @@ namespace Veldrid.SceneGraph.RenderGraph
         public ResourceLayout ResourceLayout;
         public ResourceSet ResourceSet;
         public DeviceBuffer ModelViewBuffer;
+        public List<uint> UniformStrides;
+
+        public RenderInfo()
+        {
+            UniformStrides = new List<uint>();
+        }
     }
     
     public class RenderGroupState : IRenderGroupState
@@ -71,20 +77,22 @@ namespace Veldrid.SceneGraph.RenderGraph
 
             var alignment = graphicsDevice.UniformBufferMinOffsetAlignment;
             
-            var multiplier = 64u;
+            var modelViewMatrixObjSizeInBytes = 64u;
             if (alignment > 64u)
             {
-                multiplier = alignment;
+                modelViewMatrixObjSizeInBytes = alignment;
             }
             
+            ri.UniformStrides.Add(modelViewMatrixObjSizeInBytes);
+            
             ri.ModelViewBuffer =
-                resourceFactory.CreateBuffer(new BufferDescription(multiplier*nDrawables, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
+                resourceFactory.CreateBuffer(new BufferDescription(modelViewMatrixObjSizeInBytes*nDrawables, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
             
             resourceLayoutElementDescriptionList.Add(
                 new ResourceLayoutElementDescription("Model", ResourceKind.UniformBuffer, ShaderStages.Vertex, ResourceLayoutElementOptions.DynamicBinding));
 
             //bindableResourceList.Add(ri.ModelViewBuffer);
-            bindableResourceList.Add(new DeviceBufferRange(ri.ModelViewBuffer, 0, multiplier));
+            bindableResourceList.Add(new DeviceBufferRange(ri.ModelViewBuffer, 0, modelViewMatrixObjSizeInBytes));
             
             // Process Attached Textures
             foreach (var tex2d in PipelineState.TextureList)
@@ -116,6 +124,10 @@ namespace Veldrid.SceneGraph.RenderGraph
                 
                 bindableResourceList.Add(uniform.DeviceBufferRange);
 
+                if (uniform.ResourceLayoutElementDescription.Options == ResourceLayoutElementOptions.DynamicBinding)
+                {
+                    ri.UniformStrides.Add(uniform.DeviceBufferRange.SizeInBytes);
+                }
             }
 
             ri.ResourceLayout = resourceFactory.CreateResourceLayout(

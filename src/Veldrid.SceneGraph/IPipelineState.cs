@@ -29,5 +29,6 @@ namespace Veldrid.SceneGraph
         RasterizerStateDescription RasterizerStateDescription { get; set; }
         void AddTexture(ITexture2D texture);
         void AddUniform(IBindable uniform);
+        void AddUniform(IDrawable drawable, IBindable uniform);
     }
 }

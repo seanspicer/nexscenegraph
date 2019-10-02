@@ -42,27 +42,37 @@ namespace Lighting
 
             var model = CreateDragonModel();
 
-            var left = MatrixTransform.Create(Matrix4x4.CreateTranslation(-10f, 0f, 0f));
-            var right = MatrixTransform.Create(Matrix4x4.CreateTranslation(10f, 0f, 0f));
+            var leftTop = MatrixTransform.Create(Matrix4x4.CreateTranslation(-10f, 10f, 0f));
+            var rightTop = MatrixTransform.Create(Matrix4x4.CreateTranslation(10f, 10f, 0f));
 
-            left.AddChild(model);
-            right.AddChild(model);
+            var leftBottom = MatrixTransform.Create(Matrix4x4.CreateTranslation(-10f, -10f, 0f));
+            var rightBottom = MatrixTransform.Create(Matrix4x4.CreateTranslation(10f, -10f, 0f));
+            
+            leftTop.AddChild(model);
+            rightTop.AddChild(model);
+            
+            leftBottom.AddChild(model);
+            rightBottom.AddChild(model);
 
-            left.PipelineState = CreateHeadlightState(
+            leftTop.PipelineState = CreateHeadlightState(
                 Vector3.One, 
                 100,
                 Vector3.One,
                 30);
             
-            right.PipelineState = CreateHeadlightState(
+            rightTop.PipelineState = CreateHeadlightState(
                 new Vector3(1.0f, 1.0f, 0.0f), 
                 50,
                 Vector3.One,
                 5);
             
             var sceneGroup = Group.Create();
-            sceneGroup.AddChild(left);
-            sceneGroup.AddChild(right);
+            sceneGroup.AddChild(leftTop);
+            sceneGroup.AddChild(rightTop);
+            sceneGroup.AddChild(leftBottom);
+            sceneGroup.AddChild(rightBottom);
+
+            sceneGroup.PipelineState = CreateSharedHeadlightState();
             
             root.AddChild(sceneGroup);
 
@@ -110,6 +120,53 @@ namespace Lighting
         {
             var pso = PipelineState.Create();
 
+            pso.AddUniform(CreateLight(lightColor, lightPower, specularColor, specularPower));
+
+            Headlight_Common(ref pso);
+            
+            return pso;
+        }
+
+        private static IPipelineState CreateSharedHeadlightState()
+        {
+            var pso = PipelineState.Create();
+            
+            var uniform = Uniform<LightData>.Create(
+                "LightData",
+                BufferUsage.UniformBuffer | BufferUsage.Dynamic,
+                ShaderStages.Vertex, 
+                ResourceLayoutElementOptions.DynamicBinding);
+            
+            var lights = new LightData[]
+            {
+                // Left Light
+                new LightData(
+                    new Vector3(0.0f, 1.0f, 0.0f),
+                    100,
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    5)
+                ,
+                // Right Light
+                new LightData(
+                    new Vector3(0.0f, 0.0f, 1.0f),
+                    100,
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    5) 
+                
+            };
+
+            uniform.UniformData = lights;
+            pso.AddUniform(uniform);
+            
+            Headlight_Common(ref pso);
+            return pso;
+        }
+
+        private static IBindable CreateLight(Vector3 lightColor, 
+            float lightPower, 
+            Vector3 specularColor,
+            float specularPower)
+        {
             var uniform = Uniform<LightData>.Create(
                 "LightData",
                 BufferUsage.UniformBuffer | BufferUsage.Dynamic,
@@ -125,12 +182,8 @@ namespace Lighting
             };
 
             uniform.UniformData = lights;
-            
-            pso.AddUniform(uniform);
 
-            Headlight_Common(ref pso);
-            
-            return pso;
+            return uniform;
         }
 
         private static void Headlight_Common(ref IPipelineState pso)
