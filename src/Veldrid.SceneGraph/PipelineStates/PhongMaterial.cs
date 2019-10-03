@@ -102,16 +102,18 @@ namespace Veldrid.SceneGraph.PipelineStates
     {
         private IPhongMaterialParameters _material;
         private PhongLight _light0;
-        
-        public static IPhongMaterial Create(IPhongMaterialParameters p, PhongLight light0)
+        private bool _overrideColor;
+
+        public static IPhongMaterial Create(IPhongMaterialParameters p, PhongLight light0, bool overrideColor = true)
         {
-            return new PhongMaterial(p, light0);
+            return new PhongMaterial(p, light0, overrideColor);
         }
 
-        internal PhongMaterial(IPhongMaterialParameters p, PhongLight light0)
+        internal PhongMaterial(IPhongMaterialParameters p, PhongLight light0, bool overrideColor)
         {
             _material = p;
             _light0 = light0;
+            _overrideColor = overrideColor;
         }
 
         public IPipelineState CreatePipelineState()
@@ -173,7 +175,7 @@ namespace Veldrid.SceneGraph.PipelineStates
                     DiffuseColor = _material.DiffuseColor,
                     Padding0 = 0f,
                     SpecularColor = _material.SpecularColor,
-                    MaterialOverride = 1,
+                    MaterialOverride = _overrideColor ? 1 : 0,
                     Padding2 = Vector4.Zero
                 }
             };

@@ -55,10 +55,6 @@ layout(location = 0) out vec3 fsin_normal;
 layout(location = 1) out vec3 fsin_color;
 layout(location = 2) out vec3 fsin_eyePos;
 layout(location = 3) out vec3 fsin_lightVec;
-layout(location = 4) out vec3 fsin_light_color;
-layout(location = 5) out float fsin_light_power;
-layout(location = 6) out vec3 fsin_specular_color;
-layout(location = 7) out float fsin_specular_power;
 
 void main()
 {
@@ -76,21 +72,18 @@ void main()
     {
         LightPosition_cameraspace = ( field_View * field_Model * lightSource.Position).xyz;
     }
-    
     vec3 LightDirection_cameraspace = LightPosition_cameraspace + EyeDirection_cameraspace;
+    
     vec3 Normal_cameraspace = ( field_View * transpose(inverse(field_Model)) * vec4(Normal,0)).xyz;
     
-    if(1 == materialDesc.MaterialOverride) {
-       fsin_color = materialDesc.AmbientColor;
-    } else {
-       fsin_color = Color;
-    }
+    //if(1 == materialDesc.MaterialOverride) {
+    //   fsin_color = materialDesc.AmbientColor;
+    //} else {
+    //   fsin_color = Color;
+    //}
     
+    fsin_color = Color;
     fsin_eyePos = vec3(0,0,0);
     fsin_normal = Normal_cameraspace;
     fsin_lightVec = LightDirection_cameraspace;
-    fsin_light_color = lightSource.AmbientColor;
-    fsin_light_power = lightSource.LightPower;
-    fsin_specular_color = lightSource.SpecularColor;
-    fsin_specular_power = materialDesc.Shininess;
 }

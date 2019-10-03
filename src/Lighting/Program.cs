@@ -82,26 +82,42 @@ namespace Lighting
             leftBottom.AddChild(model);
             rightBottom.AddChild(model);
 
-            var leftTopMaterial = PhongMaterial.Create(
+            var flatYellowMaterial = PhongMaterial.Create(
                 PhongMaterialParameters.Create(
                     new Vector3(1.0f, 1.0f, 0.0f),
                     new Vector3(1.0f, 1.0f, 0.0f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    20),
+                PhongPositionalLight.Create( new Vector4(0, 100, 0, 0), PhongLightParameters.Create(
+                    new Vector3(0.2f, 0.2f, 0.2f),
+                    new Vector3(0.2f, 0.2f, 0.2f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    300f,
+                    2)));
+            
+            var shinyRedGoldMaterial = PhongMaterial.Create(
+                PhongMaterialParameters.Create(
                     new Vector3(1.0f, 1.0f, 0.0f),
-                    10),
+                    new Vector3(1.0f, 1.0f, 0.0f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    5),
                 PhongHeadlight.Create(PhongLightParameters.Create(
-                    Vector3.One,
-                    Vector3.One,
-                    Vector3.One,
-                    0.5f,
-                    0)));
+                    new Vector3(0.1f, 0.1f, 0.1f),
+                    new Vector3(1.0f, 1.0f, 0.0f),
+                    new Vector3(1.0f, 1.0f, 0.0f),
+                    50f,
+                    1)),
+                false);
             
-            leftTop.PipelineState = leftTopMaterial.CreatePipelineState();
+            leftTop.PipelineState = flatYellowMaterial.CreatePipelineState();
+            rightTop.PipelineState = shinyRedGoldMaterial.CreatePipelineState();
             
-            rightTop.PipelineState = CreateHeadlightState(
-                new Vector3(1.0f, 1.0f, 0.0f), 
-                50,
-                Vector3.One,
-                5);
+            
+//            rightTop.PipelineState = CreateHeadlightState(
+//                new Vector3(1.0f, 1.0f, 0.0f), 
+//                50,
+//                Vector3.One,
+//                5);
             
             var sceneGroup = Group.Create();
             sceneGroup.AddChild(leftTop);
