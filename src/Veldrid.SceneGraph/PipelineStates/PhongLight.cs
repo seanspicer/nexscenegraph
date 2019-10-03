@@ -14,26 +14,26 @@
 // limitations under the License.
 //
 
+using System;
+using System.Dynamic;
 using System.Numerics;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 
 namespace Veldrid.SceneGraph.PipelineStates
 {
-    public enum PhongLightAttenuation
-    {
-        Constant,
-        Linear, 
-        Quadratic
-    }
-
     public interface IPhongLightParameters
     {
         Vector3 AmbientLightColor { get; }
         Vector3 DiffuseLightColor { get; }
         Vector3 SpecularLightColor { get; }
         float LightPower { get; }
-        PhongLightAttenuation Attenuation { get; }
+        
+        // Set to -1.0 = error
+        // Set to  0.0 = constant
+        // Set to  1.0 = linear
+        // Set to  2.0 = quadratic
+        float AttenuationConstant { get; }
     }
     
     public class PhongLightParameters : IPhongLightParameters
@@ -42,7 +42,8 @@ namespace Veldrid.SceneGraph.PipelineStates
         public Vector3 DiffuseLightColor { get; }
         public Vector3 SpecularLightColor { get; }
         public float LightPower { get; }
-        public PhongLightAttenuation Attenuation { get; }
+        
+        public float AttenuationConstant { get; }
 
         public static IPhongLightParameters Default()
         {
@@ -50,8 +51,8 @@ namespace Veldrid.SceneGraph.PipelineStates
                 Vector3.One,
                 Vector3.One,
                 Vector3.One,
-                50,
-                PhongLightAttenuation.Constant);
+                1,
+                0);
         }
 
         public static IPhongLightParameters Create(
@@ -59,7 +60,7 @@ namespace Veldrid.SceneGraph.PipelineStates
             Vector3 diffuseLightColor,
             Vector3 specularLightColor,
             float lightPower,
-            PhongLightAttenuation attenuation)
+            float attenuation)
         {
             return new PhongLightParameters(
                 ambientLightColor, 
@@ -74,13 +75,19 @@ namespace Veldrid.SceneGraph.PipelineStates
             Vector3 diffuseLightColor, 
             Vector3 specularLightColor,
             float lightPower,
-            PhongLightAttenuation attenuation)
+            float attenuation)
         {
             AmbientLightColor = ambientLightColor;
             DiffuseLightColor = diffuseLightColor;
             SpecularLightColor = specularLightColor;
             LightPower = lightPower;
-            Attenuation = attenuation;
+
+            if (attenuation < 0)
+            {
+                throw new Exception("Can't have a negative attenuation constant");
+            }
+            
+            AttenuationConstant = attenuation;
 
         }
     }

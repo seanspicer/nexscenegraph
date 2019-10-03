@@ -88,7 +88,12 @@ namespace Lighting
                     new Vector3(1.0f, 1.0f, 0.0f),
                     new Vector3(1.0f, 1.0f, 0.0f),
                     10),
-                PhongHeadlight.Create(PhongLightParameters.Default()));
+                PhongHeadlight.Create(PhongLightParameters.Create(
+                    Vector3.One,
+                    Vector3.One,
+                    Vector3.One,
+                    0.5f,
+                    0)));
             
             leftTop.PipelineState = leftTopMaterial.CreatePipelineState();
             

@@ -81,7 +81,7 @@ namespace Veldrid.SceneGraph.PipelineStates
         public Vector3 AmbientColor;
         public float LightPower;
         public Vector3 DiffuseColor;
-        public int AttenuationConstant;
+        public float AttenuationConstant;
         public Vector3 SpecularColor;
         public int IsHeadlight;
         public Vector4 Position;
@@ -147,7 +147,7 @@ namespace Veldrid.SceneGraph.PipelineStates
                     AmbientColor = _light0.Parameters.AmbientLightColor,
                     LightPower = _light0.Parameters.LightPower,
                     DiffuseColor = _light0.Parameters.DiffuseLightColor,
-                    AttenuationConstant = (int)_light0.Parameters.Attenuation,
+                    AttenuationConstant = _light0.Parameters.AttenuationConstant,
                     SpecularColor = _light0.Parameters.SpecularLightColor,
                     IsHeadlight = _light0 is PhongHeadlight ? 1 : 0,
                     Position = _light0 is PhongPositionalLight light ? light.Position : Vector4.Zero

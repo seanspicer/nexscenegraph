@@ -5,7 +5,7 @@ struct LightSourceStruct {
     vec3 AmbientColor;
     float LightPower;
     vec3 DiffuseColor;
-    int AttenuationConstant;
+    float AttenuationConstant;
     vec3 SpecularColor;
     int IsHeadlight;
     vec4 Position;
@@ -61,7 +61,7 @@ void main()
     // Compute the Light Power and Attenuation
     vec3 LightPowerVec = vec3(LightPower, LightPower, LightPower);
     float distance = distance(vec3(0,0,0), fsin_lightVec);
-    float oneOverDistanceSquared = 1.0f/(distance);
+    float oneOverDistanceSquared = 1.0f/(pow(distance, lightSource.AttenuationConstant));
     vec3 Attenuation = vec3(oneOverDistanceSquared, oneOverDistanceSquared, oneOverDistanceSquared);
 
     // Compute the Diffuse Shading Modifiers
