@@ -27,6 +27,7 @@ using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Viewer;
 using Veldrid.SceneGraph.IO;
+using Veldrid.SceneGraph.PipelineStates;
 
 namespace Lighting
 {
@@ -81,11 +82,15 @@ namespace Lighting
             leftBottom.AddChild(model);
             rightBottom.AddChild(model);
 
-            leftTop.PipelineState = CreateHeadlightState(
-                Vector3.One, 
-                80,
-                Vector3.One,
-                30);
+            var leftTopMaterial = PhongMaterial.Create(
+                PhongMaterialParameters.Create(
+                    new Vector3(1.0f, 1.0f, 0.0f),
+                    new Vector3(1.0f, 1.0f, 0.0f),
+                    new Vector3(1.0f, 1.0f, 0.0f),
+                    10),
+                PhongHeadlight.Create(PhongLightParameters.Default()));
+            
+            leftTop.PipelineState = leftTopMaterial.CreatePipelineState();
             
             rightTop.PipelineState = CreateHeadlightState(
                 new Vector3(1.0f, 1.0f, 0.0f), 

@@ -15,7 +15,9 @@
 //
 
 using System.Collections.Generic;
+using System.IO;
 using System.Numerics;
+using System.Reflection;
 
 namespace Veldrid.SceneGraph.PipelineStates
 {
@@ -82,8 +84,7 @@ namespace Veldrid.SceneGraph.PipelineStates
         public int AttenuationConstant;
         public Vector3 SpecularColor;
         public int IsHeadlight;
-        public Vector3 Position;
-        public float Padding0;
+        public Vector4 Position;
     }
     
     internal struct Material
@@ -99,15 +100,15 @@ namespace Veldrid.SceneGraph.PipelineStates
     
     public class PhongMaterial : IPhongMaterial
     {
-        private PhongMaterialParameters _material;
+        private IPhongMaterialParameters _material;
         private PhongLight _light0;
         
-        public static IPhongMaterial Create(PhongMaterialParameters p, PhongLight light0)
+        public static IPhongMaterial Create(IPhongMaterialParameters p, PhongLight light0)
         {
             return new PhongMaterial(p, light0);
         }
 
-        internal PhongMaterial(PhongMaterialParameters p, PhongLight light0)
+        internal PhongMaterial(IPhongMaterialParameters p, PhongLight light0)
         {
             _material = p;
             _light0 = light0;
@@ -115,7 +116,21 @@ namespace Veldrid.SceneGraph.PipelineStates
 
         public IPipelineState CreatePipelineState()
         {
-            throw new System.NotImplementedException();
+            var pso = PipelineState.Create();
+
+            var vtxShader =
+                new ShaderDescription(ShaderStages.Vertex, ReadEmbeddedAssetBytes(@"Veldrid.SceneGraph.Assets.Shaders.Phong-vertex.glsl"), "main");
+            
+            var frgShader =
+                new ShaderDescription(ShaderStages.Fragment, ReadEmbeddedAssetBytes(@"Veldrid.SceneGraph.Assets.Shaders.Phong-fragment.glsl"), "main");
+            
+            pso.VertexShaderDescription = vtxShader;
+            pso.FragmentShaderDescription = frgShader;
+            
+            pso.AddUniform(CreateLightSourceUniform());
+            pso.AddUniform(CreateMaterialUniform());
+            
+            return pso;
         }
 
         private IBindable CreateLightSourceUniform()
@@ -135,7 +150,7 @@ namespace Veldrid.SceneGraph.PipelineStates
                     AttenuationConstant = (int)_light0.Parameters.Attenuation,
                     SpecularColor = _light0.Parameters.SpecularLightColor,
                     IsHeadlight = _light0 is PhongHeadlight ? 1 : 0,
-                    Position = _light0 is PhongPositionalLight light ? light.Position : Vector3.Zero
+                    Position = _light0 is PhongPositionalLight light ? light.Position : Vector4.Zero
                 }
             };
 
@@ -158,12 +173,27 @@ namespace Veldrid.SceneGraph.PipelineStates
                     DiffuseColor = _material.DiffuseColor,
                     Padding0 = 0f,
                     SpecularColor = _material.SpecularColor,
-                    MaterialOverride = 0,
+                    MaterialOverride = 1,
                     Padding2 = Vector4.Zero
                 }
             };
 
             return materialDescriptionUniform;
+        }
+        
+        public static byte[] ReadEmbeddedAssetBytes(string name)
+        {
+            var asm = Assembly.GetCallingAssembly();
+            
+            using (Stream stream = asm.GetManifestResourceStream(name))
+            {
+                var bytes = new byte[stream.Length];
+                using (MemoryStream ms = new MemoryStream(bytes))
+                {
+                    stream.CopyTo(ms);
+                    return bytes;
+                }
+            }
         }
     }
 }

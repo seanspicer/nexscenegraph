@@ -87,26 +87,26 @@ namespace Veldrid.SceneGraph.PipelineStates
     
     public class PhongHeadlight : PhongLight
     {
-        public static PhongHeadlight Create(PhongLightParameters p)
+        public static PhongHeadlight Create(IPhongLightParameters p)
         {
             return new PhongHeadlight(p);
         }
         
-        internal PhongHeadlight(PhongLightParameters p) : base(p)
+        internal PhongHeadlight(IPhongLightParameters p) : base(p)
         {
         }
     }
     
     public class PhongPositionalLight : PhongLight
     {
-        public Vector3 Position { get; private set; }
+        public Vector4 Position { get; private set; }
         
-        public static PhongPositionalLight Create(Vector3 position, PhongLightParameters p)
+        public static PhongPositionalLight Create(Vector4 position, IPhongLightParameters p)
         {
             return new PhongPositionalLight(position, p);
         }
         
-        internal PhongPositionalLight(Vector3 position, PhongLightParameters p) : base(p)
+        internal PhongPositionalLight(Vector4 position, IPhongLightParameters p) : base(p)
         {
             Position = position;
         }
@@ -114,9 +114,9 @@ namespace Veldrid.SceneGraph.PipelineStates
     
     public abstract class PhongLight
     {
-        public PhongLightParameters Parameters { get; private set; }
+        public IPhongLightParameters Parameters { get; private set; }
         
-        internal PhongLight(PhongLightParameters p)
+        internal PhongLight(IPhongLightParameters p)
         {
             Parameters = p;
         }
