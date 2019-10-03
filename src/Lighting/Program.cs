@@ -14,7 +14,7 @@ using Veldrid.SceneGraph.IO;
 
 namespace Lighting
 {
-    //[StructLayout(LayoutKind.Sequential, Pack=2)]
+    [StructLayout(LayoutKind.Sequential, Pack=1)]
     public struct LightData
     {
         public Vector3 LightColor;
