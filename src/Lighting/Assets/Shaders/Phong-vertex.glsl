@@ -1,27 +1,16 @@
 #version 450
 
-/*
-layout(set = 0, binding = 0) uniform UBO
-{
-    mat4 Projection;
-    mat4 View;
-    mat4 Model;
-    vec4 LightPos;
-};*/
-
 struct LightDataStruct {
 
-    vec3 material_color;
-    float light_power;
     vec3 light_color;
-    float specular_power;
+    float light_power;
     vec3 specular_color;
+    float specular_power;
+    vec3 material_color;
     int material_override;
     
-    float padding1;
-    float padding2;
-    float padding3;
-    float padding4;
+    vec4 padding;
+    
 };
 
 layout(set = 0, binding = 0) uniform Projection
@@ -61,11 +50,7 @@ void main()
 {
     vec4 LightPos = vec4(0,0,0,1);
     vec4 v4Pos = vec4(Position, 1);
-    if(1 == ld.material_override) {
-       fsin_color = ld.material_color;
-    } else {
-        fsin_color = Color;
-    }
+    
     gl_Position = field_Projection * field_View * (field_Model * v4Pos);
     
     vec3 vertexPosition_cameraspace = ( field_View * field_Model * v4Pos).xyz;
@@ -75,6 +60,12 @@ void main()
     vec3 LightDirection_cameraspace = LightPosition_cameraspace + EyeDirection_cameraspace;
     
     vec3 Normal_cameraspace = ( field_View * transpose(inverse(field_Model)) * vec4(Normal,0)).xyz;
+    
+    if(1 == ld.material_override) {
+       fsin_color = ld.material_color;
+    } else {
+       fsin_color = Color;
+    }
     
     fsin_eyePos = vec3(0,0,0);
     fsin_normal = Normal_cameraspace;

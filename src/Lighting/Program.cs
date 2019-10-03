@@ -14,35 +14,29 @@ using Veldrid.SceneGraph.IO;
 
 namespace Lighting
 {
-    [StructLayout(LayoutKind.Sequential, Pack=1)]
+    //[StructLayout(LayoutKind.Sequential, Pack=2)]
     public struct LightData
     {
-        public Vector3 MaterialColor;
-        public float LightPower;
         public Vector3 LightColor;
-        public float SpecularPower;
+        public float LightPower;
         public Vector3 SpecularColor;
+        public float SpecularPower;
+        public Vector3 MaterialColor;
         public int MaterialOverride;
         
-        public float Padding1;
-        public float Padding2;
-        public float Padding3;
-        public float Padding4;
+        public Vector4 Padding;
 
         public LightData(Vector3 lightColor, float lightPower, Vector3 specularColor, float specularPower,
             Vector3 materialColor, int materialOverride = 0)
         {
-            MaterialOverride = materialOverride;
-            MaterialColor = materialColor;
             LightColor = lightColor;
             LightPower = lightPower;
             SpecularColor = specularColor;
             SpecularPower = specularPower;
+            MaterialColor = materialColor;
+            MaterialOverride = materialOverride;
 
-            Padding1 = 0f;
-            Padding2 = 0f;
-            Padding3 = 0f;
-            Padding4 = 0f;
+            Padding = Vector4.Zero;
         }
     }
     
@@ -73,7 +67,7 @@ namespace Lighting
 
             leftTop.PipelineState = CreateHeadlightState(
                 Vector3.One, 
-                100,
+                80,
                 Vector3.One,
                 30);
             
@@ -159,10 +153,10 @@ namespace Lighting
                 // Left Light
                 new LightData(
                     new Vector3(1.0f, 1.0f, 1.0f),
-                    100,
+                    80,
                     new Vector3(1.0f, 1.0f, 1.0f),
                     5,
-                    new Vector3(0.0f, 1.0f, 0.0f),
+                    new Vector3(0.0f, 0.8f, 0.0f),
                 1)
                 ,
                 // Right Light

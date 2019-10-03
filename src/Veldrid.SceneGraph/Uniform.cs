@@ -71,7 +71,7 @@ namespace Veldrid.SceneGraph
             
             device.UpdateBuffer(uniformBuffer, 0, uniformBufferStaging);
             
-            DeviceBufferRange = new DeviceBufferRange(uniformBuffer, 0, (uint)uniformObjSizeInBytes);
+            DeviceBufferRange = new DeviceBufferRange(uniformBuffer, 0, uniformObjSizeInBytes);
             
             return uniformBuffer;
         }
