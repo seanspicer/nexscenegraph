@@ -5,11 +5,12 @@ struct LightSourceStruct {
     vec3 AmbientColor;
     float LightPower;
     vec3 DiffuseColor;
-    int AttenuationConstant;
+    float AttenuationConstant;
     vec3 SpecularColor;
     int IsHeadlight;
     vec4 Position;
 };
+
 
 struct MaterialDescStruct {
 
@@ -19,7 +20,7 @@ struct MaterialDescStruct {
     float Padding0;
     vec3 SpecularColor;
     int MaterialOverride;
-    vec3 Padding2;
+    vec4 Padding1;
 };
 
 layout(set = 0, binding = 0) uniform Projection
@@ -51,10 +52,13 @@ layout(location = 0) in vec3 Position;
 layout(location = 1) in vec2 UV;
 layout(location = 2) in vec3 Color;
 layout(location = 3) in vec3 Normal;
+
 layout(location = 0) out vec3 fsin_normal;
 layout(location = 1) out vec3 fsin_color;
 layout(location = 2) out vec3 fsin_eyePos;
 layout(location = 3) out vec3 fsin_lightVec;
+layout(location = 4) out LightSourceStruct fsin_lightSource; 
+layout(location = 12) out MaterialDescStruct fsin_materialDesc;
 
 void main()
 {
@@ -76,14 +80,10 @@ void main()
     
     vec3 Normal_cameraspace = ( field_View * transpose(inverse(field_Model)) * vec4(Normal,0)).xyz;
     
-    //if(1 == materialDesc.MaterialOverride) {
-    //   fsin_color = materialDesc.AmbientColor;
-    //} else {
-    //   fsin_color = Color;
-    //}
-    
     fsin_color = Color;
     fsin_eyePos = vec3(0,0,0);
     fsin_normal = Normal_cameraspace;
     fsin_lightVec = LightDirection_cameraspace;
+    fsin_lightSource = lightSource;
+    fsin_materialDesc = materialDesc;
 }
