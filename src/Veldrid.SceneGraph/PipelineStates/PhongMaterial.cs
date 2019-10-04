@@ -83,7 +83,7 @@ namespace Veldrid.SceneGraph.PipelineStates
         public Vector3 DiffuseColor;
         public float AttenuationConstant;
         public Vector3 SpecularColor;
-        public int IsHeadlight;
+        public float IsHeadlight;
         public Vector4 Position;
     }
     
@@ -94,7 +94,7 @@ namespace Veldrid.SceneGraph.PipelineStates
         public Vector3 DiffuseColor;
         public float Padding0;
         public Vector3 SpecularColor;
-        public int MaterialOverride;
+        public float MaterialOverride;
         public Vector4 Padding1;
     }
     

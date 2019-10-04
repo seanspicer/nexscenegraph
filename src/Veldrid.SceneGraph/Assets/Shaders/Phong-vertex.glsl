@@ -7,10 +7,9 @@ struct LightSourceStruct {
     vec3 DiffuseColor;
     float AttenuationConstant;
     vec3 SpecularColor;
-    int IsHeadlight;
+    float IsHeadlight;
     vec4 Position;
 };
-
 
 struct MaterialDescStruct {
 
@@ -19,8 +18,25 @@ struct MaterialDescStruct {
     vec3 DiffuseColor;
     float Padding0;
     vec3 SpecularColor;
-    int MaterialOverride;
+    float MaterialOverride;
     vec4 Padding1;
+};
+
+struct LightSourceOut {
+    
+    vec4 AmbientColor;
+    vec4 DiffuseColor;
+    vec4 SpecularColor;
+    vec4 Position;
+};
+
+struct MaterialDescOut {
+
+    vec4 AmbientColor;
+    vec4 DiffuseColor;
+    vec4 SpecularColor;
+    vec4 Padding;
+
 };
 
 layout(set = 0, binding = 0) uniform Projection
@@ -57,8 +73,8 @@ layout(location = 0) out vec3 fsin_normal;
 layout(location = 1) out vec3 fsin_color;
 layout(location = 2) out vec3 fsin_eyePos;
 layout(location = 3) out vec3 fsin_lightVec;
-layout(location = 4) out LightSourceStruct fsin_lightSource; 
-layout(location = 12) out MaterialDescStruct fsin_materialDesc;
+layout(location = 4) out LightSourceOut fsin_lightSourceOut; 
+layout(location = 12) out MaterialDescOut fsin_materialDescOut;
 
 void main()
 {
@@ -84,6 +100,14 @@ void main()
     fsin_eyePos = vec3(0,0,0);
     fsin_normal = Normal_cameraspace;
     fsin_lightVec = LightDirection_cameraspace;
-    fsin_lightSource = lightSource;
-    fsin_materialDesc = materialDesc;
+    
+    fsin_lightSourceOut.AmbientColor = vec4(lightSource.AmbientColor, lightSource.LightPower);
+    fsin_lightSourceOut.DiffuseColor = vec4(lightSource.DiffuseColor, lightSource.AttenuationConstant);
+    fsin_lightSourceOut.SpecularColor = vec4(lightSource.SpecularColor, lightSource.IsHeadlight);
+    fsin_lightSourceOut.Position = lightSource.Position;
+    
+    fsin_materialDescOut.AmbientColor = vec4(materialDesc.AmbientColor, materialDesc.Shininess);
+    fsin_materialDescOut.DiffuseColor = vec4(materialDesc.DiffuseColor, materialDesc.MaterialOverride);
+    fsin_materialDescOut.SpecularColor = vec4(materialDesc.SpecularColor, 1.0f);
+    fsin_materialDescOut.Padding = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 }
