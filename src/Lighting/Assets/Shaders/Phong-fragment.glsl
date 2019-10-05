@@ -49,7 +49,7 @@ void main()
     float powCosAlpha = pow(cosAlpha, SpecularPower);
     vec3 SpecularWidthVec = vec3(powCosAlpha,powCosAlpha,powCosAlpha);
     
-    vec3 color = MaterialAmbientColor + 
+    vec3 color = MaterialAmbientColor +
                  MaterialDiffuseColor * LightColor * LightPowerVec * CosThetaVec * Attenuation + 
                  MaterialSpecularColor * LightColor * LightPowerVec * SpecularWidthVec * Attenuation;
     

@@ -144,6 +144,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             pd.DepthStencilState = PipelineState.DepthStencilState;
             pd.RasterizerState = PipelineState.RasterizerStateDescription;
 
+            // TODO - cache based on the shader description and reuse shader objects
             if (null != PipelineState.VertexShaderDescription && null != PipelineState.FragmentShaderDescription)
             {
                 Shader[] shaders = resourceFactory.CreateFromSpirv(

@@ -1,7 +1,24 @@
-﻿using System;
+﻿//
+// Copyright 2018 Sean Spicer 
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+using System;
 using System.IO;
 using System.Numerics;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using AssetPrimitives;
 using Examples.Common;
 using SixLabors.ImageSharp;
@@ -10,22 +27,33 @@ using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Viewer;
 using Veldrid.SceneGraph.IO;
+using Veldrid.SceneGraph.PipelineStates;
 
 namespace Lighting
 {
+    [StructLayout(LayoutKind.Sequential, Pack=1)]
     public struct LightData
     {
         public Vector3 LightColor;
         public float LightPower;
         public Vector3 SpecularColor;
         public float SpecularPower;
+        public Vector3 MaterialColor;
+        public int MaterialOverride;
+        
+        public Vector4 Padding;
 
-        public LightData(Vector3 lightColor, float lightPower, Vector3 specularColor, float specularPower)
+        public LightData(Vector3 lightColor, float lightPower, Vector3 specularColor, float specularPower,
+            Vector3 materialColor, int materialOverride = 0)
         {
             LightColor = lightColor;
             LightPower = lightPower;
             SpecularColor = specularColor;
             SpecularPower = specularPower;
+            MaterialColor = materialColor;
+            MaterialOverride = materialOverride;
+
+            Padding = Vector4.Zero;
         }
     }
     
@@ -54,17 +82,42 @@ namespace Lighting
             leftBottom.AddChild(model);
             rightBottom.AddChild(model);
 
-            leftTop.PipelineState = CreateHeadlightState(
-                Vector3.One, 
-                100,
-                Vector3.One,
-                30);
+            var flatYellowMaterial = PhongMaterial.Create(
+                PhongMaterialParameters.Create(
+                    new Vector3(1.0f, 1.0f, 0.0f),
+                    new Vector3(1.0f, 1.0f, 0.0f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    20),
+                PhongPositionalLight.Create( new Vector4(0, 100, 0, 1), PhongLightParameters.Create(
+                    new Vector3(0.2f, 0.2f, 0.2f),
+                    new Vector3(0.2f, 0.2f, 0.2f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    300f,
+                    1)));
             
-            rightTop.PipelineState = CreateHeadlightState(
-                new Vector3(1.0f, 1.0f, 0.0f), 
-                50,
-                Vector3.One,
-                5);
+            var shinyRedGoldMaterial = PhongMaterial.Create(
+                PhongMaterialParameters.Create(
+                    new Vector3(1.0f, 1.0f, 0.0f),
+                    new Vector3(1.0f, 1.0f, 0.0f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    5),
+                PhongHeadlight.Create(PhongLightParameters.Create(
+                    new Vector3(0.1f, 0.1f, 0.1f),
+                    new Vector3(1.0f, 1.0f, 0.0f),
+                    new Vector3(1.0f, 1.0f, 0.0f),
+                    50f,
+                    1)),
+                false);
+            
+            leftTop.PipelineState = flatYellowMaterial.CreatePipelineState();
+            rightTop.PipelineState = shinyRedGoldMaterial.CreatePipelineState();
+            
+            
+//            rightTop.PipelineState = CreateHeadlightState(
+//                new Vector3(1.0f, 1.0f, 0.0f), 
+//                50,
+//                Vector3.One,
+//                5);
             
             var sceneGroup = Group.Create();
             sceneGroup.AddChild(leftTop);
@@ -120,7 +173,7 @@ namespace Lighting
         {
             var pso = PipelineState.Create();
 
-            pso.AddUniform(CreateLight(lightColor, lightPower, specularColor, specularPower));
+            pso.AddUniform(CreateLight(lightColor, lightPower, specularColor, specularPower, Vector3.One));
 
             Headlight_Common(ref pso);
             
@@ -141,17 +194,21 @@ namespace Lighting
             {
                 // Left Light
                 new LightData(
-                    new Vector3(0.0f, 1.0f, 0.0f),
-                    100,
                     new Vector3(1.0f, 1.0f, 1.0f),
-                    5)
+                    80,
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    5,
+                    new Vector3(0.0f, 0.8f, 0.0f),
+                1)
                 ,
                 // Right Light
                 new LightData(
-                    new Vector3(0.0f, 0.0f, 1.0f),
-                    100,
                     new Vector3(1.0f, 1.0f, 1.0f),
-                    5) 
+                    50,
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    50,
+                    new Vector3(0.0f, 0.0f, 1.0f),
+                    1) 
                 
             };
 
@@ -162,10 +219,12 @@ namespace Lighting
             return pso;
         }
 
-        private static IBindable CreateLight(Vector3 lightColor, 
-            float lightPower, 
+        private static IBindable CreateLight(Vector3 lightColor,
+            float lightPower,
             Vector3 specularColor,
-            float specularPower)
+            float specularPower,
+            Vector3 materialColor,
+            int materialOverride = 0)
         {
             var uniform = Uniform<LightData>.Create(
                 "LightData",
@@ -178,7 +237,9 @@ namespace Lighting
                     lightColor, 
                     lightPower, 
                     specularColor,
-                    specularPower)
+                    specularPower,
+                    materialColor, 
+                    materialOverride)
             };
 
             uniform.UniformData = lights;
