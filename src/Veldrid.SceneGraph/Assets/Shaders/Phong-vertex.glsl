@@ -35,7 +35,7 @@ struct MaterialDescOut {
     vec4 AmbientColor;
     vec4 DiffuseColor;
     vec4 SpecularColor;
-    vec4 Padding;
+    vec4 EyeDirection_cameraspace;
 
 };
 
@@ -109,5 +109,5 @@ void main()
     fsin_materialDescOut.AmbientColor = vec4(materialDesc.AmbientColor, materialDesc.Shininess);
     fsin_materialDescOut.DiffuseColor = vec4(materialDesc.DiffuseColor, materialDesc.MaterialOverride);
     fsin_materialDescOut.SpecularColor = vec4(materialDesc.SpecularColor, 1.0f);
-    fsin_materialDescOut.Padding = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+    fsin_materialDescOut.EyeDirection_cameraspace = vec4(EyeDirection_cameraspace, 0.0f);
 }

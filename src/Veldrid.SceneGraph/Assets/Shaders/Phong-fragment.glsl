@@ -35,7 +35,7 @@ struct MaterialDescOut {
     vec4 AmbientColor;
     vec4 DiffuseColor;
     vec4 SpecularColor;
-    vec4 Padding;
+    vec4 EyeDirection_cameraspace;
 
 };
 
@@ -93,7 +93,7 @@ void main()
     vec3 CosThetaVec = vec3(cosTheta, cosTheta, cosTheta);
     
     // Eye vector (towards the camera)
-    vec3 E = l;
+    vec3 E = normalize(fsin_materialDescOut.EyeDirection_cameraspace.xyz);
     
     // Direction in which the triangle reflects the light
     vec3 R = reflect(-l,n);
