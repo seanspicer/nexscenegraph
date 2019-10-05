@@ -83,7 +83,7 @@ namespace Veldrid.SceneGraph.PipelineStates
         public Vector3 DiffuseColor;
         public float AttenuationConstant;
         public Vector3 SpecularColor;
-        public int IsHeadlight;
+        public float IsHeadlight;
         public Vector4 Position;
     }
     
@@ -94,8 +94,8 @@ namespace Veldrid.SceneGraph.PipelineStates
         public Vector3 DiffuseColor;
         public float Padding0;
         public Vector3 SpecularColor;
-        public int MaterialOverride;
-        public Vector4 Padding2;
+        public float MaterialOverride;
+        public Vector4 Padding1;
     }
     
     public class PhongMaterial : IPhongMaterial
@@ -176,7 +176,7 @@ namespace Veldrid.SceneGraph.PipelineStates
                     Padding0 = 0f,
                     SpecularColor = _material.SpecularColor,
                     MaterialOverride = _overrideColor ? 1 : 0,
-                    Padding2 = Vector4.Zero
+                    Padding1 = Vector4.Zero
                 }
             };
 

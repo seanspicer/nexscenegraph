@@ -88,12 +88,12 @@ namespace Lighting
                     new Vector3(1.0f, 1.0f, 0.0f),
                     new Vector3(1.0f, 1.0f, 1.0f),
                     20),
-                PhongPositionalLight.Create( new Vector4(0, 100, 0, 0), PhongLightParameters.Create(
+                PhongPositionalLight.Create( new Vector4(0, 100, 0, 1), PhongLightParameters.Create(
                     new Vector3(0.2f, 0.2f, 0.2f),
                     new Vector3(0.2f, 0.2f, 0.2f),
                     new Vector3(1.0f, 1.0f, 1.0f),
                     300f,
-                    2)));
+                    1)));
             
             var shinyRedGoldMaterial = PhongMaterial.Create(
                 PhongMaterialParameters.Create(
