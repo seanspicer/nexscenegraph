@@ -1,27 +1,5 @@
 #version 450
 
-struct LightSourceStruct {
-
-    vec3 AmbientColor;
-    float LightPower;
-    vec3 DiffuseColor;
-    float AttenuationConstant;
-    vec3 SpecularColor;
-    float IsHeadlight;
-    vec4 Position;
-};
-
-struct MaterialDescStruct {
-
-    vec3 AmbientColor;
-    float Shininess;
-    vec3 DiffuseColor;
-    float Padding0;
-    vec3 SpecularColor;
-    float MaterialOverride;
-    vec4 Padding1;
-};
-
 struct LightSourceOut {
     
     vec4 AmbientColor;
@@ -39,18 +17,6 @@ struct MaterialDescOut {
 
 };
 
-/*
-layout(set = 1, binding = 1) uniform LightSource
-{
-    LightSourceStruct fsin_lightSource;
-};
-
-layout(set = 1, binding = 2) uniform MaterialDescription
-{
-    MaterialDescStruct fsin_materialDesc;
-};
-*/
-
 layout(location = 0) in vec3 fsin_normal;
 layout(location = 1) in vec3 fsin_color;
 layout(location = 2) in vec3 fsin_eyePos;
@@ -67,16 +33,9 @@ void main()
     vec3 l = normalize(fsin_lightVec);
     vec3 e = normalize(fsin_eyePos);
     
-    vec3 MaterialAmbientColor = fsin_materialDescOut.AmbientColor.xyz;
-    vec3 MaterialDiffuseColor = fsin_materialDescOut.DiffuseColor.xyz;
-    vec3 MaterialSpecularColor = fsin_materialDescOut.SpecularColor.xyz;
-    
-    float MaterialOverride = fsin_materialDescOut.DiffuseColor.w;
-    
-    if(0 == MaterialOverride) {
-       MaterialAmbientColor = fsin_color;
-       MaterialDiffuseColor = fsin_color;
-    } 
+    vec3 AmbientColor = fsin_materialDescOut.AmbientColor.xyz;
+    vec3 DiffuseColor = fsin_materialDescOut.DiffuseColor.xyz;
+    vec3 SpecularColor = fsin_materialDescOut.SpecularColor.xyz;
 
     float LightPower = fsin_lightSourceOut.AmbientColor.w;
     float SpecularPower = fsin_materialDescOut.AmbientColor.w;
@@ -105,10 +64,10 @@ void main()
     float powCosAlpha = pow(cosAlpha, SpecularPower);
     vec3 SpecularWidthVec = vec3(powCosAlpha,powCosAlpha,powCosAlpha);
     
-    vec3 color = MaterialAmbientColor * fsin_lightSourceOut.AmbientColor.xyz + 
-                 MaterialDiffuseColor * fsin_lightSourceOut.DiffuseColor.xyz * LightPowerVec * CosThetaVec * Attenuation +
-                 MaterialSpecularColor * fsin_lightSourceOut.SpecularColor.xyz * LightPowerVec * SpecularWidthVec * Attenuation;
+    vec3 color = AmbientColor + 
+                 DiffuseColor * LightPowerVec * CosThetaVec * Attenuation +
+                 SpecularColor * LightPowerVec * SpecularWidthVec * Attenuation;
     
-    fsout_color = vec4(color, 1.0f);//vec4(color, 1.0f);
+    fsout_color = vec4(color, 1.0f);
 
 }

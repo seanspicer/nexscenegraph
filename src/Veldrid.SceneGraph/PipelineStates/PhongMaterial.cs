@@ -170,11 +170,11 @@ namespace Veldrid.SceneGraph.PipelineStates
             {
                 new Material
                 {
-                    AmbientColor = _material.AmbientColor,
+                    AmbientColor = _light0.Parameters.AmbientLightColor*_material.AmbientColor,
                     Shininess = _material.Shininess,
-                    DiffuseColor = _material.DiffuseColor,
+                    DiffuseColor = _light0.Parameters.DiffuseLightColor*_material.DiffuseColor,
                     Padding0 = 0f,
-                    SpecularColor = _material.SpecularColor,
+                    SpecularColor = _light0.Parameters.SpecularLightColor*_material.SpecularColor,
                     MaterialOverride = _overrideColor ? 1 : 0,
                     Padding1 = Vector4.Zero
                 }

@@ -96,6 +96,8 @@ void main()
     
     vec3 Normal_cameraspace = ( field_View * transpose(inverse(field_Model)) * vec4(Normal,0)).xyz;
     
+     
+    
     fsin_color = Color;
     fsin_eyePos = vec3(0,0,0);
     fsin_normal = Normal_cameraspace;
@@ -110,4 +112,9 @@ void main()
     fsin_materialDescOut.DiffuseColor = vec4(materialDesc.DiffuseColor, materialDesc.MaterialOverride);
     fsin_materialDescOut.SpecularColor = vec4(materialDesc.SpecularColor, 1.0f);
     fsin_materialDescOut.EyeDirection_cameraspace = vec4(EyeDirection_cameraspace, 0.0f);
+    
+    if(0 == materialDesc.MaterialOverride) {
+       fsin_materialDescOut.AmbientColor = vec4(fsin_color*lightSource.AmbientColor, materialDesc.Shininess);
+       fsin_materialDescOut.DiffuseColor = vec4(fsin_color*lightSource.DiffuseColor, materialDesc.MaterialOverride);
+    }
 }
