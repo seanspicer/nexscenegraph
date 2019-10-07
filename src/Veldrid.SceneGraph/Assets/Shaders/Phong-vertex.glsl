@@ -31,7 +31,6 @@ struct LightData {
     
     // Values
     vec4 LightVec;
-    vec4 EyeDirection;  // Camera Space
     vec4 Constants;     // [0] = Power; [1] = SpecularPower; [2] = AttenuationConstant
 
 };
