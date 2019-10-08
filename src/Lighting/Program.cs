@@ -27,6 +27,7 @@ using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Viewer;
 using Veldrid.SceneGraph.IO;
+using Veldrid.SceneGraph.Nodes;
 using Veldrid.SceneGraph.PipelineStates;
 
 namespace Lighting
@@ -70,6 +71,12 @@ namespace Lighting
 
             var model = CreateDragonModel();
 
+            var cube = CubeGeometry.Create(CubeGeometry.VertexType.Position3Texture2Color3Normal3,
+                CubeGeometry.TopologyType.IndexedTriangleList);
+            
+            var cubeXForm = MatrixTransform.Create(Matrix4x4.CreateScale(10f, 10f, 10f));
+            cubeXForm.AddChild(cube);
+
             var leftTop = MatrixTransform.Create(Matrix4x4.CreateTranslation(-10f, 10f, 0f));
             var rightTop = MatrixTransform.Create(Matrix4x4.CreateTranslation(10f, 10f, 0f));
 
@@ -79,7 +86,7 @@ namespace Lighting
             leftTop.AddChild(model);
             rightTop.AddChild(model);
             
-            leftBottom.AddChild(model);
+            leftBottom.AddChild(cubeXForm);
             rightBottom.AddChild(model);
 
             var flatYellowMaterial = PhongMaterial.Create(
@@ -103,15 +110,15 @@ namespace Lighting
                     5),
                 PhongHeadlight.Create(PhongLightParameters.Create(
                     new Vector3(0.1f, 0.1f, 0.1f),
-                    new Vector3(1.0f, 1.0f, 0.0f),
-                    new Vector3(1.0f, 1.0f, 0.0f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
                     50f,
                     1)),
-                false);
+                true);
             
             leftTop.PipelineState = flatYellowMaterial.CreatePipelineState();
             rightTop.PipelineState = shinyRedGoldMaterial.CreatePipelineState();
-            
+            cube.PipelineState = shinyRedGoldMaterial.CreatePipelineState();
             
 //            rightTop.PipelineState = CreateHeadlightState(
 //                new Vector3(1.0f, 1.0f, 0.0f), 

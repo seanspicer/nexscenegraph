@@ -93,6 +93,7 @@ void main()
     fsin_eyeDir = EyeDirection_cameraspace;
     fsin_normal = Normal_cameraspace;
     
+    
     fsin_lightData.AmbientColor = vec4(materialDesc.AmbientColor, 1.0f);
     fsin_lightData.DiffuseColor = vec4(materialDesc.DiffuseColor, 1.0f);
     fsin_lightData.SpecularColor = vec4(materialDesc.SpecularColor, 1.0f);
