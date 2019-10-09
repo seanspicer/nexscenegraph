@@ -110,8 +110,8 @@ namespace Lighting
                     5),
                 PhongHeadlight.Create(PhongLightParameters.Create(
                     new Vector3(0.1f, 0.1f, 0.1f),
-                    new Vector3(1.0f, 1.0f, 0.0f),
-                    new Vector3(1.0f, 1.0f, 0.0f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
                     30f,
                     1)),
                 false);

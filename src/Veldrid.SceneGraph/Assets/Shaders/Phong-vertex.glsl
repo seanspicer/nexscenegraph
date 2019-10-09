@@ -71,7 +71,7 @@ layout(location = 3) out LightData fsin_lightData;
 
 void main()
 {
-    vec4 LightPos = vec4(0,0,0,1);
+    //vec4 LightPos = vec4(0,0,0,1);
     vec4 v4Pos = vec4(Position, 1);
     
     gl_Position = field_Projection * field_View * (field_Model * v4Pos);
