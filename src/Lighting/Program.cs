@@ -15,20 +15,24 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using AssetPrimitives;
 using Examples.Common;
+using Microsoft.Extensions.Logging;
+using Serilog.Core;
 using SixLabors.ImageSharp;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Viewer;
 using Veldrid.SceneGraph.IO;
-using Veldrid.SceneGraph.Nodes;
 using Veldrid.SceneGraph.PipelineStates;
+using Veldrid.SceneGraph.Util;
 
 namespace Lighting
 {
@@ -63,6 +67,8 @@ namespace Lighting
         static void Main(string[] args)
         {
             Bootstrapper.Configure();
+
+            var logger = Veldrid.SceneGraph.Logging.LogManager.CreateLogger<Program>();
             
             var viewer = SimpleViewer.Create("Phong Shaded Dragon Scene Graph");
             viewer.SetCameraManipulator(TrackballManipulator.Create());
@@ -71,8 +77,12 @@ namespace Lighting
 
             var model = CreateDragonModel();
 
-            var cube = CubeGeometry.Create(CubeGeometry.VertexType.Position3Texture2Color3Normal3,
-                CubeGeometry.TopologyType.IndexedTriangleList);
+            var geometryFactory = GeometryFactory.Create();
+            
+            var cube = geometryFactory.CreateCube(VertexType.Position3Texture2Color3Normal3,
+                TopologyType.IndexedTriangleList);
+            
+            logger.LogInformation($"Cube Geom is: {cube.Drawables.First().VertexType}");
             
             var cubeXForm = MatrixTransform.Create(Matrix4x4.CreateScale(10f, 10f, 10f));
             cubeXForm.AddChild(cube);

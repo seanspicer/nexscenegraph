@@ -24,6 +24,7 @@ namespace Veldrid.SceneGraph
 {    
     public class Geometry<T> : Drawable, IGeometry<T> where T : struct, IPrimitiveElement
     {
+        public Type VertexType => typeof(T);
         public T[] VertexData { get; set; }
         private int SizeOfVertexData => Marshal.SizeOf(default(T));
         
@@ -61,7 +62,12 @@ namespace Veldrid.SceneGraph
             _vertexBufferCache.Add(device, vbo);
             _indexBufferCache.Add(device, ibo);
         }
-       
+
+
+        protected override Type GetVertexType()
+        {
+            return typeof(T);
+        }
 
         protected override void DrawImplementation(GraphicsDevice device, List<Tuple<uint, ResourceSet>> resourceSets, CommandList commandList)
         {

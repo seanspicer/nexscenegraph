@@ -1,27 +1,34 @@
 using System;
 using System.Numerics;
+using Veldrid.SceneGraph.VertexTypes;
 
-namespace Veldrid.SceneGraph.Nodes
+//
+// Copyright 2018 Sean Spicer 
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+namespace Veldrid.SceneGraph.Util
 {
-    public class CubeGeometry
+    internal class CubeGeometry
     {
-        public enum VertexType
-        {
-            Position3Texture2Color3Normal3
-        }
-        
-        public enum TopologyType
-        {
-            IndexedTriangleList
-        }
-        
-        public static IGeode Create(VertexType vertexType, TopologyType topologyType)
+        internal static IGeode CreatePosition3Texture2Color3Normal3_IndexedTriangleList()
         {
             var geometry = Geometry<Position3Texture2Color3Normal3>.Create();
 
-            var nl = 1f / (float)Math.Sqrt(3f);
+            var nl = 1f / (float)System.Math.Sqrt(3f);
             
-            var vertices = new Position3Texture2Color3Normal3[]
+            var vertices = new[]
             {
                 // Top
                 new Position3Texture2Color3Normal3(new Vector3(-0.5f, +0.5f, -0.5f), new Vector2(0, 0), new Vector3(1, 0, 0), new Vector3(-nl,  nl, -nl)),
@@ -67,12 +74,8 @@ namespace Veldrid.SceneGraph.Nodes
             
             geometry.VertexData = vertices;
             geometry.IndexData = indices;
-            
-            geometry.VertexLayout = new VertexLayoutDescription(
-                new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
-                new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
-                new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
-                new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3));
+
+            geometry.VertexLayout = Position3Texture2Color3Normal3.VertexLayoutDescription;
 
             var pSet = DrawElements<Position3Texture2Color3Normal3>.Create(
                 geometry, 
