@@ -8,14 +8,14 @@ struct LightData {
     vec4 SpecularColor;
     
     // Values
-    vec4 LightVec;      // Camera Space
     vec4 Constants;     // [0] = Power; [1] = SpecularPower; [2] = AttenuationConstant
 
 };
 
 layout(location = 0) in vec3 fsin_normal;
 layout(location = 1) in vec3 fsin_eyeDir;
-layout(location = 2) flat in LightData fsin_lightData; 
+layout(location = 2) in vec3 fsin_lightVec;
+layout(location = 3) flat in LightData fsin_lightData; 
 
 layout(location = 0) out vec4 fsout_color;
 
@@ -23,7 +23,7 @@ void main()
 {
     // Inputs
     vec3 n = normalize(fsin_normal);
-    vec3 l = normalize(fsin_lightData.LightVec.xyz);
+    vec3 l = normalize(fsin_lightVec);
     
     vec3 AmbientColor = fsin_lightData.AmbientColor.xyz;
     vec3 DiffuseColor = fsin_lightData.DiffuseColor.xyz;
@@ -35,7 +35,7 @@ void main()
     
     // Compute the Light Power and Attenuation
     vec3 LightPowerVec = vec3(LightPower, LightPower, LightPower);
-    float distance = distance(vec3(0,0,0), fsin_lightData.LightVec.xyz);
+    float distance = distance(vec3(0,0,0), fsin_lightVec);
     float oneOverDistanceAtten = 1.0f/(pow(distance, AttenuationConstant));
     vec3 Attenuation = vec3(oneOverDistanceAtten, oneOverDistanceAtten, oneOverDistanceAtten);
 

@@ -30,7 +30,6 @@ struct LightData {
     vec4 SpecularColor;
     
     // Values
-    vec4 LightVec;
     vec4 Constants;     // [0] = Power; [1] = SpecularPower; [2] = AttenuationConstant
 
 };
@@ -67,7 +66,8 @@ layout(location = 3) in vec3 Normal;
 
 layout(location = 0) out vec3 fsin_normal;
 layout(location = 1) out vec3 fsin_eyeDir;
-layout(location = 2) out LightData fsin_lightData; 
+layout(location = 2) out vec3 fsin_lightVec;
+layout(location = 3) out LightData fsin_lightData; 
 
 void main()
 {
@@ -79,30 +79,21 @@ void main()
     vec3 vertexPosition_cameraspace = ( field_View * field_Model * v4Pos).xyz;
     vec3 EyeDirection_cameraspace = vec3(0,0,0) - vertexPosition_cameraspace;
     
-    // Default Light Position is Headlight.  
-    vec3 LightPosition_cameraspace = vec3(0, 0, 0); 
-    if(0 == lightSource.IsHeadlight) 
-    {
-        LightPosition_cameraspace = ( field_View * field_Model * lightSource.Position).xyz;
-    }
+    vec3 LightPosition_cameraspace = (1-lightSource.IsHeadlight) * ( field_View * field_Model * lightSource.Position).xyz;
     vec3 LightDirection_cameraspace = LightPosition_cameraspace + EyeDirection_cameraspace;
     
     vec3 Normal_cameraspace = ( field_View * transpose(inverse(field_Model)) * vec4(Normal,0)).xyz;
     
-    //fsin_color = Color;
     fsin_eyeDir = EyeDirection_cameraspace;
     fsin_normal = Normal_cameraspace;
+    fsin_lightVec = LightDirection_cameraspace;
     
+    float A = materialDesc.MaterialOverride;
+    float B = 1-A;
     
-    fsin_lightData.AmbientColor = vec4(materialDesc.AmbientColor, 1.0f);
-    fsin_lightData.DiffuseColor = vec4(materialDesc.DiffuseColor, 1.0f);
+    fsin_lightData.AmbientColor = vec4(A*(materialDesc.AmbientColor) + B*(Color*lightSource.AmbientColor), 1.0f);
+    fsin_lightData.DiffuseColor = vec4(A*(materialDesc.DiffuseColor) + B*(Color*lightSource.DiffuseColor), 1.0f);
     fsin_lightData.SpecularColor = vec4(materialDesc.SpecularColor, 1.0f);
     
-    fsin_lightData.LightVec = vec4(LightDirection_cameraspace,1.0f);
     fsin_lightData.Constants = vec4(lightSource.LightPower, materialDesc.Shininess, lightSource.AttenuationConstant, 1.0f);
-    
-    if(0 == materialDesc.MaterialOverride) {
-       fsin_lightData.AmbientColor = vec4(Color*lightSource.AmbientColor, 1.0);
-       fsin_lightData.DiffuseColor = vec4(Color*lightSource.DiffuseColor, 1.0);
-    }
 }
