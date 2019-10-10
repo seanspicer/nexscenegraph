@@ -14,6 +14,8 @@
 // limitations under the License.
 //
 
+using System;
+
 namespace Veldrid.SceneGraph
 {
     public interface IGeometry<T> : IDrawable where T : struct, IPrimitiveElement

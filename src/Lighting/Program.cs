@@ -15,12 +15,16 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using AssetPrimitives;
 using Examples.Common;
+using Microsoft.Extensions.Logging;
+using Serilog.Core;
 using SixLabors.ImageSharp;
 using Veldrid;
 using Veldrid.SceneGraph;
@@ -28,6 +32,7 @@ using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Viewer;
 using Veldrid.SceneGraph.IO;
 using Veldrid.SceneGraph.PipelineStates;
+using Veldrid.SceneGraph.Util;
 
 namespace Lighting
 {
@@ -62,6 +67,8 @@ namespace Lighting
         static void Main(string[] args)
         {
             Bootstrapper.Configure();
+
+            var logger = Veldrid.SceneGraph.Logging.LogManager.CreateLogger<Program>();
             
             var viewer = SimpleViewer.Create("Phong Shaded Dragon Scene Graph");
             viewer.SetCameraManipulator(TrackballManipulator.Create());
@@ -69,6 +76,16 @@ namespace Lighting
             var root = Group.Create();
 
             var model = CreateDragonModel();
+
+            var geometryFactory = GeometryFactory.Create();
+            
+            var cube = geometryFactory.CreateCube(VertexType.Position3Texture2Color3Normal3,
+                TopologyType.IndexedTriangleList);
+            
+            logger.LogInformation($"Cube Geom is: {cube.Drawables.First().VertexType}");
+            
+            var cubeXForm = MatrixTransform.Create(Matrix4x4.CreateScale(10f, 10f, 10f));
+            cubeXForm.AddChild(cube);
 
             var leftTop = MatrixTransform.Create(Matrix4x4.CreateTranslation(-10f, 10f, 0f));
             var rightTop = MatrixTransform.Create(Matrix4x4.CreateTranslation(10f, 10f, 0f));
@@ -79,7 +96,7 @@ namespace Lighting
             leftTop.AddChild(model);
             rightTop.AddChild(model);
             
-            leftBottom.AddChild(model);
+            leftBottom.AddChild(cubeXForm);
             rightBottom.AddChild(model);
 
             var flatYellowMaterial = PhongMaterial.Create(
@@ -103,15 +120,15 @@ namespace Lighting
                     5),
                 PhongHeadlight.Create(PhongLightParameters.Create(
                     new Vector3(0.1f, 0.1f, 0.1f),
-                    new Vector3(1.0f, 1.0f, 0.0f),
-                    new Vector3(1.0f, 1.0f, 0.0f),
-                    50f,
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    30f,
                     1)),
                 false);
             
             leftTop.PipelineState = flatYellowMaterial.CreatePipelineState();
             rightTop.PipelineState = shinyRedGoldMaterial.CreatePipelineState();
-            
+            cube.PipelineState = shinyRedGoldMaterial.CreatePipelineState();
             
 //            rightTop.PipelineState = CreateHeadlightState(
 //                new Vector3(1.0f, 1.0f, 0.0f), 
