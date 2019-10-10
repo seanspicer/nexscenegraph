@@ -85,10 +85,12 @@ namespace Lighting
                 TopologyType.IndexedTriangleList);
 
             var cubeShape = Box.CreateUnitBox();
+            var hints = TessellationHints.Create();
+            hints.NormalsType = NormalsType.PerFace;
             var cubeDrawable = 
                 ShapeDrawable<Position3Texture2Color3Normal3>.Create(
                     cubeShape, 
-                    new TessellationHints(), 
+                    hints, 
                     new Vector3(0.6f, 0.4f, 0.2f));
             
             var cube2 = Geode.Create();
@@ -144,7 +146,7 @@ namespace Lighting
             leftTop.PipelineState = flatYellowMaterial.CreatePipelineState();
             rightTop.PipelineState = shinyRedGoldMaterial.CreatePipelineState();
             cube.PipelineState = shinyRedGoldMaterial.CreatePipelineState();
-            
+            cube2.PipelineState = shinyRedGoldMaterial.CreatePipelineState();
 //            rightTop.PipelineState = CreateHeadlightState(
 //                new Vector3(1.0f, 1.0f, 0.0f), 
 //                50,

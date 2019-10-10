@@ -11,19 +11,19 @@ namespace Veldrid.SceneGraph.Util.Shape
     {
         private IShape _shape;
         private Vector3 _color;
-        private TessellationHints _hints;
+        private ITessellationHints _hints;
         
-        public static IShapeDrawable<T> Create(IShape shape, TessellationHints hints)
+        public static IShapeDrawable<T> Create(IShape shape, ITessellationHints hints)
         {
             return new ShapeDrawable<T>(shape, hints);
         }
         
-        public static IShapeDrawable<T> Create(IShape shape, TessellationHints hints, Vector3 color)
+        public static IShapeDrawable<T> Create(IShape shape, ITessellationHints hints, Vector3 color)
         {
             return new ShapeDrawable<T>(shape, hints, color);
         }
         
-        internal ShapeDrawable(IShape shape, TessellationHints hints)
+        internal ShapeDrawable(IShape shape, ITessellationHints hints)
         {
             SetColor(Vector3.One);
             SetShape(shape);
@@ -31,7 +31,7 @@ namespace Veldrid.SceneGraph.Util.Shape
             Build();
         }
         
-        internal ShapeDrawable(IShape shape, TessellationHints hints, Vector3 color)
+        internal ShapeDrawable(IShape shape, ITessellationHints hints, Vector3 color)
         {
             SetColor(color);
             SetShape(shape);
@@ -49,7 +49,7 @@ namespace Veldrid.SceneGraph.Util.Shape
             _color = color;
         }
 
-        private void SetTessellationHints(TessellationHints hints)
+        private void SetTessellationHints(ITessellationHints hints)
         {
             _hints = hints;
         }

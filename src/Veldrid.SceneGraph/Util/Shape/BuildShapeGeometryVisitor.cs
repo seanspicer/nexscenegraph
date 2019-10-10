@@ -46,54 +46,74 @@ namespace Veldrid.SceneGraph.Util.Shape
             
             // Top
             vertices[0].SetPosition(new Vector3(-dx, +dy, -dz));
-            vertices[0].SetNormal(  new Vector3(-nl, +nl, -nl));
             vertices[0].SetTexCoord(new Vector2(+0,  +0));
             vertices[0].SetColor3(_color);
             
             vertices[1].SetPosition(new Vector3(+dx, +dy, -dz));
-            vertices[1].SetNormal(  new Vector3(+nl, +nl, -nl));
             vertices[1].SetTexCoord(new Vector2(+1,  +0));
             vertices[1].SetColor3(_color);
             
             vertices[2].SetPosition(new Vector3(+dx, +dy, +dz));
-            vertices[2].SetNormal(  new Vector3(+nl, +nl, +nl));
             vertices[2].SetTexCoord(new Vector2(+1,  +1));
             vertices[2].SetColor3(_color);
             
             vertices[3].SetPosition(new Vector3(-dx, +dy, +dz));
-            vertices[3].SetNormal(  new Vector3(-nl, +nl, +nl));
             vertices[3].SetTexCoord(new Vector2(+0,  +1));
             vertices[3].SetColor3(_color);
             
+            if (_tessellationHints.NormalsType == NormalsType.PerFace)
+            {
+                vertices[0].SetNormal(  new Vector3(0, 1, 0));
+                vertices[1].SetNormal(  new Vector3(0, 1, 0));
+                vertices[2].SetNormal(  new Vector3(0, 1, 0));
+                vertices[3].SetNormal(  new Vector3(0, 1, 0));
+            }
+            else
+            {
+                vertices[0].SetNormal(  new Vector3(-nl, +nl, -nl));
+                vertices[1].SetNormal(  new Vector3(+nl, +nl, -nl));
+                vertices[2].SetNormal(  new Vector3(+nl, +nl, +nl));
+                vertices[3].SetNormal(  new Vector3(-nl, +nl, +nl));
+            }
+            
             // Bottom  
             vertices[4].SetPosition(new Vector3(-dx, -dy, +dz));
-            vertices[4].SetNormal(  new Vector3(-nl, -nl, +nl));
             vertices[4].SetTexCoord(new Vector2(+0,  +0));
             vertices[4].SetColor3(_color);
             
             vertices[5].SetPosition(new Vector3(+dx, -dy, +dz));
-            vertices[5].SetNormal(  new Vector3(+nl, -nl, +nl));
             vertices[5].SetTexCoord(new Vector2(+1,  +0));
             vertices[5].SetColor3(_color);
             
             vertices[6].SetPosition(new Vector3(+dx, -dy, -dz));
-            vertices[6].SetNormal(  new Vector3(+nl, -nl, -nl));
             vertices[6].SetTexCoord(new Vector2(+1,  +1));
             vertices[6].SetColor3(_color);
             
             vertices[7].SetPosition(new Vector3(-dx, -dy, -dz));
-            vertices[7].SetNormal(  new Vector3(-nl, -nl, -nl));
             vertices[7].SetTexCoord(new Vector2(+0,  +1));
             vertices[7].SetColor3(_color);
 
+            if (_tessellationHints.NormalsType == NormalsType.PerFace)
+            {
+                vertices[4].SetNormal(  new Vector3(0, -1, 0));
+                vertices[5].SetNormal(  new Vector3(0, -1, 0));
+                vertices[6].SetNormal(  new Vector3(0, -1, 0));
+                vertices[7].SetNormal(  new Vector3(0, -1, 0));
+            }
+            else
+            {
+                vertices[4].SetNormal(  new Vector3(-nl, -nl, +nl));
+                vertices[5].SetNormal(  new Vector3(+nl, -nl, +nl));
+                vertices[6].SetNormal(  new Vector3(+nl, -nl, -nl));
+                vertices[7].SetNormal(  new Vector3(-nl, -nl, -nl));
+            }
+            
             // Left  
             vertices[8].SetPosition(new Vector3(-dx, +dy, -dz));
-            vertices[8].SetNormal(  new Vector3(-nl, +nl, -nl));
             vertices[8].SetTexCoord(new Vector2(+0,  +0));
             vertices[8].SetColor3(_color);
             
             vertices[9].SetPosition(new Vector3(-dx, +dy, +dz));
-            vertices[9].SetNormal(  new Vector3(-nl, +nl, +nl));
             vertices[9].SetTexCoord(new Vector2(+1,  +0));
             vertices[9].SetColor3(_color);
             
@@ -107,9 +127,23 @@ namespace Veldrid.SceneGraph.Util.Shape
             vertices[11].SetTexCoord(new Vector2(+0,  +1));
             vertices[11].SetColor3(_color);
             
+            if (_tessellationHints.NormalsType == NormalsType.PerFace)
+            {
+                vertices[8].SetNormal(new Vector3(-1, 0, 0));
+                vertices[9].SetNormal(new Vector3(-1, 0, 0));
+                vertices[10].SetNormal(new Vector3(-1, 0, 0));
+                vertices[11].SetNormal(new Vector3(-1, 0, 0));
+            }
+            else
+            {
+                vertices[8].SetNormal(new Vector3(-nl, +nl, -nl));
+                vertices[9].SetNormal(new Vector3(-nl, +nl, +nl));
+                vertices[10].SetNormal(new Vector3(-nl, -nl, +nl));
+                vertices[11].SetNormal(new Vector3(-nl, -nl, -nl));
+            }
+            
             // Right   
             vertices[12].SetPosition(new Vector3(+dx, +dy, +dz));
-            vertices[12].SetNormal(  new Vector3(+nl, +nl, +nl));
             vertices[12].SetTexCoord(new Vector2(+0,  +0));
             vertices[12].SetColor3(_color);
             
@@ -128,47 +162,84 @@ namespace Veldrid.SceneGraph.Util.Shape
             vertices[15].SetTexCoord(new Vector2(+0,  +1));
             vertices[15].SetColor3(_color);
             
+            if (_tessellationHints.NormalsType == NormalsType.PerFace)
+            {
+                vertices[12].SetNormal(new Vector3(1, 0, 0));
+                vertices[13].SetNormal(new Vector3(1, 0, 0));
+                vertices[14].SetNormal(new Vector3(1, 0, 0));
+                vertices[15].SetNormal(new Vector3(1, 0, 0));
+            }
+            else
+            {
+                vertices[12].SetNormal(  new Vector3(+nl, +nl, +nl));
+                vertices[13].SetNormal(  new Vector3(+nl, +nl, -nl));
+                vertices[14].SetNormal(  new Vector3(+nl, -nl, -nl));
+                vertices[15].SetNormal(  new Vector3(+nl, -nl, +nl));
+            }
+            
             // Back  
             vertices[16].SetPosition(new Vector3(+dx, +dy, -dz));
-            vertices[16].SetNormal(  new Vector3(+nl, +nl, -nl));
             vertices[16].SetTexCoord(new Vector2(+0,  +0));
             vertices[16].SetColor3(_color);
             
             vertices[17].SetPosition(new Vector3(-dx, +dy, -dz));
-            vertices[17].SetNormal(  new Vector3(-nl, +nl, -nl));
             vertices[17].SetTexCoord(new Vector2(+1,  +0));
             vertices[17].SetColor3(_color);
             
             vertices[18].SetPosition(new Vector3(-dx, -dy, -dz));
-            vertices[18].SetNormal(  new Vector3(-nl, -nl, -nl));
             vertices[18].SetTexCoord(new Vector2(+1,  +1));
             vertices[18].SetColor3(_color);
             
             vertices[19].SetPosition(new Vector3(+dx, -dy, -dz));
-            vertices[19].SetNormal(  new Vector3(+nl, -nl, -nl));
             vertices[19].SetTexCoord(new Vector2(+0,  +1));
             vertices[19].SetColor3(_color);
             
+            if (_tessellationHints.NormalsType == NormalsType.PerFace)
+            {
+                vertices[16].SetNormal(new Vector3(0, 0, -1));
+                vertices[17].SetNormal(new Vector3(0, 0, -1));
+                vertices[18].SetNormal(new Vector3(0, 0, -1));
+                vertices[19].SetNormal(new Vector3(0, 0, -1));
+            }
+            else
+            {
+                vertices[16].SetNormal(  new Vector3(+nl, +nl, -nl));
+                vertices[17].SetNormal(  new Vector3(-nl, +nl, -nl));
+                vertices[18].SetNormal(  new Vector3(-nl, -nl, -nl));
+                vertices[19].SetNormal(  new Vector3(+nl, -nl, -nl));
+            }
+            
             // Front   
             vertices[20].SetPosition(new Vector3(-dx, +dy, +dz));
-            vertices[20].SetNormal(  new Vector3(-nl, +nl, +nl));
             vertices[20].SetTexCoord(new Vector2(+0,  +0));
             vertices[20].SetColor3(_color);
             
             vertices[21].SetPosition(new Vector3(+dx, +dy, +dz));
-            vertices[21].SetNormal(  new Vector3(+nl, +nl, +nl));
             vertices[21].SetTexCoord(new Vector2(+1,  +0));
             vertices[21].SetColor3(_color);
             
             vertices[22].SetPosition(new Vector3(+dx, -dy, +dz));
-            vertices[22].SetNormal(  new Vector3(+nl, -nl, +nl));
             vertices[22].SetTexCoord(new Vector2(+1,  +1));
             vertices[22].SetColor3(_color);
             
             vertices[23].SetPosition(new Vector3(-dx, -dy, +dz));
-            vertices[23].SetNormal(  new Vector3(-nl, -nl, +nl));
             vertices[23].SetTexCoord(new Vector2(+0,  +1));
             vertices[23].SetColor3(_color);
+            
+            if (_tessellationHints.NormalsType == NormalsType.PerFace)
+            {
+                vertices[20].SetNormal(new Vector3(0, 0, 1));
+                vertices[21].SetNormal(new Vector3(0, 0, 1));
+                vertices[22].SetNormal(new Vector3(0, 0, 1));
+                vertices[23].SetNormal(new Vector3(0, 0, 1));
+            }
+            else
+            {
+                vertices[20].SetNormal(  new Vector3(-nl, +nl, +nl));
+                vertices[21].SetNormal(  new Vector3(+nl, +nl, +nl));
+                vertices[22].SetNormal(  new Vector3(+nl, -nl, +nl));
+                vertices[23].SetNormal(  new Vector3(-nl, -nl, +nl));
+            }
 
             _geometry.VertexData = vertices;
             
