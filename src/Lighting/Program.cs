@@ -33,6 +33,8 @@ using Veldrid.SceneGraph.Viewer;
 using Veldrid.SceneGraph.IO;
 using Veldrid.SceneGraph.PipelineStates;
 using Veldrid.SceneGraph.Util;
+using Veldrid.SceneGraph.Util.Shape;
+using Veldrid.SceneGraph.VertexTypes;
 
 namespace Lighting
 {
@@ -81,11 +83,24 @@ namespace Lighting
             
             var cube = geometryFactory.CreateCube(VertexType.Position3Texture2Color3Normal3,
                 TopologyType.IndexedTriangleList);
+
+            var cubeShape = Box.CreateUnitBox();
+            var cubeDrawable = 
+                ShapeDrawable<Position3Texture2Color3Normal3>.Create(
+                    cubeShape, 
+                    new TessellationHints(), 
+                    new Vector3(0.6f, 0.4f, 0.2f));
+            
+            var cube2 = Geode.Create();
+            cube2.AddDrawable(cubeDrawable);
             
             logger.LogInformation($"Cube Geom is: {cube.Drawables.First().VertexType}");
             
             var cubeXForm = MatrixTransform.Create(Matrix4x4.CreateScale(10f, 10f, 10f));
             cubeXForm.AddChild(cube);
+            
+            var cubeXForm2 = MatrixTransform.Create(Matrix4x4.CreateScale(10f, 10f, 10f));
+            cubeXForm2.AddChild(cube2);
 
             var leftTop = MatrixTransform.Create(Matrix4x4.CreateTranslation(-10f, 10f, 0f));
             var rightTop = MatrixTransform.Create(Matrix4x4.CreateTranslation(10f, 10f, 0f));
@@ -97,7 +112,7 @@ namespace Lighting
             rightTop.AddChild(model);
             
             leftBottom.AddChild(cubeXForm);
-            rightBottom.AddChild(model);
+            rightBottom.AddChild(cubeXForm2);
 
             var flatYellowMaterial = PhongMaterial.Create(
                 PhongMaterialParameters.Create(
