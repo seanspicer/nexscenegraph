@@ -73,7 +73,8 @@ namespace Veldrid.SceneGraph.Util.Shape
         
         public void Apply(ISphere sphere)
         {
-            throw new System.NotImplementedException();
+            var builder = new BuildSphereGeometry<T>(); 
+            builder.Build(_geometry, _tessellationHints, _colors, sphere);
         }
     }
 }

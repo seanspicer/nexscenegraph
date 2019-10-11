@@ -85,6 +85,7 @@ namespace Lighting
             var cube = geometryFactory.CreateCube(VertexType.Position3Texture2Color3Normal3,
                 TopologyType.IndexedTriangleList);
 
+            // Shape Drawables
             var cubeShape = Box.Create(Vector3.Zero, 0.5f*Vector3.One);
             var hints = TessellationHints.Create();
             hints.NormalsType = NormalsType.PerVertex;
@@ -92,18 +93,6 @@ namespace Lighting
 
             var freq = (float)(2*System.Math.PI/9);
             var cubeColors = MakeColorGradient(freq, freq, freq, 0, 2, 4, 8);
-            
-            var cubeFaceColors = new[]
-            {
-                new Vector3(1f, 0f, 0f),
-                new Vector3(1f, 1f, 0f),
-                new Vector3(0f, 1f, 1f),
-                new Vector3(0f, 0f, 1f),
-                new Vector3(0f, 1f, 0f),
-                new Vector3(1f, 0f, 1f),
-                new Vector3(0f, 1f, 0f),
-                new Vector3(1f, 0f, 1f)
-            };
             
             var cubeDrawable = 
                 ShapeDrawable<Position3Texture2Color3Normal3>.Create(
@@ -113,11 +102,24 @@ namespace Lighting
             
             var cube2 = Geode.Create();
             cube2.AddDrawable(cubeDrawable);
+
+            var sphereShape = Sphere.Create(Vector3.Zero, 0.5f);
+            var sphereHints = TessellationHints.Create();
+            sphereHints.SetDetailRatio(1.6f);
+            
+            var sphereDrawable =
+                ShapeDrawable<Position3Texture2Color3Normal3>.Create(
+                    sphereShape,
+                    sphereHints,
+                    new Vector3[] {new Vector3(1.0f, 0.0f, 0.0f)});
+
+            var sphere = Geode.Create();
+            sphere.AddDrawable(sphereDrawable);
             
             logger.LogInformation($"Cube Geom is: {cube.Drawables.First().VertexType}");
             
             var cubeXForm = MatrixTransform.Create(Matrix4x4.CreateScale(10f, 10f, 10f));
-            cubeXForm.AddChild(cube);
+            cubeXForm.AddChild(sphere);
             
             var cubeXForm2 = MatrixTransform.Create(Matrix4x4.CreateScale(10f, 10f, 10f));
             cubeXForm2.AddChild(cube2);
@@ -168,16 +170,30 @@ namespace Lighting
                     new Vector3(1.0f, 1.0f, 1.0f),
                     5f),
                 PhongHeadlight.Create(PhongLightParameters.Create(
-                    new Vector3(0.4f, 0.4f, 0.4f),
+                    new Vector3(0.2f, 0.2f, 0.2f),
                     new Vector3(1.0f, 1.0f, 1.0f),
-                    new Vector3(0.5f, 0.5f, 0.5f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
                     1f,
                     0)),
                 false);
             
+            var sphereMaterial = PhongMaterial.Create(
+                PhongMaterialParameters.Create(
+                    new Vector3(0.0f, 0.0f, 1.0f),
+                    new Vector3(0.0f, 0.0f, 1.0f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    5f),
+                PhongHeadlight.Create(PhongLightParameters.Create(
+                    new Vector3(0.1f, 0.1f, 0.1f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    new Vector3(0.0f, 0.0f, 0.0f),
+                    1f,
+                    0)),
+                true);
+            
             leftTop.PipelineState = flatYellowMaterial.CreatePipelineState();
             rightTop.PipelineState = shinyRedGoldMaterial.CreatePipelineState();
-            cube.PipelineState = shinyRedGoldMaterial.CreatePipelineState();
+            sphere.PipelineState = sphereMaterial.CreatePipelineState();
             cube2.PipelineState = cubeMaterial.CreatePipelineState();
 //            rightTop.PipelineState = CreateHeadlightState(
 //                new Vector3(1.0f, 1.0f, 0.0f), 

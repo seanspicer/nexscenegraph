@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 
+using System;
 using System.Drawing;
 using System.Text;
 
@@ -36,13 +37,19 @@ namespace Veldrid.SceneGraph.Util.Shape
     {
         NormalsType NormalsType { get; set; }
         ColorsType ColorsType { get; set; }
+        bool CreateFrontFace { get; set; }
+        bool CreateBackFace { get; set; }
+        float DetailRatio { get; }
+        void SetDetailRatio(float detailRatio);
     }
     
     public class TessellationHints : ITessellationHints
     {
         public NormalsType NormalsType { get; set; }
         public ColorsType ColorsType { get; set; }
-
+        public bool CreateFrontFace { get; set; }
+        public bool CreateBackFace { get; set; }
+        public float DetailRatio { get; private set; }
         public static ITessellationHints Create()
         {
             return new TessellationHints();
@@ -50,8 +57,21 @@ namespace Veldrid.SceneGraph.Util.Shape
 
         internal TessellationHints()
         {
+            CreateFrontFace = true;
+            CreateBackFace = true;
             NormalsType = NormalsType.PerVertex;
             ColorsType = ColorsType.ColorOverall;
+            DetailRatio = 1.0f;
+        }
+
+        public void SetDetailRatio(float detailRatio)
+        {
+            if (detailRatio <= 0.0)
+            {
+                throw new ArgumentException("Detail Ratio must be greater than 0.0");
+            }
+
+            DetailRatio = detailRatio;
         }
     }
 }
