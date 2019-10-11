@@ -1,3 +1,19 @@
+//
+// Copyright 2018 Sean Spicer 
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
 #version 450
 
 struct LightSourceStruct {
@@ -67,7 +83,12 @@ layout(location = 3) in vec3 Normal;
 layout(location = 0) out vec3 fsin_normal;
 layout(location = 1) out vec3 fsin_eyeDir;
 layout(location = 2) out vec3 fsin_lightVec;
-layout(location = 3) out LightData fsin_lightData; 
+layout(location = 3) out vec3 fsin_AmbientColor;
+layout(location = 4) out vec3 fsin_DiffuseColor;
+layout(location = 5) out vec3 fsin_SpecularColor;
+layout(location = 6) out vec3 fsin_Constants;
+
+//layout(location = 4) out LightData fsin_lightData; 
 
 void main()
 {
@@ -91,9 +112,10 @@ void main()
     float A = materialDesc.MaterialOverride;
     float B = 1-A;
     
-    fsin_lightData.AmbientColor = vec4(A*(materialDesc.AmbientColor) + B*(Color*lightSource.AmbientColor), 1.0f);
-    fsin_lightData.DiffuseColor = vec4(A*(materialDesc.DiffuseColor) + B*(Color*lightSource.DiffuseColor), 1.0f);
-    fsin_lightData.SpecularColor = vec4(materialDesc.SpecularColor, 1.0f);
     
-    fsin_lightData.Constants = vec4(lightSource.LightPower, materialDesc.Shininess, lightSource.AttenuationConstant, 1.0f);
+    fsin_AmbientColor = A*(materialDesc.AmbientColor) + B*(Color*lightSource.AmbientColor);
+    fsin_DiffuseColor = A*(materialDesc.DiffuseColor) + B*(Color*lightSource.DiffuseColor);
+    fsin_SpecularColor = materialDesc.SpecularColor;
+    
+    fsin_Constants = vec3(lightSource.LightPower, materialDesc.Shininess, lightSource.AttenuationConstant);
 }

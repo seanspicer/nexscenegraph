@@ -1,3 +1,19 @@
+//
+// Copyright 2018 Sean Spicer 
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
 #version 450
 
 struct LightData {
@@ -15,7 +31,12 @@ struct LightData {
 layout(location = 0) in vec3 fsin_normal;
 layout(location = 1) in vec3 fsin_eyeDir;
 layout(location = 2) in vec3 fsin_lightVec;
-layout(location = 3) flat in LightData fsin_lightData; 
+layout(location = 3) in vec3 fsin_AmbientColor;
+layout(location = 4) in vec3 fsin_DiffuseColor;
+layout(location = 5) in vec3 fsin_SpecularColor;
+layout(location = 6) in vec3 fsin_Constants;
+
+//layout(location = 4) flat in LightData fsin_lightData; 
 
 layout(location = 0) out vec4 fsout_color;
 
@@ -25,13 +46,13 @@ void main()
     vec3 n = normalize(fsin_normal);
     vec3 l = normalize(fsin_lightVec);
     
-    vec3 AmbientColor = fsin_lightData.AmbientColor.xyz;
-    vec3 DiffuseColor = fsin_lightData.DiffuseColor.xyz;
-    vec3 SpecularColor = fsin_lightData.SpecularColor.xyz;
+    vec3 AmbientColor = fsin_AmbientColor;
+    vec3 DiffuseColor = fsin_DiffuseColor;
+    vec3 SpecularColor = fsin_SpecularColor;
 
-    float LightPower = fsin_lightData.Constants.x;
-    float SpecularPower = fsin_lightData.Constants.y;
-    float AttenuationConstant = fsin_lightData.Constants.z;
+    float LightPower = fsin_Constants.x;
+    float SpecularPower = fsin_Constants.y;
+    float AttenuationConstant = fsin_Constants.z;
     
     // Compute the Light Power and Attenuation
     vec3 LightPowerVec = vec3(LightPower, LightPower, LightPower);

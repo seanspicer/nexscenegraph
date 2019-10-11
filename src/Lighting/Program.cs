@@ -88,14 +88,19 @@ namespace Lighting
             var cubeShape = Box.Create(Vector3.Zero, 0.5f*Vector3.One);
             var hints = TessellationHints.Create();
             hints.NormalsType = NormalsType.PerVertex;
-            hints.ColorsType = ColorsType.ColorPerFace;
+            hints.ColorsType = ColorsType.ColorPerVertex;
 
+            var freq = (float)(2*System.Math.PI/9);
+            var cubeColors = MakeColorGradient(freq, freq, freq, 0, 2, 4, 8);
+            
             var cubeFaceColors = new[]
             {
                 new Vector3(1f, 0f, 0f),
                 new Vector3(1f, 1f, 0f),
                 new Vector3(0f, 1f, 1f),
                 new Vector3(0f, 0f, 1f),
+                new Vector3(0f, 1f, 0f),
+                new Vector3(1f, 0f, 1f),
                 new Vector3(0f, 1f, 0f),
                 new Vector3(1f, 0f, 1f)
             };
@@ -104,7 +109,7 @@ namespace Lighting
                 ShapeDrawable<Position3Texture2Color3Normal3>.Create(
                     cubeShape, 
                     hints, 
-                    cubeFaceColors.ToArray());
+                    cubeColors.ToArray());
             
             var cube2 = Geode.Create();
             cube2.AddDrawable(cubeDrawable);
@@ -156,10 +161,24 @@ namespace Lighting
                     1)),
                 false);
             
+            var cubeMaterial = PhongMaterial.Create(
+                PhongMaterialParameters.Create(
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    5f),
+                PhongHeadlight.Create(PhongLightParameters.Create(
+                    new Vector3(0.4f, 0.4f, 0.4f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    new Vector3(0.5f, 0.5f, 0.5f),
+                    1f,
+                    0)),
+                false);
+            
             leftTop.PipelineState = flatYellowMaterial.CreatePipelineState();
             rightTop.PipelineState = shinyRedGoldMaterial.CreatePipelineState();
             cube.PipelineState = shinyRedGoldMaterial.CreatePipelineState();
-            cube2.PipelineState = shinyRedGoldMaterial.CreatePipelineState();
+            cube2.PipelineState = cubeMaterial.CreatePipelineState();
 //            rightTop.PipelineState = CreateHeadlightState(
 //                new Vector3(1.0f, 1.0f, 0.0f), 
 //                50,
@@ -304,6 +323,26 @@ namespace Lighting
             
             pso.VertexShaderDescription = vtxShader;
             pso.FragmentShaderDescription = frgShader;
+        }
+        
+        private static List<Vector3> MakeColorGradient(float frequency1, float frequency2, float frequency3,
+            float phase1, float phase2, float phase3, uint len)
+        {
+            var center = 128;
+            var width = 127;
+
+            var result = new List<Vector3>();
+            
+            for (var i = 0; i < len; ++i)
+            {
+                var red = (float)System.Math.Sin(frequency1*i + phase1) * width + center;
+                var grn = (float)System.Math.Sin(frequency2*i + phase2) * width + center;
+                var blu = (float)System.Math.Sin(frequency3*i + phase3) * width + center;
+                
+                result.Add(new Vector3(red/255f,grn/255f, blu/255f));
+            }
+
+            return result;
         }
     }
 }
