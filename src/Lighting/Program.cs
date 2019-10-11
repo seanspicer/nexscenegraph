@@ -15,6 +15,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -87,11 +88,23 @@ namespace Lighting
             var cubeShape = Box.CreateUnitBox();
             var hints = TessellationHints.Create();
             hints.NormalsType = NormalsType.PerFace;
+            hints.ColorsType = ColorsType.ColorPerFace;
+
+            var cubeFaceColors = new[]
+            {
+                new Vector3(1f, 0f, 0f),
+                new Vector3(1f, 1f, 0f),
+                new Vector3(0f, 1f, 1f),
+                new Vector3(0f, 0f, 1f),
+                new Vector3(0f, 1f, 0f),
+                new Vector3(1f, 0f, 1f)
+            };
+            
             var cubeDrawable = 
                 ShapeDrawable<Position3Texture2Color3Normal3>.Create(
                     cubeShape, 
                     hints, 
-                    new Vector3(0.6f, 0.4f, 0.2f));
+                    cubeFaceColors.ToArray());
             
             var cube2 = Geode.Create();
             cube2.AddDrawable(cubeDrawable);
