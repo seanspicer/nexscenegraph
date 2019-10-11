@@ -168,9 +168,9 @@ namespace Lighting
                     new Vector3(1.0f, 1.0f, 1.0f),
                     new Vector3(1.0f, 1.0f, 1.0f),
                     new Vector3(1.0f, 1.0f, 1.0f),
-                    5f),
+                    50f),
                 PhongHeadlight.Create(PhongLightParameters.Create(
-                    new Vector3(0.2f, 0.2f, 0.2f),
+                    new Vector3(0.5f, 0.5f, 0.5f),
                     new Vector3(1.0f, 1.0f, 1.0f),
                     new Vector3(1.0f, 1.0f, 1.0f),
                     1f,
@@ -183,12 +183,12 @@ namespace Lighting
                     new Vector3(0.0f, 0.0f, 1.0f),
                     new Vector3(1.0f, 1.0f, 1.0f),
                     5f),
-                PhongHeadlight.Create(PhongLightParameters.Create(
+                PhongPositionalLight.Create( new Vector4(0, 10, 0, 1),PhongLightParameters.Create(
                     new Vector3(0.1f, 0.1f, 0.1f),
                     new Vector3(1.0f, 1.0f, 1.0f),
-                    new Vector3(0.0f, 0.0f, 0.0f),
-                    1f,
-                    0)),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    10000f,
+                    2)),
                 true);
             
             leftTop.PipelineState = flatYellowMaterial.CreatePipelineState();

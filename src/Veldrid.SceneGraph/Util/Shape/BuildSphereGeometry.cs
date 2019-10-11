@@ -235,8 +235,8 @@ namespace Veldrid.SceneGraph.Util.Shape
                 {
                     var q = qidx * 2;
                     
-                    triIndicies.AddRange(new int[] {q, q+1, q+3});
-                    triIndicies.AddRange(new int[] {q+3, q+2, q});
+                    triIndicies.AddRange(new int[] {q, q+3, q+1});
+                    triIndicies.AddRange(new int[] {q, q+2, q+3});
                 }
 
                 foreach (var idx in triIndicies)
