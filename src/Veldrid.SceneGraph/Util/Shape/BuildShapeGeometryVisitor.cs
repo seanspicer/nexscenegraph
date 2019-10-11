@@ -40,7 +40,13 @@ namespace Veldrid.SceneGraph.Util.Shape
             var dy = box.HalfLengths.Y;
             var dz = box.HalfLengths.Z;
 
-            var nl = 1f / (float)System.Math.Sqrt(3f);
+            var normVec = Vector3.Normalize(box.HalfLengths);
+
+            var nx = normVec.X;
+            var ny = normVec.Y;
+            var nz = normVec.Z;
+
+            //var nl = 1f / (float)System.Math.Sqrt(3f);
 
             var vertices = new T[24];
             
@@ -66,10 +72,10 @@ namespace Veldrid.SceneGraph.Util.Shape
             }
             else
             {
-                vertices[0].SetNormal(  new Vector3(-nl, +nl, -nl));
-                vertices[1].SetNormal(  new Vector3(+nl, +nl, -nl));
-                vertices[2].SetNormal(  new Vector3(+nl, +nl, +nl));
-                vertices[3].SetNormal(  new Vector3(-nl, +nl, +nl));
+                vertices[0].SetNormal(  new Vector3(-nx, +ny, -nz));
+                vertices[1].SetNormal(  new Vector3(+nx, +ny, -nz));
+                vertices[2].SetNormal(  new Vector3(+nx, +ny, +nz));
+                vertices[3].SetNormal(  new Vector3(-nx, +ny, +nz));
             }
 
             if (_tessellationHints.ColorsType == ColorsType.ColorOverall)
@@ -116,10 +122,10 @@ namespace Veldrid.SceneGraph.Util.Shape
             }
             else
             {
-                vertices[4].SetNormal(  new Vector3(-nl, -nl, +nl));
-                vertices[5].SetNormal(  new Vector3(+nl, -nl, +nl));
-                vertices[6].SetNormal(  new Vector3(+nl, -nl, -nl));
-                vertices[7].SetNormal(  new Vector3(-nl, -nl, -nl));
+                vertices[4].SetNormal(  new Vector3(-nx, -ny, +nz));
+                vertices[5].SetNormal(  new Vector3(+nx, -ny, +nz));
+                vertices[6].SetNormal(  new Vector3(+nx, -ny, -nz));
+                vertices[7].SetNormal(  new Vector3(-nx, -ny, -nz));
             }
             
             if (_tessellationHints.ColorsType == ColorsType.ColorOverall)
@@ -166,10 +172,10 @@ namespace Veldrid.SceneGraph.Util.Shape
             }
             else
             {
-                vertices[8].SetNormal(new Vector3(-nl, +nl, -nl));
-                vertices[9].SetNormal(new Vector3(-nl, +nl, +nl));
-                vertices[10].SetNormal(new Vector3(-nl, -nl, +nl));
-                vertices[11].SetNormal(new Vector3(-nl, -nl, -nl));
+                vertices[8].SetNormal(new Vector3(-nx, +ny, -nz));
+                vertices[9].SetNormal(new Vector3(-nx, +ny, +nz));
+                vertices[10].SetNormal(new Vector3(-nx, -ny, +nz));
+                vertices[11].SetNormal(new Vector3(-nx, -ny, -nz));
             }
             
             if (_tessellationHints.ColorsType == ColorsType.ColorOverall)
@@ -216,10 +222,10 @@ namespace Veldrid.SceneGraph.Util.Shape
             }
             else
             {
-                vertices[12].SetNormal(  new Vector3(+nl, +nl, +nl));
-                vertices[13].SetNormal(  new Vector3(+nl, +nl, -nl));
-                vertices[14].SetNormal(  new Vector3(+nl, -nl, -nl));
-                vertices[15].SetNormal(  new Vector3(+nl, -nl, +nl));
+                vertices[12].SetNormal(  new Vector3(+nx, +ny, +nz));
+                vertices[13].SetNormal(  new Vector3(+nx, +ny, -nz));
+                vertices[14].SetNormal(  new Vector3(+nx, -ny, -nz));
+                vertices[15].SetNormal(  new Vector3(+nx, -ny, +nz));
             }
             
             if (_tessellationHints.ColorsType == ColorsType.ColorOverall)
@@ -266,10 +272,10 @@ namespace Veldrid.SceneGraph.Util.Shape
             }
             else
             {
-                vertices[16].SetNormal(  new Vector3(+nl, +nl, -nl));
-                vertices[17].SetNormal(  new Vector3(-nl, +nl, -nl));
-                vertices[18].SetNormal(  new Vector3(-nl, -nl, -nl));
-                vertices[19].SetNormal(  new Vector3(+nl, -nl, -nl));
+                vertices[16].SetNormal(  new Vector3(+nx, +ny, -nz));
+                vertices[17].SetNormal(  new Vector3(-nx, +ny, -nz));
+                vertices[18].SetNormal(  new Vector3(-nx, -ny, -nz));
+                vertices[19].SetNormal(  new Vector3(+nx, -ny, -nz));
             }
             
             if (_tessellationHints.ColorsType == ColorsType.ColorOverall)
@@ -316,10 +322,10 @@ namespace Veldrid.SceneGraph.Util.Shape
             }
             else
             {
-                vertices[20].SetNormal(  new Vector3(-nl, +nl, +nl));
-                vertices[21].SetNormal(  new Vector3(+nl, +nl, +nl));
-                vertices[22].SetNormal(  new Vector3(+nl, -nl, +nl));
-                vertices[23].SetNormal(  new Vector3(-nl, -nl, +nl));
+                vertices[20].SetNormal(  new Vector3(-nx, +ny, +nz));
+                vertices[21].SetNormal(  new Vector3(+nx, +ny, +nz));
+                vertices[22].SetNormal(  new Vector3(+nx, -ny, +nz));
+                vertices[23].SetNormal(  new Vector3(-nx, -ny, +nz));
             }
             
             if (_tessellationHints.ColorsType == ColorsType.ColorOverall)

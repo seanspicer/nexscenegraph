@@ -85,9 +85,9 @@ namespace Lighting
             var cube = geometryFactory.CreateCube(VertexType.Position3Texture2Color3Normal3,
                 TopologyType.IndexedTriangleList);
 
-            var cubeShape = Box.CreateUnitBox();
+            var cubeShape = Box.Create(Vector3.Zero, 0.5f*Vector3.One);
             var hints = TessellationHints.Create();
-            hints.NormalsType = NormalsType.PerFace;
+            hints.NormalsType = NormalsType.PerVertex;
             hints.ColorsType = ColorsType.ColorPerFace;
 
             var cubeFaceColors = new[]
