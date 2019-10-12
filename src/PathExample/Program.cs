@@ -14,7 +14,7 @@ namespace PathExample
 
             var logger = Veldrid.SceneGraph.Logging.LogManager.CreateLogger<Program>();
             
-            var viewer = SimpleViewer.Create("Phong Shaded Dragon Scene Graph");
+            var viewer = SimpleViewer.Create("Path Shape Example");
             viewer.SetCameraManipulator(TrackballManipulator.Create());
 
             // Build the path scene
