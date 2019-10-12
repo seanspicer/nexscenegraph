@@ -53,6 +53,8 @@ namespace Veldrid.SceneGraph
             var vbo = factory.CreateBuffer(vtxBufferDesc);
             device.UpdateBuffer(vbo, 0, VertexData);
 
+            
+            
             var idxBufferDesc =
                 new BufferDescription((uint) (IndexData.Length * sizeof(uint)), BufferUsage.IndexBuffer);
             var ibo = factory.CreateBuffer(idxBufferDesc);

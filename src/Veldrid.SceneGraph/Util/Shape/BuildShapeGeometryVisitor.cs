@@ -76,5 +76,11 @@ namespace Veldrid.SceneGraph.Util.Shape
             var builder = new BuildSphereGeometry<T>(); 
             builder.Build(_geometry, _tessellationHints, _colors, sphere);
         }
+
+        public void Apply(IPath path)
+        {
+            var builder = new PathGeometryBuilder<T>();
+            builder.Build(_geometry, _tessellationHints, _colors, path);
+        }
     }
 }

@@ -180,6 +180,9 @@ namespace Veldrid.SceneGraph.InputAdapter
             // Find the bounding sphere of the scene
             var sceneView = _camera.View as SceneGraph.Viewer.IView;  // TODO: fixme this is just bad.
             var bSphere = sceneView.SceneData.GetBound();
+
+            if (bSphere.Radius < 0) return;
+            
             var radius = bSphere.Radius;
             var center = bSphere.Center;
 

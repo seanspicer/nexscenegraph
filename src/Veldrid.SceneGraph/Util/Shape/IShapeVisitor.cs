@@ -23,5 +23,7 @@ namespace Veldrid.SceneGraph.Util.Shape
         void Apply(IBox box);
 
         void Apply(ISphere sphere);
+
+        void Apply(IPath path);
     }
 }
