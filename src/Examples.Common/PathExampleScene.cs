@@ -20,8 +20,12 @@ namespace Examples.Common
                 new Vector3(0.5f, -1.3f, 0.0f),
                 new Vector3(2.0f, -2.0f, 0.0f)
             });
-            
-            var pathDrawable = ShapeDrawable<Position3Texture2Color3Normal3>.Create(path, TessellationHints.Create());
+
+            var hints = TessellationHints.Create();
+            hints.SetDetailRatio(4.0f);
+            hints.SetRadius(0.1f);
+            hints.CreatePathAsLine = false;
+            var pathDrawable = ShapeDrawable<Position3Texture2Color3Normal3>.Create(path, hints);
             
             var redMaterial = PhongMaterial.Create(
                 PhongMaterialParameters.Create(

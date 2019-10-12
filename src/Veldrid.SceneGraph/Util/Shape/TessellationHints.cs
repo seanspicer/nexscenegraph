@@ -40,7 +40,11 @@ namespace Veldrid.SceneGraph.Util.Shape
         bool CreateFrontFace { get; set; }
         bool CreateBackFace { get; set; }
         float DetailRatio { get; }
+        float Radius { get; }
+        bool CreatePathAsLine { get; set; }
         void SetDetailRatio(float detailRatio);
+        void SetRadius(float radius);
+
     }
     
     public class TessellationHints : ITessellationHints
@@ -50,6 +54,10 @@ namespace Veldrid.SceneGraph.Util.Shape
         public bool CreateFrontFace { get; set; }
         public bool CreateBackFace { get; set; }
         public float DetailRatio { get; private set; }
+        public float Radius { get; private set; }
+        
+        public bool CreatePathAsLine { get; set; }
+        
         public static ITessellationHints Create()
         {
             return new TessellationHints();
@@ -62,6 +70,8 @@ namespace Veldrid.SceneGraph.Util.Shape
             NormalsType = NormalsType.PerVertex;
             ColorsType = ColorsType.ColorOverall;
             DetailRatio = 1.0f;
+            Radius = 1.0f;
+            CreatePathAsLine = true;
         }
 
         public void SetDetailRatio(float detailRatio)
@@ -72,6 +82,16 @@ namespace Veldrid.SceneGraph.Util.Shape
             }
 
             DetailRatio = detailRatio;
+        }
+        
+        public void SetRadius(float radius)
+        {
+            if (radius <= 0.0)
+            {
+                throw new ArgumentException("Detail Ratio must be greater than 0.0");
+            }
+
+            Radius = radius;
         }
     }
 }
