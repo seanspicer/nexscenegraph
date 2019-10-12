@@ -16,15 +16,15 @@
 
 using System;
 using System.Numerics;
+using NUnit.Framework;
 using Veldrid.SceneGraph;
-using Xunit;
 
 namespace Veldrid.SceneGraph.Tests
 {
-    
+    [TestFixture]
     public class BoundingBoxTests
     {
-        [Fact]
+        [TestCase]
         public void TestExpandByVector()
         {
             // Construct a bounding box above the plane
@@ -32,12 +32,12 @@ namespace Veldrid.SceneGraph.Tests
             bb.ExpandBy(new Vector3(-1, -1, 1));
             bb.ExpandBy(new Vector3( 1,  1, 2));
             
-            Assert.Equal(-1, bb.XMin);
-            Assert.Equal( 1, bb.XMax);
-            Assert.Equal(-1, bb.YMin);
-            Assert.Equal( 1, bb.YMax);
-            Assert.Equal( 1, bb.ZMin);
-            Assert.Equal( 2, bb.ZMax);
+            Assert.That(-1, Is.EqualTo(bb.XMin));
+            Assert.That( 1, Is.EqualTo(bb.XMax));
+            Assert.That(-1, Is.EqualTo(bb.YMin));
+            Assert.That( 1, Is.EqualTo(bb.YMax));
+            Assert.That( 1, Is.EqualTo(bb.ZMin));
+            Assert.That( 2, Is.EqualTo(bb.ZMax));
         }
     }
 }
