@@ -33,30 +33,18 @@ namespace Veldrid.SceneGraph.Util
             var m = (1 - c) / System.Math.Pow(s, 2);
             
             var Vx = new Matrix4x4(
-                 0.0f,  v.Z,   v.Y,  0.0f,
+                 0.0f, -v.Z,   v.Y,  0.0f,
                  v.Z,   0.0f, -v.X,  0.0f,
                 -v.Y,   v.X,   0.0f, 0.0f,
-                 0.0f,  0.0f,  0.0f, 1.0f);
+                 0.0f,  0.0f,  0.0f, 0.0f);
 
-            //var Vxx = Matrix4x4.Multiply(Vx, Vx);
-
-            var vx2 = (float)System.Math.Pow(v.X, 2);
-            var vy2 = (float)System.Math.Pow(v.Y, 2);
-            var vz2 = (float)System.Math.Pow(v.Z, 2);
+            var Vxx = Matrix4x4.Multiply(Vx, Vx);
             
-            var Vxx = new Matrix4x4(
-                0.0f,  vz2,   vy2,  0.0f,
-                vz2,   0.0f,  vx2,  0.0f,
-                vy2,   vx2,   0.0f, 0.0f,
-                0.0f,  0.0f,  0.0f, 1.0f);
-
-            Vxx = Matrix4x4.Multiply(Vx, Vx);
-            
-            var tmp1 = Matrix4x4.Add(Matrix4x4.Identity, Vxx);
+            var tmp1 = Matrix4x4.Add(Matrix4x4.Identity, Vx);
             var tmp2 = Matrix4x4.Multiply(Vxx, (float)m);
             var result = Matrix4x4.Add(tmp1, tmp2);
 
-            return result;
+            return Matrix4x4.Transpose(result);
         }
     }
 }
