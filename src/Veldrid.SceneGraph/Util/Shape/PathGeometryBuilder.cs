@@ -9,7 +9,7 @@ namespace Veldrid.SceneGraph.Util.Shape
     {
         internal void Build(IGeometry<T> geometry, ITessellationHints hints, Vector3[] colors, IPath path)
         {
-            if (path.PathLocations.Length < 3)
+            if (path.PathLocations.Length < 2)
             {
                 throw new ArgumentException("Not enough vertices for a path");
             }
@@ -65,6 +65,7 @@ namespace Veldrid.SceneGraph.Util.Shape
             var tangents = ComputeTangents(path);
             var normals = ComputeNormals(path, tangents);
             var binormals = ComputeBinormals(tangents, normals);
+            var radii = ComputeRadii(path, hints.Radius);
 
             geometry.VertexLayout = VertexLayoutHelpers.GetLayoutDescription(typeof(T));
             
@@ -83,7 +84,7 @@ namespace Veldrid.SceneGraph.Util.Shape
                 for (var i = 0; i < path.PathLocations.Length; ++i)
                 {
                     var p = path.PathLocations[i];
-                    p += (float)System.Math.Sin(theta)*r*normals[i] + (float)System.Math.Cos(theta)*r*binormals[i];
+                    p += (float)System.Math.Sin(theta)*r*normals[i] + (float)System.Math.Cos(theta)*radii[i]*binormals[i];
                     
                     var vtx = new T();
                     vtx.SetPosition(p);
@@ -133,13 +134,51 @@ namespace Veldrid.SceneGraph.Util.Shape
         {
             var nVerts = path.PathLocations.Length;
             var normals = new Vector3[path.PathLocations.Length];
+
+            var defaultNormal = false;
+            
+            // Calculate the 1st normal
+            var v0 = Vector3.Subtract(path.PathLocations[1], path.PathLocations[0]);
+            var c0 = Vector3.Cross(v0, tangents[0]);
+            if (c0 == Vector3.Zero)
+            {
+                var r = Math.CalculateRotationBetweenVectors(Vector3.UnitZ, v0);
+                var n = Vector3.Transform(Vector3.UnitX, r);
+                normals[0] = Vector3.Normalize(n);
+                defaultNormal = true;
+            }
+            else
+            {
+                normals[0] = Vector3.Normalize(c0);
+                defaultNormal = false;
+            }
+            
             for (var i = 1; i < nVerts - 1; ++i)
             {
                 var v1 = Vector3.Subtract(path.PathLocations[i], path.PathLocations[i - 1]);
-                normals[i] = Vector3.Normalize(Vector3.Cross(v1, tangents[i]));
+                var crossProduct = Vector3.Cross(v1, tangents[i]);
+                
+                // Handle situation where tangent is equal to the segment vector
+                if (crossProduct == Vector3.Zero)
+                {
+                    normals[i] = normals[i - 1];
+                }
+                else
+                {
+                    normals[i] = Vector3.Normalize(crossProduct);
+                    if (defaultNormal)
+                    {
+                        for (var j = i - 1; j >= 0; --j)
+                        {
+                            normals[j] = normals[i];
+                        }
+
+                        defaultNormal = false;
+                    }
+                }
+                
             }
             
-            normals[0] = normals[1];
             normals[nVerts - 1] = normals[nVerts - 2];
 
             return normals;
@@ -155,6 +194,25 @@ namespace Veldrid.SceneGraph.Util.Shape
             }
 
             return binormals;
+        }
+
+        private float[] ComputeRadii(IPath path, float baseRadius)
+        {
+            var nVerts = path.PathLocations.Length;
+            var radii = new float[path.PathLocations.Length];
+
+            radii[0] = baseRadius;
+            for (var i = 1; i < nVerts - 1; ++i)
+            {
+                var v1 = Vector3.Subtract(path.PathLocations[i + 1],path.PathLocations[i]);
+                var v2 = Vector3.Subtract(path.PathLocations[i],path.PathLocations[i-1]);
+                var dp = Vector3.Dot(v1, v2);
+
+                radii[i] = baseRadius * ((dp) + (1.0f - dp) * (float)System.Math.Sqrt(2));
+            }
+            radii[nVerts-1] = baseRadius;
+
+            return radii;
         }
     }
 }
