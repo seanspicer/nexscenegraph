@@ -1,5 +1,6 @@
 using System.Numerics;
 using System.Security.Cryptography.X509Certificates;
+using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.PipelineStates;
 using Veldrid.SceneGraph.Util.Shape;
@@ -22,21 +23,20 @@ namespace Examples.Common
             });
 
             var hints = TessellationHints.Create();
-            hints.SetDetailRatio(1f);
+            hints.SetDetailRatio(4f);
             hints.SetRadius(0.1f);
-            hints.CreatePathAsLine = false;
             var pathDrawable = ShapeDrawable<Position3Texture2Color3Normal3>.Create(path, hints);
             
             var redMaterial = PhongMaterial.Create(
                 PhongMaterialParameters.Create(
                     new Vector3(1.0f, 0.0f, 0.0f),
-                    new Vector3(0.0f, 0.0f, 0.0f),
-                    new Vector3(0.0f, 0.0f, 0.0f),
-                    5f),
-                PhongPositionalLight.Create( new Vector4(0, 10, 0, 1),PhongLightParameters.Create(
+                    new Vector3(1.0f, 0.0f, 0.0f),
                     new Vector3(1.0f, 1.0f, 1.0f),
-                    new Vector3(0.0f, 0.0f, 0.0f),
-                    new Vector3(0.0f, 0.0f, 0.0f),
+                    5f),
+                PhongHeadlight.Create(PhongLightParameters.Create(
+                    new Vector3(0.1f, 0.1f, 0.1f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
                     1f,
                     0)),
                 true);
@@ -44,6 +44,8 @@ namespace Examples.Common
             var pathGeode = Geode.Create();
             pathGeode.AddDrawable(pathDrawable);
             pathGeode.PipelineState = redMaterial.CreatePipelineState();
+            pathGeode.PipelineState.RasterizerStateDescription 
+                = new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
 
             root.AddChild(pathGeode);
             return root;

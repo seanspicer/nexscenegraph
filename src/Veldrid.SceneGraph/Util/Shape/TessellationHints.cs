@@ -41,7 +41,6 @@ namespace Veldrid.SceneGraph.Util.Shape
         bool CreateBackFace { get; set; }
         float DetailRatio { get; }
         float Radius { get; }
-        bool CreatePathAsLine { get; set; }
         void SetDetailRatio(float detailRatio);
         void SetRadius(float radius);
 
@@ -71,7 +70,6 @@ namespace Veldrid.SceneGraph.Util.Shape
             ColorsType = ColorsType.ColorOverall;
             DetailRatio = 1.0f;
             Radius = 1.0f;
-            CreatePathAsLine = true;
         }
 
         public void SetDetailRatio(float detailRatio)
@@ -86,9 +84,9 @@ namespace Veldrid.SceneGraph.Util.Shape
         
         public void SetRadius(float radius)
         {
-            if (radius <= 0.0)
+            if (radius < 0.0)
             {
-                throw new ArgumentException("Detail Ratio must be greater than 0.0");
+                throw new ArgumentException("Radius must be greater than 0.0");
             }
 
             Radius = radius;
