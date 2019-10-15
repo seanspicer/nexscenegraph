@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 
+using System;
 using System.Numerics;
 
 namespace Veldrid.SceneGraph.Util
@@ -32,19 +33,37 @@ namespace Veldrid.SceneGraph.Util
             var c = Vector3.Dot(a, b);
             var m = (1 - c) / System.Math.Pow(s, 2);
             
-            var Vx = new Matrix4x4(
+            var vx = new Matrix4x4(
                  0.0f, -v.Z,   v.Y,  0.0f,
                  v.Z,   0.0f, -v.X,  0.0f,
                 -v.Y,   v.X,   0.0f, 0.0f,
                  0.0f,  0.0f,  0.0f, 0.0f);
 
-            var Vxx = Matrix4x4.Multiply(Vx, Vx);
+            var vxx = Matrix4x4.Multiply(vx, vx);
             
-            var tmp1 = Matrix4x4.Add(Matrix4x4.Identity, Vx);
-            var tmp2 = Matrix4x4.Multiply(Vxx, (float)m);
-            var result = Matrix4x4.Add(tmp1, tmp2);
+            var tmp1 = Matrix4x4.Identity + vx;
+            var tmp2 = vxx * (float) m;
+            var result = tmp1 + tmp2;
 
             return Matrix4x4.Transpose(result);
+        }
+
+        public static Vector3[] ComputePathTangents(Vector3[] trajectory)
+        {
+            var nVerts = trajectory.Length;
+         
+            if(nVerts < 2) throw new ArgumentException("Not enough points in trajectory");
+            
+            var tangents = new Vector3[nVerts];
+
+            tangents[0] = Vector3.Subtract(trajectory[1],trajectory[0]);
+            for (var i = 1; i < nVerts - 1; ++i)
+            {
+                tangents[i] = Vector3.Subtract(trajectory[i + 1],trajectory[i-1]);
+            }
+            tangents[nVerts-1] = Vector3.Subtract(trajectory[nVerts-1],trajectory[nVerts-2]);
+
+            return tangents;
         }
     }
 }

@@ -24,6 +24,7 @@ namespace Veldrid.SceneGraph.Tests
     public class UtilMathTests
     {
         [TestCase(1, 0, 0, 0, 1, 0)]
+        [TestCase(0, 0, 1, 0, -1, 0)]
         public void TestCalculateRotationBetweenVectorsYieldsValidRotation(float ax, float ay, float az, float bx,
             float by, float bz)
         {
@@ -45,6 +46,27 @@ namespace Veldrid.SceneGraph.Tests
             Assert.That(cc.X, Is.EqualTo(bb.X).Within(tol));
             Assert.That(cc.Y, Is.EqualTo(bb.Y).Within(tol));
             Assert.That(cc.Z, Is.EqualTo(bb.Z).Within(tol));
+        }
+
+        [Test]
+        public void TestCalculateTangents()
+        {
+            var trajectory = new Vector3[5]
+            {
+                Vector3.UnitY,
+                Vector3.Zero,
+                Vector3.UnitZ,
+                Vector3.UnitX + Vector3.UnitZ,
+                Vector3.UnitX - Vector3.UnitY + Vector3.UnitZ
+            };
+
+            var tangents = Util.Math.ComputePathTangents(trajectory);
+            
+            Assert.That(tangents[0], Is.EqualTo(-Vector3.UnitY));
+            Assert.That(tangents[1], Is.EqualTo(Vector3.UnitZ-Vector3.UnitY));
+            Assert.That(tangents[2], Is.EqualTo(Vector3.UnitX+Vector3.UnitZ));
+            Assert.That(tangents[3], Is.EqualTo(Vector3.UnitX-Vector3.UnitY));
+            Assert.That(tangents[4], Is.EqualTo(-Vector3.UnitY));
         }
     }
 }

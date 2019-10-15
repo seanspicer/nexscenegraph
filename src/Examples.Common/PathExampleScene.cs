@@ -18,11 +18,11 @@ namespace Examples.Common
                 new Vector3(0.0f,  1.0f, 0.0f),
                 new Vector3(0.0f,  0.0f, 0.0f), 
                 new Vector3(1.0f,  -1.0f, 0.0f),
-                //new Vector3(2.0f, -2.0f, 2.0f), 
+                new Vector3(2.0f, -2.0f, 2.0f), 
             });
 
             var hints = TessellationHints.Create();
-            hints.SetDetailRatio(4.5f);
+            hints.SetDetailRatio(1f);
             hints.SetRadius(0.1f);
             hints.CreatePathAsLine = false;
             var pathDrawable = ShapeDrawable<Position3Texture2Color3Normal3>.Create(path, hints);

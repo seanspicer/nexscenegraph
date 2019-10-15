@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Reactive;
+using System.Reactive.Subjects;
 using Veldrid.SceneGraph.VertexTypes;
 
 namespace Veldrid.SceneGraph.Util.Shape
@@ -62,32 +64,62 @@ namespace Veldrid.SceneGraph.Util.Shape
 
         private void BuildCylinder(IGeometry<T> geometry, ITessellationHints hints, Vector3[] colors, IPath path)
         {
-            var tangents = ComputeTangents(path);
-            var normals = ComputeNormals(path, tangents);
-            var binormals = ComputeBinormals(tangents, normals);
-            var radii = ComputeRadii(path, hints.Radius);
+            var tangents = Util.Math.ComputePathTangents(path.PathLocations);
 
+            var nSegments = (int)System.Math.Floor(10f * hints.DetailRatio);
+            if (nSegments < 4) nSegments = 4;
+
+            var shape = new Vector3[nSegments];
+            for (var i = 0; i < nSegments; ++i)
+            {
+                var theta = i * 2 * System.Math.PI / nSegments;
+                var r = hints.Radius;
+
+                shape[i] = new Vector3((float)(r*System.Math.Sin(theta)), (float)(r*System.Math.Cos(theta)), 0.0f);
+            }
+
+            var extrusion = new Vector3[path.PathLocations.Length, nSegments];
+            
+            var axialVec = Vector3.UnitZ;
+            for (var i = 0; i < path.PathLocations.Length; ++i)
+            {
+                var unitTangent = Vector3.Normalize(tangents[i]);
+                var z = Vector3.Cross(axialVec, unitTangent);
+
+                if (System.Math.Abs(z.Length()) > 1e-6)
+                {
+                    // Determine the required rotation, and build quaternion
+                    var znorm = Vector3.Normalize(z);
+                    var q = System.Math.Acos(Vector3.Dot(axialVec, unitTangent) / axialVec.Length());
+                    var quat = Quaternion.CreateFromAxisAngle(znorm, (float)q);
+
+                    // Transform shape by quaternion.
+                    for (var j = 0; j < shape.Length; ++j)
+                    {
+                        shape[j] = Vector3.Transform(shape[j], quat);
+                    }
+
+                    axialVec = unitTangent;
+                }
+
+                for (var j = 0; j < shape.Length; ++j)
+                {
+                    extrusion[i, j] = path.PathLocations[i] + shape[j];
+                }
+            }
+            
             geometry.VertexLayout = VertexLayoutHelpers.GetLayoutDescription(typeof(T));
             
             var vertexDataList = new List<T>();
             var indexDataList = new List<uint>();
-
-            var nSegments = (int)System.Math.Floor(10f * hints.DetailRatio);
-            if (nSegments < 4) nSegments = 4;
             
             for (var j = 0; j < nSegments; ++j)
             {
-                var theta = j*2*System.Math.PI / nSegments;
-                var r = hints.Radius;
-                
                 // Draw a line
                 for (var i = 0; i < path.PathLocations.Length; ++i)
                 {
-                    var p = path.PathLocations[i];
-                    p += (float)System.Math.Sin(theta)*r*normals[i] + (float)System.Math.Cos(theta)*radii[i]*binormals[i];
-                    
                     var vtx = new T();
-                    vtx.SetPosition(p);
+                    vtx.SetPosition(extrusion[i,j]);
                     vtx.SetNormal(Vector3.UnitX);
                     vtx.SetTexCoord(Vector2.Zero);
                     vtx.SetColor3(colors[0]);
@@ -111,108 +143,6 @@ namespace Veldrid.SceneGraph.Util.Shape
             geometry.VertexData = vertexDataList.ToArray();
             geometry.IndexData = indexDataList.ToArray();
             
-        }
-        
-        private Vector3[] ComputeTangents(IPath path)
-        {
-            // PRECONDITION: at least two vertices in path
-
-            var nVerts = path.PathLocations.Length;
-            var tangents = new Vector3[path.PathLocations.Length];
-
-            tangents[0] = Vector3.Subtract(path.PathLocations[1],path.PathLocations[0]);
-            for (var i = 1; i < nVerts - 1; ++i)
-            {
-                tangents[i] = Vector3.Subtract(path.PathLocations[i + 1],path.PathLocations[i-1]);
-            }
-            tangents[nVerts-1] = Vector3.Subtract(path.PathLocations[nVerts-1],path.PathLocations[nVerts-2]);
-
-            return tangents;
-        }
-        
-        private Vector3[] ComputeNormals(IPath path, Vector3[] tangents)
-        {
-            var nVerts = path.PathLocations.Length;
-            var normals = new Vector3[path.PathLocations.Length];
-
-            var defaultNormal = false;
-            
-            // Calculate the 1st normal
-            var v0 = Vector3.Subtract(path.PathLocations[1], path.PathLocations[0]);
-            var c0 = Vector3.Cross(v0, tangents[0]);
-            if (c0 == Vector3.Zero)
-            {
-                var r = Math.CalculateRotationBetweenVectors(Vector3.UnitZ, v0);
-                var n = Vector3.Transform(Vector3.UnitX, r);
-                normals[0] = Vector3.Normalize(n);
-                defaultNormal = true;
-            }
-            else
-            {
-                normals[0] = Vector3.Normalize(c0);
-                defaultNormal = false;
-            }
-            
-            for (var i = 1; i < nVerts - 1; ++i)
-            {
-                var v1 = Vector3.Subtract(path.PathLocations[i], path.PathLocations[i - 1]);
-                var crossProduct = Vector3.Cross(v1, tangents[i]);
-                
-                // Handle situation where tangent is equal to the segment vector
-                if (crossProduct == Vector3.Zero)
-                {
-                    normals[i] = normals[i - 1];
-                }
-                else
-                {
-                    normals[i] = Vector3.Normalize(crossProduct);
-                    if (defaultNormal)
-                    {
-                        for (var j = i - 1; j >= 0; --j)
-                        {
-                            normals[j] = normals[i];
-                        }
-
-                        defaultNormal = false;
-                    }
-                }
-                
-            }
-            
-            normals[nVerts - 1] = normals[nVerts - 2];
-
-            return normals;
-        }
-        
-        private Vector3[] ComputeBinormals(Vector3[] tangents, Vector3[] normals)
-        {
-            var nVerts = tangents.Length;
-            var binormals = new Vector3[nVerts];
-            for (var i = 0; i < nVerts; ++i)
-            {
-                binormals[i] = Vector3.Normalize(Vector3.Cross(tangents[i], normals[i]));
-            }
-
-            return binormals;
-        }
-
-        private float[] ComputeRadii(IPath path, float baseRadius)
-        {
-            var nVerts = path.PathLocations.Length;
-            var radii = new float[path.PathLocations.Length];
-
-            radii[0] = baseRadius;
-            for (var i = 1; i < nVerts - 1; ++i)
-            {
-                var v1 = Vector3.Subtract(path.PathLocations[i + 1],path.PathLocations[i]);
-                var v2 = Vector3.Subtract(path.PathLocations[i],path.PathLocations[i-1]);
-                var dp = Vector3.Dot(v1, v2);
-
-                radii[i] = baseRadius * ((dp) + (1.0f - dp) * (float)System.Math.Sqrt(2));
-            }
-            radii[nVerts-1] = baseRadius;
-
-            return radii;
         }
     }
 }
