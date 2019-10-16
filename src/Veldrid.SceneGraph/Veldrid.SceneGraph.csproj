@@ -11,6 +11,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.0.0" />
     <PackageReference Include="ShaderGen.Build" Version="1.2.0-beta2" />
     <PackageReference Include="ShaderGen.Primitives" Version="1.2.0-beta2" />
     <PackageReference Include="SixLabors.Fonts" Version="1.0.0-beta0009" />
@@ -49,6 +51,10 @@
     <None Update="Assets\Shaders\BasicTextureShader.vert.spv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\Shaders\Phong-fragment.glsl" />
+    <EmbeddedResource Include="Assets\Shaders\Phong-vertex.glsl" />
   </ItemGroup>
   <Target Name="IncludeGeneratedShaderEmbeddedResource" AfterTargets="AssignTargetPaths" Condition="'$(ShaderContentIncludePath)' != ''">
     <ItemGroup>

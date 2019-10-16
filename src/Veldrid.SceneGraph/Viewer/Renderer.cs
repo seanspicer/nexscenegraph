@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright 2018 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,8 +20,10 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
+using Microsoft.Extensions.Logging;
 //using Common.Logging;
 using Veldrid.MetalBindings;
+using Veldrid.SceneGraph.Logging;
 using Veldrid.SceneGraph.RenderGraph;
 using Veldrid.SceneGraph.Util;
 
@@ -49,14 +51,14 @@ namespace Veldrid.SceneGraph.Viewer
 
         private List<Tuple<uint, ResourceSet>> _defaultResourceSets = new List<Tuple<uint, ResourceSet>>();
 
-        //private ILog _logger;
+        private ILogger _logger;
         
         public Renderer(ICamera camera)
         {
             _camera = camera;
             _updateVisitor = UpdateVisitor.Create();
             _cullVisitor = CullVisitor.Create();
-            //_logger = LogManager.GetLogger<Renderer>();
+            _logger = LogManager.CreateLogger<Renderer>();
         }
 
         private void Initialize(GraphicsDevice device, ResourceFactory factory)
@@ -169,12 +171,12 @@ namespace Veldrid.SceneGraph.Viewer
         private void DrawOpaqueRenderGroups(GraphicsDevice device, ResourceFactory factory)
         {
             var alignment = device.UniformBufferMinOffsetAlignment;
-            var modelBuffStride = 64u;
+            var modelViewMatrixObjSizeInBytes = 64u;
             var hostBuffStride = 1u;
             if (alignment > 64u)
             {
                 hostBuffStride = alignment / 64u;
-                modelBuffStride = alignment;
+                modelViewMatrixObjSizeInBytes = alignment;
             }
             
             foreach (var state in _cullVisitor.OpaqueRenderGroup.GetStateList())
@@ -194,15 +196,22 @@ namespace Veldrid.SceneGraph.Viewer
                 for(var i=0; i<nDrawables; ++i)
                 {
                     var element = state.Elements[i];
-                    var offset = (uint)i*modelBuffStride;
+                    var offsetsList = new List<uint>();
+
+                    foreach (var stride in ri.UniformStrides)
+                    {
+                        offsetsList.Add((uint)i*stride);
+                    }
+                    
+                    var offsets = offsetsList.ToArray();
                     
                     _commandList.SetVertexBuffer(0, element.VertexBuffer);
                     
-                    _commandList.SetIndexBuffer(element.IndexBuffer, IndexFormat.UInt16);
+                    _commandList.SetIndexBuffer(element.IndexBuffer, IndexFormat.UInt32);
                     
                     _commandList.SetGraphicsResourceSet(0, _resourceSet);
 
-                    _commandList.SetGraphicsResourceSet(1, ri.ResourceSet, 1, ref offset);
+                    _commandList.SetGraphicsResourceSet(1, ri.ResourceSet, offsets);
            
                     foreach (var primitiveSet in element.PrimitiveSets)
                     {
@@ -310,7 +319,7 @@ namespace Veldrid.SceneGraph.Viewer
                     if (boundIndexBuffer != renderGroupElement.IndexBuffer)
                     {
                         // Set index buffer
-                        _commandList.SetIndexBuffer(renderGroupElement.IndexBuffer, IndexFormat.UInt16);
+                        _commandList.SetIndexBuffer(renderGroupElement.IndexBuffer, IndexFormat.UInt32);
                         boundIndexBuffer = renderGroupElement.IndexBuffer;
                     }
                     
@@ -380,12 +389,12 @@ namespace Veldrid.SceneGraph.Viewer
             
             var postSwap = _stopWatch.ElapsedMilliseconds;
             
-//            _logger.Trace(m => m(string.Format("Update = {0} ms, Cull = {1} ms, Record = {2}, Draw = {3} ms, Swap = {4} ms",
-//                postUpdate, 
-//                postCull-postUpdate,
-//                postRecord-postCull,
-//                postDraw-postRecord,
-//                postSwap-postDraw)));
+            _logger.LogTrace(string.Format("Update = {0} ms, Cull = {1} ms, Record = {2}, Draw = {3} ms, Swap = {4} ms",
+                postUpdate, 
+                postCull-postUpdate,
+                postRecord-postCull,
+                postDraw-postRecord,
+                postSwap-postDraw));
         }
     }
 }

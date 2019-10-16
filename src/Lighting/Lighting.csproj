@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp3.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Examples.Common\Examples.Common.csproj" />
+      <ProjectReference Include="..\Veldrid.SceneGraph.IO\Veldrid.SceneGraph.IO.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="Assets\Models\chinesedragon.dae" />
+      <EmbeddedResource Include="Assets\Shaders\Phong-fragment.glsl" />
+      <EmbeddedResource Include="Assets\Shaders\Phong-vertex.glsl" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Veldrid.SPIRV" Version="1.0.12" />
+    </ItemGroup>
+
+</Project>

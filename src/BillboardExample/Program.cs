@@ -71,7 +71,7 @@ namespace BillboardExample
 
             geometry.VertexData = quadVertices;
             
-            ushort[] quadIndices = { 0, 1, 2, 3 };
+            uint[] quadIndices = { 0, 1, 2, 3 };
             geometry.IndexData = quadIndices;
             
             var pSet = DrawElements<VertexPositionColor>.Create(

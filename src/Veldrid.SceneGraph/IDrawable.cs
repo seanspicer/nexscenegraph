@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 
+using System;
 using System.Collections.Generic;
 
 namespace Veldrid.SceneGraph
@@ -21,6 +22,7 @@ namespace Veldrid.SceneGraph
     public interface IDrawable : IObject
     {
         string Name { get; set; }
+        Type VertexType { get; }
         IBoundingBox InitialBoundingBox { get; set; }
         VertexLayoutDescription VertexLayout { get; set; }
         List<IPrimitiveSet> PrimitiveSets { get; }

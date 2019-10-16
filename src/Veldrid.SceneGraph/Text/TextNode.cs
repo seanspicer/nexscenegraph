@@ -77,7 +77,7 @@ namespace Veldrid.SceneGraph.Text
                 new VertexPositionTexture(new Vector3(-1.0f, -1.0f, +0.0f), new Vector2(0, 1))
             };
 
-            IndexData = new ushort[]
+            IndexData = new uint[]
             {
                 0, 1, 2, 0, 2, 3,
             };
