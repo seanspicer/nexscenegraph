@@ -323,11 +323,16 @@ namespace Veldrid.SceneGraph.Viewer
 #endif
             //_logger.Info(m => m($"Creating Graphics Device with {_preferredBackend} Backend"));
             
+            
+            
             _graphicsDevice = VeldridStartup.CreateGraphicsDevice(_window, options, _preferredBackend);
+            _view.Framebuffer = _graphicsDevice.SwapchainFramebuffer;
             bool isDirect3DSupported = GraphicsDevice.IsBackendSupported(GraphicsBackend.Direct3D11);
             _factory = new DisposeCollectorResourceFactory(_graphicsDevice.ResourceFactory);
             _stopwatch = Stopwatch.StartNew();
             _previousElapsed = _stopwatch.Elapsed.TotalSeconds;
+            
+            
         }
 
         // 
@@ -398,6 +403,7 @@ namespace Veldrid.SceneGraph.Viewer
                 DisplaySettings.Instance.ScreenWidth = _window.Width;
                 DisplaySettings.Instance.ScreenHeight = _window.Height;
                 _resizeEvents.OnNext(new ResizedEvent(_window.Width, _window.Height));
+                _view.Framebuffer = _graphicsDevice.SwapchainFramebuffer;
             }
             
             GraphicsDeviceOperations?.Invoke(_graphicsDevice, _factory);

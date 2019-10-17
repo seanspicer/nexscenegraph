@@ -33,7 +33,7 @@ namespace Veldrid.SceneGraph.Wpf
                 _sceneData = value;
                 if (null != _view)
                 {
-                    ((View) _view).SceneData = _sceneData;
+                    ((Veldrid.SceneGraph.Viewer.View) _view).SceneData = _sceneData;
                     CameraManipulator?.ViewAll();
                 }
             }
@@ -49,7 +49,7 @@ namespace Veldrid.SceneGraph.Wpf
                 _cameraManipulator = value;
                 if (null != _view)
                 {
-                    ((View) _view).CameraManipulator = _cameraManipulator;
+                    ((Veldrid.SceneGraph.Viewer.View) _view).CameraManipulator = _cameraManipulator;
                     CameraManipulator?.ViewAll();
                 }
             }
@@ -65,8 +65,8 @@ namespace Veldrid.SceneGraph.Wpf
                 _eventHandler = value;
                 if (null != _view)
                 {
-                    _eventHandler.SetView(_view);
-                    ((View) _view).AddInputEventHandler(_eventHandler);
+                    _eventHandler.SetView((Veldrid.SceneGraph.Viewer.View)_view);
+                    ((Veldrid.SceneGraph.Viewer.View) _view).AddInputEventHandler(_eventHandler);
                 }
                 
             }
@@ -74,8 +74,8 @@ namespace Veldrid.SceneGraph.Wpf
         
         public double DpiScale { get; set; }
 
-        private Wpf.View _view;
-        public IView View
+        private Veldrid.SceneGraph.Viewer.IView _view;
+        public Veldrid.SceneGraph.Viewer.IView View
         {
             get => _view;
         }
@@ -158,7 +158,7 @@ namespace Veldrid.SceneGraph.Wpf
 
         public void Initialize()
         {
-            var view = Veldrid.SceneGraph.Wpf.View.Create(_resizeEvents);
+            var view = Veldrid.SceneGraph.Viewer.View.Create(_resizeEvents);
             view.InputEvents = ViewerInputEvents;
 
             if (null != _sceneData)
@@ -173,7 +173,7 @@ namespace Veldrid.SceneGraph.Wpf
 
             if (null != _eventHandler)
             {
-                _eventHandler.SetView(view);
+                _eventHandler.SetView((Veldrid.SceneGraph.Viewer.View)view);
                 view.AddInputEventHandler(_eventHandler);
             }
             

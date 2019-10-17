@@ -55,7 +55,7 @@ namespace Veldrid.SceneGraph.Wpf
                 _sceneData = value;
                 if (null != _view)
                 {
-                    ((View) _view).SceneData = _sceneData;
+                    ((Veldrid.SceneGraph.Viewer.View) _view).SceneData = _sceneData;
                 }
             }
         }
@@ -70,7 +70,7 @@ namespace Veldrid.SceneGraph.Wpf
                 _cameraManipulator = value;
                 if (null != _view)
                 {
-                    ((View) _view).CameraManipulator = _cameraManipulator;
+                    ((Veldrid.SceneGraph.Viewer.View) _view).CameraManipulator = _cameraManipulator;
                 }
             }
         }
@@ -85,8 +85,8 @@ namespace Veldrid.SceneGraph.Wpf
                 _eventHandler = value;
                 if (null != _view)
                 {
-                    _eventHandler.SetView(_view);
-                    ((View) _view).AddInputEventHandler(_eventHandler);
+                    _eventHandler.SetView((Veldrid.SceneGraph.Viewer.View)_view);
+                    ((Veldrid.SceneGraph.Viewer.View) _view).AddInputEventHandler(_eventHandler);
                 }
                 
             }
@@ -94,7 +94,7 @@ namespace Veldrid.SceneGraph.Wpf
 
         public IView View
         {
-            get => _view;
+            get => (Veldrid.SceneGraph.Viewer.View)_view;
         }
         
         public IObservable<IResizedEvent> ResizeEvents => _resizeEvents;
@@ -116,7 +116,7 @@ namespace Veldrid.SceneGraph.Wpf
         private Stopwatch _stopwatch = null;
         private double _previousElapsed = 0;
         private GraphicsBackend _preferredBackend = DisplaySettings.Instance.GraphicsBackend;
-        private IView _view;
+        private Veldrid.SceneGraph.Viewer.IView _view;
         private event Action<GraphicsDevice, ResourceFactory> GraphicsDeviceOperations;
         
         private const uint NFramesInBuffer = 30;
@@ -172,11 +172,11 @@ namespace Veldrid.SceneGraph.Wpf
             DisplaySettings.Instance.ScreenHeight = height;
             DisplaySettings.Instance.ScreenDistance = 1000.0f;
             
-            var view = Veldrid.SceneGraph.Wpf.View.Create(_resizeEvents);
+            var view = Veldrid.SceneGraph.Viewer.View.Create(_resizeEvents);
             view.InputEvents = ViewerInputEvents;
             view.SceneData = _sceneData;
             view.CameraManipulator = _cameraManipulator;
-            _eventHandler.SetView(view);
+            _eventHandler.SetView((Veldrid.SceneGraph.Viewer.View)view);
             view.AddInputEventHandler(_eventHandler);
 
             GraphicsDeviceOperations += view.Camera.Renderer.HandleOperation;
@@ -363,22 +363,22 @@ namespace Veldrid.SceneGraph.Wpf
         
         public void ViewAll()
         {
-            ((View)_view).CameraManipulator?.ViewAll();
+            ((Veldrid.SceneGraph.Viewer.View)_view).CameraManipulator?.ViewAll();
         }
         
         public void SetSceneData(IGroup root)
         {
-            ((View)_view).SceneData = root;
+            ((Veldrid.SceneGraph.Viewer.View)_view).SceneData = root;
         }
 
         public void SetCameraManipulator(ICameraManipulator cameraManipulator)
         {
-            ((View)_view).CameraManipulator = cameraManipulator;
+            ((Veldrid.SceneGraph.Viewer.View)_view).CameraManipulator = cameraManipulator;
         }
 
         public void AddInputEventHandler(IInputEventHandler handler)
         {
-            ((View)_view).AddInputEventHandler(handler);
+            ((Veldrid.SceneGraph.Viewer.View)_view).AddInputEventHandler(handler);
         }
 
         protected override sealed void Uninitialize()

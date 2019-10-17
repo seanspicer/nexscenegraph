@@ -26,7 +26,7 @@ namespace WpfDemo
 {
     public class PickEventHandler : InputEventHandler
     {
-        private Veldrid.SceneGraph.Wpf.View _view;
+        private Veldrid.SceneGraph.Viewer.View _view;
 
         //private readonly ILogger _logger;
         
@@ -37,7 +37,7 @@ namespace WpfDemo
 
         public override void SetView(IView view)
         {
-            var wpfView = view as Veldrid.SceneGraph.Wpf.View;
+            var wpfView = view as Veldrid.SceneGraph.Viewer.View;
             if (null != wpfView)
             {
                 _view = wpfView;
