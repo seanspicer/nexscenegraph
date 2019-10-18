@@ -51,6 +51,8 @@ namespace Veldrid.SceneGraph.Viewer
 
         private List<Tuple<uint, ResourceSet>> _defaultResourceSets = new List<Tuple<uint, ResourceSet>>();
 
+        public Framebuffer Framebuffer { get; set; }
+        
         private ILogger _logger;
         
         public Renderer(ICamera camera)
@@ -59,6 +61,7 @@ namespace Veldrid.SceneGraph.Viewer
             _updateVisitor = UpdateVisitor.Create();
             _cullVisitor = CullVisitor.Create();
             _logger = LogManager.CreateLogger<Renderer>();
+            Framebuffer = null;
         }
 
         private void Initialize(GraphicsDevice device, ResourceFactory factory)
@@ -137,7 +140,7 @@ namespace Veldrid.SceneGraph.Viewer
             _commandList.Begin();
 
             // We want to render directly to the output window.
-            _commandList.SetFramebuffer(device.SwapchainFramebuffer);
+            _commandList.SetFramebuffer(Framebuffer);
             
             // TODO Set from Camera color ?
             _commandList.ClearColorTarget(0, RgbaFloat.Grey);
@@ -161,10 +164,9 @@ namespace Veldrid.SceneGraph.Viewer
 
         private void Draw(GraphicsDevice device)
         {
-            // TODO - this doesn't work on Metal
             device.ResetFence(_fence);
-            
             device.SubmitCommands(_commandList, _fence);
+            device.WaitForFence(_fence);
             device.WaitForIdle();
         }
 
@@ -181,7 +183,7 @@ namespace Veldrid.SceneGraph.Viewer
             
             foreach (var state in _cullVisitor.OpaqueRenderGroup.GetStateList())
             {
-                var ri = state.GetPipelineAndResources(device, factory, _resourceLayout, device.SwapchainFramebuffer);
+                var ri = state.GetPipelineAndResources(device, factory, _resourceLayout, Framebuffer);
                 
                 _commandList.SetPipeline(ri.Pipeline);
                 
@@ -291,7 +293,7 @@ namespace Veldrid.SceneGraph.Viewer
 
                     if (null == lastState || state != lastState)
                     {
-                        ri = state.GetPipelineAndResources(device, factory, _resourceLayout, device.SwapchainFramebuffer);
+                        ri = state.GetPipelineAndResources(device, factory, _resourceLayout, Framebuffer);
 
                         // Set this state's pipeline
                         _commandList.SetPipeline(ri.Pipeline);
@@ -347,7 +349,10 @@ namespace Veldrid.SceneGraph.Viewer
 
         private void SwapBuffers(GraphicsDevice device)
         {
-            device.SwapBuffers();
+            if (Framebuffer == device.SwapchainFramebuffer)
+            {
+                device.SwapBuffers();
+            }
         }
 
         public void HandleOperation(GraphicsDevice device, ResourceFactory factory)
