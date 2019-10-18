@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using Examples.Common.Wpf;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
@@ -30,44 +31,10 @@ namespace WpfDemo
         }
     }
     
-    public class MainWindowViewModel : INotifyPropertyChanged
+    public class MainWindowViewModel : ViewModelBase
     {
-        private IGroup _sceneRoot;
-        public IGroup SceneRoot
-        {
-            get => _sceneRoot;
-            set
-            {
-                _sceneRoot = value;
-                OnPropertyChanged("SceneRoot");
-            }
-        }
-
-        private ICameraManipulator _cameraManipulator;
-
-        public ICameraManipulator CameraManipulator
-        {
-            get => _cameraManipulator;
-            set
-            {
-                _cameraManipulator = value;
-                OnPropertyChanged("CameraManipulator");
-            }
-        }
-
-        private IInputEventHandler _eventHandler;
-
-        public IInputEventHandler EventHandler
-        {
-            get => _eventHandler;
-            set
-            {
-                _eventHandler = value;
-                OnPropertyChanged("EventHandler");
-            }
-        }
-
-        public MainWindowViewModel()
+        
+        public MainWindowViewModel() : base()
         {
             var root = Group.Create();
             root.NameString = "Root";
@@ -188,16 +155,5 @@ namespace WpfDemo
 
             return pso;
         }
-        
-        #region INotifyPropertyChanged
-        
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-        #endregion
     }
 }

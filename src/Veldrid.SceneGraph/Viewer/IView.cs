@@ -27,6 +27,8 @@ namespace Veldrid.SceneGraph.Viewer
         ICamera Camera { get; set; }
         IObservable<IInputStateSnapshot> InputEvents { get; set; }
         
+        Framebuffer Framebuffer { get; set; }
+        
         void AddInputEventHandler(IInputEventHandler handler);
         
         
