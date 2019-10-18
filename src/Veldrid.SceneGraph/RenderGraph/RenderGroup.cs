@@ -57,6 +57,9 @@ namespace Veldrid.SceneGraph.RenderGraph
             {
                 rgs.Elements.Clear();
             }
+            
+            // This call is *crazy* expensive
+            //RenderGroupStateCache.Clear();
         }
         
         public IEnumerable<IRenderGroupState> GetStateList()

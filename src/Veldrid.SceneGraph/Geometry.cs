@@ -25,9 +25,9 @@ namespace Veldrid.SceneGraph
     public class Geometry<T> : Drawable, IGeometry<T> where T : struct, IPrimitiveElement
     {
         public T[] VertexData { get; set; }
-        public int SizeOfVertexData => Marshal.SizeOf(default(T));
+        private int SizeOfVertexData => Marshal.SizeOf(default(T));
         
-        public ushort[] IndexData { get; set; }
+        public uint[] IndexData { get; set; }
         
         private Dictionary<GraphicsDevice, DeviceBuffer> _vertexBufferCache 
             = new Dictionary<GraphicsDevice, DeviceBuffer>();
@@ -53,15 +53,22 @@ namespace Veldrid.SceneGraph
             var vbo = factory.CreateBuffer(vtxBufferDesc);
             device.UpdateBuffer(vbo, 0, VertexData);
 
+            
+            
             var idxBufferDesc =
-                new BufferDescription((uint) (IndexData.Length * sizeof(ushort)), BufferUsage.IndexBuffer);
+                new BufferDescription((uint) (IndexData.Length * sizeof(uint)), BufferUsage.IndexBuffer);
             var ibo = factory.CreateBuffer(idxBufferDesc);
             device.UpdateBuffer(ibo, 0, IndexData);
 
             _vertexBufferCache.Add(device, vbo);
             _indexBufferCache.Add(device, ibo);
         }
-       
+
+
+        protected override Type GetVertexType()
+        {
+            return typeof(T);
+        }
 
         protected override void DrawImplementation(GraphicsDevice device, List<Tuple<uint, ResourceSet>> resourceSets, CommandList commandList)
         {

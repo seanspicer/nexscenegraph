@@ -17,36 +17,36 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using NUnit.Framework;
 using Veldrid.SceneGraph.Util;
-using Xunit;
-
 namespace Veldrid.SceneGraph.Tests
 {
+    [TestFixture]
     public class MatrixExtensionsTests
     {
-        [Fact]
+        [TestCase]
         public void PassCanaryTest()
         {
-            Assert.Equal(4, 2 + 2);
+            Assert.That(4, Is.EqualTo(2 + 2));
         }
 
-        [Fact]
+        [TestCase]
         public void PreMultiplyWithIdentityReturnsSame()
         {
             var v = new Vector3(1, 2, 3);
             
-            Assert.Equal(v, Matrix4x4.Identity.PreMultiply(v));
+            Assert.That(v, Is.EqualTo(Matrix4x4.Identity.PreMultiply(v)));
         }
         
-        [Fact]
+        [TestCase]
         public void PostMultiplyWithIdentityReturnsSame()
         {
             var v = new Vector3(1, 2, 3);
             
-            Assert.Equal(v, Matrix4x4.Identity.PostMultiply(v));
+            Assert.That(v, Is.EqualTo(Matrix4x4.Identity.PostMultiply(v)));
         }
 
-        [Fact]
+        [TestCase]
         public void PreMultiplyIsSameAsPostMultiplyInverse()
         {
             var m = Matrix4x4.CreateRotationX(0.56f);
@@ -58,10 +58,10 @@ namespace Veldrid.SceneGraph.Tests
             var v1 = m.PreMultiply(v);
             var v2 = inv.PostMultiply(v);
             
-            Assert.Equal(v1, v2);
+            Assert.That(v1, Is.EqualTo(v2));
         }
 
-        [Fact]
+        [TestCase]
         public void PreMultiplySameAsTransform()
         {
             var m = Matrix4x4.CreateRotationX(0.56f);
@@ -70,10 +70,10 @@ namespace Veldrid.SceneGraph.Tests
             var v1 = m.PreMultiply(v);
             var v2 = Vector3.Transform(v, m);
 
-            Assert.Equal(v1, v2);
+            Assert.That(v1, Is.EqualTo(v2));
         }
 
-        [Fact]
+        [TestCase]
         public void TestStackOrder()
         {
             var s = new Stack<int>();
@@ -81,9 +81,9 @@ namespace Veldrid.SceneGraph.Tests
             s.Push(2);
             s.Push(3);
             
-            Assert.Equal(1, s.Last());
-            Assert.Equal(3, s.First());
-            Assert.Equal(3, s.Peek());
+            Assert.That(1, Is.EqualTo(s.Last()));
+            Assert.That(3, Is.EqualTo(s.First()));
+            Assert.That(3, Is.EqualTo(s.Peek()));
         }
     }
 }

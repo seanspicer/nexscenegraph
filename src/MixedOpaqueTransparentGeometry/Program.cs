@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using Examples.Common;
-using ShaderGen;
 using SharpDX.Mathematics.Interop;
 using Veldrid;
 using Veldrid.SceneGraph;
@@ -33,9 +32,7 @@ public struct VertexPositionColor : IPrimitiveElement
     {
         public const uint SizeInBytes = 28;
 
-        [PositionSemantic] 
         public Vector3 Position;
-        [ColorSemantic]
         public Vector4 Color;
         
         public VertexPositionColor(Vector3 position, Vector4 color)
@@ -155,7 +152,7 @@ public struct VertexPositionColor : IPrimitiveElement
                 new VertexPositionColor(new Vector3(-1.0f, -1.0f, +1.0f), new Vector4(1.0f, 0.0f, 1.0f, 0.5f)),
             };
             
-            var indices = new List<ushort>
+            var indices = new List<uint>
             {
                 0,1,2, 0,2,3,
                 4,5,6, 4,6,7,
@@ -229,11 +226,11 @@ public struct VertexPositionColor : IPrimitiveElement
                 new Vector4(0.8f, 0.8f, 0.8f, 1.0f),
             };
 
-            ushort[] cubeIndices   = {3, 2, 7, 6, 4, 2, 0, 3, 1, 7, 5, 4, 1, 0};
+            uint[] cubeIndices   = {3, 2, 7, 6, 4, 2, 0, 3, 1, 7, 5, 4, 1, 0};
             ushort[] colorIndices = {0, 0, 4, 1, 1, 2, 2, 3, 3, 4, 5, 5};
             
             var cubeTriangleVertices = new List<VertexPositionColor>();
-            var cubeTriangleIndices = new List<ushort>();
+            var cubeTriangleIndices = new List<uint>();
 
             for (var i = 0; i < cubeIndices.Length-2; ++i)
             {
@@ -250,9 +247,9 @@ public struct VertexPositionColor : IPrimitiveElement
                     cubeTriangleVertices.Add(new VertexPositionColor(cubeVertices[cubeIndices[i+2]], faceColors[colorIndices[i]]));
                 }
                 
-                cubeTriangleIndices.Add((ushort) (3 * i));
-                cubeTriangleIndices.Add((ushort) (3 * i + 1));
-                cubeTriangleIndices.Add((ushort) (3 * i + 2));
+                cubeTriangleIndices.Add((uint) (3 * i));
+                cubeTriangleIndices.Add((uint) (3 * i + 1));
+                cubeTriangleIndices.Add((uint) (3 * i + 2));
             }
 
             geometry.VertexData = cubeTriangleVertices.ToArray();

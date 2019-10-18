@@ -28,6 +28,12 @@ namespace Veldrid.SceneGraph.RenderGraph
         public ResourceLayout ResourceLayout;
         public ResourceSet ResourceSet;
         public DeviceBuffer ModelViewBuffer;
+        public List<uint> UniformStrides;
+
+        public RenderInfo()
+        {
+            UniformStrides = new List<uint>();
+        }
     }
     
     public class RenderGroupState : IRenderGroupState
@@ -71,36 +77,22 @@ namespace Veldrid.SceneGraph.RenderGraph
 
             var alignment = graphicsDevice.UniformBufferMinOffsetAlignment;
             
-            var stride = 1u;
-            var multiplier = 64u;
+            var modelViewMatrixObjSizeInBytes = 64u;
             if (alignment > 64u)
             {
-                multiplier = alignment;
-                stride = alignment / 64u;
+                modelViewMatrixObjSizeInBytes = alignment;
             }
             
-            var buffsize = nDrawables*stride;
+            ri.UniformStrides.Add(modelViewMatrixObjSizeInBytes);
             
-            var modelMatrixViewBuffer = new Matrix4x4[buffsize];
-            
-            for(var i=0; i<nDrawables; i++)
-            {
-                modelMatrixViewBuffer[i*stride] = Elements[i].ModelViewMatrix;
-            }
-            
-            // TODO - this shouldn't be allocated here!
-            //var modelMatrixBuffer = Matrix4x4.Identity;
             ri.ModelViewBuffer =
-                resourceFactory.CreateBuffer(new BufferDescription(multiplier*nDrawables, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
-            
-            graphicsDevice.UpdateBuffer(ri.ModelViewBuffer, 0, modelMatrixViewBuffer);
-            // TODO - this shouldn't be allocated here!
+                resourceFactory.CreateBuffer(new BufferDescription(modelViewMatrixObjSizeInBytes*nDrawables, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
             
             resourceLayoutElementDescriptionList.Add(
                 new ResourceLayoutElementDescription("Model", ResourceKind.UniformBuffer, ShaderStages.Vertex, ResourceLayoutElementOptions.DynamicBinding));
 
             //bindableResourceList.Add(ri.ModelViewBuffer);
-            bindableResourceList.Add(new DeviceBufferRange(ri.ModelViewBuffer, 0, multiplier));
+            bindableResourceList.Add(new DeviceBufferRange(ri.ModelViewBuffer, 0, modelViewMatrixObjSizeInBytes));
             
             // Process Attached Textures
             foreach (var tex2d in PipelineState.TextureList)
@@ -124,6 +116,20 @@ namespace Veldrid.SceneGraph.RenderGraph
                 bindableResourceList.Add(graphicsDevice.Aniso4xSampler);
             }
 
+            foreach (var uniform in PipelineState.UniformList)
+            {
+                uniform.ConfigureDeviceBuffers(graphicsDevice, resourceFactory);
+                
+                resourceLayoutElementDescriptionList.Add(uniform.ResourceLayoutElementDescription);
+                
+                bindableResourceList.Add(uniform.DeviceBufferRange);
+
+                if (uniform.ResourceLayoutElementDescription.Options == ResourceLayoutElementOptions.DynamicBinding)
+                {
+                    ri.UniformStrides.Add(uniform.DeviceBufferRange.SizeInBytes);
+                }
+            }
+
             ri.ResourceLayout = resourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(resourceLayoutElementDescriptionList.ToArray()));
 
@@ -138,6 +144,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             pd.DepthStencilState = PipelineState.DepthStencilState;
             pd.RasterizerState = PipelineState.RasterizerStateDescription;
 
+            // TODO - cache based on the shader description and reuse shader objects
             if (null != PipelineState.VertexShaderDescription && null != PipelineState.FragmentShaderDescription)
             {
                 Shader[] shaders = resourceFactory.CreateFromSpirv(

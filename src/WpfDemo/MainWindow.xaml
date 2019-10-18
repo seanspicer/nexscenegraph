@@ -30,9 +30,4 @@
         </Canvas>
         
     </Grid>
-    
-    <!-- <wpf:VeldridSceneGraphHwndControl  -->
-    <!--     SceneRoot="{Binding SceneRoot}"  -->
-    <!--     CameraManipulator="{Binding CameraManipulator}" -->
-    <!--     EventHandler="{Binding EventHandler}"/> -->
 </Window>

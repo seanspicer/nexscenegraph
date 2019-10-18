@@ -18,19 +18,19 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
+using NUnit.Framework;
 using Veldrid.SceneGraph;
-using Xunit;
 
 namespace Veldrid.SceneGraph.Tests
 {
+    [TestFixture]
     public class PlaneTests
     {
-        [Theory]
-        [MemberData(nameof(GetData))]
+        [TestCaseSource(typeof(PlaneTests), "GetData")]
         public void TestIntersectBoundingBoxPlane(Plane planeUnderTest, BoundingBox bbUnderTest, int expected)
         {
             // Intersect should return 1
-            Assert.Equal( expected, planeUnderTest.Intersect(bbUnderTest));
+            Assert.That( expected, Is.EqualTo(planeUnderTest.Intersect(bbUnderTest)));
         }
         
         public static IEnumerable<object[]> GetData()

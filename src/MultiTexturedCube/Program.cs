@@ -19,8 +19,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
 using Examples.Common;
-using MultiTexturedCube.Shaders;
-using ShaderGen;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
@@ -33,11 +31,8 @@ namespace MultiTexturedCube
     {
         public const uint SizeInBytes = 36;
 
-        [PositionSemantic] 
         public Vector3 Position;
-        [TextureCoordinateSemantic]
         public Vector2 TexCoord;
-        [ColorSemantic]
         public Vector4 Color;
         
         public VertexPositionTexture(Vector3 position, Vector2 texCoord, Vector4 color)
@@ -112,7 +107,7 @@ namespace MultiTexturedCube
                 new VertexPositionTexture(new Vector3(-0.5f, -0.5f, +0.5f), new Vector2(0, 1), new Vector4(1, 0, 1, 1)),
             };
             
-            ushort[] indices =
+            uint[] indices =
             {
                 0,1,2, 0,2,3,
                 4,5,6, 4,6,7,
