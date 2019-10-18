@@ -17,7 +17,6 @@
 using System;
 using System.Numerics;
 using Examples.Common;
-using ShaderGen;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
@@ -30,9 +29,7 @@ namespace BillboardExample
     {
         public const uint SizeInBytes = 28;
 
-        [PositionSemantic] 
         public Vector3 Position;
-        [ColorSemantic]
         public Vector4 Color;
         
         public VertexPositionColor(Vector3 position, Vector4 color)

@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Numerics;
 using CullingColoredCubes;
 using Examples.Common;
-using ShaderGen;
 using SharpDX.Mathematics.Interop;
 using Veldrid;
 using Veldrid.SceneGraph;
@@ -34,9 +33,7 @@ namespace ColoredCube
     {
         public const uint SizeInBytes = 28;
 
-        [PositionSemantic] 
         public Vector3 Position;
-        [ColorSemantic]
         public Vector4 Color;
         
         public VertexPositionColor(Vector3 position, Vector4 color)
