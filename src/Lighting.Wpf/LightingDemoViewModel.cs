@@ -8,9 +8,7 @@ namespace Lighting.Wpf
     {
         public LightingDemoViewModel() : base()
         {
-            var root = Examples.Common.LightingExampleScene.Build();
-
-            SceneRoot = root;
+            SceneRoot = Examples.Common.LightingExampleScene.Build();
             CameraManipulator = TrackballManipulator.Create();
         }
     }
