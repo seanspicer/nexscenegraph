@@ -10,7 +10,7 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
-    projects: 'src/Veldrid.SceneGraph/Veldrid.SceneGraph.csproj;src/Veldrid.SceneGraph.Tests/Veldrid.SceneGraph.Tests.csproj'
+    projects: 'src\Veldrid.SceneGraph\Veldrid.SceneGraph.csproj;src\Veldrid.SceneGraph.Tests\Veldrid.SceneGraph.Tests.csproj'
 
 - task: VSTest@2
   inputs:
