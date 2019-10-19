@@ -23,6 +23,7 @@ steps:
 - task: GitVersion@5
   displayName: 'GitVersion'
   inputs:
+    configFilePath: $(System.DefaultWorkingDirectory)/GitVersion.yml
     updateAssemblyInfo: false
 
 - script: echo %Action%%BuildVersion%
