@@ -19,6 +19,12 @@ steps:
     configuration: 'Release'
     projects: '$(System.DefaultWorkingDirectory)\src\Veldrid.SceneGraph.Tests\Veldrid.SceneGraph.Tests.csproj'
 
+- task: NuGetCommand@2
+  inputs:
+    command: 'restore'
+    restoreSolution: '$(System.DefaultWorkingDirectory)\src\Veldrid.SceneGraph.Wpf\Veldrid.SceneGraph.Wpf.csproj'
+    feedsToUse: 'select'
+
 - task: VSBuild@1
   inputs:
     solution: '$(System.DefaultWorkingDirectory)\src\Veldrid.SceneGraph.Wpf\Veldrid.SceneGraph.Wpf.csproj'
