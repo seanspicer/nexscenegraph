@@ -70,8 +70,11 @@ steps:
     versionEnvVar: 'GitVersion.NuGetVersionV2'
 
 - task: DotNetCoreCLI@2
+  displayName: Push Nuget Package
   inputs:
-    command: 'push'
-    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
-    nuGetFeedType: 'external'
-    publishFeedCredentials: 'Nuget.org'
+    command: custom
+    custom: nuget
+    arguments: >
+      push $(Build.ArtifactStagingDirectory)/*.nupkg
+      -s $(NuGetSourceServerUrl)
+      -k $(NuGetSourceServerApiKey)
