@@ -11,28 +11,15 @@ steps:
   inputs:
     versionSpec: '5.3.0'
     
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'build'
-    configuration: 'Release'
-    projects: '$(System.DefaultWorkingDirectory)\src\Veldrid.SceneGraph\Veldrid.SceneGraph.csproj'
-
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'build'
-    configuration: 'Release'
-    projects: '$(System.DefaultWorkingDirectory)\src\Veldrid.SceneGraph.Tests\Veldrid.SceneGraph.Tests.csproj'
-
 - task: NuGetCommand@2
   inputs:
     command: 'restore'
-    restoreSolution: '$(System.DefaultWorkingDirectory)\src\Veldrid.SceneGraph.Wpf\Veldrid.SceneGraph.Wpf.csproj'
+    restoreSolution: '**/*.sln'
     feedsToUse: 'select'
 
 - task: VSBuild@1
   inputs:
-    solution: '$(System.DefaultWorkingDirectory)\src\Veldrid.SceneGraph.Wpf\Veldrid.SceneGraph.Wpf.csproj'
-    configuration: 'Release'
+    solution: '**\*.sln'
     clean: true
 
 - task: VSTest@2
