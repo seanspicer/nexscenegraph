@@ -7,10 +7,21 @@ pool:
   vmImage: 'windows-latest'
 
 steps:
+- task: GitVersion@5
+  displayName: 'GitVersion'
+  inputs:
+    updateAssemblyInfo: false
+
+- script: echo %Action%%BuildVersion%
+  displayName: 'Set build version'
+  env:
+    Action: '##vso[build.updatebuildnumber]'
+    BuildVersion: $(GitVersion.NuGetVersionV2)
+
 - task: NuGetToolInstaller@1
   inputs:
     versionSpec: '5.3.0'
-    
+
 - task: NuGetCommand@2
   inputs:
     command: 'restore'
