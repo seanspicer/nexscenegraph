@@ -12,6 +12,12 @@ steps:
     command: 'build'
     projects: '$(System.DefaultWorkingDirectory)\src\Veldrid.SceneGraph\Veldrid.SceneGraph.csproj'
 
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    projects: '$(System.DefaultWorkingDirectory)\src\Veldrid.SceneGraph.Tests\Veldrid.SceneGraph.Tests.csproj'
+
+
 - task: VSTest@2
   inputs:
     testSelector: 'testAssemblies'
