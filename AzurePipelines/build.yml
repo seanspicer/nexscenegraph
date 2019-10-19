@@ -68,6 +68,7 @@ steps:
     configuration: 'Release'
     versioningScheme: 'byEnvVar'
     versionEnvVar: 'GitVersion.NuGetVersionV2'
+    outputDir: $(Build.ArtifactStagingDirectory)
 
 - task: DotNetCoreCLI@2
   displayName: Push Nuget Package
