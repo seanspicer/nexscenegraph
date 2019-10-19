@@ -10,13 +10,20 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
+    configuration: 'Release'
     projects: '$(System.DefaultWorkingDirectory)\src\Veldrid.SceneGraph\Veldrid.SceneGraph.csproj'
 
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
+    configuration: 'Release'
     projects: '$(System.DefaultWorkingDirectory)\src\Veldrid.SceneGraph.Tests\Veldrid.SceneGraph.Tests.csproj'
 
+- task: VSBuild@1
+  inputs:
+    solution: '$(System.DefaultWorkingDirectory)\src\Veldrid.SceneGraph.Wpf\Veldrid.SceneGraph.Wpf.csproj'
+    configuration: 'Release'
+    clean: true
 
 - task: VSTest@2
   inputs:
