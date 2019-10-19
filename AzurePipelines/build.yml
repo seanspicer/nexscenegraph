@@ -6,6 +6,7 @@
 pool:
   vmImage: 'windows-latest'
 
+steps:
 - task: NuGetCommand@2
   inputs:
     command: 'restore'
