@@ -55,3 +55,11 @@ steps:
       !**\*TestAdapter.dll
       !**\obj\**
     searchFolder: '$(System.DefaultWorkingDirectory)'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'pack'
+    packagesToPack: '$(System.DefaultWorkingDirectory)/src/Veldrid.SceneGraph/*.csproj;$(System.DefaultWorkingDirectory)/src/Veldrid.SceneGraph.Wpf/*.csproj'
+    configuration: 'Release'
+    versioningScheme: 'byEnvVar'
+    versionEnvVar: 'GitVersion.NuGetVersionV2'
