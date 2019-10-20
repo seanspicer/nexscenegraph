@@ -24,9 +24,6 @@
     <PackageReference Include="Veldrid.Utilities" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AssetProcessor\AssetProcessor.csproj" />
-  </ItemGroup>
-  <ItemGroup>
     <None Update="Assets\Shaders\Vertex2Color4.frag.spv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
