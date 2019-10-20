@@ -18,8 +18,8 @@ using System;
 using System.ComponentModel;
 using System.Dynamic;
 using System.IO;
-using AssetPrimitives;
-using AssetProcessor;
+using Veldrid.SceneGraph.AssetPrimitives;
+using Veldrid.SceneGraph.AssetProcessor;
 
 namespace Veldrid.SceneGraph
 {

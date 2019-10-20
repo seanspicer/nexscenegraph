@@ -16,8 +16,6 @@
 
 using System.Numerics;
 using System.Runtime.InteropServices;
-using AssetPrimitives;
-using AssetProcessor;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -25,6 +23,8 @@ using SixLabors.ImageSharp.Processing;
 using SixLabors.Primitives;
 using ShaderGen;
 using Veldrid;
+using Veldrid.SceneGraph.AssetPrimitives;
+using Veldrid.SceneGraph.AssetProcessor;
 using Veldrid.SceneGraph.Shaders.Standard;
 using Veldrid.SceneGraph.Util;
 using Math = System.Math;

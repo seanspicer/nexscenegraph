@@ -14,15 +14,20 @@
 // limitations under the License.
 //
 
-using Veldrid.SceneGraph.AssetPrimitives;
+using System.IO;
 
-namespace Veldrid.SceneGraph
+namespace Veldrid.SceneGraph.AssetPrimitives
 {
-    public interface ITexture2D
+    public class ByteArraySerializer : BinaryAssetSerializer<byte[]>
     {
-        ProcessedTexture ProcessedTexture { get; }
-        uint ResourceSetNo { get; set; }
-        string TextureName { get; set; }
-        string SamplerName { get; set; }
+        public override byte[] ReadT(BinaryReader reader)
+        {
+            return reader.ReadByteArray();
+        }
+
+        public override void WriteT(BinaryWriter writer, byte[] value)
+        {
+            writer.WriteByteArray(value);
+        }
     }
 }

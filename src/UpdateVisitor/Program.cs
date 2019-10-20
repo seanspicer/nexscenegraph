@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Numerics;
 using Examples.Common;
 using ShaderGen;
-using SwitchExample;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;

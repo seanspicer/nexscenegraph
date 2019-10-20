@@ -21,7 +21,6 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
-using AssetProcessor;
 using Veldrid.SceneGraph.Text;
 using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Viewer;

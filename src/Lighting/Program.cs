@@ -22,7 +22,6 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using AssetPrimitives;
 using Examples.Common;
 using Microsoft.Extensions.Logging;
 using Serilog.Core;

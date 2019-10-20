@@ -14,15 +14,21 @@
 // limitations under the License.
 //
 
-using Veldrid.SceneGraph.AssetPrimitives;
+using System;
+using System.Collections.Generic;
 
-namespace Veldrid.SceneGraph
+namespace Veldrid.SceneGraph.AssetPrimitives
 {
-    public interface ITexture2D
+    public static class DefaultSerializers
     {
-        ProcessedTexture ProcessedTexture { get; }
-        uint ResourceSetNo { get; set; }
-        string TextureName { get; set; }
-        string SamplerName { get; set; }
+        public static Dictionary<Type, BinaryAssetSerializer> Get()
+        {
+            return new Dictionary<Type, BinaryAssetSerializer>()
+            {
+                { typeof(ProcessedTexture), new ProcessedTextureDataSerializer() },
+                { typeof(ProcessedModel), new ProcessedModelSerializer() },
+                { typeof(byte[]), new ByteArraySerializer() }
+            };
+        }
     }
 }

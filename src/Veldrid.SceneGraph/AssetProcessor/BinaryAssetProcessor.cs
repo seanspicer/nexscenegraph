@@ -14,15 +14,19 @@
 // limitations under the License.
 //
 
-using Veldrid.SceneGraph.AssetPrimitives;
+using System.IO;
 
-namespace Veldrid.SceneGraph
+namespace Veldrid.SceneGraph.AssetProcessor
 {
-    public interface ITexture2D
+    public abstract class BinaryAssetProcessor
     {
-        ProcessedTexture ProcessedTexture { get; }
-        uint ResourceSetNo { get; set; }
-        string TextureName { get; set; }
-        string SamplerName { get; set; }
+        public abstract object Process(Stream stream, string extension);
+    }
+
+    public abstract class BinaryAssetProcessor<T> : BinaryAssetProcessor
+    {
+        public override object Process(Stream stream, string extension) => ProcessT(stream, extension);
+
+        public abstract T ProcessT(Stream stream, string extension);
     }
 }
