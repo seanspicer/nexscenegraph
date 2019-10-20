@@ -1,7 +1,24 @@
-﻿using System;
+﻿//
+// Copyright 2018 Sean Spicer 
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
@@ -25,7 +42,7 @@ namespace Veldrid.SceneGraph.AssetProcessor
                 foreach (Image<Rgba32> mipmap in mipmaps)
                 {
                     long mipSize = mipmap.Width * mipmap.Height * sizeof(Rgba32);
-                    fixed (Rgba32* pixelPtr = &mipmap.DangerousGetPinnableReferenceToPixelBuffer())
+                    fixed (Rgba32* pixelPtr = &MemoryMarshal.GetReference(mipmap.GetPixelSpan())) //&mipmap.DangerousGetPinnableReferenceToPixelBuffer()))
                     {
                         Buffer.MemoryCopy(pixelPtr, allTexDataPtr + offset, mipSize, mipSize);
                     }
@@ -54,7 +71,7 @@ namespace Veldrid.SceneGraph.AssetProcessor
                 foreach (Image<Rgba32> mipmap in mipmaps)
                 {
                     long mipSize = mipmap.Width * mipmap.Height * sizeof(Rgba32);
-                    fixed (Rgba32* pixelPtr = &mipmap.DangerousGetPinnableReferenceToPixelBuffer())
+                    fixed (Rgba32* pixelPtr = &MemoryMarshal.GetReference(mipmap.GetPixelSpan())) //&mipmap.DangerousGetPinnableReferenceToPixelBuffer())
                     {
                         Buffer.MemoryCopy(pixelPtr, allTexDataPtr + offset, mipSize, mipSize);
                     }

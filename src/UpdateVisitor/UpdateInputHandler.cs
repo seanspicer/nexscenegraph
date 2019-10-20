@@ -15,17 +15,15 @@
 //
 
 using Common.Logging;
-using SharpDX.DXGI;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
 
-namespace SwitchExample
+namespace UpdateVisitor
 {
     public class UpdateInputHandler : InputEventHandler
     {
         private IGroup _root;
-        private int _pos;
 
         private ILog _logger;
         
@@ -33,7 +31,6 @@ namespace SwitchExample
         {
             _logger = LogManager.GetLogger<UpdateInputHandler>();
             _root = rootNode;
-            _pos = -1;
         }
         
         public override void HandleInput(IInputStateSnapshot snapshot)
