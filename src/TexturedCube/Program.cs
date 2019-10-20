@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using Examples.Common;
-using ShaderGen;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
@@ -32,9 +31,7 @@ namespace TexturedCube
     {
         public const uint SizeInBytes = 20;
 
-        [PositionSemantic] 
         public Vector3 Position;
-        [ColorSemantic]
         public Vector2 TexCoord;
         
         public VertexPositionTexture(Vector3 position, Vector2 texCoord)

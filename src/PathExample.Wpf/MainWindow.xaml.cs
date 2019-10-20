@@ -14,10 +14,7 @@
 // limitations under the License.
 //
 
-using System;
-using System.Windows;
-
-namespace WpfDemo
+namespace PathExample.Wpf
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -27,7 +24,7 @@ namespace WpfDemo
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new MainWindowViewModel();
+            DataContext = new PathExampleViewModel();
         }
     }
 }

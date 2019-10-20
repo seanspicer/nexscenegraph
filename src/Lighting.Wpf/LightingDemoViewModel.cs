@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright 2018 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,20 +14,18 @@
 // limitations under the License.
 //
 
-using System;
-using System.Windows;
+using Examples.Common.Wpf;
+using SharpDX.Win32;
+using Veldrid.SceneGraph.InputAdapter;
 
-namespace WpfDemo
+namespace Lighting.Wpf
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow
+    public class LightingDemoViewModel : ViewModelBase
     {
-        public MainWindow()
+        public LightingDemoViewModel() : base()
         {
-            InitializeComponent();
-            DataContext = new MainWindowViewModel();
+            SceneRoot = Examples.Common.LightingExampleScene.Build();
+            CameraManipulator = TrackballManipulator.Create();
         }
     }
 }

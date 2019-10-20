@@ -21,7 +21,6 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.Primitives;
-using ShaderGen;
 using Veldrid;
 using Veldrid.SceneGraph.AssetPrimitives;
 using Veldrid.SceneGraph.AssetProcessor;
@@ -36,9 +35,9 @@ namespace Veldrid.SceneGraph.Text
     {
         public const uint SizeInBytes = 20;
 
-        [PositionSemantic] 
+        //[PositionSemantic] 
         public Vector3 Position;
-        [ColorSemantic]
+        //[ColorSemantic]
         public Vector2 TexCoord;
         
         public VertexPositionTexture(Vector3 position, Vector2 texCoord)

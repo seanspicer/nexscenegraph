@@ -19,8 +19,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Examples.Common;
-using ShaderGen;
-using SharpDX.Mathematics.Interop;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
@@ -34,9 +32,7 @@ namespace TransparencySorting
     {
         public const uint SizeInBytes = 28;
 
-        [PositionSemantic] 
         public Vector3 Position;
-        [ColorSemantic]
         public Vector4 Color;
         
         public VertexPositionColor(Vector3 position, Vector4 color)

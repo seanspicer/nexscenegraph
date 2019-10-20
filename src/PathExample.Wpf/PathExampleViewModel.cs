@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright 2018 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,20 +14,17 @@
 // limitations under the License.
 //
 
-using System;
-using System.Windows;
+using Examples.Common.Wpf;
+using Veldrid.SceneGraph.InputAdapter;
 
-namespace WpfDemo
+namespace PathExample.Wpf
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow
+    public class PathExampleViewModel : ViewModelBase
     {
-        public MainWindow()
+        internal PathExampleViewModel() : base()
         {
-            InitializeComponent();
-            DataContext = new MainWindowViewModel();
+            SceneRoot = Examples.Common.PathExampleScene.Build();
+            CameraManipulator = TrackballManipulator.Create();
         }
     }
 }

@@ -9,10 +9,6 @@
     <ProjectReference Include="..\Examples.Common\Examples.Common.csproj" />
     <ProjectReference Include="..\Veldrid.SceneGraph\Veldrid.SceneGraph.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="ShaderGen.Build" Version="1.2.0-beta2" />
-    <PackageReference Include="ShaderGen.Primitives" Version="1.2.0-beta2" />
-  </ItemGroup>
 
   <Target Name="IncludeGeneratedShaderEmbeddedResource" AfterTargets="AssignTargetPaths" Condition="'$(ShaderContentIncludePath)' != ''">
     <ItemGroup>

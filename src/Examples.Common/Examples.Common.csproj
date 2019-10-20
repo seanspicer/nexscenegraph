@@ -1,19 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netcoreapp2.1</TargetFramework>
+        <TargetFramework>netstandard2.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Veldrid.SceneGraph.IO\Veldrid.SceneGraph.IO.csproj" />
       <ProjectReference Include="..\Veldrid.SceneGraph\Veldrid.SceneGraph.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Common.Logging" Version="3.4.1" />
-      <PackageReference Include="Common.Logging.Serilog" Version="4.3.6" />
       <PackageReference Include="Serilog" Version="2.8.0" />
       <PackageReference Include="Serilog.Sinks.ColoredConsole" Version="3.0.1" />
       <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="Assets\Models\chinesedragon.dae" />
     </ItemGroup>
 
 </Project>

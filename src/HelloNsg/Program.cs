@@ -18,7 +18,6 @@ using System;
 using System.IO;
 using System.Numerics;
 using Examples.Common;
-using ShaderGen;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
@@ -32,9 +31,7 @@ namespace HelloNsg
     {
         public const uint SizeInBytes = 24;
         
-        [PositionSemantic]
         public Vector2 Position;
-        [ColorSemantic]
         public Vector4 Color;
         
         public VertexPositionColor(Vector2 position, Vector4 color)

@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 
-using Common.Logging;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
@@ -25,11 +24,11 @@ namespace UpdateVisitor
     {
         private IGroup _root;
 
-        private ILog _logger;
+        //private ILog _logger;
         
         public UpdateInputHandler(IGroup rootNode)
         {
-            _logger = LogManager.GetLogger<UpdateInputHandler>();
+            //_logger = LogManager.GetLogger<UpdateInputHandler>();
             _root = rootNode;
         }
         
