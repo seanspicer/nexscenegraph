@@ -2,7 +2,7 @@
 
 ##### October 2019
 
-NexSceneGraph is approaching a first set of milestone releases.   Currently we are working on the core API and exposing higher-level concepts so that developers new to 3D programming don't necessarily have to start by learning vertex layouts, shaders, pipelines, pipeline states, etc.   The current 2.x API makes it simple to create a shape such as a box, and apply PhongLighting (against per-face normals)
+NexSceneGraph is approaching a first set of milestone releases.   Currently we are working on the core API and exposing higher-level concepts so that developers new to 3D programming don't necessarily have to start by learning vertex layouts, shaders, pipelines, pipeline states, etc.   The current 0.2.x API makes it simple to create a shape such as a box, and apply PhongLighting (against per-face normals)
 
 ```C#
 using System.Numerics;
