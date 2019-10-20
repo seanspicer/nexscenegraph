@@ -4,6 +4,10 @@
 
 NexSceneGraph is approaching a first set of milestone releases.   Currently we are working on the core API and exposing higher-level concepts so that developers new to 3D programming don't necessarily have to start by learning vertex layouts, shaders, pipelines, pipeline states, etc.   The current 0.2.x API makes it simple to create a shape such as a box, and apply PhongLighting (against per-face normals)
 
+The Example below uses Veldrid.SceneGraph 0.2.1-alpha310 on NuGet.org: 
+https://www.nuget.org/packages/Veldrid.SceneGraph/
+
+
 ```C#
 using System.Numerics;
 using Veldrid.SceneGraph;
