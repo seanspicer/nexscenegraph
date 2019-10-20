@@ -13,8 +13,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\AssetPrimitives\AssetPrimitives.csproj" />
-        <ProjectReference Include="..\AssetProcessor\AssetProcessor.csproj" />
         <ProjectReference Include="..\Examples.Common\Examples.Common.csproj" />
         <ProjectReference Include="..\Veldrid.SceneGraph\Veldrid.SceneGraph.csproj" />
     </ItemGroup>
