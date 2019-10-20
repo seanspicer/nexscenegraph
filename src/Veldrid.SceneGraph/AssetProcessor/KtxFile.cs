@@ -5,9 +5,8 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using Veldrid;
 
-namespace SampleBase
+namespace Veldrid.SceneGraph.AssetProcessor
 {
     // A hand-crafted KTX file parser.
     // https://www.khronos.org/opengles/sdk/tools/KTX/file_format_spec

@@ -3,7 +3,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace AssetPrimitives
+namespace Veldrid.SceneGraph.AssetPrimitives
 {
     public static class BinaryExtensions
     {

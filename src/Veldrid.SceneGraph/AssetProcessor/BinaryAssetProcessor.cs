@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace AssetProcessor
+namespace Veldrid.SceneGraph.AssetProcessor
 {
     public abstract class BinaryAssetProcessor
     {

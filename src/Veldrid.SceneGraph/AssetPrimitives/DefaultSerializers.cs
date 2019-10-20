@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AssetPrimitives
+namespace Veldrid.SceneGraph.AssetPrimitives
 {
     public static class DefaultSerializers
     {

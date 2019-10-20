@@ -1,8 +1,7 @@
 ﻿using System;
 using System.IO;
-using Veldrid;
 
-namespace AssetPrimitives
+namespace Veldrid.SceneGraph.AssetPrimitives
 {
     public class ProcessedTexture
     {

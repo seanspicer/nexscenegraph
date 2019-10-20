@@ -1,12 +1,6 @@
-﻿using AssetPrimitives;
-using SampleBase;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using Veldrid;
+﻿using System.IO;
 
-namespace AssetProcessor
+namespace Veldrid.SceneGraph.AssetProcessor
 {
     public class KtxFileProcessor : BinaryAssetProcessor<byte[]>
     {

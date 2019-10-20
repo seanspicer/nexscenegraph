@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 
-using AssetPrimitives;
+using Veldrid.SceneGraph.AssetPrimitives;
 
 namespace Veldrid.SceneGraph
 {

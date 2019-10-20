@@ -1,16 +1,15 @@
-﻿using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
-using Veldrid;
-using AssetPrimitives;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Advanced;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
+using Veldrid.SceneGraph.AssetPrimitives;
 
-namespace AssetProcessor
+namespace Veldrid.SceneGraph.AssetProcessor
 {
     public class ImageSharpProcessor : BinaryAssetProcessor<ProcessedTexture>
     {

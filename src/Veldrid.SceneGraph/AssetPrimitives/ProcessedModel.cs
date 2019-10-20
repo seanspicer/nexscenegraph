@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
-using Veldrid;
 
-namespace AssetPrimitives
+namespace Veldrid.SceneGraph.AssetPrimitives
 {
     public class ProcessedModel
     {

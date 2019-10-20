@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace AssetPrimitives
+namespace Veldrid.SceneGraph.AssetPrimitives
 {
     public class ByteArraySerializer : BinaryAssetSerializer<byte[]>
     {
