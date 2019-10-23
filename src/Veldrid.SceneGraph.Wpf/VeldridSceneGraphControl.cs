@@ -257,7 +257,11 @@ namespace Veldrid.SceneGraph.Wpf
             _inputState.KeyEventList.Clear();
             _inputState.WheelDelta = 0;
 
-            Render(); // Event processing needs to trigger render for remote desktop to work...this is a bit like render-on-demand
+            if (!IsLoopRendering)
+            {
+                Render(); // Event processing needs to trigger render for remote desktop to work...this is a bit like render-on-demand
+            }
+            
         }
         
         private double GetDpiScale()
