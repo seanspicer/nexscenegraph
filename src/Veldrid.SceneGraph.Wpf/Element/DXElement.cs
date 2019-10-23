@@ -339,6 +339,8 @@ namespace Veldrid.SceneGraph.Wpf.Element
 
         #endregion
 
+        protected bool IsReallyLoopRendering => m_isReallyLoopRendering;
+
         #region Fields
         private bool m_isLoopRendering = true;
         private bool m_isReallyLoopRendering;
