@@ -126,11 +126,20 @@ namespace Veldrid.SceneGraph.InputAdapter
             {
                 return PerformMovementLeftMouseButton(dx.Value, dy.Value); 
             }
+            else if (InputStateTracker.GetMouseButton(MouseButton.Right))
+            {
+                return PerformMovementRightMouseButton(dx.Value, dy.Value); 
+            }
 
             return true;
         }
 
         protected virtual bool PerformMovementLeftMouseButton(float dx, float dy)
+        {
+            return false;
+        }
+        
+        protected virtual bool PerformMovementRightMouseButton(float dx, float dy)
         {
             return false;
         }

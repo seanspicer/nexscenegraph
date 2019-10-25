@@ -50,9 +50,10 @@ namespace Veldrid.SceneGraph.InputAdapter
         {
             // rotate camera
             if (VerticalAxisFixed)
-
+            {
                 // TODO: Implement Orbit Calculation
                 throw new NotImplementedException();
+            }
             else
 
             {
@@ -65,6 +66,12 @@ namespace Veldrid.SceneGraph.InputAdapter
                 RotateTrackball(xNorm, yNorm, xNormLast, yNormLast, 1.0f);
             }
                 
+            return true;
+        }
+
+        protected override bool PerformMovementRightMouseButton(float dx, float dy)
+        {
+            PanModel(-dx, dy);
             return true;
         }
 
@@ -120,6 +127,12 @@ namespace Veldrid.SceneGraph.InputAdapter
         {
             ZoomModel(WheelZoomFactor *InputStateTracker.FrameSnapshot.WheelDelta, true);
             RequestRedraw();
+        }
+        
+        void PanModel(float dx, float dy, float dz = 0f )
+        {
+            var dv = new Vector3( dx, dy, dz );
+            _center += Vector3.Transform(dv, _rotation);
         }
         
         void ZoomModel(float dy, bool pushForwardIfNeeded )
