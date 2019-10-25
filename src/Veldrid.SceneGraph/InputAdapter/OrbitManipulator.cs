@@ -16,6 +16,8 @@
 
 using System;
 using System.Numerics;
+using Veldrid.SceneGraph.Util;
+using Math = System.Math;
 
 namespace Veldrid.SceneGraph.InputAdapter
 {
@@ -71,7 +73,13 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         protected override bool PerformMovementRightMouseButton(float dx, float dy)
         {
-            PanModel(-dx, dy);
+            var xNorm = 2.0f*(InputStateTracker.MousePosition.Value.X / InputStateTracker.FrameSnapshot.WindowWidth)-1.0f;
+            var yNorm = -2.0f*(InputStateTracker.MousePosition.Value.Y / InputStateTracker.FrameSnapshot.WindowHeight)+1.0f;
+                
+            var xNormLast = 2.0f*(InputStateTracker.LastMousePosition.Value.X / InputStateTracker.FrameSnapshot.WindowWidth)-1.0f;
+            var yNormLast = -2.0f*(InputStateTracker.LastMousePosition.Value.Y / InputStateTracker.FrameSnapshot.WindowHeight)+1.0f;
+            
+            PanModel(xNorm, yNorm, xNormLast, yNormLast);
             return true;
         }
 
@@ -129,10 +137,26 @@ namespace Veldrid.SceneGraph.InputAdapter
             RequestRedraw();
         }
         
-        void PanModel(float dx, float dy, float dz = 0f )
+        void PanModel(float p1x, float p1y, float p2x, float p2y)
         {
-            var dv = new Vector3( dx, dy, dz );
-            _center += Vector3.Transform(dv, _rotation);
+            var startNear = new Vector3(p1x, p1y, 0);
+            
+            var startFar = new Vector3(p1x, p1y, 1);
+            var endFar = new Vector3(p2x, p2y, 1);
+
+            var worldStartNear = _camera.NormalizedScreenToWorld(startNear);
+            var worldStartFar = _camera.NormalizedScreenToWorld(startFar);
+
+            var worldEndFar = _camera.NormalizedScreenToWorld(endFar);
+            
+            var lenFar = (worldEndFar - worldStartFar).Length();
+            
+            var motionDir = Vector3.Normalize(worldEndFar - worldStartFar);
+            var d = (worldStartFar - worldStartNear).Length();
+
+            var motionLen = lenFar * _distance / d;
+            
+            _center += motionLen*motionDir;
         }
         
         void ZoomModel(float dy, bool pushForwardIfNeeded )
