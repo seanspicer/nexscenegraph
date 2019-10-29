@@ -86,9 +86,18 @@ namespace Veldrid.SceneGraph.Util
                 var unitTangent = Vector3.Normalize(tangents[i]);
                 var z = Vector3.Cross(axialVec, unitTangent);
 
-                var q = System.Math.Acos(Vector3.Dot(axialVec, unitTangent) / axialVec.Length());
+                var dotp = Vector3.Dot(axialVec, unitTangent);
+                var len = axialVec.Length();
+                var arg = dotp / len;
+
+                if (arg > 1) arg = 1;
+                if (arg < -1) arg = -1;
                 
-                if (double.IsNaN(q) == false && System.Math.Abs(z.Length()) > 1e-6)
+                var q = System.Math.Acos(arg);
+                
+                if(double.IsNaN(q)) throw new Exception("Invalid q in extrusion calculation");
+                
+                if (System.Math.Abs(z.Length()) > 1e-6)
                 {
                     // Determine the required rotation, and build quaternion
                     var znorm = Vector3.Normalize(z);
