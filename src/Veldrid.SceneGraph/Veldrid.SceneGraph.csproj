@@ -24,28 +24,19 @@
     <PackageReference Include="Veldrid.Utilities" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="Assets\Shaders\Vertex2Color4.frag.spv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\Shaders\Vertex2Color4.vert.spv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\Shaders\Vertex3Color4.vert.spv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\Shaders\Vertex3Color4.frag.spv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\Shaders\BasicTextureShader.frag.spv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\Shaders\BasicTextureShader.vert.spv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Assets\Shaders\Phong-fragment.glsl" />
     <EmbeddedResource Include="Assets\Shaders\Phong-vertex.glsl" />
+    <None Remove="Assets\Shaders\BasicTextureShader-fragment.glsl" />
+    <EmbeddedResource Include="Assets\Shaders\BasicTextureShader-fragment.glsl" />
+    <None Remove="Assets\Shaders\BasicTextureShader-vertex.glsl" />
+    <EmbeddedResource Include="Assets\Shaders\BasicTextureShader-vertex.glsl" />
+    <None Remove="Assets\Shaders\Vertex2Color4-fragment.glsl" />
+    <EmbeddedResource Include="Assets\Shaders\Vertex2Color4-fragment.glsl" />
+    <None Remove="Assets\Shaders\Vertex2Color4-vertex.glsl" />
+    <EmbeddedResource Include="Assets\Shaders\Vertex2Color4-vertex.glsl" />
+    <None Remove="Assets\Shaders\Vertex3Color4-vertex.glsl" />
+    <EmbeddedResource Include="Assets\Shaders\Vertex3Color4-vertex.glsl" />
+    <EmbeddedResource Include="Assets\Shaders\Vertex3Color4-fragment.glsl" />
   </ItemGroup>
   <Target Name="IncludeGeneratedShaderEmbeddedResource" AfterTargets="AssignTargetPaths" Condition="'$(ShaderContentIncludePath)' != ''">
     <ItemGroup>
