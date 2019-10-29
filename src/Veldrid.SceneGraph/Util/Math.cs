@@ -126,7 +126,8 @@ namespace Veldrid.SceneGraph.Util
                     {
                         extrusion[i, j] = path[i] + shape3[j];
                     }
-                    
+
+                    axialVec = unitTangent;
                 }
                 // Orientation Preserving
                 else
