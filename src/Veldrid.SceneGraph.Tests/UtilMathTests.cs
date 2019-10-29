@@ -82,12 +82,12 @@ namespace Veldrid.SceneGraph.Tests
 
             var path = new Vector3[6]
             {
-                new Vector3(0.0f, 0.0f, -10.0f), 
-                new Vector3(0.0f, 0.0f, -9.0f),
-                new Vector3(0.0f, 0.0001f, -8.0f),
-                new Vector3(0.0f, 0.0001f, -7.0f),
-                new Vector3(0.0f, 0.0f, -6.0f),
-                new Vector3(0.0f, 0.0f, -5.0f),
+                new Vector3(91.07588f, 100f, 56.6469078f), 
+                new Vector3(91.07928f, 98.61714f, 56.6469078f),
+                new Vector3(91.08154f, 97.82282f, 56.6469078f),
+                new Vector3(91.08382f, 97.0063248f, 56.6469078f),
+                new Vector3(91.08608f, 96.2078247f, 56.6469078f),
+                new Vector3(91.08835f, 95.3893661f, 56.6469078f),
             };
 
             Assert.DoesNotThrow(() =>
