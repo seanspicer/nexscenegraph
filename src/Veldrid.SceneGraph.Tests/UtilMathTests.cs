@@ -69,6 +69,36 @@ namespace Veldrid.SceneGraph.Tests
         }
 
         [Test]
+        public void ExtrudeCylinderDoesNotThrowWithNearlyLinearPath()
+        {
+            var nSegments = 4;
+            var shape = new Vector2[nSegments];
+            for (var i = 0; i < nSegments; ++i)
+            {
+                var theta = i * 2 * System.Math.PI / nSegments;
+
+                shape[i] = new Vector2((float)(System.Math.Sin(theta)), (float)(System.Math.Cos(theta)));
+            }
+
+            var path = new Vector3[6]
+            {
+                new Vector3(0.0f, 0.0f, -10.0f), 
+                new Vector3(0.0f, 0.0f, -9.0f),
+                new Vector3(0.0f, 0.0001f, -8.0f),
+                new Vector3(0.0f, 0.0001f, -7.0f),
+                new Vector3(0.0f, 0.0f, -6.0f),
+                new Vector3(0.0f, 0.0f, -5.0f),
+            };
+
+            Assert.DoesNotThrow(() =>
+            {
+                var extrusion = Util.Math.ExtrudeShape(shape, path);
+            });
+            
+            
+        }
+        
+        [Test]
         public void ExtrudeCylinderCorrectly()
         {
             var nSegments = 4;

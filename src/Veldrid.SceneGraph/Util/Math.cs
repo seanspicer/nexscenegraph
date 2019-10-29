@@ -86,11 +86,12 @@ namespace Veldrid.SceneGraph.Util
                 var unitTangent = Vector3.Normalize(tangents[i]);
                 var z = Vector3.Cross(axialVec, unitTangent);
 
-                if (System.Math.Abs(z.Length()) > 1e-6)
+                var q = System.Math.Acos(Vector3.Dot(axialVec, unitTangent) / axialVec.Length());
+                
+                if (double.IsNaN(q) == false && System.Math.Abs(z.Length()) > 1e-6)
                 {
                     // Determine the required rotation, and build quaternion
                     var znorm = Vector3.Normalize(z);
-                    var q = System.Math.Acos(Vector3.Dot(axialVec, unitTangent) / axialVec.Length());
                     var quat = Quaternion.CreateFromAxisAngle(znorm, (float)q);
 
                     // Transform shape by quaternion.
