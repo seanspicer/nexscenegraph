@@ -16,6 +16,7 @@
 
 using System;
 using System.Numerics;
+using System.Reactive;
 
 namespace Veldrid.SceneGraph.Util
 {
@@ -66,7 +67,13 @@ namespace Veldrid.SceneGraph.Util
             return tangents;
         }
 
-        public static Vector3[,] ExtrudeShape(Vector2[] shape, Vector3[] path)
+        public enum ExtrusionType
+        {
+            Natural,
+            OrientationPreserving
+        }
+        
+        public static Vector3[,] ExtrudeShape(Vector2[] shape, Vector3[] path, ExtrusionType type=ExtrusionType.OrientationPreserving)
         {
             var nSegments = shape.Length;
 
@@ -84,7 +91,6 @@ namespace Veldrid.SceneGraph.Util
             for (var i = 0; i < path.Length; ++i)
             {
                 var unitTangent = Vector3.Normalize(tangents[i]);
-                var z = Vector3.Cross(axialVec, unitTangent);
 
                 var dotp = Vector3.Dot(axialVec, unitTangent);
                 var len = axialVec.Length();
@@ -103,18 +109,37 @@ namespace Veldrid.SceneGraph.Util
                     var znorm = Vector3.Normalize(z);
                     var quat = Quaternion.CreateFromAxisAngle(znorm, (float)q);
 
-                    // Transform shape by quaternion.
-                    for (var j = 0; j < shape3.Length; ++j)
-                    {
-                        shape3[j] = Vector3.Transform(shape3[j], quat);
+                        // Transform shape by quaternion.
+                        for (var j = 0; j < shape3.Length; ++j)
+                        {
+                            shape3[j] = Vector3.Transform(shape3[j], quat);
+                        }
+
+                        axialVec = unitTangent;
                     }
 
-                    axialVec = unitTangent;
+                    for (var j = 0; j < shape3.Length; ++j)
+                    {
+                        extrusion[i, j] = path[i] + shape3[j];
+                    }
                 }
-
-                for (var j = 0; j < shape3.Length; ++j)
+                // Orientation Preserving
+                else
                 {
-                    extrusion[i, j] = path[i] + shape3[j];
+                    var z = Vector3.UnitY;
+                    if (unitTangent != -1 * Vector3.UnitZ)
+                    {
+                        z = Vector3.Normalize((Vector3.UnitZ + unitTangent));
+                    }
+                    
+                    for (var j = 0; j < shape3.Length; ++j)
+                    {
+                        var mod = 2.0f * z * Vector3.Dot(z, shape3[j]);
+                        
+                        var rr = mod - shape3[j] + path[i];
+
+                        extrusion[i, j] = rr;
+                    }
                 }
             }
 
