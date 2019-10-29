@@ -21,6 +21,7 @@ namespace Veldrid.SceneGraph
     public interface IBillboard : IGeode
     {
         Billboard.Modes Mode { get; set; }
-        Matrix4x4 ComputeMatrix(Matrix4x4 modelView, Vector3 eyeLocal);
+        Billboard.SizeModes SizeMode { get; set; }
+        Matrix4x4 ComputeMatrix(Matrix4x4 modelView, Matrix4x4 projection, Vector3 eyeLocal);
     }
 }

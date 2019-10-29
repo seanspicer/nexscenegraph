@@ -263,7 +263,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                 // TODO - need to modify is culled to handle billboard matrix offset
                 //if (IsCulled(drawable.GetBoundingBox(), ModelMatrixStack.Peek())) continue;
 
-                var billboardMatrix = billboard.ComputeMatrix(modelView, eyeLocal);
+                var billboardMatrix = billboard.ComputeMatrix(modelView, ProjectionMatrix, eyeLocal);
                 
                 var drawablePso = pso;
                 if (drawable.HasPipelineState)

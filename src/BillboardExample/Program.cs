@@ -91,6 +91,7 @@ namespace BillboardExample
             geode.AddDrawable(geometry);
             
             var billboard = Billboard.Create();
+            billboard.SizeMode = Billboard.SizeModes.ScreenCoords;
             billboard.AddDrawable(geometry);
             
             var leftXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(1, 0, 0));

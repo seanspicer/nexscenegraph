@@ -33,5 +33,6 @@ namespace Veldrid.SceneGraph
         DeviceBuffer GetIndexBufferForDevice(GraphicsDevice device);
         void DirtyBound();
         IBoundingBox GetBoundingBox();
+        
     }
 }
