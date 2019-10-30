@@ -47,6 +47,7 @@ namespace Veldrid.SceneGraph.Viewer
         void AddInputEventHandler(IInputEventHandler handler);
         void SetCameraManipulator(ICameraManipulator manipulator);
         void SetSceneData(IGroup root);
+        void SetBackgroundColor(RgbaFloat color);
         void ViewAll();
         
         void Run();

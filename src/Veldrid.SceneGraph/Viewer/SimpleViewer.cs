@@ -204,6 +204,11 @@ namespace Veldrid.SceneGraph.Viewer
             _view.SceneData = root;
         }
 
+        public void SetBackgroundColor(RgbaFloat color)
+        {
+            _view.Camera.ClearColor = color;
+        }
+        
         public void SetCameraManipulator(ICameraManipulator cameraManipulator)
         {
             _view.CameraManipulator = cameraManipulator;

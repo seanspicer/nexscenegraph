@@ -1,10 +1,17 @@
+using System;
+using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography.X509Certificates;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.PipelineStates;
 using Veldrid.SceneGraph.Util.Shape;
 using Veldrid.SceneGraph.VertexTypes;
+using Path = Veldrid.SceneGraph.Util.Shape.Path;
 
 namespace Examples.Common
 {
@@ -24,7 +31,7 @@ namespace Examples.Common
 
             var hints = TessellationHints.Create();
             hints.SetDetailRatio(4f);
-            hints.SetRadius(0.1f);
+            hints.SetRadius(.1f);
             var pathDrawable = ShapeDrawable<Position3Texture2Color3Normal3>.Create(path, hints);
             
             var redMaterial = PhongMaterial.Create(
