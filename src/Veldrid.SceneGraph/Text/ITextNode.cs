@@ -20,6 +20,12 @@ using SixLabors.ImageSharp.PixelFormats;
 
 namespace Veldrid.SceneGraph.Text
 {
+    public enum CharacterSizeModes
+    {
+        ObjectCoords,
+        ScreenCoords
+    }
+    
     public interface ITextNode : IGeometry<VertexPositionTexture>
     {
         string Text { get; }
@@ -35,5 +41,9 @@ namespace Veldrid.SceneGraph.Text
         VerticalAlignment VerticalAlignment { get; }
         
         HorizontalAlignment HorizontalAlignment { get; }
+        
+        bool AutoRotateToScreen { get; set; }
+        
+        CharacterSizeModes CharacterSizeMode { get; set; }
     }
 }

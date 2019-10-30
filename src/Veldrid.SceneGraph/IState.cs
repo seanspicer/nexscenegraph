@@ -14,24 +14,15 @@
 // limitations under the License.
 //
 
-using System;
-using System.Collections.Generic;
 using System.Numerics;
+using Veldrid.SceneGraph.Viewer;
 
 namespace Veldrid.SceneGraph
 {
-    public interface IDrawable : INode
+    public interface IState
     {
-        string Name { get; set; }
-        Type VertexType { get; }
-        IBoundingBox InitialBoundingBox { get; set; }
-        VertexLayoutDescription VertexLayout { get; set; }
-        List<IPrimitiveSet> PrimitiveSets { get; }
-        void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory);
-        DeviceBuffer GetVertexBufferForDevice(GraphicsDevice device);
-        DeviceBuffer GetIndexBufferForDevice(GraphicsDevice device);
-        IBoundingBox GetBoundingBox();
-        bool ComputeMatrix(ref Matrix4x4 computedMatrix, IState state);
-
+        Matrix4x4 ModelViewMatrix { get; }
+        Matrix4x4 ProjectionMatrix { get; }
+        IViewport Viewport { get; }
     }
 }

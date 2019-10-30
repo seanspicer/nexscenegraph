@@ -334,6 +334,19 @@ namespace Veldrid.SceneGraph.RenderGraph
             }
         }
 
+        internal class State : IState
+        {
+            public Matrix4x4 ModelViewMatrix { get; set; }
+            public Matrix4x4 ProjectionMatrix { get; set; }
+            public IViewport Viewport { get; set; }
+        }
+
+        internal class Viewport : IViewport
+        {
+            public int Width { get; set; }
+            public int Height { get; set; }
+        }
+
         public override void Apply(IDrawable drawable)
         {
             var bb = drawable.GetBoundingBox();
@@ -365,6 +378,19 @@ namespace Veldrid.SceneGraph.RenderGraph
             drawable.ConfigureDeviceBuffers(GraphicsDevice, ResourceFactory);
 
             var renderElementCache = new Dictionary<IRenderGroupState, RenderGroupElement>();
+
+            var state = new State();
+            state.ModelViewMatrix = GetModelViewMatrix();
+            state.ProjectionMatrix = ProjectionMatrix;
+            
+            var viewport = new Viewport();
+            viewport.Width = (int)GraphicsDevice.SwapchainFramebuffer.Width;
+            viewport.Height = (int)GraphicsDevice.SwapchainFramebuffer.Height;
+
+            state.Viewport = viewport;
+            
+            var matrix = Matrix4x4.Identity;
+            var matrixNeedsToUpdate = drawable.ComputeMatrix(ref matrix, state);
             
             foreach (var pset in drawable.PrimitiveSets)
             {
@@ -385,9 +411,15 @@ namespace Veldrid.SceneGraph.RenderGraph
 
                 if (false == renderElementCache.TryGetValue(renderGroupState, out var renderElement))
                 {
+                    var modMatrix = Matrix4x4.Identity;
+                    if (matrixNeedsToUpdate)
+                    {
+                        modMatrix = matrix;
+                    } 
+                    
                     renderElement = new RenderGroupElement()
                     {
-                        ModelViewMatrix = GetModelViewMatrix(),
+                        ModelViewMatrix = modMatrix.PostMultiply(GetModelViewMatrix()),
                         VertexBuffer = drawable.GetVertexBufferForDevice(GraphicsDevice),
                         IndexBuffer = drawable.GetIndexBufferForDevice(GraphicsDevice),
                         PrimitiveSets = new List<IPrimitiveSet>()

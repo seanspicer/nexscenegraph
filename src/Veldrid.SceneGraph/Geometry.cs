@@ -77,7 +77,7 @@ namespace Veldrid.SceneGraph
                 primitiveSet.Draw(commandList);
             }
         }
-
+        
         protected override IBoundingBox ComputeBoundingBox()
         {
             var bb = BoundingBox.Create();

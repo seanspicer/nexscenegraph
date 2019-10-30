@@ -64,12 +64,23 @@ namespace Veldrid.SceneGraph.Text
         public Rgba32 TextColor { get; }
         public Rgba32 BackgroundColor { get; }
         public VerticalAlignment VerticalAlignment { get; }
+        
+        public bool AutoRotateToScreen { get; set; }
+        
+        public CharacterSizeModes CharacterSizeMode { get; set; }
 
         public HorizontalAlignment HorizontalAlignment { get; }
         
-        private int _textWidth;
         private int _textHeight;
+        private int _textWidth;
+        
+        private float _charHeight;
+        private float _charWidth;
+        private float _charAspectRatio;
+        
         private double _textAspectRatio;
+
+        private Matrix4x4 _matrix;
         
         public static ITextNode Create(string text, 
             Rgba32 textColor,
@@ -122,6 +133,11 @@ namespace Veldrid.SceneGraph.Text
             TextColor = textColor;
             BackgroundColor = backgroundColor;
             FontResolution = fontResolution;
+
+            AutoRotateToScreen = true;
+            CharacterSizeMode = CharacterSizeModes.ScreenCoords;
+            
+            _matrix = Matrix4x4.Identity;
 
             // Create default Font
             Font = SystemFonts.CreateFont("Arial", 20);
@@ -185,6 +201,10 @@ namespace Veldrid.SceneGraph.Text
             SizeF size = TextMeasurer.Measure(Text, new RendererOptions(Font, 72*FontResolution));
 
             var padding = Padding * FontResolution;
+
+            _charHeight = size.Height;
+            _charWidth = size.Width;
+            _charAspectRatio = _charWidth / _charHeight;
             
             //var texSize = (int)NextPowerOfTwo((uint) Math.Round(rawSize));
             _textWidth = (int)((size.Width + (padding * 2)));//(int)NextPowerOfTwo((uint) Math.Round(size.Width));
@@ -257,6 +277,85 @@ namespace Veldrid.SceneGraph.Text
                 return imageProcessor.ProcessT(img);
 
             }
+        }
+        
+        public override bool ComputeMatrix(ref Matrix4x4 computedMatrix, IState state)
+        {
+            if (CharacterSizeMode != CharacterSizeModes.ObjectCoords || AutoRotateToScreen)
+            {
+                var modelview = state.ModelViewMatrix;
+                var projection = state.ProjectionMatrix;
+
+                var temp_matrix = Matrix4x4.Identity.PostMultiply(modelview);
+                temp_matrix = temp_matrix.SetTranslation(Vector3.Zero);
+                
+                var rotationMatrix = Matrix4x4.Identity;
+                var canInvert = Matrix4x4.Invert(temp_matrix, out rotationMatrix);
+                if (false == canInvert)
+                {
+                    rotationMatrix = Matrix4x4.Identity;
+                }
+
+                if (CharacterSizeMode != CharacterSizeModes.ObjectCoords)
+                {
+                    float width = state.Viewport.Width;
+                    float height = state.Viewport.Height;
+                    
+                    var mvpw = rotationMatrix * modelview * projection *
+                                     Matrix4x4.CreateScale(width / 2.0f, height / 2.0f, 1.0f);
+
+                    //mvpw = Matrix4x4.Transpose(mvpw);
+                    
+                    // KLUDGE - I think these need to be vector premultiply, these are not scaled by w..
+                    
+                    //inline Vec3d Matrixd::preMult( const Vec3d& v ) const
+                    //{
+                    //    value_type d = 1.0f/(_mat[0][3]*v.x()+_mat[1][3]*v.y()+_mat[2][3]*v.z()+_mat[3][3]) ;
+                    //    return Vec3d( (_mat[0][0]*v.x() + _mat[1][0]*v.y() + _mat[2][0]*v.z() + _mat[3][0])*d,
+                    //        (_mat[0][1]*v.x() + _mat[1][1]*v.y() + _mat[2][1]*v.z() + _mat[3][1])*d,
+                    //        (_mat[0][2]*v.x() + _mat[1][2]*v.y() + _mat[2][2]*v.z() + _mat[3][2])*d);
+                    //}
+                    
+                    var origin = Vector3.Transform(new Vector3(0.0f, 0.0f, 0.0f), mvpw);
+                    var left = Vector3.Transform(new Vector3(1.0f, 0.0f, 0.0f), mvpw) - origin;
+                    var up = Vector3.Transform(new Vector3(0.0f, 1.0f, 0.0f), mvpw) - origin;
+                    
+                    // compute the pixel size vector.
+                    var length_x = left.Length();
+                    var scale_x = length_x>0.0f ? 1.0f/length_x : 1.0f;
+
+                    var length_y = up.Length();
+                    var scale_y = length_y>0.0f ? 1.0f/length_y : 1.0f;
+
+                    {
+                        var scaleVec = (new Vector3(_charHeight / _charAspectRatio, _charHeight, _charHeight));
+                        computedMatrix = computedMatrix.PostMultiply(Matrix4x4.CreateScale(scaleVec));
+                    }
+                    
+                    if (CharacterSizeMode == CharacterSizeModes.ScreenCoords)
+                    {
+                        var scaleVec = (new Vector3(scale_x, scale_y, scale_x));
+                        computedMatrix = computedMatrix.PostMultiply(Matrix4x4.CreateScale(scaleVec));
+                    }
+                    else
+                    {
+                        throw new NotImplementedException();
+                    }
+                }
+
+                if (AutoRotateToScreen)
+                {
+                    computedMatrix = computedMatrix.PostMultiply(rotationMatrix);
+                }
+                
+                if (_matrix != computedMatrix)
+                {
+                    _matrix = computedMatrix;
+                    DirtyBound();
+                }
+            }
+
+            return true;
         }
     }
 }

@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace Veldrid.SceneGraph
 {
@@ -103,6 +104,11 @@ namespace Veldrid.SceneGraph
             _boundingSphereComputed = true;
 
             return _boundingBox;
+        }
+
+        public virtual bool ComputeMatrix(ref Matrix4x4 computedMatrix, IState state)
+        {
+            return false;
         }
 
         protected abstract IBoundingBox ComputeBoundingBox();
