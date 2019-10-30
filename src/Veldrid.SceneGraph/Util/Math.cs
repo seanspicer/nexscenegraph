@@ -54,15 +54,30 @@ namespace Veldrid.SceneGraph.Util
             var nVerts = trajectory.Length;
          
             if(nVerts < 2) throw new ArgumentException("Not enough points in trajectory");
-            
-            var tangents = new Vector3[nVerts];
 
-            tangents[0] = Vector3.Subtract(trajectory[1],trajectory[0]);
-            for (var i = 1; i < nVerts - 1; ++i)
+            var tangents = new Vector3[nVerts];
+            if (nVerts == 2)
             {
-                tangents[i] = Vector3.Subtract(trajectory[i + 1],trajectory[i-1]);
+                tangents[0] = Vector3.Subtract(trajectory[1],trajectory[0]);
+                tangents[1] = tangents[0];
             }
-            tangents[nVerts-1] = Vector3.Subtract(trajectory[nVerts-1],trajectory[nVerts-2]);
+            else
+            {
+                tangents[0] = 0.5f*(-3*trajectory[0] + 4*trajectory[1] - 1 * trajectory[2]);
+                for (var i = 1; i < nVerts - 1; ++i)
+                {
+                    tangents[i] = 0.5f*Vector3.Subtract(trajectory[i + 1],trajectory[i-1]);
+                }
+                tangents[nVerts-1] = 0.5f*(1*trajectory[nVerts-3] + -4*trajectory[nVerts-2] + 3*trajectory[nVerts-1]);
+            }
+            
+
+//            tangents[0] = Vector3.Subtract(trajectory[1],trajectory[0]);
+//            for (var i = 1; i < nVerts - 1; ++i)
+//            {
+//                tangents[i] = Vector3.Subtract(trajectory[i + 1],trajectory[i-1]);
+//            }
+//            tangents[nVerts-1] = Vector3.Subtract(trajectory[nVerts-1],trajectory[nVerts-2]);
 
             return tangents;
         }
@@ -73,7 +88,7 @@ namespace Veldrid.SceneGraph.Util
             OrientationPreserving
         }
         
-        public static Vector3[,] ExtrudeShape(Vector2[] shape, Vector3[] path, ExtrusionType type=ExtrusionType.OrientationPreserving)
+        public static Vector3[,] ExtrudeShape(Vector2[] shape, Vector3[] path, ExtrusionType type=ExtrusionType.Natural)
         {
             var nSegments = shape.Length;
 

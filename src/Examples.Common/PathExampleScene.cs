@@ -32,12 +32,12 @@ namespace Examples.Common
             });
 
             var start = 70;
-            path = Path.Create(pathData.ToList().GetRange(start, 3).ToArray());
-            //path = Path.Create(pathData);
+            //path = Path.Create(pathData.ToList().GetRange(start, 3).ToArray());
+            path = Path.Create(pathData);
 
             var hints = TessellationHints.Create();
             hints.SetDetailRatio(4f);
-            hints.SetRadius(1f);
+            hints.SetRadius(.1f);
             var pathDrawable = ShapeDrawable<Position3Texture2Color3Normal3>.Create(path, hints);
             
             var redMaterial = PhongMaterial.Create(

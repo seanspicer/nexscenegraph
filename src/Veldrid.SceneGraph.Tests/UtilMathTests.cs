@@ -61,11 +61,11 @@ namespace Veldrid.SceneGraph.Tests
 
             var tangents = Util.Math.ComputePathTangents(trajectory);
             
-            Assert.That(tangents[0], Is.EqualTo(-Vector3.UnitY));
-            Assert.That(tangents[1], Is.EqualTo(Vector3.UnitZ-Vector3.UnitY));
-            Assert.That(tangents[2], Is.EqualTo(Vector3.UnitX+Vector3.UnitZ));
-            Assert.That(tangents[3], Is.EqualTo(Vector3.UnitX-Vector3.UnitY));
-            Assert.That(tangents[4], Is.EqualTo(-Vector3.UnitY));
+            Assert.That(tangents[0], Is.EqualTo(new Vector3( 0.0f, -1.5f, -0.5f)));
+            Assert.That(tangents[1], Is.EqualTo(new Vector3( 0.0f, -0.5f,  0.5f)));
+            Assert.That(tangents[2], Is.EqualTo(new Vector3( 0.5f,  0.0f,  0.5f)));
+            Assert.That(tangents[3], Is.EqualTo(new Vector3( 0.5f, -0.5f, -0.0f)));
+            Assert.That(tangents[4], Is.EqualTo(new Vector3(-0.5f, -1.5f,  0.0f)));
         }
 
         [Test]
@@ -123,20 +123,20 @@ namespace Veldrid.SceneGraph.Tests
             Assert.That(extrusion.GetLength(1), Is.EqualTo(nSegments));
 
             var expected = new Vector3[3,4];
-            expected[0,0] = new Vector3(1f, 0.7071f, -0.7071f);
-            expected[0,1] = new Vector3(2f, 0f, 0f);
-            expected[0,2] = new Vector3(1f, -0.7071f, 0.7071f);
-            expected[0,3] = new Vector3(0f, 0f, 0f);
+            expected[0,0] = new Vector3(0.935339332f, 0.806018054f, -0.588348448f);
+            expected[0,1] = new Vector3(1.97844648f, -0.064660646f, -0.196116164f);
+            expected[0,2] = new Vector3(1.06466067f, -0.806018054f, 0.588348448f);
+            expected[0,3] = new Vector3(0.021553576f, 0.064660646f, 0.196116164f);
             
-            expected[1,0] = new Vector3(1.2357f, 1.2357f, 0.05719f);
-            expected[1,1] = new Vector3(1.6667f, 1.6667f, 1.3333f);
-            expected[1,2] = new Vector3(0.7643f, 0.7643f, 1.9428f);
-            expected[1,3] = new Vector3(0.3333f, 0.3333f, 0.6666f);
+            expected[1,0] = new Vector3(1.18162894f, 1.1816287f, 0.0335519314f);
+            expected[1,1] = new Vector3(1.68338192f, 1.68338203f, 1.25686204f);
+            expected[1,2] = new Vector3(0.818371058f, 0.818371236f, 1.96644807f);
+            expected[1,3] = new Vector3(0.316618085f, 0.316618025f, 0.743137956f);
             
-            expected[2,0] = new Vector3(0.7071f, 1f, -0.7071f);
-            expected[2,1] = new Vector3(0f, 2f, 0f);
-            expected[2,2] = new Vector3(-0.7071f, 1f, 0.7071f);
-            expected[2,3] = new Vector3(0f, 0f, 0f);
+            expected[2,0] = new Vector3(0.806018174f, 0.935339391f, -0.58834815f);
+            expected[2,1] = new Vector3(-0.0646606982f, 1.97844625f, -0.196116164f);
+            expected[2,2] = new Vector3(-0.806018174f, 1.06466067f, 0.58834815f);
+            expected[2,3] = new Vector3(0.0646606982f, 0.0215536952f, 0.196116164f);
 
             for (var i = 0; i < path.Length; ++i)
             {
