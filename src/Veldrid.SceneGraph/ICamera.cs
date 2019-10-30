@@ -52,5 +52,7 @@ namespace Veldrid.SceneGraph
         void SetProjectionMatrixAsPerspective(float vfov, float aspectRatio, float zNear, float zFar);
 
         Vector3 NormalizedScreenToWorld(Vector3 screenCoords);
+        
+        RgbaFloat ClearColor { get; set; }
     }
 }

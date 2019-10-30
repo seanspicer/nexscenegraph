@@ -71,6 +71,21 @@ namespace Veldrid.SceneGraph.Wpf
                 
             }
         }
+
+        private RgbaFloat _clearColor;
+
+        public RgbaFloat ClearColor
+        {
+            get => _clearColor;
+            set
+            {
+                _clearColor = value;
+                if (null != _view)
+                {
+                    _view.Camera.ClearColor = _clearColor;
+                }
+            }
+        }
         
         public double DpiScale { get; set; }
 

@@ -55,6 +55,7 @@ namespace HelloNsg
             
             var viewer = SimpleViewer.Create("Hello Veldrid Scene Graph");
             viewer.SetCameraManipulator(TrackballManipulator.Create());
+            viewer.SetBackgroundColor(RgbaFloat.Black);
 
             var root = Group.Create();
             

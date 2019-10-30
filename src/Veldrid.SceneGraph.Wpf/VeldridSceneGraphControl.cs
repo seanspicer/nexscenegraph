@@ -17,6 +17,7 @@ namespace Veldrid.SceneGraph.Wpf
         private ISubject<IGroup> _sceneDataSubject;
         private ISubject<ICameraManipulator> _cameraManipulatorSubject;
         private ISubject<IInputEventHandler> _eventHandlerSubject;
+        private ISubject<RgbaFloat> _clearColorSubject;
 
         private VeldridSceneGraphRenderer _vsgRenderer;
         
@@ -41,6 +42,7 @@ namespace Veldrid.SceneGraph.Wpf
             _sceneDataSubject = new ReplaySubject<IGroup>();
             _cameraManipulatorSubject = new ReplaySubject<ICameraManipulator>();
             _eventHandlerSubject = new ReplaySubject<IInputEventHandler>();
+            _clearColorSubject = new ReplaySubject<RgbaFloat>();
             _inputState = new WpfInputStateSnapshot();
 
             ShouldHandleKeyEvents = false;
@@ -71,6 +73,10 @@ namespace Veldrid.SceneGraph.Wpf
             _eventHandlerSubject.Subscribe((eventHandler) =>
             {
                 _vsgRenderer.EventHandler = eventHandler;
+            });
+            _clearColorSubject.Subscribe((clearColor) =>
+            {
+                _vsgRenderer.ClearColor = clearColor;
             });
 
             Renderer = _vsgRenderer;
@@ -337,6 +343,27 @@ namespace Veldrid.SceneGraph.Wpf
         
         private void SetEventHandler(DependencyPropertyChangedEventArgs e) {  
             _eventHandlerSubject.OnNext((IInputEventHandler) e.NewValue); 
+        }
+        #endregion
+        
+        #region ClearColorProperty
+        public static readonly DependencyProperty ClearColorProperty = 
+            DependencyProperty.Register("ClearColor", typeof(RgbaFloat), typeof(VeldridSceneGraphControl), 
+                new PropertyMetadata(RgbaFloat.Grey, new PropertyChangedCallback(OnClearColorChanged)));  
+
+        public RgbaFloat ClearColor 
+        {
+            get => (RgbaFloat) GetValue(ClearColorProperty);
+            set => SetValue(ClearColorProperty, value);
+        }
+        
+        private static void OnClearColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {  
+            var vsgControl = d as VeldridSceneGraphControl;  
+            vsgControl?.SetClearColor(e);  
+        } 
+        
+        private void SetClearColor(DependencyPropertyChangedEventArgs e) {  
+            _clearColorSubject.OnNext((RgbaFloat) e.NewValue); 
         }
         #endregion
     }
