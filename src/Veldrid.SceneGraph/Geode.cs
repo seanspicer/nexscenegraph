@@ -20,17 +20,17 @@ using System.Collections.Generic;
 namespace Veldrid.SceneGraph
 {
 
-    public class Geode : Node, IGeode
+    public class Geode : Group, IGeode
     {
-        private List<IDrawable> _drawables = new List<IDrawable>();
-        public IReadOnlyList<IDrawable> Drawables => _drawables;
+        //private List<IDrawable> _drawables = new List<IDrawable>();
+        //public IReadOnlyList<IDrawable> Drawables => _drawables;
         
         protected IBoundingBox _boundingBox;
         protected IBoundingBox _initialBoundingBox = BoundingBox.Create();
 
-        public event Func<INode, IBoundingBox> ComputeBoundingBoxCallback;
+        //public event Func<INode, IBoundingBox> ComputeBoundingBoxCallback;
 
-        public static IGeode Create()
+        public new static IGeode Create()
         {
             return new Geode();
         }
@@ -50,44 +50,86 @@ namespace Veldrid.SceneGraph
             };
         }
 
-        public virtual void AddDrawable(IDrawable drawable)
+        public virtual bool AddDrawable(IDrawable drawable)
         {
-            _drawables.Add(drawable);
+            return AddChild(drawable);
+            //_drawables.Add(drawable);
         }
-        
+
+        public int GetNumDrawables()
+        {
+            return _children.Count;
+        }
+
+        public IDrawable GetDrawable(int index)
+        {
+            if (index < 0 || index > _children.Count)
+            {
+                throw new ArgumentException("Index out of bounds");
+            }
+            
+            return _children[(int)index].Item1 as IDrawable;
+        }
+
         public IBoundingBox GetBoundingBox()
         {
-            if (_boundingSphereComputed) return _boundingBox;
+            if (!_boundingSphereComputed) GetBound();
+            return _boundingBox;
             
-            _boundingBox = _initialBoundingBox;
+            
+//            if (_boundingSphereComputed) return _boundingBox;
+//            
+//            _boundingBox = _initialBoundingBox;
+//
+//            _boundingBox.ExpandBy(null != ComputeBoundingBoxCallback
+//                ? ComputeBoundingBoxCallback(this)
+//                : ComputeBoundingBox());
+//
+//            if (_boundingBox.Valid())
+//            {
+//                _boundingSphere.Set(_boundingBox.Center, _boundingBox.Radius);
+//            }
+//            else
+//            {
+//                _boundingSphere.Init();
+//            }
+//
+//            _boundingSphereComputed = true;
+//
+//            return _boundingBox;
+        }
 
-            _boundingBox.ExpandBy(null != ComputeBoundingBoxCallback
-                ? ComputeBoundingBoxCallback(this)
-                : ComputeBoundingBox());
+        public override IBoundingSphere ComputeBound()
+        {
+            var boundingSphere = SceneGraph.BoundingSphere.Create();
+            var bb = BoundingBox.Create();
+            foreach (var child in _children)
+            {
+                if(child.Item1 is IDrawable drawable)
+                {
+                    bb.ExpandBy(drawable.GetBoundingBox());
+                }
+            }
+
+            _boundingBox = bb;
 
             if (_boundingBox.Valid())
             {
-                _boundingSphere.Set(_boundingBox.Center, _boundingBox.Radius);
-            }
-            else
-            {
-                _boundingSphere.Init();
+                boundingSphere.ExpandBy(_boundingBox);
             }
 
-            _boundingSphereComputed = true;
-
-            return _boundingBox;
+            return boundingSphere;
         }
 
-        protected IBoundingBox ComputeBoundingBox()
-        {
-            var bb = BoundingBox.Create();
-            foreach (var drawable in Drawables)
-            {
-                bb.ExpandBy(drawable.GetBoundingBox());
-            }
-
-            return bb;
-        }
+//        protected IBoundingBox ComputeBoundingBox()
+//        {
+//            var bb = BoundingBox.Create();
+//            foreach (var drawable in _children)
+//            {
+//                bb.ExpandBy(drawable.GetBoundingBox());
+//            }
+//
+//            return bb;
+//        }
     }
 }

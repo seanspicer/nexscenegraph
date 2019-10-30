@@ -19,19 +19,16 @@ using System.Collections.Generic;
 
 namespace Veldrid.SceneGraph
 {
-    public interface IDrawable : IObject
+    public interface IDrawable : INode
     {
         string Name { get; set; }
         Type VertexType { get; }
         IBoundingBox InitialBoundingBox { get; set; }
         VertexLayoutDescription VertexLayout { get; set; }
         List<IPrimitiveSet> PrimitiveSets { get; }
-        IPipelineState PipelineState { get; set; }
-        bool HasPipelineState { get; }
         void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory);
         DeviceBuffer GetVertexBufferForDevice(GraphicsDevice device);
         DeviceBuffer GetIndexBufferForDevice(GraphicsDevice device);
-        void DirtyBound();
         IBoundingBox GetBoundingBox();
         
     }

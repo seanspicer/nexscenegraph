@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using Newtonsoft.Json.Bson;
 using Veldrid.SceneGraph.Text;
 
 namespace Veldrid.SceneGraph
@@ -176,6 +177,11 @@ namespace Veldrid.SceneGraph
         public virtual void Apply(ITransform transform)
         {
             Apply((INode)transform);
+        }
+
+        public virtual void Apply(IDrawable drawable)
+        {
+            Apply((INode) drawable);
         }
     }
 }

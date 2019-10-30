@@ -19,11 +19,15 @@ using System.Collections.Generic;
 
 namespace Veldrid.SceneGraph
 {
-    public interface IGeode : INode
+    public interface IGeode : IGroup
     {
-        IReadOnlyList<IDrawable> Drawables { get; }
+        //IReadOnlyList<IDrawable> Drawables { get; }
         IBoundingBox GetBoundingBox();
-        event Func<INode, IBoundingBox> ComputeBoundingBoxCallback;
-        void AddDrawable(IDrawable drawable);
+        //event Func<INode, IBoundingBox> ComputeBoundingBoxCallback;
+        bool AddDrawable(IDrawable drawable);
+
+        int GetNumDrawables();
+
+        IDrawable GetDrawable(int index);
     }
 }

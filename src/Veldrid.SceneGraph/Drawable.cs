@@ -19,18 +19,14 @@ using System.Collections.Generic;
 
 namespace Veldrid.SceneGraph
 {
-    public abstract class Drawable : Object, IDrawable
+    public abstract class Drawable : Node, IDrawable
     {
         public string Name { get; set; } = string.Empty;
 
         public Type VertexType => GetVertexType();
         
-
-        protected bool _boundingSphereComputed = false;
-        protected IBoundingSphere _boundingSphere = BoundingSphere.Create();
-        
-        protected IBoundingBox _boundingBox;
-        protected IBoundingBox _initialBoundingBox = BoundingBox.Create();
+        private IBoundingBox _boundingBox;
+        private IBoundingBox _initialBoundingBox = BoundingBox.Create();
         public IBoundingBox InitialBoundingBox
         {
             get => _initialBoundingBox;
@@ -41,28 +37,22 @@ namespace Veldrid.SceneGraph
             }
         }
         
+        public override void Accept(INodeVisitor nv)
+        {
+            if (nv.ValidNodeMask(this))
+            {
+                nv.PushOntoNodePath(this);
+                nv.Apply(this);
+                nv.PopFromNodePath(this);
+            };
+        }
+        
         public VertexLayoutDescription VertexLayout { get; set; }
         
         public List<IPrimitiveSet> PrimitiveSets { get; } = new List<IPrimitiveSet>();
         
         public event Func<Drawable, BoundingBox> ComputeBoundingBoxCallback;
         public event Action<CommandList, Drawable> DrawImplementationCallback;
-
-        private IPipelineState _pipelineState = null;
-        public IPipelineState PipelineState
-        {
-            get => _pipelineState ?? (_pipelineState = Veldrid.SceneGraph.PipelineState.Create());
-            set => _pipelineState = value;
-        }
-        
-        public bool HasPipelineState
-        {
-            get => null != _pipelineState;
-        }
-
-        protected Drawable()
-        {
-        }
         
         protected abstract Type GetVertexType();
         
@@ -90,13 +80,6 @@ namespace Veldrid.SceneGraph
         {
             // Nothing by default
         }     
-        
-        public void DirtyBound()
-        {
-            if (!_boundingSphereComputed) return;
-            
-            _boundingSphereComputed = false;
-        }
         
         public IBoundingBox GetBoundingBox()
         {

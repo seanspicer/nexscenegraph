@@ -69,5 +69,7 @@ namespace Veldrid.SceneGraph
         void Apply(IBillboard billboard);
 
         void Apply(ITransform transform);
+
+        void Apply(IDrawable drawable);
     }
 }
