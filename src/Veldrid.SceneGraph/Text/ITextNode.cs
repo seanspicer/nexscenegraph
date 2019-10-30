@@ -15,11 +15,25 @@
 //
 
 using SixLabors.Fonts;
+using SixLabors.ImageSharp.ColorSpaces;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Veldrid.SceneGraph.Text
 {
     public interface ITextNode : IGeometry<VertexPositionTexture>
     {
         string Text { get; }
+        
+        int Padding { get; }
+        
+        float FontResolution { get; }
+        
+        Rgba32 TextColor { get; }
+        
+        Rgba32 BackgroundColor { get; }
+        
+        VerticalAlignment VerticalAlignment { get; }
+        
+        HorizontalAlignment HorizontalAlignment { get; }
     }
 }

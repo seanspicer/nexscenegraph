@@ -14,10 +14,12 @@
 // limitations under the License.
 //
 
+using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.ColorSpaces;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.Primitives;
@@ -57,23 +59,84 @@ namespace Veldrid.SceneGraph.Text
     {
         private Font Font { get; set; }
         public string Text { get; private set; }
+        public int Padding { get; }
+        public float FontResolution { get; }
+        public Rgba32 TextColor { get; }
+        public Rgba32 BackgroundColor { get; }
+        public VerticalAlignment VerticalAlignment { get; }
 
-        public static ITextNode Create(string text)
+        public HorizontalAlignment HorizontalAlignment { get; }
+        
+        private int _textWidth;
+        private int _textHeight;
+        private double _textAspectRatio;
+        
+        public static ITextNode Create(string text, 
+            Rgba32 textColor,
+            Rgba32 backgroundColor,
+            VerticalAlignment verticalAlignment=VerticalAlignment.Center,
+            HorizontalAlignment horizontalAlignment=HorizontalAlignment.Center,
+            int padding=4,
+            float fontResolution=1)
         {
-            return new TextNode(text);
+            return new TextNode(
+                text, 
+                textColor, 
+                backgroundColor,
+                verticalAlignment, 
+                horizontalAlignment,
+                padding,
+                fontResolution
+                );
         }
         
-        protected TextNode(string text)
+        public static ITextNode Create(string text,
+            VerticalAlignment verticalAlignment=VerticalAlignment.Center,
+            HorizontalAlignment horizontalAlignment=HorizontalAlignment.Center,
+            int padding=4,
+            float fontResolution=1)
+        {
+            return new TextNode(
+                text, 
+                Rgba32.White, 
+                Rgba32.Transparent, 
+                verticalAlignment, 
+                horizontalAlignment,
+                padding,
+                fontResolution
+            );
+        }
+        
+        protected TextNode(string text,
+            Rgba32 textColor,
+            Rgba32 backgroundColor,
+            VerticalAlignment verticalAlignment,
+            HorizontalAlignment horizontalAlignment,
+            int padding,
+            float fontResolution)
         {
             Text = text;
+            VerticalAlignment = verticalAlignment;
+            HorizontalAlignment = horizontalAlignment;
+            Padding = padding;
+            TextColor = textColor;
+            BackgroundColor = backgroundColor;
+            FontResolution = fontResolution;
+
+            // Create default Font
+            Font = SystemFonts.CreateFont("Arial", 20);
+            
+            CalculateTextMetrics();
+
+            var w = (float)_textAspectRatio;var h = 1.0f;
             
             VertexData = new VertexPositionTexture[]
             {
                 // Quad
-                new VertexPositionTexture(new Vector3(-1.0f, +1.0f, +0.0f), new Vector2(0, 0)),
-                new VertexPositionTexture(new Vector3(+1.0f, +1.0f, +0.0f), new Vector2(1, 0)),
-                new VertexPositionTexture(new Vector3(+1.0f, -1.0f, +0.0f), new Vector2(1, 1)),
-                new VertexPositionTexture(new Vector3(-1.0f, -1.0f, +0.0f), new Vector2(0, 1))
+                new VertexPositionTexture(new Vector3(-w, +h, +0.0f), new Vector2(0, 0)),
+                new VertexPositionTexture(new Vector3(+w, +h, +0.0f), new Vector2(1, 0)),
+                new VertexPositionTexture(new Vector3(+w, -h, +0.0f), new Vector2(1, 1)),
+                new VertexPositionTexture(new Vector3(-w, -h, +0.0f), new Vector2(0, 1))
             };
 
             IndexData = new uint[]
@@ -98,8 +161,12 @@ namespace Veldrid.SceneGraph.Text
                     "SurfaceSampler"));
             
             PipelineState.BlendStateDescription = BlendStateDescription.SingleAlphaBlend;
+            
+            var rsd = new RasterizerStateDescription();
+            rsd.FillMode = PolygonFillMode.Wireframe;
+            //PipelineState.RasterizerStateDescription = rsd;
         }
-
+        
         private uint NextPowerOfTwo(uint v)
         {
             v--;
@@ -113,40 +180,78 @@ namespace Veldrid.SceneGraph.Text
             return v;
         }
 
-        internal ProcessedTexture BuildTexture()
+        internal void CalculateTextMetrics()
         {
-            // Create default Font
-            Font = SystemFonts.CreateFont("Arial", 20);
-            SizeF size = TextMeasurer.Measure(Text, new RendererOptions(Font));
+            SizeF size = TextMeasurer.Measure(Text, new RendererOptions(Font, 72*FontResolution));
 
-            var rawSize = Math.Max(size.Width, size.Height);
-            var texSize = (int)NextPowerOfTwo((uint) Math.Round(rawSize));
+            var padding = Padding * FontResolution;
             
-            using (var img = new Image<Rgba32>(texSize, texSize))
+            //var texSize = (int)NextPowerOfTwo((uint) Math.Round(rawSize));
+            _textWidth = (int)((size.Width + (padding * 2)));//(int)NextPowerOfTwo((uint) Math.Round(size.Width));
+            _textHeight = (int)((size.Height + (padding * 2)));//(int)NextPowerOfTwo((uint) Math.Round(size.Height));
+
+            _textAspectRatio = (double)_textWidth / (double)_textHeight;
+        }
+
+        private ProcessedTexture BuildTexture()
+        {
+            using (var img = new Image<Rgba32>(_textWidth, _textHeight))
             {
-                var padding = 4;
+                var padding = this.Padding*FontResolution;
                 float targetWidth = img.Width - (padding * 2);
                 float targetHeight = img.Height - (padding * 2);
 
                 // measure the text size
-                //SizeF size = TextMeasurer.Measure(Text, new RendererOptions(Font));
+                var size = TextMeasurer.Measure(Text, new RendererOptions(Font));
 
-                //find out how much we need to scale the text to fill the space (up or down)
-//                float scalingFactor = Math.Min(img.Width / size.Width, img.Height / size.Height);
-//
-//                //create a new font 
-//                Font scaledFont = new Font(Font, scalingFactor * Font.Size);
-//
-                var center = new PointF(img.Width / 2, img.Height / 2);
+                //find out how much we need to scale the text to allow for alignment
+                var scalingFactor = Math.Min(targetWidth/img.Width, targetHeight/img.Height);
+
+                //create a new font 
+                var scaledFont = new Font(Font, scalingFactor * Font.Size);
+                
+                var hCenter = img.Width / 2f;
+                var vCenter = img.Height / 2f;
+                switch (HorizontalAlignment)
+                {
+                    case HorizontalAlignment.Left:
+                        hCenter = padding;
+                        break;
+                    case HorizontalAlignment.Right:
+                        hCenter = img.Width-padding;
+                        break;
+                    case HorizontalAlignment.Center:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+                
+                switch (VerticalAlignment)
+                {
+                    case VerticalAlignment.Top:
+                        vCenter = padding;
+                        break;
+                    case VerticalAlignment.Bottom:
+                        vCenter = img.Height-padding;
+                        break;
+                    case VerticalAlignment.Center:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+                
+                var center = new PointF(hCenter, vCenter);
+                
                 
                 var textGraphicOptions = new TextGraphicsOptions(true) {
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    
+                    HorizontalAlignment = HorizontalAlignment,
+                    VerticalAlignment = VerticalAlignment,
+                    DpiX = 72*FontResolution,
+                    DpiY = 72*FontResolution
                 };
                 
-                img.Mutate(i => i.BackgroundColor(Rgba32.Transparent));
-                img.Mutate(i => i.DrawText(textGraphicOptions, Text, Font, Rgba32.White, center));
+                img.Mutate(i => i.BackgroundColor(BackgroundColor));
+                img.Mutate(i => i.DrawText(textGraphicOptions, Text, scaledFont, TextColor, center));
                 
                 var imageProcessor = new ImageSharpProcessor();
                 return imageProcessor.ProcessT(img);
