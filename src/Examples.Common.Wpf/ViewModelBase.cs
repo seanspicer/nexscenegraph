@@ -17,6 +17,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Examples.Common.Wpf.Annotations;
+using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
 
@@ -56,6 +57,18 @@ namespace Examples.Common.Wpf
             {
                 _eventHandler = value;
                 OnPropertyChanged("EventHandler");
+            }
+        }
+
+        private RgbaFloat _clearColor;
+
+        public RgbaFloat ClearColor
+        {
+            get => _clearColor;
+            set
+            {
+                _clearColor = value;
+                OnPropertyChanged("ClearColor");
             }
         }
 

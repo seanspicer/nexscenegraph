@@ -142,8 +142,7 @@ namespace Veldrid.SceneGraph.Viewer
             // We want to render directly to the output window.
             _commandList.SetFramebuffer(Framebuffer);
             
-            // TODO Set from Camera color ?
-            _commandList.ClearColorTarget(0, RgbaFloat.Grey);
+            _commandList.ClearColorTarget(0, _camera.ClearColor);
             _commandList.ClearDepthStencil(1f);
             
             //

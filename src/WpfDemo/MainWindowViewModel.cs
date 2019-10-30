@@ -79,6 +79,7 @@ namespace WpfDemo
             SceneRoot = root;
             CameraManipulator = TrackballManipulator.Create();
             EventHandler = new WpfDemo.PickEventHandler();
+            ClearColor = RgbaFloat.Blue;
         }
         
         static IGeode CreateCube()

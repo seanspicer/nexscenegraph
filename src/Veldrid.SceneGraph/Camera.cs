@@ -76,6 +76,8 @@ namespace Veldrid.SceneGraph
             _width = width;
             _height = height;
             
+            ClearColor = RgbaFloat.Grey;
+            
             _aspectRatio = width / height;
             ProjectionMatrix = Matrix4x4.Identity;
             ViewMatrix = Matrix4x4.Identity;
@@ -139,7 +141,9 @@ namespace Veldrid.SceneGraph
             }
             
         }
-        
+
+        public RgbaFloat ClearColor { get; set; }
+
         private Vector3 GetLookDir()
         {
             Quaternion lookRotation = Quaternion.CreateFromYawPitchRoll(Yaw, Pitch, 0f);
