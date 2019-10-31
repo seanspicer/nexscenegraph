@@ -151,15 +151,16 @@ namespace Veldrid.SceneGraph.Text
             
             CalculateTextMetrics();
 
-            var w = (float)_textAspectRatio;var h = 1.0f;
+            var w = (float)_textAspectRatio * FontSize;
+            var h = 1.0f * FontSize;
             
             VertexData = new VertexPositionTexture[]
             {
                 // Quad
-                new VertexPositionTexture(new Vector3(-w, +h, +0.0f), new Vector2(0, 0)),
-                new VertexPositionTexture(new Vector3(+w, +h, +0.0f), new Vector2(1, 0)),
-                new VertexPositionTexture(new Vector3(+w, -h, +0.0f), new Vector2(1, 1)),
-                new VertexPositionTexture(new Vector3(-w, -h, +0.0f), new Vector2(0, 1))
+                new VertexPositionTexture(new Vector3(-w/2f, +h/2f, +0.0f), new Vector2(0, 0)),
+                new VertexPositionTexture(new Vector3(+w/2f, +h/2f, +0.0f), new Vector2(1, 0)),
+                new VertexPositionTexture(new Vector3(+w/2f, -h/2f, +0.0f), new Vector2(1, 1)),
+                new VertexPositionTexture(new Vector3(-w/2f, -h/2f, +0.0f), new Vector2(0, 1))
             };
 
             IndexData = new uint[]
@@ -315,7 +316,7 @@ namespace Veldrid.SceneGraph.Text
                     var left = mvpw.PreMultiply(Vector3.UnitX) - origin;
                     var up = mvpw.PreMultiply(Vector3.UnitY) - origin;
 
-                    var scaleF = 10f;
+                    var scaleF = 1f;
                     
                     // compute the pixel size vector.
                     var length_x = left.Length();
