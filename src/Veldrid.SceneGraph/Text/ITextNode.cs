@@ -42,6 +42,8 @@ namespace Veldrid.SceneGraph.Text
         
         HorizontalAlignment HorizontalAlignment { get; }
         
+        float FontSize { get; }
+        
         bool AutoRotateToScreen { get; set; }
         
         CharacterSizeModes CharacterSizeMode { get; set; }

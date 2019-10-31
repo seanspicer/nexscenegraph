@@ -384,8 +384,8 @@ namespace Veldrid.SceneGraph.RenderGraph
             state.ProjectionMatrix = ProjectionMatrix;
             
             var viewport = new Viewport();
-            viewport.Width = (int)GraphicsDevice.SwapchainFramebuffer.Width;
-            viewport.Height = (int)GraphicsDevice.SwapchainFramebuffer.Height;
+            viewport.Width = (int) DisplaySettings.Instance.ScreenWidth;
+            viewport.Height = (int) DisplaySettings.Instance.ScreenHeight;
 
             state.Viewport = viewport;
             

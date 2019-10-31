@@ -64,7 +64,8 @@ namespace Veldrid.SceneGraph.Text
         public Rgba32 TextColor { get; }
         public Rgba32 BackgroundColor { get; }
         public VerticalAlignment VerticalAlignment { get; }
-        
+
+        public float FontSize { get; }
         public bool AutoRotateToScreen { get; set; }
         
         public CharacterSizeModes CharacterSizeMode { get; set; }
@@ -83,6 +84,7 @@ namespace Veldrid.SceneGraph.Text
         private Matrix4x4 _matrix;
         
         public static ITextNode Create(string text, 
+            float fontSize,
             Rgba32 textColor,
             Rgba32 backgroundColor,
             VerticalAlignment verticalAlignment=VerticalAlignment.Center,
@@ -92,6 +94,7 @@ namespace Veldrid.SceneGraph.Text
         {
             return new TextNode(
                 text, 
+                fontSize,
                 textColor, 
                 backgroundColor,
                 verticalAlignment, 
@@ -102,6 +105,7 @@ namespace Veldrid.SceneGraph.Text
         }
         
         public static ITextNode Create(string text,
+            float fontSize=20f,
             VerticalAlignment verticalAlignment=VerticalAlignment.Center,
             HorizontalAlignment horizontalAlignment=HorizontalAlignment.Center,
             int padding=4,
@@ -109,6 +113,7 @@ namespace Veldrid.SceneGraph.Text
         {
             return new TextNode(
                 text, 
+                fontSize,
                 Rgba32.White, 
                 Rgba32.Transparent, 
                 verticalAlignment, 
@@ -119,6 +124,7 @@ namespace Veldrid.SceneGraph.Text
         }
         
         protected TextNode(string text,
+            float fontSize,
             Rgba32 textColor,
             Rgba32 backgroundColor,
             VerticalAlignment verticalAlignment,
@@ -127,6 +133,7 @@ namespace Veldrid.SceneGraph.Text
             float fontResolution)
         {
             Text = text;
+            FontSize = fontSize;
             VerticalAlignment = verticalAlignment;
             HorizontalAlignment = horizontalAlignment;
             Padding = padding;
@@ -140,7 +147,7 @@ namespace Veldrid.SceneGraph.Text
             _matrix = Matrix4x4.Identity;
 
             // Create default Font
-            Font = SystemFonts.CreateFont("Arial", 20);
+            Font = SystemFonts.CreateFont("Arial", fontSize);
             
             CalculateTextMetrics();
 
@@ -304,37 +311,22 @@ namespace Veldrid.SceneGraph.Text
                     var mvpw = rotationMatrix * modelview * projection *
                                      Matrix4x4.CreateScale(width / 2.0f, height / 2.0f, 1.0f);
 
-                    //mvpw = Matrix4x4.Transpose(mvpw);
-                    
-                    // KLUDGE - I think these need to be vector premultiply, these are not scaled by w..
-                    
-                    //inline Vec3d Matrixd::preMult( const Vec3d& v ) const
-                    //{
-                    //    value_type d = 1.0f/(_mat[0][3]*v.x()+_mat[1][3]*v.y()+_mat[2][3]*v.z()+_mat[3][3]) ;
-                    //    return Vec3d( (_mat[0][0]*v.x() + _mat[1][0]*v.y() + _mat[2][0]*v.z() + _mat[3][0])*d,
-                    //        (_mat[0][1]*v.x() + _mat[1][1]*v.y() + _mat[2][1]*v.z() + _mat[3][1])*d,
-                    //        (_mat[0][2]*v.x() + _mat[1][2]*v.y() + _mat[2][2]*v.z() + _mat[3][2])*d);
-                    //}
-                    
-                    var origin = Vector3.Transform(new Vector3(0.0f, 0.0f, 0.0f), mvpw);
-                    var left = Vector3.Transform(new Vector3(1.0f, 0.0f, 0.0f), mvpw) - origin;
-                    var up = Vector3.Transform(new Vector3(0.0f, 1.0f, 0.0f), mvpw) - origin;
+                    var origin = mvpw.PreMultiply(Vector3.Zero);
+                    var left = mvpw.PreMultiply(Vector3.UnitX) - origin;
+                    var up = mvpw.PreMultiply(Vector3.UnitY) - origin;
+
+                    var scaleF = 10f;
                     
                     // compute the pixel size vector.
                     var length_x = left.Length();
-                    var scale_x = length_x>0.0f ? 1.0f/length_x : 1.0f;
+                    var scale_x = length_x>0.0f ? scaleF/length_x : 1.0f;
 
                     var length_y = up.Length();
-                    var scale_y = length_y>0.0f ? 1.0f/length_y : 1.0f;
+                    var scale_y = length_y>0.0f ? scaleF/length_y : 1.0f;
 
-                    {
-                        var scaleVec = (new Vector3(_charHeight / _charAspectRatio, _charHeight, _charHeight));
-                        computedMatrix = computedMatrix.PostMultiply(Matrix4x4.CreateScale(scaleVec));
-                    }
-                    
                     if (CharacterSizeMode == CharacterSizeModes.ScreenCoords)
                     {
-                        var scaleVec = (new Vector3(scale_x, scale_y, scale_x));
+                        var scaleVec = (new Vector3(scale_x, scale_y, 1.0f));
                         computedMatrix = computedMatrix.PostMultiply(Matrix4x4.CreateScale(scaleVec));
                     }
                     else
