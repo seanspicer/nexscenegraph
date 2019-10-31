@@ -14,20 +14,15 @@
 // limitations under the License.
 //
 
-using System;
-using System.Collections.Generic;
+using System.Numerics;
+using Veldrid.SceneGraph.Viewer;
 
 namespace Veldrid.SceneGraph
 {
-    public interface IGeode : IGroup
+    public interface IState
     {
-        //IReadOnlyList<IDrawable> Drawables { get; }
-        IBoundingBox GetBoundingBox();
-        //event Func<INode, IBoundingBox> ComputeBoundingBoxCallback;
-        bool AddDrawable(IDrawable drawable);
-
-        int GetNumDrawables();
-
-        IDrawable GetDrawable(int index);
+        Matrix4x4 ModelViewMatrix { get; }
+        Matrix4x4 ProjectionMatrix { get; }
+        IViewport Viewport { get; }
     }
 }

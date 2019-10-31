@@ -33,14 +33,7 @@ namespace TextRendering
             var viewer = SimpleViewer.Create("Text Rendering Demo");
             viewer.SetCameraManipulator(TrackballManipulator.Create());
 
-            var root = Group.Create();
-
-            var textNode = TextNode.Create("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor");
-            
-            var geode = Geode.Create();
-            geode.AddDrawable(textNode);
-            
-            root.AddChild(geode);
+            var root = TextRenderingExampleScene.Build();
 
             viewer.SetSceneData(root);
 

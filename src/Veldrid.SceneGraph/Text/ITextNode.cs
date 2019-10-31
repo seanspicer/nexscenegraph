@@ -15,11 +15,37 @@
 //
 
 using SixLabors.Fonts;
+using SixLabors.ImageSharp.ColorSpaces;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Veldrid.SceneGraph.Text
 {
+    public enum CharacterSizeModes
+    {
+        ObjectCoords,
+        ScreenCoords
+    }
+    
     public interface ITextNode : IGeometry<VertexPositionTexture>
     {
         string Text { get; }
+        
+        int Padding { get; }
+        
+        float FontResolution { get; }
+        
+        Rgba32 TextColor { get; }
+        
+        Rgba32 BackgroundColor { get; }
+        
+        VerticalAlignment VerticalAlignment { get; }
+        
+        HorizontalAlignment HorizontalAlignment { get; }
+        
+        float FontSize { get; }
+        
+        bool AutoRotateToScreen { get; set; }
+        
+        CharacterSizeModes CharacterSizeMode { get; set; }
     }
 }

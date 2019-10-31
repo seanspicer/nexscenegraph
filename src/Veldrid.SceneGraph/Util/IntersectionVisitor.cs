@@ -142,11 +142,17 @@ namespace Veldrid.SceneGraph.Util
         {
             if (false == Enter(geode)) return;
 
-            foreach (var drawable in geode.Drawables)
-            {
-                Intersect(drawable);
-            }
+            Traverse(geode);
 
+            Leave();
+        }
+
+        public override void Apply(IDrawable drawable)
+        {
+            if (false == Enter(drawable)) return;
+            
+            Intersect(drawable);
+            
             Leave();
         }
 

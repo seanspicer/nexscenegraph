@@ -182,6 +182,7 @@ namespace Veldrid.SceneGraph.Viewer
             
             foreach (var state in _cullVisitor.OpaqueRenderGroup.GetStateList())
             {
+                if (state.Elements.Count == 0) continue;
                 var ri = state.GetPipelineAndResources(device, factory, _resourceLayout, Framebuffer);
                 
                 _commandList.SetPipeline(ri.Pipeline);
@@ -393,12 +394,12 @@ namespace Veldrid.SceneGraph.Viewer
             
             var postSwap = _stopWatch.ElapsedMilliseconds;
             
-            _logger.LogTrace(string.Format("Update = {0} ms, Cull = {1} ms, Record = {2}, Draw = {3} ms, Swap = {4} ms",
-                postUpdate, 
-                postCull-postUpdate,
-                postRecord-postCull,
-                postDraw-postRecord,
-                postSwap-postDraw));
+//            _logger.LogTrace(string.Format("Update = {0} ms, Cull = {1} ms, Record = {2}, Draw = {3} ms, Swap = {4} ms",
+//                postUpdate, 
+//                postCull-postUpdate,
+//                postRecord-postCull,
+//                postDraw-postRecord,
+//                postSwap-postDraw));
         }
     }
 }
