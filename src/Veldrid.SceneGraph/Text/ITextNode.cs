@@ -28,21 +28,21 @@ namespace Veldrid.SceneGraph.Text
     
     public interface ITextNode : IGeometry<VertexPositionTexture>
     {
-        string Text { get; }
+        string Text { get; set; }
         
-        int Padding { get; }
+        int Padding { get; set; }
         
-        float FontResolution { get; }
+        float FontResolution { get; set; }
         
-        Rgba32 TextColor { get; }
+        Rgba32 TextColor { get; set; }
         
-        Rgba32 BackgroundColor { get; }
+        Rgba32 BackgroundColor { get; set; }
         
-        VerticalAlignment VerticalAlignment { get; }
+        VerticalAlignment VerticalAlignment { get; set; }
         
-        HorizontalAlignment HorizontalAlignment { get; }
+        HorizontalAlignment HorizontalAlignment { get; set; }
         
-        float FontSize { get; }
+        float FontSize { get; set; }
         
         bool AutoRotateToScreen { get; set; }
         

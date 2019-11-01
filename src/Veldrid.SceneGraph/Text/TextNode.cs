@@ -57,21 +57,125 @@ namespace Veldrid.SceneGraph.Text
     
     public class TextNode : Geometry<VertexPositionTexture>, ITextNode
     {
+        //private bool _dirty = true;
+        
         private Font Font { get; set; }
-        public string Text { get; private set; }
-        public int Padding { get; }
-        public float FontResolution { get; }
-        public Rgba32 TextColor { get; }
-        public Rgba32 BackgroundColor { get; }
-        public VerticalAlignment VerticalAlignment { get; }
 
-        public float FontSize { get; }
-        public bool AutoRotateToScreen { get; set; }
-        
-        public CharacterSizeModes CharacterSizeMode { get; set; }
+        private string _text;
+        public string Text
+        {
+            get => _text;
+            set
+            {
+                _text = value;
+                Dirty();
+            }
+        }
 
-        public HorizontalAlignment HorizontalAlignment { get; }
-        
+        private int _padding;
+
+        public int Padding
+        {
+            get => _padding;
+            set
+            {
+                _padding = value;
+                Dirty();
+            }
+        }
+
+        private float _fontResolution;
+
+        public float FontResolution
+        {
+            get => _fontResolution;
+            set
+            {
+                _fontResolution = value;
+                Dirty();
+            }
+        }
+
+        private Rgba32 _textColor;
+
+        public Rgba32 TextColor
+        {
+            get => _textColor;
+            set
+            {
+                _textColor = value;
+                Dirty();
+            }
+        }
+
+        private Rgba32 _backgroundColor;
+
+        public Rgba32 BackgroundColor
+        {
+            get => _backgroundColor;
+            set
+            {
+                _backgroundColor = value;
+                Dirty();
+            }
+        }
+
+        private VerticalAlignment _verticalAlignment;
+
+        public VerticalAlignment VerticalAlignment
+        {
+            get => _verticalAlignment;
+            set
+            {
+                _verticalAlignment = value;
+                Dirty();
+            }
+        }
+
+        private float _fontSize;
+        public float FontSize
+        {
+            get => _fontSize;
+            set
+            {
+                _fontSize = value;
+                Dirty();
+            }
+        }
+
+        private bool _autoRotateToScreen;
+        public bool AutoRotateToScreen
+        {
+            get => _autoRotateToScreen;
+            set
+            {
+                _autoRotateToScreen = value;
+            }
+        }
+
+        private CharacterSizeModes _characterSizeMode;
+
+        public CharacterSizeModes CharacterSizeMode
+        {
+            get => _characterSizeMode;
+            set
+            {
+                _characterSizeMode = value;
+                Dirty();
+            }
+        }
+
+        private HorizontalAlignment _horizontalAlignment;
+        public HorizontalAlignment HorizontalAlignment
+        {
+            get => _horizontalAlignment;
+            set
+            {
+                _horizontalAlignment = value;
+                Dirty();
+            }
+        }
+
         private int _textHeight;
         private int _textWidth;
         
@@ -122,7 +226,7 @@ namespace Veldrid.SceneGraph.Text
                 fontResolution
             );
         }
-        
+
         protected TextNode(string text,
             float fontSize,
             Rgba32 textColor,
@@ -132,35 +236,78 @@ namespace Veldrid.SceneGraph.Text
             int padding,
             float fontResolution)
         {
-            Text = text;
-            FontSize = fontSize;
-            VerticalAlignment = verticalAlignment;
-            HorizontalAlignment = horizontalAlignment;
-            Padding = padding;
-            TextColor = textColor;
-            BackgroundColor = backgroundColor;
-            FontResolution = fontResolution;
+            _text = text;
+            _fontSize = fontSize;
+            _verticalAlignment = verticalAlignment;
+            _horizontalAlignment = horizontalAlignment;
+            _padding = padding;
+            _textColor = textColor;
+            _backgroundColor = backgroundColor;
+            _fontResolution = fontResolution;
 
-            AutoRotateToScreen = true;
-            CharacterSizeMode = CharacterSizeModes.ScreenCoords;
+            _autoRotateToScreen = true;
+            _characterSizeMode = CharacterSizeModes.ScreenCoords;
+            
+            ComputeTextRepresentation();
+        }
+
+        private void Dirty()
+        {
+            ComputeTextRepresentation();
+        }
+
+        private void ComputeTextRepresentation() {
             
             _matrix = Matrix4x4.Identity;
 
             // Create default Font
-            Font = SystemFonts.CreateFont("Arial", fontSize);
+            Font = SystemFonts.CreateFont("Arial", FontSize);
             
             CalculateTextMetrics();
 
             var w = (float)_textAspectRatio * FontSize;
             var h = 1.0f * FontSize;
             
+            Vector4 widthVec;
+            Vector4 heightVec;
+
+            switch (HorizontalAlignment)
+            {
+                case HorizontalAlignment.Left:
+                    widthVec = new Vector4(0, w, w, 0);
+                    break;
+                case HorizontalAlignment.Right:
+                    widthVec = new Vector4(-w, 0, 0, -w);
+                    break;
+                case HorizontalAlignment.Center:
+                    widthVec = new Vector4(-w/2f, w/2f, w/2f, -w/2f);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            
+            switch (VerticalAlignment)
+            {
+                case VerticalAlignment.Top:
+                    heightVec = new Vector4(0, 0, -h, -h);
+                    break;
+                case VerticalAlignment.Bottom:
+                    heightVec = new Vector4(h, h, 0, 0);
+                    break;
+                case VerticalAlignment.Center:
+                    heightVec = new Vector4(h/2f, h/2f, -h/2f, -h/2f);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            
             VertexData = new VertexPositionTexture[]
             {
                 // Quad
-                new VertexPositionTexture(new Vector3(-w/2f, +h/2f, +0.0f), new Vector2(0, 0)),
-                new VertexPositionTexture(new Vector3(+w/2f, +h/2f, +0.0f), new Vector2(1, 0)),
-                new VertexPositionTexture(new Vector3(+w/2f, -h/2f, +0.0f), new Vector2(1, 1)),
-                new VertexPositionTexture(new Vector3(-w/2f, -h/2f, +0.0f), new Vector2(0, 1))
+                new VertexPositionTexture(new Vector3(widthVec.X, heightVec.X, +0.0f), new Vector2(0, 0)),
+                new VertexPositionTexture(new Vector3(widthVec.Y, heightVec.Y, +0.0f), new Vector2(1, 0)),
+                new VertexPositionTexture(new Vector3(widthVec.Z, heightVec.Z, +0.0f), new Vector2(1, 1)),
+                new VertexPositionTexture(new Vector3(widthVec.W, heightVec.W, +0.0f), new Vector2(0, 1))
             };
 
             IndexData = new uint[]
@@ -186,9 +333,7 @@ namespace Veldrid.SceneGraph.Text
             
             PipelineState.BlendStateDescription = BlendStateDescription.SingleAlphaBlend;
             
-            var rsd = new RasterizerStateDescription();
-            rsd.FillMode = PolygonFillMode.Wireframe;
-            //PipelineState.RasterizerStateDescription = rsd;
+            DirtyBound();
         }
         
         private uint NextPowerOfTwo(uint v)

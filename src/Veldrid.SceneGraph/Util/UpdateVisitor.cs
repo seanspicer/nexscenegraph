@@ -14,6 +14,8 @@
 // limitations under the License.
 //
 
+using Veldrid.SceneGraph.Text;
+
 namespace Veldrid.SceneGraph.Util
 {
     public class UpdateVisitor : NodeVisitor, IUpdateVisitor
@@ -46,6 +48,11 @@ namespace Veldrid.SceneGraph.Util
         public override void Apply(IBillboard billboard)
         {
             base.Apply(billboard);
+        }
+
+        public override void Apply(IDrawable drawable)
+        {
+            base.Apply(drawable);
         }
 
         protected void HandleCallbacks(IPipelineState state)
