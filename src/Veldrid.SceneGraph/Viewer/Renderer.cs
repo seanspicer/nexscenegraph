@@ -85,8 +85,8 @@ namespace Veldrid.SceneGraph.Viewer
             {
                 throw new InvalidCastException("Camera View type is not correct");
             }
-            var view = (Viewer.View) _camera.View;
-            view.SceneData?.Accept(_cullVisitor);
+            //var view = (Viewer.View) _camera.View;
+            //view.SceneData?.Accept(_cullVisitor);
 
             _resourceSet = factory.CreateResourceSet(
                 new ResourceSetDescription(_resourceLayout, _projectionBuffer, _viewBuffer));
