@@ -31,6 +31,8 @@
     <None Remove="Assets\Shaders\BasicTextureShader-vertex.glsl" />
     <EmbeddedResource Include="Assets\Shaders\BasicTextureShader-vertex.glsl" />
     <None Remove="Assets\Shaders\Vertex2Color4-fragment.glsl" />
+    <EmbeddedResource Include="Assets\Shaders\Position3Color3-fragment.glsl" />
+    <EmbeddedResource Include="Assets\Shaders\Position3Color3-vertex.glsl" />
     <EmbeddedResource Include="Assets\Shaders\Vertex2Color4-fragment.glsl" />
     <None Remove="Assets\Shaders\Vertex2Color4-vertex.glsl" />
     <EmbeddedResource Include="Assets\Shaders\Vertex2Color4-vertex.glsl" />
