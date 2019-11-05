@@ -90,12 +90,17 @@ namespace Veldrid.SceneGraph.RenderGraph
             CullingFrustum.SetViewProjectionMatrix(vp);
         }
 
-        private Matrix4x4 GetModelViewMatrix()
+        public Matrix4x4 GetProjectionMatrix()
+        {
+            return ProjectionMatrix;
+        }
+        
+        public Matrix4x4 GetModelViewMatrix()
         {
             return ModelMatrixStack.Peek().PostMultiply(ViewMatrix);
         }
         
-        private Matrix4x4 GetModelViewInverseMatrix()
+        public Matrix4x4 GetModelViewInverseMatrix()
         {
             var canInvert = Matrix4x4.Invert(ModelMatrixStack.Peek().PostMultiply(ViewMatrix), out var inverse);
             if (false == canInvert)
@@ -106,7 +111,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             return inverse;
         }
 
-        private Vector3 GetEyeLocal()
+        public Vector3 GetEyeLocal()
         {
             var eyeWorld = Vector3.Zero;
             var modelViewInverse = GetModelViewInverseMatrix();
@@ -129,7 +134,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                 needsPop = true;
             }
             
-            Traverse(node);
+            HandleCallbacksAndTraverse(node);
 
             if (needsPop)
             {
@@ -161,7 +166,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                 needsPop = true;
             }
             
-            Traverse((Node)geode);
+            HandleCallbacksAndTraverse((Node)geode);
 
             if (needsPop)
             {
@@ -429,6 +434,29 @@ namespace Veldrid.SceneGraph.RenderGraph
                     renderElementCache.Add(renderGroupState, renderElement);
                 }
                 renderElement.PrimitiveSets.Add(pset);
+            }
+        }
+        
+        protected void HandleCallbacks(IPipelineState state)
+        {
+            // TODO Handle state updates.
+        }
+        
+        protected void HandleCallbacksAndTraverse(INode node)
+        {
+            if (node.HasPipelineState)
+            {
+                HandleCallbacks(node.PipelineState);
+            }
+
+            var cullCallback = node.GetCullCallback();
+            if (null != cullCallback)
+            {
+                cullCallback.Invoke(this, node);
+            }
+            else
+            {
+                Traverse(node);
             }
         }
     }

@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections.Generic;
+using Veldrid.SceneGraph.RenderGraph;
 using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Viewer;
 
@@ -119,8 +120,6 @@ namespace Veldrid.SceneGraph
         public event Func<Node, BoundingSphere> ComputeBoundCallback;
 
         private Action<INodeVisitor, INode> _updateCallback;
-
-        
         
         public virtual void SetUpdateCallback(Action<INodeVisitor, INode> callback)
         {
@@ -137,9 +136,22 @@ namespace Veldrid.SceneGraph
 //                }
 //            }
         }
+        
         public virtual Action<INodeVisitor, INode> GetUpdateCallback()
         {
             return _updateCallback;
+        }
+        
+        private Action<INodeVisitor, INode> _cullCallback;
+        
+        public virtual void SetCullCallback(Action<INodeVisitor, INode> callback)
+        {
+            _cullCallback = callback;
+        }
+        
+        public virtual Action<INodeVisitor, INode> GetCullCallback()
+        {
+            return _cullCallback;
         }
 
         protected Node()

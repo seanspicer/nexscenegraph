@@ -30,5 +30,10 @@ namespace Veldrid.SceneGraph.RenderGraph
         void SetViewMatrix(Matrix4x4 viewMatrix);
         void SetProjectionMatrix(Matrix4x4 projectionMatrix);
         void Prepare();
+        
+        Matrix4x4 GetModelViewMatrix();
+        Matrix4x4 GetModelViewInverseMatrix();
+        Matrix4x4 GetProjectionMatrix();
+        Vector3 GetEyeLocal();
     }
 }
