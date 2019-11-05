@@ -137,12 +137,19 @@ namespace MultiTexturedCube
             
             geometry.PrimitiveSets.Add(pSet);
 
-            var vsBytes = ShaderTools.LoadBytecode(GraphicsBackend.Vulkan, "MultiTexturedCubeShader", ShaderStages.Vertex);
-            var fsBytes = ShaderTools.LoadBytecode(GraphicsBackend.Vulkan, "MultiTexturedCubeShader", ShaderStages.Fragment);
+            geometry.PipelineState.VertexShaderDescription  = new ShaderDescription(
+                ShaderStages.Vertex, 
+                ShaderTools.ReadEmbeddedAssetBytes(@"MultiTexturedCube.Assets.Shaders.MultiTexturedCubeShader-vertex.glsl",
+                    typeof(Program).Assembly), 
+                "main", true);
             
-            geometry.PipelineState.VertexShaderDescription = new ShaderDescription(ShaderStages.Vertex, vsBytes, "main", true);
-            geometry.PipelineState.FragmentShaderDescription = new ShaderDescription(ShaderStages.Fragment, fsBytes, "main", true);
-
+            geometry.PipelineState.FragmentShaderDescription = new ShaderDescription(
+                ShaderStages.Fragment, 
+                ShaderTools.ReadEmbeddedAssetBytes(@"MultiTexturedCube.Assets.Shaders.MultiTexturedCubeShader-fragment.glsl", 
+                    typeof(Program).Assembly), 
+                "main", true);
+            
+            
             geometry.PipelineState.AddTexture(
                 Texture2D.Create(Texture2D.ImageFormatType.Png,
                     ShaderTools.ReadEmbeddedAssetBytes(
