@@ -15,6 +15,7 @@
 //
 
 using System;
+using Veldrid.SceneGraph.RenderGraph;
 using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Viewer;
 
@@ -40,6 +41,9 @@ namespace Veldrid.SceneGraph
 
         void SetUpdateCallback(Action<INodeVisitor, INode> callback);
         Action<INodeVisitor, INode> GetUpdateCallback();
+        
+        void SetCullCallback(Action<INodeVisitor, INode> callback);
+        Action<INodeVisitor, INode> GetCullCallback();
         
         
         void AddParent(IGroup parent);

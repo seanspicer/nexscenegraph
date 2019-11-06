@@ -254,7 +254,9 @@ namespace Veldrid.SceneGraph.InputAdapter
             //Camera.SetViewMatrixToLookAt(cameraPos, center, new Vector3(0, 1, 0));
             _center = center;
             _distance = distToMid;
-            _camera.SetProjectionMatrixAsPerspective(_camera.Fov, _camera.AspectRatio, zNear, zFar);
+            
+            // TODO - fix this nasty cast
+            ((Camera)_camera).SetProjectionMatrixAsPerspective(_camera.Fov, _camera.AspectRatio, zNear, zFar);
             
             RequestRedraw();
         }

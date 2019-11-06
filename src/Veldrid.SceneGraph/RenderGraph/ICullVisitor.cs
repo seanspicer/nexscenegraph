@@ -14,10 +14,20 @@
 // limitations under the License.
 //
 
+using System;
 using System.Numerics;
 
 namespace Veldrid.SceneGraph.RenderGraph
 {
+    public interface IMutableCullVisitor : IDisposable
+    {
+        void SetCurrentCamera(ICamera camera);
+        
+        void Reset();
+        
+        void Prepare();
+    }
+    
     public interface ICullVisitor : INodeVisitor
     {
         IRenderGroup OpaqueRenderGroup { get; set; }
@@ -26,9 +36,14 @@ namespace Veldrid.SceneGraph.RenderGraph
         ResourceFactory ResourceFactory { get; set; }
         ResourceLayout ResourceLayout { get; set; }
         int RenderElementCount { get; }
-        void Reset();
-        void SetViewMatrix(Matrix4x4 viewMatrix);
-        void SetProjectionMatrix(Matrix4x4 projectionMatrix);
-        void Prepare();
+        
+
+        ICamera GetCurrentCamera();
+        Matrix4x4 GetModelViewMatrix();
+        Matrix4x4 GetModelViewInverseMatrix();
+        Matrix4x4 GetProjectionMatrix();
+        Vector3 GetEyeLocal();
+
+        IMutableCullVisitor ToMutable();
     }
 }

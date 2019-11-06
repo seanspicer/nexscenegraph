@@ -21,8 +21,10 @@ namespace Veldrid.SceneGraph
     public interface ICamera : ITransform
     {
         View View { get; set; }
-        Matrix4x4 ProjectionMatrix { get; set; }
-        Matrix4x4 ViewMatrix { get; set; }
+        Matrix4x4 ProjectionMatrix { get; }
+        Matrix4x4 ViewMatrix { get;  }
+        
+        IViewport Viewport { get; }
         
         Vector3 Up { get; }
         Vector3 Look { get; }
@@ -36,11 +38,12 @@ namespace Veldrid.SceneGraph
         
         float Yaw { get; set; }
         float Pitch { get; set; }
+        
         IGraphicsDeviceOperation Renderer { get; set; }
 
         void HandleResizeEvent(IResizedEvent resizedEvent);
         
-        void SetViewMatrixToLookAt(Vector3 position, Vector3 target, Vector3 upDirection);
+        //void SetViewMatrixToLookAt(Vector3 position, Vector3 target, Vector3 upDirection);
         
         /// <summary>
         /// Create a symmetrical perspective projection. 
@@ -49,10 +52,10 @@ namespace Veldrid.SceneGraph
         /// <param name="aspectRatio"></param>
         /// <param name="zNear"></param>
         /// <param name="zFar"></param>
-        void SetProjectionMatrixAsPerspective(float vfov, float aspectRatio, float zNear, float zFar);
+        //void SetProjectionMatrixAsPerspective(float vfov, float aspectRatio, float zNear, float zFar);
 
         Vector3 NormalizedScreenToWorld(Vector3 screenCoords);
         
-        RgbaFloat ClearColor { get; set; }
+        RgbaFloat ClearColor { get; }
     }
 }

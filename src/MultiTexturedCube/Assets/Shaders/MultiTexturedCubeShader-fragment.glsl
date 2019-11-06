@@ -19,14 +19,13 @@ layout(set = 1, binding = 1) uniform texture2D SurfaceTexture;
 layout(set = 1, binding = 2) uniform sampler SurfaceSampler;
 layout(set = 1, binding = 3) uniform texture2D TreeTexture;
 layout(set = 1, binding = 4) uniform sampler TreeSampler;
+
 vec4 MultiTexturedCube_Shaders_MultiTexturedCubeShader_Over( vec4 a,  vec4 b)
 {
     vec4 result = vec4(0, 0, 0, 0);
     result = a * a.w + b * b.w * (1 - a.w) / (a.w + b.w * 1 - a.w);
     return result;
 }
-
-
 
 vec4 FS( MultiTexturedCube_Shaders_MultiTexturedCubeShader_FragmentInput input_)
 {
@@ -36,7 +35,6 @@ vec4 FS( MultiTexturedCube_Shaders_MultiTexturedCubeShader_FragmentInput input_)
     vec4 bg = MultiTexturedCube_Shaders_MultiTexturedCubeShader_Over(brickSample, input_.Color);
     return MultiTexturedCube_Shaders_MultiTexturedCubeShader_Over(treeSample, bg);
 }
-
 
 layout(location = 0) in vec2 fsin_0;
 layout(location = 1) in vec4 fsin_1;

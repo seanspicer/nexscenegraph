@@ -43,12 +43,27 @@ namespace Veldrid.SceneGraph.InputAdapter
             ViewAll(20);
         }
 
-        public abstract void ViewAll(float slack);
+        public void SetProjectionMatrixAsPerspective(float vfov, float aspectRatio, float zNear, float zFar)
+        {
+            // TODO - fix this nasty cast
+            ((Camera)_camera).SetProjectionMatrixAsPerspective(vfov, aspectRatio, zNear, zFar);
+            RequestRedraw();
+        }
 
+        public void SetViewMatrixToLookAt(Vector3 position, Vector3 target, Vector3 upDirection)
+        {
+            // TODO - fix this nasty cast
+            ((Camera)_camera).SetViewMatrixToLookAt(position, target, upDirection);
+            RequestRedraw();
+        }
+
+        public abstract void ViewAll(float slack);
+        
         // Update a camera
         public void UpdateCamera()
         {
-            _camera.ViewMatrix = InverseMatrix;
+            // TODO - I don't really like this cast
+            ((Camera)_camera).ViewMatrix = InverseMatrix;
         }
         
         public override void HandleInput(IInputStateSnapshot snapshot)
