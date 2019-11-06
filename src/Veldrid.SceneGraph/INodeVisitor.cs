@@ -16,7 +16,7 @@
 
 namespace Veldrid.SceneGraph
 {
-    public interface INodeVisitor
+    public interface INodeVisitor : IObject
     {
         /// <summary>
         /// Set the TraversalMask of this NodeVisitor.
@@ -71,5 +71,7 @@ namespace Veldrid.SceneGraph
         void Apply(ITransform transform);
 
         void Apply(IDrawable drawable);
+
+        void Traverse(INode node);
     }
 }

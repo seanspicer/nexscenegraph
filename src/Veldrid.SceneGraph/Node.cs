@@ -119,9 +119,9 @@ namespace Veldrid.SceneGraph
 
         public event Func<Node, BoundingSphere> ComputeBoundCallback;
 
-        private Action<INodeVisitor, INode> _updateCallback;
+        private ICallback _updateCallback;
         
-        public virtual void SetUpdateCallback(Action<INodeVisitor, INode> callback)
+        public virtual void SetUpdateCallback(ICallback callback)
         {
             _updateCallback = callback;
 
@@ -137,19 +137,19 @@ namespace Veldrid.SceneGraph
 //            }
         }
         
-        public virtual Action<INodeVisitor, INode> GetUpdateCallback()
+        public virtual ICallback GetUpdateCallback()
         {
             return _updateCallback;
         }
         
-        private Action<INodeVisitor, INode> _cullCallback;
+        private ICallback _cullCallback;
         
-        public virtual void SetCullCallback(Action<INodeVisitor, INode> callback)
+        public virtual void SetCullCallback(ICallback callback)
         {
             _cullCallback = callback;
         }
         
-        public virtual Action<INodeVisitor, INode> GetCullCallback()
+        public virtual ICallback GetCullCallback()
         {
             return _cullCallback;
         }

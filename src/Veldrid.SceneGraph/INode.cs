@@ -39,11 +39,11 @@ namespace Veldrid.SceneGraph
         void SetNumChildrenRequiringUpdateTraversal(int i);
         event Func<Node, BoundingSphere> ComputeBoundCallback;
 
-        void SetUpdateCallback(Action<INodeVisitor, INode> callback);
-        Action<INodeVisitor, INode> GetUpdateCallback();
+        void SetUpdateCallback(ICallback callback);
+        ICallback GetUpdateCallback();
         
-        void SetCullCallback(Action<INodeVisitor, INode> callback);
-        Action<INodeVisitor, INode> GetCullCallback();
+        void SetCullCallback(ICallback callback);
+        ICallback GetCullCallback();
         
         
         void AddParent(IGroup parent);

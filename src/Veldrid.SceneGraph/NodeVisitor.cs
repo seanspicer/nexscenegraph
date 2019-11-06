@@ -140,7 +140,7 @@ namespace Veldrid.SceneGraph
             return (TraversalMask & (NodeMaskOverride | node.NodeMask)) != 0;
         }
         
-        protected void Traverse(INode node)
+        public void Traverse(INode node)
         {
             if (TraversalMode == TraversalModeType.TraverseParents) node.Ascend(this);
             else if(TraversalMode != TraversalModeType.TraverseNone) node.Traverse(this);
