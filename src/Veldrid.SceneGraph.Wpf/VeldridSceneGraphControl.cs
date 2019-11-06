@@ -84,6 +84,11 @@ namespace Veldrid.SceneGraph.Wpf
             _vsgRenderer.DpiScale = GetDpiScale();
         }
 
+        public ICamera GetCamera()
+        {
+            return _vsgRenderer.View.Camera;
+        }
+        
         protected override void OnMouseEnter(MouseEventArgs e)
         {
             base.OnMouseEnter(e);

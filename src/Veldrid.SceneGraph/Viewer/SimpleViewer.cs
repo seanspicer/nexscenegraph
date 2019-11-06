@@ -194,6 +194,11 @@ namespace Veldrid.SceneGraph.Viewer
 
         }
 
+        public ICamera GetCamera()
+        {
+            return _view.Camera;
+        }
+        
         public void ViewAll()
         {
             _view.CameraManipulator?.ViewAll();

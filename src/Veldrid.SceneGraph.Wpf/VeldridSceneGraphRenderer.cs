@@ -82,7 +82,7 @@ namespace Veldrid.SceneGraph.Wpf
                 _clearColor = value;
                 if (null != _view)
                 {
-                    _view.Camera.ClearColor = _clearColor;
+                    ((Camera)_view.Camera).ClearColor = _clearColor;
                 }
             }
         }
