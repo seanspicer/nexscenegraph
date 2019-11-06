@@ -39,7 +39,8 @@ namespace Veldrid.SceneGraph
             // TODO: This is tricky - need to fix when ViewAll implemented
             var vfov = (float) Math.Atan2(height / 2.0f, dist) * 2.0f; 
 
-            Camera.SetProjectionMatrixAsPerspective(vfov, width / height, 0.1f, 100f);
+            // TODO - fix this nasty cast
+            ((Camera)Camera).SetProjectionMatrixAsPerspective(vfov, width / height, 0.1f, 100f);
         }
     }
 }

@@ -36,7 +36,7 @@ namespace Veldrid.SceneGraph.RenderGraph
         public GraphicsDevice GraphicsDevice { get; set; } = null;
         public ResourceFactory ResourceFactory { get; set; } = null;
         public ResourceLayout ResourceLayout { get; set; } = null;
-
+        
         private Stack<Matrix4x4> ModelMatrixStack { get; set; } = new Stack<Matrix4x4>();
 
         private readonly Stack<IPipelineState> PipelineStateStack = new Stack<IPipelineState>();
@@ -47,12 +47,19 @@ namespace Veldrid.SceneGraph.RenderGraph
 
         public int RenderElementCount { get; private set; } = 0;
 
-        private Matrix4x4 ViewMatrix { get; set; } = Matrix4x4.Identity;
-        private Matrix4x4 ProjectionMatrix { get; set; } = Matrix4x4.Identity;
+        private Matrix4x4 ViewMatrix => GetCurrentCamera().ViewMatrix;
+        private Matrix4x4 ProjectionMatrix => GetCurrentCamera().ProjectionMatrix;
 
+        private ICamera _camera;
+        
         public static ICullVisitor Create()
         {
             return new CullVisitor();
+        }
+
+        public IMutableCullVisitor ToMutable()
+        {
+            return new MutableCullVisitor(this);
         }
         
         protected CullVisitor() : 
@@ -61,7 +68,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             ModelMatrixStack.Push(Matrix4x4.Identity);
         }
 
-        public void Reset()
+        internal void Reset()
         {
             ModelMatrixStack.Clear();
             ModelMatrixStack.Push(Matrix4x4.Identity);
@@ -74,17 +81,18 @@ namespace Veldrid.SceneGraph.RenderGraph
             
         }
 
-        public void SetViewMatrix(Matrix4x4 viewMatrix)
+        internal void SetCurrentCamera(ICamera camera)
         {
-            ViewMatrix = viewMatrix;
-        }
-        
-        public void SetProjectionMatrix(Matrix4x4 projectionMatrix)
-        {
-            ProjectionMatrix = projectionMatrix;
+            _camera = camera;
+            
         }
 
-        public void Prepare()
+        public ICamera GetCurrentCamera()
+        {
+            return _camera;
+        }
+
+        internal void Prepare()
         {
             var vp = ViewMatrix.PostMultiply(ProjectionMatrix);
             CullingFrustum.SetViewProjectionMatrix(vp);
@@ -458,6 +466,35 @@ namespace Veldrid.SceneGraph.RenderGraph
             {
                 Traverse(node);
             }
+        }
+    }
+
+    internal class MutableCullVisitor : IMutableCullVisitor
+    {
+        private CullVisitor _cullVisitor;
+
+        internal MutableCullVisitor(CullVisitor cullVisitor)
+        {
+            _cullVisitor = cullVisitor;
+        }
+        
+        public void Dispose()
+        {
+        }
+
+        public void SetCurrentCamera(ICamera camera)
+        {
+            _cullVisitor.SetCurrentCamera(camera);
+        }
+
+        public void Reset()
+        {
+            _cullVisitor.Reset();
+        }
+
+        public void Prepare()
+        {
+            _cullVisitor.Prepare();
         }
     }
 }

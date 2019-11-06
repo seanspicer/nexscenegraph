@@ -114,17 +114,19 @@ namespace Veldrid.SceneGraph.Viewer
         }
         
         private void Cull(GraphicsDevice device, ResourceFactory factory)
-        {    
-            // Reset the visitor
-            _cullVisitor.Reset();
+        {
+            using (var mcv = _cullVisitor.ToMutable())
+            {
+                // Reset the visitor
+                mcv.Reset();
             
-            // Setup matrices
-            _cullVisitor.SetViewMatrix(_camera.ViewMatrix);
-            _cullVisitor.SetProjectionMatrix(_camera.ProjectionMatrix);
+                // Set the current camera
+                mcv.SetCurrentCamera(_camera);
+                
+                // Prep
+                mcv.Prepare();
+            }
             
-            // Prep
-            _cullVisitor.Prepare();
-
             var view = (Viewer.View) _camera.View;
             view.SceneData?.Accept(_cullVisitor);
         }

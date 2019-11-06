@@ -22,6 +22,12 @@ using Veldrid.SceneGraph.Viewer;
 
 namespace Veldrid.SceneGraph
 {
+    internal class Viewport : IViewport
+    {
+        public int Width { get; set; }
+        public int Height { get; set; }
+    }
+    
     public class Camera : Transform, ICamera
     {
         public View View { get; set; }
@@ -43,6 +49,12 @@ namespace Veldrid.SceneGraph
         private Vector3 _target = new Vector3(0, 0, 0);
         private Vector3 _lookDirection = Vector3.UnitZ;
         private Vector3 _upDirection = Vector3.UnitY;
+
+        public IViewport Viewport => new Viewport()
+        {
+            Height = (int)DisplaySettings.Instance.ScreenHeight,
+            Width = (int)DisplaySettings.Instance.ScreenWidth
+        };
         
         public Vector3 Up => _upDirection;
 

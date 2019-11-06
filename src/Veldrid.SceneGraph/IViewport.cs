@@ -1,4 +1,4 @@
-namespace Veldrid.SceneGraph.Viewer
+namespace Veldrid.SceneGraph
 {
     public interface IViewport
     {
