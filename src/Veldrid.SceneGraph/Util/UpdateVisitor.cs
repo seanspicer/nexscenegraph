@@ -67,10 +67,10 @@ namespace Veldrid.SceneGraph.Util
                 HandleCallbacks(node.PipelineState);
             }
 
-            var updateCallback = node.GetUpdateCallback();
-            if (null != updateCallback)
+            var callback = node.GetUpdateCallback();
+            if (null != callback)
             {
-                updateCallback.Invoke(this, node);
+                callback.Run(node, this);
             }
             else
             {

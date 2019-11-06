@@ -40,7 +40,9 @@ namespace Veldrid.SceneGraph.RenderGraph
 
         ICamera GetCurrentCamera();
         Matrix4x4 GetModelViewMatrix();
+        Matrix4x4 GetModelViewProjectionMatrix();
         Matrix4x4 GetModelViewInverseMatrix();
+        Matrix4x4 GetModelViewProjectionInverseMatrix();
         Matrix4x4 GetProjectionMatrix();
         Vector3 GetEyeLocal();
 

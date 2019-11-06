@@ -108,9 +108,14 @@ namespace Veldrid.SceneGraph.RenderGraph
             return ModelMatrixStack.Peek().PostMultiply(ViewMatrix);
         }
         
+        public Matrix4x4 GetModelViewProjectionMatrix()
+        {
+            return ModelMatrixStack.Peek().PostMultiply(ViewMatrix).PostMultiply(ProjectionMatrix);
+        }
+        
         public Matrix4x4 GetModelViewInverseMatrix()
         {
-            var canInvert = Matrix4x4.Invert(ModelMatrixStack.Peek().PostMultiply(ViewMatrix), out var inverse);
+            var canInvert = Matrix4x4.Invert(GetModelViewMatrix(), out var inverse);
             if (false == canInvert)
             {
                 throw new Exception("ModelView Matrix Cannot be Inverted");
@@ -119,6 +124,17 @@ namespace Veldrid.SceneGraph.RenderGraph
             return inverse;
         }
 
+        public Matrix4x4 GetModelViewProjectionInverseMatrix()
+        {
+            var canInvert = Matrix4x4.Invert(GetModelViewProjectionMatrix(), out var inverse);
+            if (false == canInvert)
+            {
+                throw new Exception("ModelViewProjection Matrix Cannot be Inverted");
+            }
+
+            return inverse;
+        }
+        
         public Vector3 GetEyeLocal()
         {
             var eyeWorld = Vector3.Zero;
@@ -364,6 +380,20 @@ namespace Veldrid.SceneGraph.RenderGraph
         {
             var bb = drawable.GetBoundingBox();
             if (IsCulled(bb, ModelMatrixStack.Peek())) return;
+
+            // Check custom cull callback
+            var callback = drawable.GetCullCallback();
+            if (null != callback)
+            {
+                if (callback is IDrawableCullCallback dcb)
+                {
+                    if (dcb.Cull(this, drawable)) return;
+                }
+                else
+                {
+                    callback.Run(drawable, this);
+                }
+            }
             
             IPipelineState pso = null;
 
@@ -457,10 +487,10 @@ namespace Veldrid.SceneGraph.RenderGraph
                 HandleCallbacks(node.PipelineState);
             }
 
-            var cullCallback = node.GetCullCallback();
-            if (null != cullCallback)
+            var callback = node.GetCullCallback();
+            if (null != callback)
             {
-                cullCallback.Invoke(this, node);
+                callback.Run(node, this);
             }
             else
             {
