@@ -104,8 +104,12 @@ namespace Veldrid.SceneGraph.Wpf
         private CommandList _commandList;
         private GraphicsDevice _graphicsDevice;
         
+        private SceneContext _sceneContext;
+        
         private Framebuffer _offscreenFB;
+        
         private Texture _offscreenColor;
+        
         private Texture _offscreenDepth;
 
         private Fence _fence;
@@ -143,6 +147,7 @@ namespace Veldrid.SceneGraph.Wpf
             _stopwatch = Stopwatch.StartNew();
             _previousElapsed = _stopwatch.Elapsed.TotalSeconds;
             _frameInfoSubject = new Subject<float>();
+            
         }
         
         protected override void Attach()
@@ -176,6 +181,9 @@ namespace Veldrid.SceneGraph.Wpf
             var view = Veldrid.SceneGraph.Viewer.View.Create(_resizeEvents);
             view.InputEvents = ViewerInputEvents;
 
+            _sceneContext = new SceneContext(TextureSampleCount.Count16);
+            view.SceneContext = _sceneContext;
+
             if (null != _sceneData)
             {
                 view.SceneData = _sceneData;
@@ -195,6 +203,7 @@ namespace Veldrid.SceneGraph.Wpf
             GraphicsDeviceOperations += view.Camera.Renderer.HandleOperation;
             
             _view = view;
+            
             
             CameraManipulator?.ViewAll();
 
@@ -219,42 +228,34 @@ namespace Veldrid.SceneGraph.Wpf
             DisplaySettings.Instance.ScreenWidth = width;
             DisplaySettings.Instance.ScreenHeight = height;
 
+            //_graphicsDevice.ResizeMainWindow((uint) width, (uint) height);
+            
             if (!_initialized)
             {
                 DisplaySettings.Instance.ScreenDistance = 1000.0f;
                 Initialize();
             }
-            
-            _graphicsDevice.GetPixelFormatSupport(
-                PixelFormat.B8_G8_R8_A8_UNorm,
-                TextureType.Texture2D,
-                TextureUsage.RenderTarget,
-                out PixelFormatProperties colorProperties);
 
-            TextureSampleCount colorSampleCount = TextureSampleCount.Count32;
-            while (!colorProperties.IsSampleCountSupported(colorSampleCount))
-            {
-                colorSampleCount = colorSampleCount - 1;
-            }
+            //_sceneContext.RecreateWindowSizedResources(_graphicsDevice, _factory, width, height);
             
-//            _graphicsDevice.GetPixelFormatSupport(
-//                PixelFormat.D24_UNorm_S8_UInt,
-//                TextureType.Texture2D,
-//                TextureUsage.DepthStencil,
-//                out PixelFormatProperties depthProperties);
-//
-//            TextureSampleCount depthSampleCount = colorSampleCount;
-//            while (!depthProperties.IsSampleCountSupported(depthSampleCount))
-//            {
-//                depthSampleCount = depthSampleCount - 1;
-//            }
-            
-            _offscreenColor = _factory.CreateTexture(TextureDescription.Texture2D(
-                width, height, 1, 1,
-                PixelFormat.B8_G8_R8_A8_UNorm, TextureUsage.RenderTarget | TextureUsage.Sampled, colorSampleCount));
+            var mainColorDesc = TextureDescription.Texture2D(
+                width,
+                height,
+                1,
+                1,
+                PixelFormat.B8_G8_R8_A8_UNorm,
+                TextureUsage.RenderTarget);
+
+            _offscreenColor = _factory.CreateTexture(ref mainColorDesc);
             
             _offscreenDepth = _factory.CreateTexture(TextureDescription.Texture2D(
-                width, height, 1, 1, PixelFormat.D24_UNorm_S8_UInt, TextureUsage.DepthStencil, colorSampleCount));
+                width, 
+                height, 
+                1, 
+                1, 
+                PixelFormat.D24_UNorm_S8_UInt, 
+                TextureUsage.DepthStencil));
+            
             _offscreenFB = _factory.CreateFramebuffer(new FramebufferDescription(_offscreenDepth, _offscreenColor));
 
             var od = _offscreenFB.OutputDescription;
@@ -262,7 +263,10 @@ namespace Veldrid.SceneGraph.Wpf
             if (null != _view)
             {
                 _view.Framebuffer = _offscreenFB;
+                _sceneContext.SetOutputFramebufffer(_offscreenFB);
             }
+            
+            _sceneContext.RecreateWindowSizedResources(_graphicsDevice, _factory, width, height);
         }
         
         protected virtual void Frame()
@@ -312,7 +316,7 @@ namespace Veldrid.SceneGraph.Wpf
 
         public override void RenderCore(DrawEventArgs args)
         {
-            if (null != _view && _view.Framebuffer != null)
+            if (null != _view && null != _view.SceneContext && null != _view.SceneContext.OutputFramebuffer)
             {
                 Frame();
 

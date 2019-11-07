@@ -16,6 +16,7 @@
 
 using System;
 using Examples.Common;
+using Veldrid;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Viewer;
 
@@ -37,7 +38,7 @@ namespace ConstLineWidthExample.cs
             
             viewer.SetSceneData(root);
             viewer.ViewAll();            
-            viewer.Run();
+            viewer.Run(GraphicsBackend.Direct3D11);
         }
     }
 }

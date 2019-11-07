@@ -85,6 +85,8 @@ namespace Veldrid.SceneGraph.Viewer
         public IObservable<IResizedEvent> ResizeEvents => _resizeEvents;
         public IObservable<IEndFrameEvent> EndFrameEvents => _endFrameEvents;
         public IObservable<IInputStateSnapshot> ViewerInputEvents => _viewerInputEvents;
+
+        
         
         //public IObservable<
         
@@ -109,6 +111,8 @@ namespace Veldrid.SceneGraph.Viewer
         private double _previousElapsed = 0;
         private GraphicsBackend _preferredBackend = DisplaySettings.Instance.GraphicsBackend;
         private IView _view;
+
+        private SceneContext _sceneContext;
 
         private event Action<GraphicsDevice, ResourceFactory> GraphicsDeviceOperations;
         
@@ -186,11 +190,12 @@ namespace Veldrid.SceneGraph.Viewer
                 Frame();
             };
 
-
+            _sceneContext = new SceneContext(TextureSampleCount.Count8);
             _window.KeyDown += OnKeyDown;
             _view = Viewer.View.Create(_resizeEvents);
             GraphicsDeviceOperations += _view.Camera.Renderer.HandleOperation;
             _view.InputEvents = ViewerInputEvents;
+            _view.SceneContext = _sceneContext;
 
         }
 
@@ -334,10 +339,9 @@ namespace Veldrid.SceneGraph.Viewer
 #endif
             //_logger.Info(m => m($"Creating Graphics Device with {_preferredBackend} Backend"));
             
-            
-            
             _graphicsDevice = VeldridStartup.CreateGraphicsDevice(_window, options, _preferredBackend);
-            _view.Framebuffer = _graphicsDevice.SwapchainFramebuffer;
+
+            _sceneContext.SetOutputFramebufffer(_graphicsDevice.SwapchainFramebuffer);
             bool isDirect3DSupported = GraphicsDevice.IsBackendSupported(GraphicsBackend.Direct3D11);
             _factory = new DisposeCollectorResourceFactory(_graphicsDevice.ResourceFactory);
             _stopwatch = Stopwatch.StartNew();
@@ -414,6 +418,13 @@ namespace Veldrid.SceneGraph.Viewer
                 DisplaySettings.Instance.ScreenWidth = _window.Width;
                 DisplaySettings.Instance.ScreenHeight = _window.Height;
                 _resizeEvents.OnNext(new ResizedEvent(_window.Width, _window.Height));
+                
+                _sceneContext.RecreateWindowSizedResources(
+                    _graphicsDevice, 
+                    _factory);
+                
+                _sceneContext.SetOutputFramebufffer(_graphicsDevice.SwapchainFramebuffer);
+                
                 _view.Framebuffer = _graphicsDevice.SwapchainFramebuffer;
             }
             

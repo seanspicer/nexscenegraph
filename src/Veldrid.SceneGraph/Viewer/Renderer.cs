@@ -51,7 +51,10 @@ namespace Veldrid.SceneGraph.Viewer
 
         private List<Tuple<uint, ResourceSet>> _defaultResourceSets = new List<Tuple<uint, ResourceSet>>();
 
+        [Obsolete("this is should not be used anywhere")]
         public Framebuffer Framebuffer { get; set; }
+        
+        public SceneContext SceneContext { get; set; }
         
         private ILogger _logger;
         
@@ -62,6 +65,7 @@ namespace Veldrid.SceneGraph.Viewer
             _cullVisitor = CullVisitor.Create();
             _logger = LogManager.CreateLogger<Renderer>();
             Framebuffer = null;
+            SceneContext = null;
         }
 
         private void Initialize(GraphicsDevice device, ResourceFactory factory)
@@ -142,7 +146,7 @@ namespace Veldrid.SceneGraph.Viewer
             _commandList.Begin();
 
             // We want to render directly to the output window.
-            _commandList.SetFramebuffer(Framebuffer);
+            _commandList.SetFramebuffer(SceneContext.MainSceneFramebuffer);
             
             _commandList.ClearColorTarget(0, _camera.ClearColor);
             _commandList.ClearDepthStencil(1f);
@@ -160,6 +164,37 @@ namespace Veldrid.SceneGraph.Viewer
                 DrawTransparentRenderGroups(device, factory);
             }
             
+            // Handle MSAA
+            if (SceneContext.MainSceneColorTexture.SampleCount != TextureSampleCount.Count1)
+            {
+                _commandList.ResolveTexture(SceneContext.MainSceneColorTexture, SceneContext.MainSceneResolvedColorTexture); 
+            }
+            
+            _commandList.SetFramebuffer(SceneContext.OutputFramebuffer);
+            
+            _commandList.CopyTexture(
+                SceneContext.MainSceneResolvedColorTexture,
+               SceneContext.OutputFramebuffer.ColorTargets.First().Target);
+
+            
+
+//            if (!device.GetD3D11Info(out var backendInfo)) return;
+//
+//            // Copy Render Target
+//            var d3d11RenderTarget =
+//                new SharpDX.Direct3D11.Texture2D(backendInfo.GetTexturePointer(SceneContext.MainSceneResolvedColorTexture));
+//
+//            var fbTargetTexture = SceneContext.OutputFramebuffer.ColorTargets.First().Target;
+//            
+//            var deviceId = device.GetHashCode();
+//            //var deviceId2 = fbTargetTexture.
+//            
+//            var fbTargetPtr = backendInfo.GetTexturePointer(fbTargetTexture);
+//            var fbTarget =
+//                new SharpDX.Direct3D11.Texture2D(fbTargetPtr);
+//            
+//            d3d11RenderTarget?.Device.ImmediateContext.CopyResource(d3d11RenderTarget, fbTarget);
+//            
             _commandList.End();
         }
 
@@ -185,7 +220,7 @@ namespace Veldrid.SceneGraph.Viewer
             foreach (var state in _cullVisitor.OpaqueRenderGroup.GetStateList())
             {
                 if (state.Elements.Count == 0) continue;
-                var ri = state.GetPipelineAndResources(device, factory, _resourceLayout, Framebuffer);
+                var ri = state.GetPipelineAndResources(device, factory, _resourceLayout, SceneContext.MainSceneFramebuffer);
                 
                 _commandList.SetPipeline(ri.Pipeline);
                 
@@ -295,7 +330,7 @@ namespace Veldrid.SceneGraph.Viewer
 
                     if (null == lastState || state != lastState)
                     {
-                        ri = state.GetPipelineAndResources(device, factory, _resourceLayout, Framebuffer);
+                        ri = state.GetPipelineAndResources(device, factory, _resourceLayout, SceneContext.MainSceneFramebuffer);
 
                         // Set this state's pipeline
                         _commandList.SetPipeline(ri.Pipeline);
@@ -351,7 +386,7 @@ namespace Veldrid.SceneGraph.Viewer
 
         private void SwapBuffers(GraphicsDevice device)
         {
-            if (Framebuffer == device.SwapchainFramebuffer)
+            if (SceneContext.OutputFramebuffer == device.SwapchainFramebuffer)
             {
                 device.SwapBuffers();
             }
