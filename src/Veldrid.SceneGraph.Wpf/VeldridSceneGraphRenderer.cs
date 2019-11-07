@@ -225,12 +225,36 @@ namespace Veldrid.SceneGraph.Wpf
                 Initialize();
             }
             
+            _graphicsDevice.GetPixelFormatSupport(
+                PixelFormat.B8_G8_R8_A8_UNorm,
+                TextureType.Texture2D,
+                TextureUsage.RenderTarget,
+                out PixelFormatProperties colorProperties);
+
+            TextureSampleCount colorSampleCount = TextureSampleCount.Count32;
+            while (!colorProperties.IsSampleCountSupported(colorSampleCount))
+            {
+                colorSampleCount = colorSampleCount - 1;
+            }
+            
+//            _graphicsDevice.GetPixelFormatSupport(
+//                PixelFormat.D24_UNorm_S8_UInt,
+//                TextureType.Texture2D,
+//                TextureUsage.DepthStencil,
+//                out PixelFormatProperties depthProperties);
+//
+//            TextureSampleCount depthSampleCount = colorSampleCount;
+//            while (!depthProperties.IsSampleCountSupported(depthSampleCount))
+//            {
+//                depthSampleCount = depthSampleCount - 1;
+//            }
+            
             _offscreenColor = _factory.CreateTexture(TextureDescription.Texture2D(
                 width, height, 1, 1,
-                PixelFormat.B8_G8_R8_A8_UNorm, TextureUsage.RenderTarget | TextureUsage.Sampled));
+                PixelFormat.B8_G8_R8_A8_UNorm, TextureUsage.RenderTarget | TextureUsage.Sampled, colorSampleCount));
             
             _offscreenDepth = _factory.CreateTexture(TextureDescription.Texture2D(
-                width, height, 1, 1, PixelFormat.D24_UNorm_S8_UInt, TextureUsage.DepthStencil));
+                width, height, 1, 1, PixelFormat.D24_UNorm_S8_UInt, TextureUsage.DepthStencil, colorSampleCount));
             _offscreenFB = _factory.CreateFramebuffer(new FramebufferDescription(_offscreenDepth, _offscreenColor));
 
             var od = _offscreenFB.OutputDescription;
