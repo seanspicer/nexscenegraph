@@ -30,7 +30,11 @@ namespace Veldrid.SceneGraph.VertexTypes
             {
                 return Position3Color3.VertexLayoutDescription;
             }
-
+            else if (type == typeof(Position3TexCoord2))
+            {
+                return Position3TexCoord2.VertexLayoutDescription;
+            }
+            
             throw new ArgumentException($"Invalid type {type}.  Cannot get vertex layout description");
         }
     }

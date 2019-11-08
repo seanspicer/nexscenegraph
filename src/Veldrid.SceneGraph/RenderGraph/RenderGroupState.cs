@@ -158,7 +158,7 @@ namespace Veldrid.SceneGraph.RenderGraph
 
                 pd.ShaderSet = new ShaderSetDescription(
                     vertexLayouts: new VertexLayoutDescription[] {VertexLayout},
-                    shaders: new Shader[] {vs, fs});
+                    shaders: shaders);
             }
 
             pd.ResourceLayouts = new[] {vpLayout, ri.ResourceLayout};

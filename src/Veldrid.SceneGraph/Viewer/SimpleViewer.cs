@@ -115,7 +115,7 @@ namespace Veldrid.SceneGraph.Viewer
         private SceneContext _sceneContext;
 
         private event Action<GraphicsDevice, ResourceFactory> GraphicsDeviceOperations;
-        
+        private event Action<GraphicsDevice> GraphicsDeviceResize;
         
         
         private const uint NFramesInBuffer = 30;
@@ -190,10 +190,11 @@ namespace Veldrid.SceneGraph.Viewer
                 Frame();
             };
 
-            _sceneContext = new SceneContext(TextureSampleCount.Count8);
+            _sceneContext = new SceneContext(TextureSampleCount.Count1);
             _window.KeyDown += OnKeyDown;
             _view = Viewer.View.Create(_resizeEvents);
             GraphicsDeviceOperations += _view.Camera.Renderer.HandleOperation;
+            GraphicsDeviceResize += _view.Camera.Renderer.HandleResize;
             _view.InputEvents = ViewerInputEvents;
             _view.SceneContext = _sceneContext;
 
@@ -341,12 +342,13 @@ namespace Veldrid.SceneGraph.Viewer
             
             _graphicsDevice = VeldridStartup.CreateGraphicsDevice(_window, options, _preferredBackend);
 
-            _sceneContext.SetOutputFramebufffer(_graphicsDevice.SwapchainFramebuffer);
             bool isDirect3DSupported = GraphicsDevice.IsBackendSupported(GraphicsBackend.Direct3D11);
             _factory = new DisposeCollectorResourceFactory(_graphicsDevice.ResourceFactory);
             _stopwatch = Stopwatch.StartNew();
             _previousElapsed = _stopwatch.Elapsed.TotalSeconds;
             
+            _sceneContext.SetOutputFramebufffer(_graphicsDevice.SwapchainFramebuffer);
+            _sceneContext.CreateDeviceObjects(_graphicsDevice, _factory);
             
         }
 
@@ -418,12 +420,14 @@ namespace Veldrid.SceneGraph.Viewer
                 DisplaySettings.Instance.ScreenWidth = _window.Width;
                 DisplaySettings.Instance.ScreenHeight = _window.Height;
                 _resizeEvents.OnNext(new ResizedEvent(_window.Width, _window.Height));
+
+                _sceneContext.SetOutputFramebufffer(_graphicsDevice.SwapchainFramebuffer);
                 
                 _sceneContext.RecreateWindowSizedResources(
                     _graphicsDevice, 
                     _factory);
                 
-                _sceneContext.SetOutputFramebufffer(_graphicsDevice.SwapchainFramebuffer);
+                GraphicsDeviceResize?.Invoke(_graphicsDevice);
                 
                 _view.Framebuffer = _graphicsDevice.SwapchainFramebuffer;
             }

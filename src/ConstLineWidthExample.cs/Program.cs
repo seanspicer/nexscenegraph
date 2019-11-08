@@ -38,7 +38,7 @@ namespace ConstLineWidthExample.cs
             
             viewer.SetSceneData(root);
             viewer.ViewAll();            
-            viewer.Run(GraphicsBackend.Direct3D11);
+            viewer.Run();
         }
     }
 }
