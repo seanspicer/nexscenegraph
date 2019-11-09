@@ -191,7 +191,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             return new CrossCompileOptions(fixClipZ, invertY, specializations);
         }
         
-        public static SpecializationConstant[] GetSpecializations(GraphicsDevice gd, Framebuffer framebuffer)
+        private static SpecializationConstant[] GetSpecializations(GraphicsDevice gd, Framebuffer framebuffer)
         {
             bool glOrGles = gd.BackendType == GraphicsBackend.OpenGL || gd.BackendType == GraphicsBackend.OpenGLES;
 
