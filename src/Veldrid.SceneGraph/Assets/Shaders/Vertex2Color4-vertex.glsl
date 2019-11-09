@@ -22,6 +22,5 @@ layout(location = 0) out vec4 fsin_0;
 void main()
 {
     fsin_0 = Color;
-    //gl_Position = field_Projection * field_View * field_Model * vec4(Position.x, Position.y, 0.0f, 1.f);
-    gl_Position = field_Model * vec4(Position.x, Position.y, 0.0f, 1.f);
+    gl_Position = field_Projection * field_View * field_Model * vec4(Position.x, Position.y, 0.0f, 1.f);
 }

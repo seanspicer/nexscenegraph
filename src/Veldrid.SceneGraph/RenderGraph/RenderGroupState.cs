@@ -147,14 +147,21 @@ namespace Veldrid.SceneGraph.RenderGraph
             // TODO - cache based on the shader description and reuse shader objects
             if (null != PipelineState.VertexShaderDescription && null != PipelineState.FragmentShaderDescription)
             {
-                Shader[] shaders = resourceFactory.CreateFromSpirv(
-                    PipelineState.VertexShaderDescription.Value,
-                    PipelineState.FragmentShaderDescription.Value,
-                    GetOptions(graphicsDevice, framebuffer)
-                );
-                
-                Shader vs = shaders[0];
-                Shader fs = shaders[1];
+                Shader[] shaders;
+                if (resourceFactory.BackendType != GraphicsBackend.OpenGL)
+                {
+                    shaders = resourceFactory.CreateFromSpirv(
+                        PipelineState.VertexShaderDescription.Value,
+                        PipelineState.FragmentShaderDescription.Value,
+                        GetOptions(graphicsDevice, framebuffer)
+                    );
+                }
+                else
+                {
+                    shaders = new Shader[2];
+                    shaders[0] = resourceFactory.CreateShader(PipelineState.VertexShaderDescription.Value);
+                    shaders[1] = resourceFactory.CreateShader(PipelineState.FragmentShaderDescription.Value);
+                }
 
                 pd.ShaderSet = new ShaderSetDescription(
                     vertexLayouts: new VertexLayoutDescription[] {VertexLayout},
