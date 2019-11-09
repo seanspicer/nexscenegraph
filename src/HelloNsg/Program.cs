@@ -101,7 +101,7 @@ namespace HelloNsg
 
             viewer.ViewAll();
             
-            viewer.Run();
+            viewer.Run(GraphicsBackend.OpenGL);
 
         }
     }
