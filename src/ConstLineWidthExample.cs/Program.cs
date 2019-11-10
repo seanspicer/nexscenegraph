@@ -16,6 +16,7 @@
 
 using System;
 using Examples.Common;
+using Veldrid;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Viewer;
 

@@ -20,6 +20,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 //using Common.Logging;
 using Veldrid.MetalBindings;
@@ -51,7 +52,12 @@ namespace Veldrid.SceneGraph.Viewer
 
         private List<Tuple<uint, ResourceSet>> _defaultResourceSets = new List<Tuple<uint, ResourceSet>>();
 
+        private FullScreenQuadRenderer _fullScreenQuadRenderer;
+        
+        [Obsolete("this is should not be used anywhere")]
         public Framebuffer Framebuffer { get; set; }
+        
+        public SceneContext SceneContext { get; set; }
         
         private ILogger _logger;
         
@@ -61,7 +67,9 @@ namespace Veldrid.SceneGraph.Viewer
             _updateVisitor = UpdateVisitor.Create();
             _cullVisitor = CullVisitor.Create();
             _logger = LogManager.CreateLogger<Renderer>();
+            _fullScreenQuadRenderer = new FullScreenQuadRenderer();
             Framebuffer = null;
+            SceneContext = null;
         }
 
         private void Initialize(GraphicsDevice device, ResourceFactory factory)
@@ -76,7 +84,6 @@ namespace Veldrid.SceneGraph.Viewer
             _resourceLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(
                 new ResourceLayoutElementDescription("Projection", ResourceKind.UniformBuffer, ShaderStages.Vertex),
                 new ResourceLayoutElementDescription("View", ResourceKind.UniformBuffer, ShaderStages.Vertex)
-                
             ));
 
             _cullVisitor.ResourceLayout = _resourceLayout;
@@ -141,23 +148,68 @@ namespace Veldrid.SceneGraph.Viewer
             // Begin() must be called before commands can be issued.
             _commandList.Begin();
 
-            // We want to render directly to the output window.
-            _commandList.SetFramebuffer(Framebuffer);
-            
-            _commandList.ClearColorTarget(0, _camera.ClearColor);
-            _commandList.ClearDepthStencil(1f);
-            
-            //
-            // Draw Opaque Geometry
-            // 
-            DrawOpaqueRenderGroups(device, factory);
-
-            // 
-            // Draw Transparent Geometry
-            //
-            if (_cullVisitor.TransparentRenderGroup.HasDrawableElements())
+            if (SceneContext.MainSceneColorTexture.SampleCount == TextureSampleCount.Count1)
             {
-                DrawTransparentRenderGroups(device, factory);
+
+                var framebuffer = SceneContext.OutputFramebuffer;
+                
+                // We want to render directly to the output window.
+                _commandList.SetFramebuffer(framebuffer);
+
+                _commandList.ClearColorTarget(0, _camera.ClearColor);
+                _commandList.ClearDepthStencil(1f);
+
+                //
+                // Draw Opaque Geometry
+                // 
+                DrawOpaqueRenderGroups(device, factory, framebuffer);
+
+                // 
+                // Draw Transparent Geometry
+                //
+                if (_cullVisitor.TransparentRenderGroup.HasDrawableElements())
+                {
+                    DrawTransparentRenderGroups(device, factory, framebuffer);
+                }
+
+            }
+            else
+            {
+                
+                var framebuffer = SceneContext.MainSceneFramebuffer;
+
+                // We want to render directly to the output window.
+                _commandList.SetFramebuffer(SceneContext.MainSceneFramebuffer);
+
+                _commandList.ClearColorTarget(0, _camera.ClearColor);
+                _commandList.ClearDepthStencil(1f);
+
+                //
+                // Draw Opaque Geometry
+                // 
+                DrawOpaqueRenderGroups(device, factory, framebuffer);
+
+                // 
+                // Draw Transparent Geometry
+                //
+                if (_cullVisitor.TransparentRenderGroup.HasDrawableElements())
+                {
+                    DrawTransparentRenderGroups(device, factory, framebuffer);
+                }
+                
+                //
+                // Resolve the texture
+                //
+                _commandList.ResolveTexture(
+                    SceneContext.MainSceneColorTexture, 
+                    SceneContext.MainSceneResolvedColorTexture); 
+
+                // Draw Resolved Texture to full screen quad
+                _commandList.SetFramebuffer(SceneContext.OutputFramebuffer);
+            
+                _commandList.SetFullViewports();
+            
+                _fullScreenQuadRenderer.Render(device, _commandList, SceneContext);
             }
             
             _commandList.End();
@@ -171,7 +223,7 @@ namespace Veldrid.SceneGraph.Viewer
             device.WaitForIdle();
         }
 
-        private void DrawOpaqueRenderGroups(GraphicsDevice device, ResourceFactory factory)
+        private void DrawOpaqueRenderGroups(GraphicsDevice device, ResourceFactory factory, Framebuffer framebuffer)
         {
             var alignment = device.UniformBufferMinOffsetAlignment;
             var modelViewMatrixObjSizeInBytes = 64u;
@@ -185,7 +237,7 @@ namespace Veldrid.SceneGraph.Viewer
             foreach (var state in _cullVisitor.OpaqueRenderGroup.GetStateList())
             {
                 if (state.Elements.Count == 0) continue;
-                var ri = state.GetPipelineAndResources(device, factory, _resourceLayout, Framebuffer);
+                var ri = state.GetPipelineAndResources(device, factory, _resourceLayout, framebuffer);
                 
                 _commandList.SetPipeline(ri.Pipeline);
                 
@@ -225,7 +277,7 @@ namespace Veldrid.SceneGraph.Viewer
             }
         }
         
-        private void DrawTransparentRenderGroups(GraphicsDevice device, ResourceFactory factory)
+        private void DrawTransparentRenderGroups(GraphicsDevice device, ResourceFactory factory, Framebuffer framebuffer)
         {
             var alignment = device.UniformBufferMinOffsetAlignment;
             var modelBuffStride = 64u;
@@ -295,7 +347,7 @@ namespace Veldrid.SceneGraph.Viewer
 
                     if (null == lastState || state != lastState)
                     {
-                        ri = state.GetPipelineAndResources(device, factory, _resourceLayout, Framebuffer);
+                        ri = state.GetPipelineAndResources(device, factory, _resourceLayout, framebuffer);
 
                         // Set this state's pipeline
                         _commandList.SetPipeline(ri.Pipeline);
@@ -351,7 +403,7 @@ namespace Veldrid.SceneGraph.Viewer
 
         private void SwapBuffers(GraphicsDevice device)
         {
-            if (Framebuffer == device.SwapchainFramebuffer)
+            if (SceneContext.OutputFramebuffer == device.SwapchainFramebuffer)
             {
                 device.SwapBuffers();
             }
@@ -402,6 +454,11 @@ namespace Veldrid.SceneGraph.Viewer
 //                postRecord-postCull,
 //                postDraw-postRecord,
 //                postSwap-postDraw));
+        }
+
+        public void HandleResize(GraphicsDevice device)
+        {
+            _fullScreenQuadRenderer.CreateDeviceObjects(device, SceneContext);
         }
     }
 }

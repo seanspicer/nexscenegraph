@@ -19,7 +19,7 @@
     <PackageReference Include="SixLabors.Shapes.Text" Version="1.0.0-beta0009" />
     <PackageReference Include="System.Reactive" Version="4.1.6" />
     <PackageReference Include="Veldrid" Version="4.7.0" />
-    <PackageReference Include="Veldrid.SPIRV" Version="1.0.12" />
+    <PackageReference Include="Veldrid.SPIRV" Version="1.0.11" />
     <PackageReference Include="Veldrid.StartupUtilities" Version="4.7.0" />
     <PackageReference Include="Veldrid.Utilities" Version="4.7.0" />
   </ItemGroup>
@@ -39,6 +39,10 @@
     <None Remove="Assets\Shaders\Vertex3Color4-vertex.glsl" />
     <EmbeddedResource Include="Assets\Shaders\Vertex3Color4-vertex.glsl" />
     <EmbeddedResource Include="Assets\Shaders\Vertex3Color4-fragment.glsl" />
+    <None Remove="Assets\Shaders\FullScreenQuadShader-vertex.glsl" />
+    <EmbeddedResource Include="Assets\Shaders\FullScreenQuadShader-vertex.glsl" />
+    <None Remove="Assets\Shaders\FullScreenQuadShader-fragment.glsl" />
+    <EmbeddedResource Include="Assets\Shaders\FullScreenQuadShader-fragment.glsl" />
   </ItemGroup>
   <Target Name="IncludeGeneratedShaderEmbeddedResource" AfterTargets="AssignTargetPaths" Condition="'$(ShaderContentIncludePath)' != ''">
     <ItemGroup>

@@ -14,20 +14,22 @@
 // limitations under the License.
 //
 
-using Examples.Common.Wpf;
-using SharpDX.Win32;
-using Veldrid;
-using Veldrid.SceneGraph.InputAdapter;
+using System;
+using System.Reflection;
+using Veldrid.SceneGraph.Text;
+using Veldrid.SceneGraph.Util;
 
-namespace Lighting.Wpf
+namespace Veldrid.SceneGraph.Shaders.Standard
 {
-    public class LightingDemoViewModel : ViewModelBase
+    public class FullScreenQuadShader : StandardShaderBase
     {
-        public LightingDemoViewModel() : base()
+        private static readonly Lazy<FullScreenQuadShader> lazy = new Lazy<FullScreenQuadShader>(() => new FullScreenQuadShader());
+
+        public static FullScreenQuadShader Instance => lazy.Value;
+        
+        private FullScreenQuadShader() : base(@"FullScreenQuadShader-vertex.glsl", "FullScreenQuadShader-fragment.glsl")
         {
-            SceneRoot = Examples.Common.LightingExampleScene.Build();
-            CameraManipulator = TrackballManipulator.Create();
-            FsaaCount = TextureSampleCount.Count8; // 8x FSAA
+
         }
     }
 }

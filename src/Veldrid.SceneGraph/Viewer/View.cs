@@ -27,10 +27,17 @@ namespace Veldrid.SceneGraph.Viewer
 
         private Renderer Renderer { get; set; }
         
+        
         public Framebuffer Framebuffer 
         { 
             get => Renderer.Framebuffer;
             set => Renderer.Framebuffer = value;
+        }
+
+        public SceneContext SceneContext
+        {
+            get => Renderer.SceneContext;
+            set => Renderer.SceneContext = value;
         }
         
         public IObservable<IInputStateSnapshot> InputEvents { get; set; }

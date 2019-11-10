@@ -21,5 +21,7 @@ namespace Veldrid.SceneGraph
     public interface IGraphicsDeviceOperation
     {
         void HandleOperation(GraphicsDevice device, ResourceFactory factory);
+
+        void HandleResize(GraphicsDevice device);
     }
 }

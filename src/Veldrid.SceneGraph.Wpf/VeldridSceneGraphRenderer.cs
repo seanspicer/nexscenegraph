@@ -72,6 +72,22 @@ namespace Veldrid.SceneGraph.Wpf
             }
         }
 
+        private TextureSampleCount _fsaaCount;
+
+        public TextureSampleCount FsaaCount
+        {
+            get => _fsaaCount;
+            set
+            {
+                _fsaaCount = value;
+                if (null != _graphicsDevice)
+                {
+                    _sceneContext.SetMainSceneSampleCount(_fsaaCount, _graphicsDevice, (uint)DisplaySettings.Instance.ScreenWidth, (uint)DisplaySettings.Instance.ScreenHeight);
+                }
+                
+            }
+        }
+
         private RgbaFloat _clearColor;
 
         public RgbaFloat ClearColor
@@ -86,6 +102,7 @@ namespace Veldrid.SceneGraph.Wpf
                 }
             }
         }
+        
         
         public double DpiScale { get; set; }
 
@@ -104,8 +121,12 @@ namespace Veldrid.SceneGraph.Wpf
         private CommandList _commandList;
         private GraphicsDevice _graphicsDevice;
         
+        private SceneContext _sceneContext;
+        
         private Framebuffer _offscreenFB;
+        
         private Texture _offscreenColor;
+        
         private Texture _offscreenDepth;
 
         private Fence _fence;
@@ -113,6 +134,7 @@ namespace Veldrid.SceneGraph.Wpf
         private DisposeCollectorResourceFactory _factory;
         
         private event Action<GraphicsDevice, ResourceFactory> GraphicsDeviceOperations;
+        private event Action<GraphicsDevice> GraphicsDeviceResize;
         
         private const uint NFramesInBuffer = 30;
         private ulong _frameCounter = 0;
@@ -143,6 +165,7 @@ namespace Veldrid.SceneGraph.Wpf
             _stopwatch = Stopwatch.StartNew();
             _previousElapsed = _stopwatch.Elapsed.TotalSeconds;
             _frameInfoSubject = new Subject<float>();
+            
         }
         
         protected override void Attach()
@@ -175,6 +198,10 @@ namespace Veldrid.SceneGraph.Wpf
         {
             var view = Veldrid.SceneGraph.Viewer.View.Create(_resizeEvents);
             view.InputEvents = ViewerInputEvents;
+            
+            _sceneContext = new SceneContext(FsaaCount);
+            _sceneContext.CreateDeviceObjects(_graphicsDevice, _factory);
+            view.SceneContext = _sceneContext;
 
             if (null != _sceneData)
             {
@@ -192,9 +219,12 @@ namespace Veldrid.SceneGraph.Wpf
                 view.AddInputEventHandler(_eventHandler);
             }
             
+            
             GraphicsDeviceOperations += view.Camera.Renderer.HandleOperation;
+            GraphicsDeviceResize += view.Camera.Renderer.HandleResize;
             
             _view = view;
+            
             
             CameraManipulator?.ViewAll();
 
@@ -219,18 +249,34 @@ namespace Veldrid.SceneGraph.Wpf
             DisplaySettings.Instance.ScreenWidth = width;
             DisplaySettings.Instance.ScreenHeight = height;
 
+            //_graphicsDevice.ResizeMainWindow((uint) width, (uint) height);
+            
             if (!_initialized)
             {
                 DisplaySettings.Instance.ScreenDistance = 1000.0f;
                 Initialize();
             }
+
+            //_sceneContext.RecreateWindowSizedResources(_graphicsDevice, _factory, width, height);
             
-            _offscreenColor = _factory.CreateTexture(TextureDescription.Texture2D(
-                width, height, 1, 1,
-                PixelFormat.B8_G8_R8_A8_UNorm, TextureUsage.RenderTarget | TextureUsage.Sampled));
+            var mainColorDesc = TextureDescription.Texture2D(
+                width,
+                height,
+                1,
+                1,
+                PixelFormat.B8_G8_R8_A8_UNorm,
+                TextureUsage.RenderTarget);
+
+            _offscreenColor = _factory.CreateTexture(ref mainColorDesc);
             
             _offscreenDepth = _factory.CreateTexture(TextureDescription.Texture2D(
-                width, height, 1, 1, PixelFormat.D24_UNorm_S8_UInt, TextureUsage.DepthStencil));
+                width, 
+                height, 
+                1, 
+                1, 
+                PixelFormat.D24_UNorm_S8_UInt, 
+                TextureUsage.DepthStencil));
+            
             _offscreenFB = _factory.CreateFramebuffer(new FramebufferDescription(_offscreenDepth, _offscreenColor));
 
             var od = _offscreenFB.OutputDescription;
@@ -238,7 +284,12 @@ namespace Veldrid.SceneGraph.Wpf
             if (null != _view)
             {
                 _view.Framebuffer = _offscreenFB;
+                _sceneContext.SetOutputFramebufffer(_offscreenFB);
             }
+            
+            _sceneContext.RecreateWindowSizedResources(_graphicsDevice, _factory, width, height);
+            
+            GraphicsDeviceResize?.Invoke(_graphicsDevice);
         }
         
         protected virtual void Frame()
@@ -288,7 +339,7 @@ namespace Veldrid.SceneGraph.Wpf
 
         public override void RenderCore(DrawEventArgs args)
         {
-            if (null != _view && _view.Framebuffer != null)
+            if (null != _view && null != _view.SceneContext && null != _view.SceneContext.OutputFramebuffer)
             {
                 Frame();
 

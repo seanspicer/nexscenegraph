@@ -18,6 +18,7 @@ namespace Veldrid.SceneGraph.Wpf
         private ISubject<ICameraManipulator> _cameraManipulatorSubject;
         private ISubject<IInputEventHandler> _eventHandlerSubject;
         private ISubject<RgbaFloat> _clearColorSubject;
+        private ISubject<TextureSampleCount> _fsaaCountSubject;
 
         private VeldridSceneGraphRenderer _vsgRenderer;
         
@@ -43,6 +44,7 @@ namespace Veldrid.SceneGraph.Wpf
             _cameraManipulatorSubject = new ReplaySubject<ICameraManipulator>();
             _eventHandlerSubject = new ReplaySubject<IInputEventHandler>();
             _clearColorSubject = new ReplaySubject<RgbaFloat>();
+            _fsaaCountSubject = new ReplaySubject<TextureSampleCount>();
             _inputState = new WpfInputStateSnapshot();
 
             ShouldHandleKeyEvents = false;
@@ -77,6 +79,10 @@ namespace Veldrid.SceneGraph.Wpf
             _clearColorSubject.Subscribe((clearColor) =>
             {
                 _vsgRenderer.ClearColor = clearColor;
+            });
+            _fsaaCountSubject.Subscribe((fsaaCout) =>
+            {
+                _vsgRenderer.FsaaCount = fsaaCout;
             });
 
             Renderer = _vsgRenderer;
@@ -371,5 +377,27 @@ namespace Veldrid.SceneGraph.Wpf
             _clearColorSubject.OnNext((RgbaFloat) e.NewValue); 
         }
         #endregion
+        
+        #region FSAAProperty
+        public static readonly DependencyProperty FsaaCountProperty = 
+            DependencyProperty.Register("FsaaCount", typeof(TextureSampleCount), typeof(VeldridSceneGraphControl), 
+                new PropertyMetadata(TextureSampleCount.Count1, new PropertyChangedCallback(OnFsaaCountChanged)));  
+
+        public TextureSampleCount FsaaCount 
+        {
+            get => (TextureSampleCount) GetValue(ClearColorProperty);
+            set => SetValue(FsaaCountProperty, value);
+        }
+        
+        private static void OnFsaaCountChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {  
+            var vsgControl = d as VeldridSceneGraphControl;  
+            vsgControl?.SetFsaaCount(e);  
+        } 
+        
+        private void SetFsaaCount(DependencyPropertyChangedEventArgs e) {  
+            _fsaaCountSubject.OnNext((TextureSampleCount) e.NewValue); 
+        }
+        #endregion
+        
     }
 }
