@@ -72,6 +72,22 @@ namespace Veldrid.SceneGraph.Wpf
             }
         }
 
+        private TextureSampleCount _fsaaCount;
+
+        public TextureSampleCount FsaaCount
+        {
+            get => _fsaaCount;
+            set
+            {
+                _fsaaCount = value;
+                if (null != _graphicsDevice)
+                {
+                    _sceneContext.SetMainSceneSampleCount(_fsaaCount, _graphicsDevice, (uint)DisplaySettings.Instance.ScreenWidth, (uint)DisplaySettings.Instance.ScreenHeight);
+                }
+                
+            }
+        }
+
         private RgbaFloat _clearColor;
 
         public RgbaFloat ClearColor
@@ -86,6 +102,7 @@ namespace Veldrid.SceneGraph.Wpf
                 }
             }
         }
+        
         
         public double DpiScale { get; set; }
 
@@ -117,6 +134,7 @@ namespace Veldrid.SceneGraph.Wpf
         private DisposeCollectorResourceFactory _factory;
         
         private event Action<GraphicsDevice, ResourceFactory> GraphicsDeviceOperations;
+        private event Action<GraphicsDevice> GraphicsDeviceResize;
         
         private const uint NFramesInBuffer = 30;
         private ulong _frameCounter = 0;
@@ -180,8 +198,9 @@ namespace Veldrid.SceneGraph.Wpf
         {
             var view = Veldrid.SceneGraph.Viewer.View.Create(_resizeEvents);
             view.InputEvents = ViewerInputEvents;
-
-            _sceneContext = new SceneContext(TextureSampleCount.Count16);
+            
+            _sceneContext = new SceneContext(FsaaCount);
+            _sceneContext.CreateDeviceObjects(_graphicsDevice, _factory);
             view.SceneContext = _sceneContext;
 
             if (null != _sceneData)
@@ -200,7 +219,9 @@ namespace Veldrid.SceneGraph.Wpf
                 view.AddInputEventHandler(_eventHandler);
             }
             
+            
             GraphicsDeviceOperations += view.Camera.Renderer.HandleOperation;
+            GraphicsDeviceResize += view.Camera.Renderer.HandleResize;
             
             _view = view;
             
@@ -267,6 +288,8 @@ namespace Veldrid.SceneGraph.Wpf
             }
             
             _sceneContext.RecreateWindowSizedResources(_graphicsDevice, _factory, width, height);
+            
+            GraphicsDeviceResize?.Invoke(_graphicsDevice);
         }
         
         protected virtual void Frame()

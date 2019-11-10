@@ -17,7 +17,7 @@ namespace Veldrid.SceneGraph.Viewer
 
         private DisposeCollectorResourceFactory _factory;
         
-        public void CreateDeviceObjects(GraphicsDevice gd)
+        public void CreateDeviceObjects(GraphicsDevice gd, SceneContext sc)
         {
             if (null != _factory)
             {
@@ -48,9 +48,9 @@ namespace Veldrid.SceneGraph.Viewer
                             new VertexElementDescription("TexCoords", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2))
                     },
                     shaders,
-                    GetSpecializations(gd)),
+                    GetSpecializations(gd, sc)),
                 new ResourceLayout[] { resourceLayout },
-                gd.SwapchainFramebuffer.OutputDescription);
+                sc.OutputFramebuffer.OutputDescription);
             _pipeline = _factory.CreateGraphicsPipeline(ref pd);
 
             float[] verts = GetFullScreenQuadVerts(gd);
@@ -63,7 +63,7 @@ namespace Veldrid.SceneGraph.Viewer
             gd.UpdateBuffer(_ib, 0, s_quadIndices);
         }
         
-        private static SpecializationConstant[] GetSpecializations(GraphicsDevice gd)
+        private static SpecializationConstant[] GetSpecializations(GraphicsDevice gd, SceneContext sc)
         {
             bool glOrGles = gd.BackendType == GraphicsBackend.OpenGL || gd.BackendType == GraphicsBackend.OpenGLES;
 
@@ -72,7 +72,7 @@ namespace Veldrid.SceneGraph.Viewer
             specializations.Add(new SpecializationConstant(101, glOrGles)); // TextureCoordinatesInvertedY
             specializations.Add(new SpecializationConstant(102, gd.IsDepthRangeZeroToOne));
 
-            PixelFormat swapchainFormat = gd.MainSwapchain.Framebuffer.OutputDescription.ColorAttachments[0].Format;
+            PixelFormat swapchainFormat = sc.OutputFramebuffer.OutputDescription.ColorAttachments[0].Format;
             bool swapchainIsSrgb = swapchainFormat == PixelFormat.B8_G8_R8_A8_UNorm_SRgb
                                    || swapchainFormat == PixelFormat.R8_G8_B8_A8_UNorm_SRgb;
             specializations.Add(new SpecializationConstant(103, false));

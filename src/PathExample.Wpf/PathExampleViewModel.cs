@@ -15,6 +15,7 @@
 //
 
 using Examples.Common.Wpf;
+using Veldrid;
 using Veldrid.SceneGraph.InputAdapter;
 
 namespace PathExample.Wpf
@@ -25,6 +26,7 @@ namespace PathExample.Wpf
         {
             SceneRoot = Examples.Common.PathExampleScene.Build();
             CameraManipulator = TrackballManipulator.Create();
+            FsaaCount = TextureSampleCount.Count16;
         }
     }
 }

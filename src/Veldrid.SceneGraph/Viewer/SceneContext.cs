@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using SharpDX.DXGI;
 using Veldrid.Utilities;
 
 namespace Veldrid.SceneGraph.Viewer
@@ -26,6 +27,12 @@ namespace Veldrid.SceneGraph.Viewer
             MainSceneSampleCount = sampleCount;
         }
 
+        public void SetMainSceneSampleCount(TextureSampleCount sampleCount, GraphicsDevice gd,  uint width, uint height) 
+        {
+            MainSceneSampleCount = sampleCount;
+            RecreateWindowSizedResources(gd, null, width, height);
+        }
+        
         private DisposeCollectorResourceFactory _factory;
         
         public void CreateDeviceObjects(GraphicsDevice gd, ResourceFactory factory)

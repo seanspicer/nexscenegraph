@@ -12,7 +12,8 @@
             x:Name="VSGElement"
             SceneRoot="{Binding SceneRoot}"
             CameraManipulator="{Binding CameraManipulator}"
-            EventHandler="{Binding EventHandler}">
+            EventHandler="{Binding EventHandler}"
+            FsaaCount="{Binding FsaaCount}">
         </wpf1:VeldridSceneGraphControl>
         
         <Canvas>
