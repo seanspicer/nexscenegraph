@@ -385,7 +385,7 @@ namespace Veldrid.SceneGraph.Wpf
 
         public TextureSampleCount FsaaCount 
         {
-            get => (TextureSampleCount) GetValue(ClearColorProperty);
+            get => (TextureSampleCount) GetValue(FsaaCountProperty);
             set => SetValue(FsaaCountProperty, value);
         }
         
