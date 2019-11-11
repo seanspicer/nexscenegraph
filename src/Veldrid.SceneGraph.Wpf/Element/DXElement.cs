@@ -257,6 +257,7 @@ namespace Veldrid.SceneGraph.Wpf.Element
         /// <param name="e"></param>
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
+            CaptureMouse();
             base.OnMouseDown(e);
             if (Renderer is IInteractiveDirect3D)
                 ((IInteractiveDirect3D)Renderer).OnMouseDown(this, e);
@@ -279,6 +280,7 @@ namespace Veldrid.SceneGraph.Wpf.Element
         /// <param name="e"></param>
         protected override void OnMouseUp(MouseButtonEventArgs e)
         {
+            ReleaseMouseCapture();
             base.OnMouseUp(e);
             if (Renderer is IInteractiveDirect3D)
                 ((IInteractiveDirect3D)Renderer).OnMouseUp(this, e);
