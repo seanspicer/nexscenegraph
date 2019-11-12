@@ -66,11 +66,11 @@ namespace Examples.Common
 
             var pathGeode = Geode.Create();
             pathGeode.AddDrawable(pathDrawable);
-            pathGeode.PipelineState = redMaterial.CreatePipelineState();
+            pathGeode.GetMutable().SetPipelineState(redMaterial.CreatePipelineState());
             pathGeode.PipelineState.RasterizerStateDescription 
                 = new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
 
-            root.AddChild(pathGeode);
+            root.GetMutable().AddChild(pathGeode);
             return root;
         }
     }

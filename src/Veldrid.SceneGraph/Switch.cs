@@ -22,7 +22,7 @@ namespace Veldrid.SceneGraph
 {
     public class Switch : Group, ISwitch
     {
-        private List<bool> switchVals = new List<bool>();
+        private List<bool> _switchVals = new List<bool>();
         
         public new static ISwitch Create()
         {
@@ -40,7 +40,7 @@ namespace Veldrid.SceneGraph
             }
         }
 
-        public void SetValue(int pos, bool value)
+        internal void SetValue(int pos, bool value)
         {
             _children[pos] = Tuple.Create(_children[pos].Item1, value);
         }
@@ -50,7 +50,7 @@ namespace Veldrid.SceneGraph
             return _children[pos].Item2;
         }
 
-        public void SetChildValue(INode child, bool value)
+        internal void SetChildValue(INode child, bool value)
         {
             for (var i = 0; i < _children.Count; ++i)
             {
@@ -74,7 +74,7 @@ namespace Veldrid.SceneGraph
             return false;
         }
 
-        public void SetAllChildrenOff()
+        internal void SetAllChildrenOff()
         {
             for (var i = 0; i < _children.Count; ++i)
             {
@@ -82,11 +82,74 @@ namespace Veldrid.SceneGraph
             }
         }
 
-        public void SetAllChildrenOn()
+        internal void SetAllChildrenOn()
         {
             for (var i = 0; i < _children.Count; ++i)
             {
                 SetValue(i, true);
+            }
+        }
+        
+        public new IMutableSwitch GetMutable()
+        {
+            return new MutableSwitch(this);
+        }
+    }
+
+    internal class MutableSwitch : MutableGroup, IMutableSwitch
+    {
+        private readonly Switch _switch;
+        
+        internal MutableSwitch(Switch switchNode) : base(switchNode)
+        {
+            _switch = switchNode;
+        }
+
+        public bool AddChild(INode child, bool value)
+        {
+            using (TimedLock.Lock(_switch))
+            {
+                return _switch.AddChild(child, value);
+            }
+        }
+
+        public bool InsertChild(int index, INode child, bool visible)
+        {
+            using (TimedLock.Lock(_switch))
+            {
+                return _switch.InsertChild(index, child, visible);
+            }
+        }
+
+        public void SetValue(int pos, bool value)
+        {
+            using (TimedLock.Lock(_switch))
+            {
+                _switch.SetValue(pos, value);
+            }
+        }
+
+        public void SetChildValue(INode child, bool value)
+        {
+            using (TimedLock.Lock(_switch))
+            {
+                _switch.SetChildValue(child, value);
+            }
+        }
+
+        public void SetAllChildrenOff()
+        {
+            using (TimedLock.Lock(_switch))
+            {
+                _switch.SetAllChildrenOff();
+            }
+        }
+
+        public void SetAllChildrenOn()
+        {
+            using (TimedLock.Lock(_switch))
+            {
+                _switch.SetAllChildrenOn();
             }
         }
     }

@@ -18,12 +18,17 @@ namespace Veldrid.SceneGraph
 {
     public interface ISwitch : IGroup
     {
+        bool GetValue(int pos, bool value);
+        bool GetChildValue(INode child, bool value);
+        new IMutableSwitch GetMutable();
+    }
+
+    public interface IMutableSwitch : IMutableGroup
+    {
         bool AddChild(INode child, bool value);
         bool InsertChild(int index, INode child, bool visible);
         void SetValue(int pos, bool value);
-        bool GetValue(int pos, bool value);
         void SetChildValue(INode child, bool value);
-        bool GetChildValue(INode child, bool value);
         void SetAllChildrenOff();
         void SetAllChildrenOn();
     }

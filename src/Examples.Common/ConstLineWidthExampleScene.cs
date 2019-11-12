@@ -31,7 +31,8 @@ namespace Examples.Common
         public static IGroup Build()
         {
             var root = Group.Create();
-            root.AddChild(CreateCube());
+            root.GetMutable().AddChild(CreateCube());
+            
             return root;
         }
 
@@ -123,8 +124,8 @@ namespace Examples.Common
                 geometry.PipelineState.FragmentShaderDescription = Position3Color3Shader.Instance.FragmentShaderDescription;
                 
                 // Set a cull callback that will cull based on the plane normal.
-                geometry.SetCullCallback(new PlaneCullCalback(normals[i]));
-                
+                geometry.GetMutable().SetCullCallback(new PlaneCullCalback(normals[i]));
+
                 geode.AddDrawable(geometry);
                 
             }

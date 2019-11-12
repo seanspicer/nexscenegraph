@@ -27,4 +27,14 @@ namespace Veldrid.SceneGraph
 
         public DataVarianceType DataVariance { get; set; } = DataVarianceType.Unspecified;
     }
+
+    internal abstract class MutableObject : IMutableObject
+    {
+        private readonly Object _object;
+
+        internal MutableObject(Object obj)
+        {
+            _object = obj;
+        }
+    }
 }

@@ -17,6 +17,7 @@
 using System;
 using System.IO;
 using System.Numerics;
+using System.Threading;
 using Examples.Common;
 using Veldrid;
 using Veldrid.SceneGraph;
@@ -52,6 +53,8 @@ namespace HelloNsg
         static void Main(string[] args)
         {
             Bootstrapper.Configure();
+            
+            Thread.CurrentThread.Name = "MainThread";
             
             var viewer = SimpleViewer.Create("Hello Veldrid Scene Graph", TextureSampleCount.Count32);
             viewer.SetCameraManipulator(TrackballManipulator.Create());
@@ -94,8 +97,14 @@ namespace HelloNsg
 
             var geode = Geode.Create();
             geode.AddDrawable(geometry);
-            
-            root.AddChild(geode);
+
+            //using (var rootMutable = root.GetMutable())
+            //{
+            //    rootMutable.AddChild(geode);
+            //}
+
+            root.GetMutable().AddChild(geode);
+            root.GetMutable().AddChild(geode);
 
             viewer.SetSceneData(root);
 

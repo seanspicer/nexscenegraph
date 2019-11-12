@@ -14,10 +14,15 @@
 // limitations under the License.
 //
 
+using System;
+
 namespace Veldrid.SceneGraph
 {
     public interface IObject
     {
-        //Object.DataVarianceType DataVariance { get; set; }
+    }
+
+    public interface IMutableObject
+    {
     }
 }

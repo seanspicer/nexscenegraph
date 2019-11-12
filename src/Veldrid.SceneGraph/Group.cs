@@ -37,22 +37,22 @@ namespace Veldrid.SceneGraph
             return new Group();
         }
         
-        public bool AddChild(INode child)
+        internal bool AddChild(INode child)
         {
             return InsertChild(_children.Count, child);
         }
 
-        public virtual bool AddChild(INode child, bool value)
+        internal virtual bool AddChild(INode child, bool value)
         {
             return InsertChild(_children.Count, child, value);
         }
 
-        public bool InsertChild(int index, INode child)
+        internal bool InsertChild(int index, INode child)
         {
             return InsertChild(index, child, true);
         }
 
-        public bool InsertChild(int index, INode child, bool value)
+        internal bool InsertChild(int index, INode child, bool value)
         {
             if (null == child) return false;
             
@@ -72,7 +72,7 @@ namespace Veldrid.SceneGraph
                 _children.Insert(index, Tuple.Create(child, value));
             }
 
-            child.AddParent(this);
+            child.GetMutable().AddParent(this);
 
             ChildInserted(index);
             
@@ -81,13 +81,13 @@ namespace Veldrid.SceneGraph
             return true;
         }
 
-        public virtual bool RemoveChild(INode child)
+        internal bool RemoveChild(INode child)
         {
             var pos = _children.FindIndex(x => x.Item1.Id == child.Id);
             return pos < _children.Count && RemoveChildren(pos, 1);
         }
 
-        public virtual bool RemoveChildren(int pos, int numChildrenToRemove)
+        internal bool RemoveChildren(int pos, int numChildrenToRemove)
         {
             if (pos > _children.Count || numChildrenToRemove <= 0) return false;
 
@@ -101,7 +101,7 @@ namespace Veldrid.SceneGraph
             for (var i = pos; i < endOfRemoveRange; ++i)
             {
                 var child = _children[i];
-                child.Item1.RemoveParent(this);
+                child.Item1.GetMutable().AddParent(this);
             }
 
             _children.RemoveRange(pos, numChildrenToRemove);
@@ -114,12 +114,12 @@ namespace Veldrid.SceneGraph
         }
 
 
-        public virtual void ChildInserted(int index)
+        protected virtual void ChildInserted(int index)
         {
             // Do nothing by default
         }
 
-        public virtual void ChildRemoved(int index, int count)
+        protected virtual void ChildRemoved(int index, int count)
         {
             // Do nothing by default
         }
@@ -182,6 +182,29 @@ namespace Veldrid.SceneGraph
             }
 
             return bsphere;
+        }
+
+        public new IMutableGroup GetMutable()
+        {
+            return new MutableGroup(this);
+        }
+    }
+
+    internal class MutableGroup : MutableNode, IMutableGroup
+    {
+        private readonly Group _group;
+        
+        internal MutableGroup(Group group) : base(group)
+        {
+            _group = group;
+        }
+
+        public bool AddChild(INode child)
+        {
+            using (TimedLock.Lock(_group))
+            {
+                return _group.AddChild(child);
+            }
         }
     }
 }
