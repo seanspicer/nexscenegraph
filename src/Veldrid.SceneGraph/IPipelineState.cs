@@ -15,13 +15,13 @@
 //
 
 using System.Collections.Generic;
+using Veldrid.SceneGraph.Shaders;
 
 namespace Veldrid.SceneGraph
 {
     public interface IPipelineState
     {
-        ShaderDescription? VertexShaderDescription { get; set; }
-        ShaderDescription? FragmentShaderDescription { get; set; }
+        IShaderSet ShaderSet { get; set; }
         IReadOnlyList<ITexture2D> TextureList { get; }
         IReadOnlyList<IBindable> UniformList { get; }
         BlendStateDescription BlendStateDescription { get; set; }

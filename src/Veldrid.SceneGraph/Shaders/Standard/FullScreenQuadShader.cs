@@ -27,7 +27,7 @@ namespace Veldrid.SceneGraph.Shaders.Standard
 
         public static FullScreenQuadShader Instance => lazy.Value;
         
-        private FullScreenQuadShader() : base(@"FullScreenQuadShader-vertex.glsl", "FullScreenQuadShader-fragment.glsl")
+        private FullScreenQuadShader() : base(@"FullScreenQuadShader", @"FullScreenQuadShader-vertex.glsl", @"FullScreenQuadShader-fragment.glsl")
         {
 
         }

@@ -27,7 +27,7 @@ namespace Veldrid.SceneGraph.Shaders.Standard
 
         public static Texture2DShader Instance => lazy.Value;
         
-        private Texture2DShader() : base(@"BasicTextureShader-vertex.glsl", "BasicTextureShader-fragment.glsl")
+        private Texture2DShader() : base(@"BasicTextureShader", @"BasicTextureShader-vertex.glsl", "BasicTextureShader-fragment.glsl")
         {
 
         }

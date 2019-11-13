@@ -27,7 +27,7 @@ namespace Veldrid.SceneGraph.Shaders.Standard
 
         public static Position3Color3Shader Instance => Lazy.Value;
 
-        private Position3Color3Shader() : base("Position3Color3-vertex.glsl", "Position3Color3-fragment.glsl")
+        private Position3Color3Shader() : base(@"Position3Color3",@"Position3Color3-vertex.glsl", @"Position3Color3-fragment.glsl")
         {
 
 

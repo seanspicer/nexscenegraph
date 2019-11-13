@@ -22,6 +22,7 @@ using Examples.Common;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
+using Veldrid.SceneGraph.Shaders;
 using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Viewer;
 
@@ -137,17 +138,20 @@ namespace MultiTexturedCube
             
             geometry.PrimitiveSets.Add(pSet);
 
-            geometry.PipelineState.VertexShaderDescription  = new ShaderDescription(
+            var vertexShaderDescription  = new ShaderDescription(
                 ShaderStages.Vertex, 
                 ShaderTools.ReadEmbeddedAssetBytes(@"MultiTexturedCube.Assets.Shaders.MultiTexturedCubeShader-vertex.glsl",
                     typeof(Program).Assembly), 
                 "main", true);
             
-            geometry.PipelineState.FragmentShaderDescription = new ShaderDescription(
+            var fragmentShaderDescription = new ShaderDescription(
                 ShaderStages.Fragment, 
                 ShaderTools.ReadEmbeddedAssetBytes(@"MultiTexturedCube.Assets.Shaders.MultiTexturedCubeShader-fragment.glsl", 
                     typeof(Program).Assembly), 
                 "main", true);
+
+            geometry.PipelineState.ShaderSet = ShaderSet.Create("MultiTexturedCubeShader", vertexShaderDescription,
+                fragmentShaderDescription);
             
             
             geometry.PipelineState.AddTexture(

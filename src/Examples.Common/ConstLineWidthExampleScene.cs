@@ -119,8 +119,7 @@ namespace Examples.Common
             
                 geometry.PrimitiveSets.Add(pSet);
                 
-                geometry.PipelineState.VertexShaderDescription = Position3Color3Shader.Instance.VertexShaderDescription;
-                geometry.PipelineState.FragmentShaderDescription = Position3Color3Shader.Instance.FragmentShaderDescription;
+                geometry.PipelineState.ShaderSet = Position3Color3Shader.Instance.ShaderSet;
                 
                 // Set a cull callback that will cull based on the plane normal.
                 geometry.SetCullCallback(new PlaneCullCalback(normals[i]));

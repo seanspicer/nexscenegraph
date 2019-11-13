@@ -86,7 +86,7 @@ namespace Examples.Common.Wpf
         
         protected ViewModelBase()
         {
-            FsaaCount = TextureSampleCount.Count1;
+            FsaaCount = TextureSampleCount.Count16;
         }
         
         public event PropertyChangedEventHandler PropertyChanged;

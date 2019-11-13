@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Veldrid.SceneGraph.RenderGraph;
 using Veldrid.SceneGraph.Shaders.Standard;
 using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.VertexTypes;
@@ -29,9 +30,8 @@ namespace Veldrid.SceneGraph.Viewer
                 new ResourceLayoutElementDescription("SourceTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
                 new ResourceLayoutElementDescription("SourceSampler", ResourceKind.Sampler, ShaderStages.Fragment)));
 
-            var shaders = _factory.CreateFromSpirv(
-                FullScreenQuadShader.Instance.VertexShaderDescription,
-                FullScreenQuadShader.Instance.FragmentShaderDescription);
+            (Shader vs, Shader fs) = RenderGroupState.GetShaders(gd, sc.OutputFramebuffer,
+                FullScreenQuadShader.Instance.ShaderSet);
 
             GraphicsPipelineDescription pd = new GraphicsPipelineDescription(
                 new BlendStateDescription(
@@ -47,7 +47,7 @@ namespace Veldrid.SceneGraph.Viewer
                             new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
                             new VertexElementDescription("TexCoords", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2))
                     },
-                    shaders,
+                    new[] { vs, fs },
                     GetSpecializations(gd, sc)),
                 new ResourceLayout[] { resourceLayout },
                 sc.OutputFramebuffer.OutputDescription);
