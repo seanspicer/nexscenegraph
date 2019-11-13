@@ -30,7 +30,7 @@ namespace Veldrid.SceneGraph.Viewer
                 new ResourceLayoutElementDescription("SourceTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
                 new ResourceLayoutElementDescription("SourceSampler", ResourceKind.Sampler, ShaderStages.Fragment)));
 
-            (Shader vs, Shader fs) = RenderGroupState.GetShaders(gd, _factory, sc.OutputFramebuffer,
+            (Shader vs, Shader fs) = RenderGroupState.GetShaders(gd, sc.OutputFramebuffer,
                 FullScreenQuadShader.Instance.ShaderSet);
 
             GraphicsPipelineDescription pd = new GraphicsPipelineDescription(

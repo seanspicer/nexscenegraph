@@ -148,7 +148,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             // TODO - cache based on the shader description and reuse shader objects
             if (null != PipelineState.ShaderSet)
             {
-                (Shader vs, Shader fs) = GetShaders(graphicsDevice, resourceFactory, framebuffer, PipelineState.ShaderSet);
+                (Shader vs, Shader fs) = GetShaders(graphicsDevice, framebuffer, PipelineState.ShaderSet);
                 
                 pd.ShaderSet = new ShaderSetDescription(
                     vertexLayouts: new VertexLayoutDescription[] {VertexLayout},
@@ -191,7 +191,6 @@ namespace Veldrid.SceneGraph.RenderGraph
         
         public static (Shader vs, Shader fs) GetShaders(
             GraphicsDevice gd,
-            ResourceFactory factory,
             Framebuffer framebuffer,
             IShaderSet shaderSet)
         {
@@ -199,7 +198,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             ShaderSetCacheKey cacheKey = new ShaderSetCacheKey(shaderSet.Name, constants);
             if (!s_shaderSets.TryGetValue(cacheKey, out (Shader vs, Shader fs) set))
             {
-                set = LoadSPIRV(gd, factory, framebuffer, shaderSet);
+                set = LoadSPIRV(gd, gd.ResourceFactory, framebuffer, shaderSet);
                 s_shaderSets.Add(cacheKey, set);
             }
 
