@@ -166,7 +166,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             return ri;
         }
         
-        public static (Shader vs, Shader fs) LoadSPIRV(
+        private static (Shader vs, Shader fs) LoadSPIRV(
             GraphicsDevice gd,
             ResourceFactory factory,
             Framebuffer fb,
@@ -189,7 +189,7 @@ namespace Veldrid.SceneGraph.RenderGraph
         private static readonly Dictionary<ShaderSetCacheKey, (Shader, Shader)> s_shaderSets
             = new Dictionary<ShaderSetCacheKey, (Shader, Shader)>();
         
-        public static (Shader vs, Shader fs) GetShaders(
+        internal static (Shader vs, Shader fs) GetShaders(
             GraphicsDevice gd,
             Framebuffer framebuffer,
             IShaderSet shaderSet)
