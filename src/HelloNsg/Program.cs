@@ -89,8 +89,7 @@ namespace HelloNsg
             
             geometry.PrimitiveSets.Add(pSet);
 
-            geometry.PipelineState.VertexShaderDescription = Vertex2Color4Shader.Instance.VertexShaderDescription;
-            geometry.PipelineState.FragmentShaderDescription = Vertex2Color4Shader.Instance.FragmentShaderDescription;
+            geometry.PipelineState.ShaderSet = Vertex2Color4Shader.Instance.ShaderSet;
 
             var geode = Geode.Create();
             geode.AddDrawable(geometry);

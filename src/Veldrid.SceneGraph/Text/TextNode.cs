@@ -322,9 +322,8 @@ namespace Veldrid.SceneGraph.Text
                 new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
                 new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2));
 
-            PipelineState.VertexShaderDescription = Texture2DShader.Instance.VertexShaderDescription;
-            PipelineState.FragmentShaderDescription = Texture2DShader.Instance.FragmentShaderDescription;;
-
+            PipelineState.ShaderSet = Texture2DShader.Instance.ShaderSet;
+            
             PipelineState.AddTexture(
                 Texture2D.Create(BuildTexture(),
                     1,

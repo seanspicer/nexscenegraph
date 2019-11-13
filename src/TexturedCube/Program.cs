@@ -115,8 +115,7 @@ namespace TexturedCube
             
             geometry.PrimitiveSets.Add(pSet);
 
-            geometry.PipelineState.VertexShaderDescription = Texture2DShader.Instance.VertexShaderDescription;
-            geometry.PipelineState.FragmentShaderDescription = Texture2DShader.Instance.FragmentShaderDescription;
+            geometry.PipelineState.ShaderSet = Texture2DShader.Instance.ShaderSet;
             
             geometry.PipelineState.AddTexture(
                 Texture2D.Create(Texture2D.ImageFormatType.Png,

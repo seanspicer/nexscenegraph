@@ -173,8 +173,7 @@ namespace ColoredCube
         {
             var pso = PipelineState.Create();
 
-            pso.VertexShaderDescription = Vertex3Color4Shader.Instance.VertexShaderDescription;
-            pso.FragmentShaderDescription = Vertex3Color4Shader.Instance.FragmentShaderDescription;
+            pso.ShaderSet = Vertex3Color4Shader.Instance.ShaderSet;
 
             return pso;
         }

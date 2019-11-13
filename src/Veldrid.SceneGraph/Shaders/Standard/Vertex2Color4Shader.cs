@@ -25,7 +25,7 @@ namespace Veldrid.SceneGraph.Shaders.Standard
 
         public static Vertex2Color4Shader Instance => Lazy.Value;
         
-        private Vertex2Color4Shader() : base("Vertex2Color4-vertex.glsl", "Vertex2Color4-fragment.glsl")
+        private Vertex2Color4Shader() : base(@"Vertex2Color4",@"Vertex2Color4-vertex.glsl", @"Vertex2Color4-fragment.glsl")
         {
         }
     }
