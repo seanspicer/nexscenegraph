@@ -42,7 +42,7 @@ namespace Veldrid.SceneGraph.Util.Shape
             return new ShapeDrawable<T>(shape, hints, colors);
         }
         
-        internal ShapeDrawable(IShape shape, ITessellationHints hints)
+        protected ShapeDrawable(IShape shape, ITessellationHints hints)
         {
             if (hints.ColorsType == ColorsType.ColorOverall)
             {
@@ -86,7 +86,7 @@ namespace Veldrid.SceneGraph.Util.Shape
             Build();
         }
         
-        internal ShapeDrawable(IShape shape, ITessellationHints hints, Vector3 [] colors)
+        protected ShapeDrawable(IShape shape, ITessellationHints hints, Vector3 [] colors)
         {
             SetColors(colors);
             SetShape(shape);
