@@ -136,9 +136,9 @@ namespace Veldrid.SceneGraph.Viewer
         //
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        public static IViewer Create(string title)
+        public static IViewer Create(string title, TextureSampleCount fsaaCount=TextureSampleCount.Count1)
         {
-            return new SimpleViewer(title);
+            return new SimpleViewer(title, fsaaCount);
         }
         
         /// <summary>
@@ -148,7 +148,7 @@ namespace Veldrid.SceneGraph.Viewer
         //
         // TODO: remove unsafe once Veldrid.SDL2 implements resize fix.
         //
-        protected unsafe SimpleViewer(string title)
+        protected unsafe SimpleViewer(string title, TextureSampleCount fsaaCount)
         {
             //_logger = LogManager.GetLogger<SimpleViewer>();
             
@@ -190,7 +190,7 @@ namespace Veldrid.SceneGraph.Viewer
                 Frame();
             };
 
-            _sceneContext = new SceneContext(TextureSampleCount.Count1);
+            _sceneContext = new SceneContext(fsaaCount);
             _window.KeyDown += OnKeyDown;
             _view = Viewer.View.Create(_resizeEvents);
             GraphicsDeviceOperations += _view.Camera.Renderer.HandleOperation;
@@ -249,7 +249,8 @@ namespace Veldrid.SceneGraph.Viewer
             {
                 _preferredBackend = preferredBackend.Value;
             }
-            
+
+            _windowTitle = _windowTitle + " (" + _preferredBackend + ") ";
 
             while (_window.Exists)
             {
@@ -335,6 +336,7 @@ namespace Veldrid.SceneGraph.Viewer
                 preferDepthRangeZeroToOne: true,
                 preferStandardClipSpaceYDirection: true,
                 swapchainSrgbFormat: false);
+            
 #if DEBUG
             options.Debug = true;
 #endif

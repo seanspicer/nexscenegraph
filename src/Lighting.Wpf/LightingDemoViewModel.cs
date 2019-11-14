@@ -16,6 +16,7 @@
 
 using Examples.Common.Wpf;
 using SharpDX.Win32;
+using Veldrid;
 using Veldrid.SceneGraph.InputAdapter;
 
 namespace Lighting.Wpf
@@ -26,6 +27,7 @@ namespace Lighting.Wpf
         {
             SceneRoot = Examples.Common.LightingExampleScene.Build();
             CameraManipulator = TrackballManipulator.Create();
+            FsaaCount = TextureSampleCount.Count8; // 8x FSAA
         }
     }
 }

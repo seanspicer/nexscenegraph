@@ -72,8 +72,21 @@ namespace Examples.Common.Wpf
             }
         }
 
+        private TextureSampleCount _fssaCount;
+
+        public TextureSampleCount FsaaCount
+        {
+            get => _fssaCount;
+            set
+            {
+                _fssaCount = value;
+                OnPropertyChanged("FsaaCount");
+            }
+        }
+        
         protected ViewModelBase()
         {
+            FsaaCount = TextureSampleCount.Count1;
         }
         
         public event PropertyChangedEventHandler PropertyChanged;

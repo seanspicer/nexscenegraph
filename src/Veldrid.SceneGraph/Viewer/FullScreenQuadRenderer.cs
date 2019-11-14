@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Veldrid.SceneGraph.Shaders.Standard;
@@ -16,7 +17,7 @@ namespace Veldrid.SceneGraph.Viewer
 
         private DisposeCollectorResourceFactory _factory;
         
-        public void CreateDeviceObjects(GraphicsDevice gd)
+        public void CreateDeviceObjects(GraphicsDevice gd, SceneContext sc)
         {
             if (null != _factory)
             {
@@ -46,9 +47,10 @@ namespace Veldrid.SceneGraph.Viewer
                             new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
                             new VertexElementDescription("TexCoords", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2))
                     },
-                    shaders),
+                    shaders,
+                    GetSpecializations(gd, sc)),
                 new ResourceLayout[] { resourceLayout },
-                gd.SwapchainFramebuffer.OutputDescription);
+                sc.OutputFramebuffer.OutputDescription);
             _pipeline = _factory.CreateGraphicsPipeline(ref pd);
 
             float[] verts = GetFullScreenQuadVerts(gd);
@@ -59,6 +61,23 @@ namespace Veldrid.SceneGraph.Viewer
             _ib = _factory.CreateBuffer(
                 new BufferDescription(s_quadIndices.SizeInBytes(), BufferUsage.IndexBuffer));
             gd.UpdateBuffer(_ib, 0, s_quadIndices);
+        }
+        
+        private static SpecializationConstant[] GetSpecializations(GraphicsDevice gd, SceneContext sc)
+        {
+            bool glOrGles = gd.BackendType == GraphicsBackend.OpenGL || gd.BackendType == GraphicsBackend.OpenGLES;
+
+            List<SpecializationConstant> specializations = new List<SpecializationConstant>();
+            specializations.Add(new SpecializationConstant(100, gd.IsClipSpaceYInverted));
+            specializations.Add(new SpecializationConstant(101, glOrGles)); // TextureCoordinatesInvertedY
+            specializations.Add(new SpecializationConstant(102, gd.IsDepthRangeZeroToOne));
+
+            PixelFormat swapchainFormat = sc.OutputFramebuffer.OutputDescription.ColorAttachments[0].Format;
+            bool swapchainIsSrgb = swapchainFormat == PixelFormat.B8_G8_R8_A8_UNorm_SRgb
+                                   || swapchainFormat == PixelFormat.R8_G8_B8_A8_UNorm_SRgb;
+            specializations.Add(new SpecializationConstant(103, false));
+
+            return specializations.ToArray();
         }
         
         public void Render(GraphicsDevice gd, CommandList cl, SceneContext sc)
@@ -86,13 +105,27 @@ namespace Veldrid.SceneGraph.Viewer
             }
             else
             {
-                return new float[]
+                if (gd.BackendType == GraphicsBackend.OpenGL)
                 {
-                    -1, 1, 0, 0,
-                    1, 1, 1, 0,
-                    1, -1, 1, 1,
-                    -1, -1, 0, 1
-                };
+                    return new float[]
+                    {
+                        -1, 1, 0, 1,
+                        1, 1, 1, 1,
+                        1, -1, 1, 0,
+                        -1, -1, 0, 0
+                    };
+                }
+                else
+                {
+                    return new float[]
+                    {
+                        -1, 1, 0, 0,
+                        1, 1, 1, 0,
+                        1, -1, 1, 1,
+                        -1, -1, 0, 1
+                    };
+                }
+                
             }
         }
     }

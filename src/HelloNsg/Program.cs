@@ -53,7 +53,7 @@ namespace HelloNsg
         {
             Bootstrapper.Configure();
             
-            var viewer = SimpleViewer.Create("Hello Veldrid Scene Graph");
+            var viewer = SimpleViewer.Create("Hello Veldrid Scene Graph", TextureSampleCount.Count32);
             viewer.SetCameraManipulator(TrackballManipulator.Create());
             viewer.SetBackgroundColor(RgbaFloat.Black);
 
@@ -101,7 +101,7 @@ namespace HelloNsg
 
             viewer.ViewAll();
             
-            viewer.Run();
+            viewer.Run(GraphicsBackend.OpenGL);
 
         }
     }

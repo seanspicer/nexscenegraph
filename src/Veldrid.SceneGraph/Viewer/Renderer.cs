@@ -458,7 +458,7 @@ namespace Veldrid.SceneGraph.Viewer
 
         public void HandleResize(GraphicsDevice device)
         {
-            _fullScreenQuadRenderer.CreateDeviceObjects(device);
+            _fullScreenQuadRenderer.CreateDeviceObjects(device, SceneContext);
         }
     }
 }
