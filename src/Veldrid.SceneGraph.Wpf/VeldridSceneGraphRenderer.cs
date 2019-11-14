@@ -351,5 +351,10 @@ namespace Veldrid.SceneGraph.Wpf
                 d3d11RenderTarget?.Device.ImmediateContext.CopyResource(d3d11RenderTarget, Renderer.RenderTarget);
             }
         }
+
+        public void Resize(IResizedEvent resizeEvent)
+        {
+            _resizeEvents.OnNext(resizeEvent);
+        }
     }
 }

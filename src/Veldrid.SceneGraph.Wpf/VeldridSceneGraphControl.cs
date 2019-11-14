@@ -90,6 +90,16 @@ namespace Veldrid.SceneGraph.Wpf
             _vsgRenderer.DpiScale = GetDpiScale();
         }
 
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        {
+            base.OnRenderSizeChanged(sizeInfo);
+            if (sizeInfo.HeightChanged || sizeInfo.WidthChanged)
+            {
+                var resizeEvent = new ResizedEvent((int)sizeInfo.NewSize.Width, (int)sizeInfo.NewSize.Height);
+                _vsgRenderer.Resize(resizeEvent);
+            }
+        }
+
         public ICamera GetCamera()
         {
             return _vsgRenderer.View.Camera;
