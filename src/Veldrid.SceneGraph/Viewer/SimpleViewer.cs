@@ -218,7 +218,7 @@ namespace Veldrid.SceneGraph.Viewer
         public void SetBackgroundColor(RgbaFloat color)
         {
             // TODO - fix this nasty cast
-            ((Camera)_view.Camera).ClearColor = color;
+            _view.Camera.SetClearColor(color);
         }
         
         public void SetCameraManipulator(ICameraManipulator cameraManipulator)

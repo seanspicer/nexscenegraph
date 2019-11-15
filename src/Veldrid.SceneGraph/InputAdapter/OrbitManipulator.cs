@@ -21,7 +21,7 @@ using Math = System.Math;
 
 namespace Veldrid.SceneGraph.InputAdapter
 {
-    public class OrbitManipulator : CameraManipulator
+    public class OrbitManipulator : StandardManipulator
     {
         protected bool VerticalAxisFixed { get; set; } = true;
         protected float MinimumDistance { get; set; } = 0.05f;
@@ -131,32 +131,33 @@ namespace Veldrid.SceneGraph.InputAdapter
             return (float)z;
         }
         
-        protected override void HandleWheelDelta()
+        protected override void HandleWheelDelta(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter)
         {
             ZoomModel(WheelZoomFactor *InputStateTracker.FrameSnapshot.WheelDelta, true);
-            RequestRedraw();
+            uiActionAdapter.RequestRedraw();
         }
         
         void PanModel(float p1x, float p1y, float p2x, float p2y)
         {
-            var startNear = new Vector3(p1x, p1y, 0);
-            
-            var startFar = new Vector3(p1x, p1y, 1);
-            var endFar = new Vector3(p2x, p2y, 1);
-
-            var worldStartNear = _camera.NormalizedScreenToWorld(startNear);
-            var worldStartFar = _camera.NormalizedScreenToWorld(startFar);
-
-            var worldEndFar = _camera.NormalizedScreenToWorld(endFar);
-            
-            var lenFar = (worldEndFar - worldStartFar).Length();
-            
-            var motionDir = Vector3.Normalize(worldEndFar - worldStartFar);
-            var d = (worldStartFar - worldStartNear).Length();
-
-            var motionLen = lenFar * _distance / d;
-            
-            _center += motionLen*motionDir;
+            throw new NotImplementedException();
+//            var startNear = new Vector3(p1x, p1y, 0);
+//            
+//            var startFar = new Vector3(p1x, p1y, 1);
+//            var endFar = new Vector3(p2x, p2y, 1);
+//
+//            var worldStartNear = _camera.NormalizedScreenToWorld(startNear);
+//            var worldStartFar = _camera.NormalizedScreenToWorld(startFar);
+//
+//            var worldEndFar = _camera.NormalizedScreenToWorld(endFar);
+//            
+//            var lenFar = (worldEndFar - worldStartFar).Length();
+//            
+//            var motionDir = Vector3.Normalize(worldEndFar - worldStartFar);
+//            var d = (worldStartFar - worldStartNear).Length();
+//
+//            var motionLen = lenFar * _distance / d;
+//            
+//            _center += motionLen*motionDir;
         }
         
         void ZoomModel(float dy, bool pushForwardIfNeeded )
@@ -193,9 +194,9 @@ namespace Veldrid.SceneGraph.InputAdapter
             }
         }
         
-        public override void HandleInput(IInputStateSnapshot snapshot)
+        public override void HandleInput(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter)
         {
-            base.HandleInput(snapshot);
+            base.HandleInput(snapshot, uiActionAdapter);
             
             foreach (var keyEvent in snapshot.KeyEvents)
             {
@@ -205,6 +206,7 @@ namespace Veldrid.SceneGraph.InputAdapter
                     {
                         case Key.V:
                             ViewAll();
+                            uiActionAdapter.RequestRedraw();
                             break;
                     }
                     
@@ -215,50 +217,49 @@ namespace Veldrid.SceneGraph.InputAdapter
         public override void ViewAll(float slack = 1)
         {
             // Find the bounding sphere of the scene
-            var sceneView = _camera.View as SceneGraph.Viewer.IView;  // TODO: fixme this is just bad.
-            var bSphere = sceneView.SceneData.GetBound();
-
-            if (bSphere.Radius < 0) return;
-            
-            var radius = bSphere.Radius;
-            var center = bSphere.Center;
-
-            // Compute an aspect-radius to ensure that the 
-            // scene will be inside the viewing volume
-            var aspect = _camera.AspectRatio;
-            if (aspect >= 1.0) {
-                aspect = 1.0f;
-            }
-            var aspectRadius = radius / aspect;
-
-            // Compute the direction of motion for the camera
-            // between it's current position and the scene center
-            var direction = _camera.Position - center; 
-            var normDirection = Vector3.Normalize(direction);
-
-            // Compute the length to move the camera by examining
-            // the tangent to the bounding sphere
-            var moveLen = radius + aspectRadius / Math.Tan(_camera.Fov / 2.0);
-
-            // Compute the new camera position
-            var moveDirection = normDirection * (float)moveLen;
-            var cameraPos = center + moveDirection;
-
-            // Compute the near and far plane locations
-            const double epsilon = 0.001;
-            var distToMid = (cameraPos - center).Length();
-            var zNear = (float) Math.Max(distToMid * epsilon, distToMid - radius * slack);
-            var zFar = distToMid + radius * slack;
-
-            // Set the camera view and projection matrices.
-            //Camera.SetViewMatrixToLookAt(cameraPos, center, new Vector3(0, 1, 0));
-            _center = center;
-            _distance = distToMid;
-            
-            // TODO - fix this nasty cast
-            ((Camera)_camera).SetProjectionMatrixAsPerspective(_camera.Fov, _camera.AspectRatio, zNear, zFar);
-            
-            RequestRedraw();
+//            var sceneView = _camera.View as SceneGraph.Viewer.IView;  // TODO: fixme this is just bad.
+//            var bSphere = sceneView.SceneData.GetBound();
+//
+//            if (bSphere.Radius < 0) return;
+//            
+//            var radius = bSphere.Radius;
+//            var center = bSphere.Center;
+//
+//            // Compute an aspect-radius to ensure that the 
+//            // scene will be inside the viewing volume
+//            var aspect = _camera.Viewport.AspectRatio;
+//            if (aspect >= 1.0) {
+//                aspect = 1.0f;
+//            }
+//            var aspectRadius = radius / aspect;
+//
+//            // Compute the direction of motion for the camera
+//            // between it's current position and the scene center
+//            var direction = _camera.Position - center; 
+//            var normDirection = Vector3.Normalize(direction);
+//
+//            // Compute the length to move the camera by examining
+//            // the tangent to the bounding sphere
+//            var moveLen = radius + aspectRadius / Math.Tan(_camera.Fov / 2.0);
+//
+//            // Compute the new camera position
+//            var moveDirection = normDirection * (float)moveLen;
+//            var cameraPos = center + moveDirection;
+//
+//            // Compute the near and far plane locations
+//            const double epsilon = 0.001;
+//            var distToMid = (cameraPos - center).Length();
+//            var zNear = (float) Math.Max(distToMid * epsilon, distToMid - radius * slack);
+//            var zFar = distToMid + radius * slack;
+//
+//            // Set the camera view and projection matrices.
+//            //Camera.SetViewMatrixToLookAt(cameraPos, center, new Vector3(0, 1, 0));
+//            _center = center;
+//            _distance = distToMid;
+//            
+//            // TODO - fix this nasty cast
+//            ((Camera)_camera).SetProjectionMatrixAsPerspective(_camera.Fov, _camera.AspectRatio, zNear, zFar);
+//            
         }
     }
 }

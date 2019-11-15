@@ -27,7 +27,7 @@ namespace Veldrid.SceneGraph.InputAdapter
             
         }
 
-        public virtual void HandleInput(IInputStateSnapshot snapshot)
+        public virtual void HandleInput(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter)
         {
             InputStateTracker.UpdateFrameInput(snapshot);
         }

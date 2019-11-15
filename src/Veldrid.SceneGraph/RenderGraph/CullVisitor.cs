@@ -370,12 +370,6 @@ namespace Veldrid.SceneGraph.RenderGraph
             public IViewport Viewport { get; set; }
         }
 
-        internal class Viewport : IViewport
-        {
-            public int Width { get; set; }
-            public int Height { get; set; }
-        }
-
         public override void Apply(IDrawable drawable)
         {
             var bb = drawable.GetBoundingBox();
@@ -425,12 +419,8 @@ namespace Veldrid.SceneGraph.RenderGraph
             var state = new State();
             state.ModelViewMatrix = GetModelViewMatrix();
             state.ProjectionMatrix = ProjectionMatrix;
-            
-            var viewport = new Viewport();
-            viewport.Width = (int) DisplaySettings.Instance.ScreenWidth;
-            viewport.Height = (int) DisplaySettings.Instance.ScreenHeight;
 
-            state.Viewport = viewport;
+            state.Viewport = _camera.Viewport;
             
             var matrix = Matrix4x4.Identity;
             var matrixNeedsToUpdate = drawable.ComputeMatrix(ref matrix, state);

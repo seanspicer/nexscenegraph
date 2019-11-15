@@ -15,6 +15,7 @@
 //
 
 using System.Numerics;
+using Vulkan;
 
 namespace Veldrid.SceneGraph.Util
 {
@@ -57,6 +58,59 @@ namespace Veldrid.SceneGraph.Util
             mat.M42 = translation.Y;
             mat.M43 = translation.Z;
             return mat;
+        }
+
+        public static bool GetFrustum(this Matrix4x4 mat, 
+                ref float left, ref float right, 
+                ref float bottom, ref float top,
+                ref float zNear, ref float zFar)
+        {
+            const double tol = 1e-6;
+            
+            if (System.Math.Abs(mat.M14) > tol || 
+                System.Math.Abs(mat.M24) > tol || 
+                System.Math.Abs(mat.M34 - (-1.0f)) > tol || 
+                System.Math.Abs(mat.M44) > tol)
+                return false;
+
+            var tempNear = mat.M43 / (mat.M33-1.0);
+            var tempFar = mat.M43 / (1.0+mat.M33);
+
+            left  = (float) tempNear * (mat.M31 - 1.0f) / mat.M11;
+            right = (float) tempNear * (1.0f + mat.M31) / mat.M11;
+
+            top    = (float) tempNear * (1.0f + mat.M32) / mat.M22;
+            bottom = (float) tempNear * (mat.M32 - 1.0f) / mat.M22;
+
+            zNear = (float) tempNear;
+            zFar = (float) tempFar;
+
+            return true;
+        }
+
+        public static bool GetOrtho(this Matrix4x4 mat,
+            ref float left, ref float right,
+            ref float bottom, ref float top,
+            ref float zNear, ref float zFar)
+        {
+            const double tol = 1e-6;
+            
+            if (System.Math.Abs(mat.M14) > tol || 
+                System.Math.Abs(mat.M24) > tol ||
+                System.Math.Abs(mat.M34) > tol ||
+                System.Math.Abs(mat.M44 - 1.0) > tol) 
+                return false;
+
+            zNear  = (mat.M43 + 1.0f) / mat.M33;
+            zFar   = (mat.M43 - 1.0f) / mat.M33;
+
+            left   = -(1.0f + mat.M41) / mat.M11;
+            right  =  (1.0f - mat.M41) / mat.M11;
+
+            bottom = -(1.0f + mat.M42) / mat.M22;
+            top    =  (1.0f - mat.M42) / mat.M22;
+
+            return true;
         }
     }
 }

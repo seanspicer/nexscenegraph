@@ -24,18 +24,28 @@ namespace Veldrid.SceneGraph.InputAdapter
     {
         protected abstract Matrix4x4 InverseMatrix { get; }
 
-        protected ICamera _camera;
+        private bool _autoComputeHomePosition;
 
-        //private ILog _logger;
+        private Vector3 _homeEye;
+        private Vector3 _homeCenter;
+        private Vector3 _homeUp;
         
         protected CameraManipulator()
         {
-            //_logger = LogManager.GetLogger<CameraManipulator>();
+            _autoComputeHomePosition = true;
+
+            _homeEye = -Vector3.UnitY;
+            _homeCenter = Vector3.Zero;
+            _homeUp = Vector3.UnitZ;
         }
 
-        public void SetCamera(ICamera camera)
+        public void SetNode(INode node)
         {
-            _camera = camera;
+        }
+
+        public INode GetNode()
+        {
+            return null;
         }
 
         public void ViewAll()
@@ -43,120 +53,89 @@ namespace Veldrid.SceneGraph.InputAdapter
             ViewAll(20);
         }
 
-        public void SetProjectionMatrixAsPerspective(float vfov, float aspectRatio, float zNear, float zFar)
-        {
-            // TODO - fix this nasty cast
-            ((Camera)_camera).SetProjectionMatrixAsPerspective(vfov, aspectRatio, zNear, zFar);
-            RequestRedraw();
-        }
-
-        public void SetViewMatrixToLookAt(Vector3 position, Vector3 target, Vector3 upDirection)
-        {
-            // TODO - fix this nasty cast
-            ((Camera)_camera).SetViewMatrixToLookAt(position, target, upDirection);
-            RequestRedraw();
-        }
-
         public abstract void ViewAll(float slack);
         
         // Update a camera
-        public void UpdateCamera()
+        public virtual void UpdateCamera(ref ICamera camera)
         {
-            // TODO - I don't really like this cast
-            ((Camera)_camera).ViewMatrix = InverseMatrix;
+            camera.SetViewMatrix(InverseMatrix);
         }
         
-        public override void HandleInput(IInputStateSnapshot snapshot)
+        public void ComputeHomePosition(ICamera camera, bool useBoundingBox)
         {
-            base.HandleInput(snapshot);
+            if (null != GetNode())
+            {
+                IBoundingSphere boundingSphere;
+                if (useBoundingBox)
+                {
+                    // TODO - need to implement ComputeBoundsVisitor
+                    throw new NotImplementedException();
+                }
 
-            if (InputStateTracker.IsMouseButtonPushed())
-            {
-                HandleMouseButtonPushed();
-            }
+                else
+                {
+                    boundingSphere = GetNode().ComputeBound();
+                }
+                
+                System.Diagnostics.Debug.WriteLine($"    boundingSphere.Center= {boundingSphere.Center}");
+                System.Diagnostics.Debug.WriteLine($"    boundingSphere.Radius= {boundingSphere.Radius}");
+                
+                var radius = Math.Max(boundingSphere.Radius, 1e-6);
+                
+                var dist = 3.5f * radius;
 
-            if (InputStateTracker.IsMouseButtonReleased())
-            {
-                HandleMouseButtonReleased();
+                if (null != camera)
+                {
+                    float left = 0, right = 0, bottom = 0, top = 0, zNear = 0, zFar = 0;
+                    if (camera.GetProjectionMatrixAsFrustum(
+                        ref left, ref right,
+                        ref bottom, ref top,
+                        ref zNear, ref zFar))
+                    {
+                        var vertical2 = Math.Abs(right - left) / zNear / 2f;
+                        var horizontal2 = Math.Abs(top - bottom) / zNear / 2f;
+                        var dim = horizontal2 < vertical2 ? horizontal2 : vertical2;
+                        var viewAngle = Math.Atan2(dim,1f);
+                        dist = radius / Math.Sin(viewAngle);
+                    }
+                    else
+                    {
+                        // Compute dist from ortho
+                        if (camera.GetProjectionMatrixAsOrtho(
+                            ref left, ref right,
+                            ref bottom, ref top,
+                            ref zNear, ref zFar))
+                        {
+                            dist = Math.Abs(zFar - zNear) / 2f;
+                        }
+                    }
+                }
             }
-            
-            if (InputStateTracker.IsMouseButtonDown() && InputStateTracker.IsMouseMove())
-            {
-                HandleDrag();
-            }
-            
-            else if (InputStateTracker.IsMouseMove())
-            {
-                HandleMouseMove();
-            }
-
-            if (InputStateTracker.FrameSnapshot.WheelDelta != 0)
-            {
-                HandleWheelDelta();
-            }
-        }
-
-        protected void RequestRedraw()
-        {
-            // TODO: This doesn't really make a request to redraw...
-            UpdateCamera();
         }
         
-        protected virtual void HandleDrag()
+        public void SetHomePosition(Vector3 eye, Vector3 center, Vector3 up, bool autoComputeHomePosition=false)
         {
-            if (PerformMovement())
-            {
-                RequestRedraw();
-            }
+            SetAutoComputeHomePosition(autoComputeHomePosition);
+            _homeEye = eye;
+            _homeCenter = center;
+            _homeUp = up;
         }
 
-        protected virtual void HandleMouseMove()
+        public void GetHomePosition(out Vector3 eye, out Vector3 center, out Vector3 up)
         {
-            //_logger.Debug(m => m("Move Event!"));
+            eye = _homeEye;
+            center = _homeCenter;
+            up = _homeUp;
         }
 
-        protected virtual void HandleMouseButtonPushed()
+        public void SetAutoComputeHomePosition(bool flag)
         {
-            //_logger.Debug(m => m("Button Pushed!"));
+            _autoComputeHomePosition = flag;
         }
 
-        protected virtual void HandleMouseButtonReleased()
+        public bool GetAutoComputeHomePosition()
         {
-            //_logger.Debug(m => m("Button Released!"));
-        }
-
-        protected virtual void HandleWheelDelta()
-        {
-            //_logger.Debug(m => m("Wheel Delta"));
-        }
-
-        protected virtual bool PerformMovement()
-        {
-            var dx = (InputStateTracker.MousePosition?.X - InputStateTracker.LastMousePosition?.X)/InputStateTracker.FrameSnapshot.WindowWidth;
-            var dy = (InputStateTracker.MousePosition?.Y - InputStateTracker.LastMousePosition?.Y)/InputStateTracker.FrameSnapshot.WindowHeight;
-
-            if (dx == 0 && dy == 0) return false;
-
-            if (InputStateTracker.GetMouseButton(MouseButton.Left))
-            {
-                return PerformMovementLeftMouseButton(dx.Value, dy.Value); 
-            }
-            else if (InputStateTracker.GetMouseButton(MouseButton.Right))
-            {
-                return PerformMovementRightMouseButton(dx.Value, dy.Value); 
-            }
-
-            return true;
-        }
-
-        protected virtual bool PerformMovementLeftMouseButton(float dx, float dy)
-        {
-            return false;
-        }
-        
-        protected virtual bool PerformMovementRightMouseButton(float dx, float dy)
-        {
-            return false;
+            return _autoComputeHomePosition;
         }
     }
 }

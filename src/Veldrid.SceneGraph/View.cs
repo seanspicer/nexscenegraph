@@ -29,7 +29,8 @@ namespace Veldrid.SceneGraph
         
         protected View()
         {
-            Camera = Veldrid.SceneGraph.Camera.Create(DisplaySettings.Instance.ScreenWidth, DisplaySettings.Instance.ScreenHeight);
+            Camera = Veldrid.SceneGraph.Camera.Create();
+            Camera.SetViewport(0, 0, (int)DisplaySettings.Instance.ScreenWidth, (int)DisplaySettings.Instance.ScreenHeight);
             Camera.View = this;
 
             var height = DisplaySettings.Instance.ScreenHeight;

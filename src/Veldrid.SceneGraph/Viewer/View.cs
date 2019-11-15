@@ -21,6 +21,19 @@ using Veldrid.SceneGraph.InputAdapter;
 
 namespace Veldrid.SceneGraph.Viewer
 {
+    internal class UiActionAdapter : IUiActionAdapter
+    {
+        public void RequestRedraw()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RequestContinuousRedraw()
+        {
+            throw new NotImplementedException();
+        }
+    }
+    
     public class View : Veldrid.SceneGraph.View, IView
     {
         public IGroup SceneData { get; set; }
@@ -54,9 +67,12 @@ namespace Veldrid.SceneGraph.Viewer
                     throw new Exception("Setting camera manipulator twice.  Don't do that.");
                 }
                 _cameraManipulator = value;
-                _cameraManipulator.SetCamera(Camera);
+                //_cameraManipulator.SetCamera(Camera);
 
-                InputEvents.Subscribe(_cameraManipulator.HandleInput);
+                InputEvents.Subscribe(x =>
+                {
+                    _cameraManipulator.HandleInput(x, new UiActionAdapter());
+                });
             }
         }
 
@@ -74,7 +90,10 @@ namespace Veldrid.SceneGraph.Viewer
 
         public void AddInputEventHandler(IInputEventHandler handler)
         {
-            InputEvents.Subscribe(handler.HandleInput);
+            InputEvents.Subscribe(x =>
+            {
+                handler.HandleInput(x, new UiActionAdapter());
+            });
         }
     }
 }

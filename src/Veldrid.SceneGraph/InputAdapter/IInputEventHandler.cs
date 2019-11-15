@@ -19,6 +19,6 @@ namespace Veldrid.SceneGraph.InputAdapter
     public interface IInputEventHandler
     {
         void SetView(IView view);
-        void HandleInput(IInputStateSnapshot snapshot);
+        void HandleInput(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter);
     }
 }
