@@ -59,6 +59,54 @@ namespace Veldrid.SceneGraph.Tests
             return geometry;
         }
         
+        public static IDrawable GetXyPlaneGeometryNegZ()
+        {
+            var vertices = new Position3Color3[3];
+            vertices[0] = new Position3Color3(new Vector3(-1, -1, -1), Vector3.UnitX);
+            vertices[1] = new Position3Color3(new Vector3(1, 1, -1), Vector3.UnitX);
+            
+            var geometry = Geometry<Position3Color3>.Create();
+            geometry.IndexData = new[] {0u, 1u};
+            geometry.VertexData = vertices;
+            
+            var drawElts = DrawElements<Position3Color3>.Create(
+                geometry,
+                PrimitiveTopology.LineStrip,
+                2, 
+                1, 
+                0, 
+                0, 
+                0);
+
+            geometry.PrimitiveSets.Add(drawElts);
+
+            return geometry;
+        }
+        
+        public static IDrawable GetXyPlaneGeometryPosZ()
+        {
+            var vertices = new Position3Color3[3];
+            vertices[0] = new Position3Color3(new Vector3(-1, -1, 1), Vector3.UnitX);
+            vertices[1] = new Position3Color3(new Vector3(1, 1, 1), Vector3.UnitX);
+            
+            var geometry = Geometry<Position3Color3>.Create();
+            geometry.IndexData = new[] {0u, 1u};
+            geometry.VertexData = vertices;
+            
+            var drawElts = DrawElements<Position3Color3>.Create(
+                geometry,
+                PrimitiveTopology.LineStrip,
+                2, 
+                1, 
+                0, 
+                0, 
+                0);
+
+            geometry.PrimitiveSets.Add(drawElts);
+
+            return geometry;
+        }
+        
         public static IDrawable GetUniaxialGeometry()
         {
             var vertices = new Position3Color3[3];

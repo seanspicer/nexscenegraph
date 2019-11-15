@@ -166,19 +166,9 @@ namespace Veldrid.SceneGraph
                 }
             }
 
-            if (!bb.Valid())
+            if (bb.Valid())
             {
-                return bsphere;
-            }
-
-            bsphere.Center = bb.Center;
-            bsphere.Radius = 0.0f;
-            foreach(var child in _children)
-            {
-                if (child.Item1 is Transform transform &&
-                    transform.ReferenceFrame != Transform.ReferenceFrameType.Relative) continue;
-                var bs = child.Item1.GetBound();
-                bsphere.ExpandRadiusBy(bs);
+                bsphere.ExpandBy(bb);
             }
 
             return bsphere;
