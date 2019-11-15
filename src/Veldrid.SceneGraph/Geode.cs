@@ -76,27 +76,6 @@ namespace Veldrid.SceneGraph
             if (!_boundingSphereComputed) GetBound();
             return _boundingBox;
             
-            
-//            if (_boundingSphereComputed) return _boundingBox;
-//            
-//            _boundingBox = _initialBoundingBox;
-//
-//            _boundingBox.ExpandBy(null != ComputeBoundingBoxCallback
-//                ? ComputeBoundingBoxCallback(this)
-//                : ComputeBoundingBox());
-//
-//            if (_boundingBox.Valid())
-//            {
-//                _boundingSphere.Set(_boundingBox.Center, _boundingBox.Radius);
-//            }
-//            else
-//            {
-//                _boundingSphere.Init();
-//            }
-//
-//            _boundingSphereComputed = true;
-//
-//            return _boundingBox;
         }
 
         public override IBoundingSphere ComputeBound()
@@ -105,9 +84,20 @@ namespace Veldrid.SceneGraph
             var bb = BoundingBox.Create();
             foreach (var child in _children)
             {
-                if(child.Item1 is IDrawable drawable)
+                switch (child.Item1)
                 {
-                    bb.ExpandBy(drawable.GetBoundingBox());
+                    case Transform transform when transform.ReferenceFrame != Transform.ReferenceFrameType.Relative:
+                        continue;
+                    case IDrawable drawable:
+                        bb.ExpandBy(drawable.GetBoundingBox());
+                        break;
+                    case IGeode geode:
+                        bb.ExpandBy(geode.GetBoundingBox());
+                        break;
+                    default:
+                        var bs = child.Item1.GetBound();
+                        bb.ExpandBy(bs);
+                        break;
                 }
             }
 
@@ -120,16 +110,5 @@ namespace Veldrid.SceneGraph
 
             return boundingSphere;
         }
-
-//        protected IBoundingBox ComputeBoundingBox()
-//        {
-//            var bb = BoundingBox.Create();
-//            foreach (var drawable in _children)
-//            {
-//                bb.ExpandBy(drawable.GetBoundingBox());
-//            }
-//
-//            return bb;
-//        }
     }
 }
