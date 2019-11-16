@@ -23,7 +23,7 @@ namespace Veldrid.SceneGraph.Viewer
     {
         
         IGroup SceneData { get; set; }
-        ICameraManipulator CameraManipulator { get; set; }
+        ICameraManipulator CameraManipulator { get; }
         ICamera Camera { get; set; }
         IObservable<IInputStateSnapshot> InputEvents { get; set; }
         
@@ -33,7 +33,9 @@ namespace Veldrid.SceneGraph.Viewer
         SceneContext SceneContext { get; set; }
         
         void AddInputEventHandler(IInputEventHandler handler);
+
+        void SetSceneData(IGroup root);
         
-        
+        void SetCameraManipulator(ICameraManipulator manipulator, bool resetPosition=true);
     }
 }

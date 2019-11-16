@@ -55,7 +55,7 @@ namespace Veldrid.SceneGraph.Viewer
 
     }
     
-    public class SimpleViewer : IViewer
+    public class SimpleViewer : View, IViewer
     {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         //
@@ -65,17 +65,6 @@ namespace Veldrid.SceneGraph.Viewer
 
         public uint Width => (uint) _window.Width;
         public uint Height => (uint) _window.Height;
-
-        public IGroup SceneData
-        {
-            get => _view?.SceneData;
-            set => _view.SceneData = value;
-        }
-        
-        public IView View
-        {
-            get => _view;
-        }
 
         public ResourceFactory ResourceFactory => _factory;
         public GraphicsDevice GraphicsDevice => _graphicsDevice;
@@ -110,7 +99,6 @@ namespace Veldrid.SceneGraph.Viewer
         private Stopwatch _stopwatch = null;
         private double _previousElapsed = 0;
         private GraphicsBackend _preferredBackend = DisplaySettings.Instance.GraphicsBackend;
-        private IView _view;
 
         private SceneContext _sceneContext;
 
@@ -192,43 +180,43 @@ namespace Veldrid.SceneGraph.Viewer
 
             _sceneContext = new SceneContext(fsaaCount);
             _window.KeyDown += OnKeyDown;
-            _view = Viewer.View.Create(_resizeEvents);
-            GraphicsDeviceOperations += _view.Camera.Renderer.HandleOperation;
-            GraphicsDeviceResize += _view.Camera.Renderer.HandleResize;
-            _view.InputEvents = ViewerInputEvents;
-            _view.SceneContext = _sceneContext;
+            GraphicsDeviceOperations += Camera.Renderer.HandleOperation;
+            GraphicsDeviceResize += Camera.Renderer.HandleResize;
+            InputEvents = ViewerInputEvents;
+            SceneContext = _sceneContext;
 
         }
 
         public ICamera GetCamera()
         {
-            return _view.Camera;
+            return Camera;
         }
         
         public void ViewAll()
         {
-            _view.CameraManipulator?.ViewAll();
+            Home();
         }
 
-        public void SetSceneData(IGroup root)
+        public void Home()
         {
-            _view.SceneData = root;
+            CameraManipulator?.Home(
+                InputStateSnapshot.CreateEmpty(
+                    (int)DisplaySettings.Instance.ScreenWidth,
+                    (int)DisplaySettings.Instance.ScreenHeight), 
+                this);
         }
+        
+        
 
         public void SetBackgroundColor(RgbaFloat color)
         {
             // TODO - fix this nasty cast
-            _view.Camera.SetClearColor(color);
-        }
-        
-        public void SetCameraManipulator(ICameraManipulator cameraManipulator)
-        {
-            _view.CameraManipulator = cameraManipulator;
+            Camera.SetClearColor(color);
         }
 
         public void AddInputEventHandler(IInputEventHandler handler)
         {
-            _view.AddInputEventHandler(handler);
+            AddInputEventHandler(handler);
         }
         
         public void Run()
@@ -431,7 +419,7 @@ namespace Veldrid.SceneGraph.Viewer
                 
                 GraphicsDeviceResize?.Invoke(_graphicsDevice);
                 
-                _view.Framebuffer = _graphicsDevice.SwapchainFramebuffer;
+                Framebuffer = _graphicsDevice.SwapchainFramebuffer;
             }
             
             GraphicsDeviceOperations?.Invoke(_graphicsDevice, _factory);

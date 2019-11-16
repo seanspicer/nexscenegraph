@@ -137,5 +137,7 @@ namespace Veldrid.SceneGraph.InputAdapter
         {
             return _autoComputeHomePosition;
         }
+
+        public virtual void Home(IInputStateSnapshot ea, IUiActionAdapter aa) {}
     }
 }

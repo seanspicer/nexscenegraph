@@ -19,10 +19,29 @@ using System.Numerics;
 
 namespace Veldrid.SceneGraph.InputAdapter
 {
+    internal class EmptyInputSnapshot : InputSnapshot
+    {
+        public bool IsMouseDown(MouseButton button)
+        {
+            return false;
+        }
+
+        public IReadOnlyList<KeyEvent> KeyEvents { get; } = new List<KeyEvent>();
+        public IReadOnlyList<MouseEvent> MouseEvents { get; } = new List<MouseEvent>();
+        public IReadOnlyList<char> KeyCharPresses { get; } = new List<char>();
+        public Vector2 MousePosition { get; } = Vector2.Zero;
+        public float WheelDelta { get; } = 0;
+    }
+    
     public class InputStateSnapshot : InputSnapshot, IInputStateSnapshot
     {
         private InputSnapshot _snapshot;
 
+        public static InputStateSnapshot CreateEmpty(int width, int height)
+        {
+            return new InputStateSnapshot(new EmptyInputSnapshot(), width, height);
+        }
+        
         public static IInputStateSnapshot Create(InputSnapshot snapshot, int width, int height)
         {
             return new InputStateSnapshot(snapshot, width, height);

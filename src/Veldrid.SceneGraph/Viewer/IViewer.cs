@@ -32,7 +32,7 @@ namespace Veldrid.SceneGraph.Viewer
         int Height { get; }
     }
     
-    public interface IViewer
+    public interface IViewer : IView
     {
         Platform PlatformType { get; }
 
@@ -41,12 +41,6 @@ namespace Veldrid.SceneGraph.Viewer
 
         uint Width { get; }
         uint Height { get; }
-
-        IView View { get; }
-
-        void AddInputEventHandler(IInputEventHandler handler);
-        void SetCameraManipulator(ICameraManipulator manipulator);
-        void SetSceneData(IGroup root);
         void SetBackgroundColor(RgbaFloat color);
         void ViewAll();
         

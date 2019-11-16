@@ -37,5 +37,7 @@ namespace Veldrid.SceneGraph.InputAdapter
         void SetAutoComputeHomePosition(bool flag);
 
         bool GetAutoComputeHomePosition();
+
+        void Home(IInputStateSnapshot ea, IUiActionAdapter aa);
     }
 }

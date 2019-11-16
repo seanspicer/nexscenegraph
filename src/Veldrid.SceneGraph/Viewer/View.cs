@@ -34,7 +34,7 @@ namespace Veldrid.SceneGraph.Viewer
         }
     }
     
-    public class View : Veldrid.SceneGraph.View, IView
+    public class View : Veldrid.SceneGraph.View, IUiActionAdapter, IView
     {
         public IGroup SceneData { get; set; }
 
@@ -60,33 +60,63 @@ namespace Veldrid.SceneGraph.Viewer
         public ICameraManipulator CameraManipulator
         {
             get => _cameraManipulator;
-            set
-            {
-                if (null != _cameraManipulator)
-                {
-                    throw new Exception("Setting camera manipulator twice.  Don't do that.");
-                }
-                _cameraManipulator = value;
-                //_cameraManipulator.SetCamera(Camera);
+        }
 
-                InputEvents.Subscribe(x =>
+        public void SetCameraManipulator(ICameraManipulator manipulator, bool resetPosition)
+        {
+            // TODO this is probably temporary now.
+            if (null != _cameraManipulator)
+            {
+                throw new Exception("Setting camera manipulator twice.  Don't do that.");
+            }
+            
+            _cameraManipulator = manipulator;
+
+            if (null != _cameraManipulator)
+            {
+                // TODO - need to set a coordinate frame callback
+                if (null != SceneData)
                 {
-                    _cameraManipulator.HandleInput(x, new UiActionAdapter());
-                });
+                    _cameraManipulator.SetNode(SceneData);
+                }
+
+                if (resetPosition)
+                {
+                    _cameraManipulator.Home(
+                        InputStateSnapshot.CreateEmpty(
+                            (int)DisplaySettings.Instance.ScreenWidth,
+                            (int)DisplaySettings.Instance.ScreenHeight), 
+                        this);
+                }
             }
         }
-
-        public static IView Create(IObservable<IResizedEvent> resizeEvents)
+        
+        public void SetSceneData(IGroup root)
         {
-            return new View(resizeEvents);
+            if (root == SceneData) return;
+            
+            SceneData = root;
+            
+            // TODO Assign scene to cameras
+            AssignSceneDataToCameras();
+        }
+
+        private void AssignSceneDataToCameras()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected View()
+        {
+            
         }
         
-        protected View(IObservable<IResizedEvent> resizeEvents)
-        {
-            Renderer = new Renderer(Camera);
-            Camera.Renderer = Renderer;
-            resizeEvents.Subscribe(Camera.HandleResizeEvent);
-        }
+//        protected View(IObservable<IResizedEvent> resizeEvents)
+//        {
+//            Renderer = new Renderer(Camera);
+//            Camera.Renderer = Renderer;
+//            resizeEvents.Subscribe(Camera.HandleResizeEvent);
+//        }
 
         public void AddInputEventHandler(IInputEventHandler handler)
         {
@@ -94,6 +124,16 @@ namespace Veldrid.SceneGraph.Viewer
             {
                 handler.HandleInput(x, new UiActionAdapter());
             });
+        }
+
+        public void RequestRedraw()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RequestContinuousRedraw()
+        {
+            throw new NotImplementedException();
         }
     }
 }
