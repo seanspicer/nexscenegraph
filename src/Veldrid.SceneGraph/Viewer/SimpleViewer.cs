@@ -157,9 +157,9 @@ namespace Veldrid.SceneGraph.Viewer
             };
 
             _window = VeldridStartup.CreateWindow(ref wci);
-            DisplaySettings.Instance.ScreenWidth = wci.WindowWidth;
-            DisplaySettings.Instance.ScreenHeight = wci.WindowHeight;
-            DisplaySettings.Instance.ScreenDistance = 1000.0f;
+            DisplaySettings.Instance.SetScreenWidth(wci.WindowWidth);
+            DisplaySettings.Instance.SetScreenHeight(wci.WindowHeight);
+            DisplaySettings.Instance.SetScreenDistance(1000.0f);
 
             //
             // This is a "trick" to get continuous resize behavior
@@ -407,8 +407,8 @@ namespace Veldrid.SceneGraph.Viewer
             {
                 _windowResized = false;
                 _graphicsDevice.ResizeMainWindow((uint) _window.Width, (uint) _window.Height);
-                DisplaySettings.Instance.ScreenWidth = _window.Width;
-                DisplaySettings.Instance.ScreenHeight = _window.Height;
+                DisplaySettings.Instance.SetScreenWidth(_window.Width);
+                DisplaySettings.Instance.SetScreenHeight(_window.Height);
                 _resizeEvents.OnNext(new ResizedEvent(_window.Width, _window.Height));
 
                 _sceneContext.SetOutputFramebufffer(_graphicsDevice.SwapchainFramebuffer);

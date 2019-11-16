@@ -19,16 +19,106 @@ using System.Data;
 using System.Numerics;
 using Veldrid.SceneGraph.RenderGraph;
 using Veldrid.SceneGraph.Util;
-using Veldrid.SceneGraph.Viewer;
 using Math = System.Math;
 
 namespace Veldrid.SceneGraph
 {
     
+    public enum ProjectionResizePolicy
+    {
+        Horizontal, 
+        Vertical, 
+        Fixed
+    }
+
+    [Flags]
+    public enum ResizeMask
+    {
+        ResizeViewport = 1,
+        ResizeAttachments = 2,
+        ResizeProjectionMatrix = 4,
+        ResizeDefault = ResizeViewport | ResizeAttachments
+    }
+    
+    public interface ICamera : ITransform
+    {
+        IView View { get; }
+
+        void SetView(IView view);
+        
+        Matrix4x4 ProjectionMatrix { get; }
+        Matrix4x4 ViewMatrix { get;  }
+        
+        ProjectionResizePolicy ProjectionResizePolicy { get; }
+
+        void SetProjectionResizePolicy(ProjectionResizePolicy policy);
+        
+        IViewport Viewport { get; }
+        
+        void SetViewport(int x, int y, int width, int height);
+        
+        IGraphicsDeviceOperation Renderer { get; }
+        
+        void SetRenderer(IGraphicsDeviceOperation renderer);
+
+        //void HandleResizeEvent(IResizedEvent resizedEvent);
+
+        void SetProjectionMatrix(Matrix4x4 matrix);
+
+        void SetProjectionMatrixAsOrthographicOffCenter(
+            float left,
+            float right,
+            float bottom,
+            float top,
+            float zNear,
+            float zFar);
+
+        void SetProjectionMatrixAsOrthographic(
+            float width,
+            float height,
+            float zNearPlane,
+            float zFarPlane);
+        
+        /// <summary>
+        /// Create a symmetrical perspective projection. 
+        /// </summary>
+        /// <param name="vfov"></param>
+        /// <param name="aspectRatio"></param>
+        /// <param name="zNear"></param>
+        /// <param name="zFar"></param>
+        void SetProjectionMatrixAsPerspective(float vfov, float aspectRatio, float zNear, float zFar);
+
+        bool GetProjectionMatrixAsFrustum( 
+            ref float left, ref float right, 
+            ref float bottom, ref float top,
+            ref float zNear, ref float zFar);
+        
+        bool GetProjectionMatrixAsOrtho( 
+            ref float left, ref float right, 
+            ref float bottom, ref float top,
+            ref float zNear, ref float zFar);
+        
+        void SetViewMatrix(Matrix4x4 matrix);
+        
+        void SetViewMatrixToLookAt(Vector3 position, Vector3 target, Vector3 upDirection);
+        
+
+        Vector3 NormalizedScreenToWorld(Vector3 screenCoords);
+        
+        RgbaFloat ClearColor { get; }
+
+        void SetClearColor(RgbaFloat color);
+    }
+    
     public class Camera : Transform, ICamera
     {
-        public View View { get; set; }
+        public IView View { get; private set; }
         
+        public void SetView(IView view)
+        {
+            View = view;
+        }
+
         public Matrix4x4 ProjectionMatrix { get; set; }
         public Matrix4x4 ViewMatrix { get; set; }
         
@@ -46,7 +136,7 @@ namespace Veldrid.SceneGraph
             Viewport = SceneGraph.Viewport.Create(x, y, width, height);
         }
 
-        public IGraphicsDeviceOperation Renderer { get; set; }
+        public IGraphicsDeviceOperation Renderer { get; private set; }
 
         public static ICamera Create()
         {
@@ -62,10 +152,16 @@ namespace Veldrid.SceneGraph
             ProjectionResizePolicy = ProjectionResizePolicy.Fixed;
         }
 
-        public void HandleResizeEvent(IResizedEvent resizedEvent)
+
+        public void SetRenderer(IGraphicsDeviceOperation renderer)
         {
-            Resize(resizedEvent.Width, resizedEvent.Height);
+            Renderer = renderer;
         }
+
+//        public void HandleResizeEvent(IResizedEvent resizedEvent)
+//        {
+//            Resize(resizedEvent.Width, resizedEvent.Height);
+//        }
         
         public void Resize(int width, int height, ResizeMask resizeMask = ResizeMask.ResizeDefault)
         {
@@ -83,8 +179,8 @@ namespace Veldrid.SceneGraph
                         ProjectionResizePolicy != ProjectionResizePolicy.Fixed)
                     {
                         var widthChangeRatio = newWidth / previousWidth;
-                        var heigtChangeRatio = newHeight / previousHeight;
-                        var aspectRatioChange = widthChangeRatio / heigtChangeRatio;
+                        var heightChangeRatio = newHeight / previousHeight;
+                        var aspectRatioChange = widthChangeRatio / heightChangeRatio;
 
                         if (Math.Abs(aspectRatioChange - 1.0) > 1e-6)
                         {

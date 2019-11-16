@@ -21,29 +21,36 @@ using Veldrid.SceneGraph.InputAdapter;
 
 namespace Veldrid.SceneGraph.Viewer
 {
-    internal class UiActionAdapter : IUiActionAdapter
+    public interface IView
     {
-        public void RequestRedraw()
-        {
-            throw new NotImplementedException();
-        }
+        INode SceneData { get; }
+        ICameraManipulator CameraManipulator { get; }
+        ICamera Camera { get; set; }
+        IObservable<IInputStateSnapshot> InputEvents { get; set; }
+        
+        [Obsolete("this is should not be used anywhere")]
+        Framebuffer Framebuffer { get; set; }
+        
+        SceneContext SceneContext { get; set; }
+        
+        void AddInputEventHandler(IInputEventHandler handler);
 
-        public void RequestContinuousRedraw()
-        {
-            throw new NotImplementedException();
-        }
+        void SetSceneData(INode node);
+        
+        void SetCameraManipulator(ICameraManipulator manipulator, bool resetPosition=true);
     }
     
     public class View : Veldrid.SceneGraph.View, IUiActionAdapter, IView
     {
-        public IGroup SceneData { get; set; }
+        private Scene _scene;
+
+        public INode SceneData => _scene.SceneData;
 
         private Renderer Renderer { get; set; }
         
-        
-        public Framebuffer Framebuffer 
+        public  Framebuffer Framebuffer 
         { 
-            get => Renderer.Framebuffer;
+            get => Renderer.Framebuffer; 
             set => Renderer.Framebuffer = value;
         }
 
@@ -91,11 +98,23 @@ namespace Veldrid.SceneGraph.Viewer
             }
         }
         
-        public void SetSceneData(IGroup root)
+        public void SetSceneData(INode node)
         {
-            if (root == SceneData) return;
+            if (node == _scene.SceneData) return;
+
+            var scene = Scene.GetScene(node);
+
+            if (null != scene)
+            {
+                System.Diagnostics.Trace.WriteLine($"View.SetSceneData() Sharing scene {scene.GetHashCode()}"); 
+                _scene = scene;
+            }
+            else
+            {
+                _scene = new Scene();
+                _scene.SetSceneData(node);
+            }
             
-            SceneData = root;
             
             // TODO Assign scene to cameras
             AssignSceneDataToCameras();
@@ -103,26 +122,39 @@ namespace Veldrid.SceneGraph.Viewer
 
         private void AssignSceneDataToCameras()
         {
-            throw new NotImplementedException();
+            var sceneData = _scene.SceneData;
+
+            if (null != CameraManipulator)
+            {
+                CameraManipulator.SetNode(sceneData);
+                CameraManipulator.Home(InputStateSnapshot.CreateEmpty(), this);
+            }
+
+            if (null != Camera)
+            {
+                // TODO here is where we will tell the Renderer that all the graphics device
+                // objects need to be updated
+            }
         }
 
         protected View()
         {
+            _scene = new Scene();
             
+            Camera.SetRenderer(CreateRenderer(Camera));
+        }
+
+        private IGraphicsDeviceOperation CreateRenderer(ICamera camera)
+        {
+            Renderer = new Renderer(camera);
+            return Renderer;
         }
         
-//        protected View(IObservable<IResizedEvent> resizeEvents)
-//        {
-//            Renderer = new Renderer(Camera);
-//            Camera.Renderer = Renderer;
-//            resizeEvents.Subscribe(Camera.HandleResizeEvent);
-//        }
-
         public void AddInputEventHandler(IInputEventHandler handler)
         {
             InputEvents.Subscribe(x =>
             {
-                handler.HandleInput(x, new UiActionAdapter());
+                handler.HandleInput(x, this);
             });
         }
 

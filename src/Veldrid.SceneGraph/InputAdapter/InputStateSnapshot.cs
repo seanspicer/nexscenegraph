@@ -37,7 +37,7 @@ namespace Veldrid.SceneGraph.InputAdapter
     {
         private InputSnapshot _snapshot;
 
-        public static InputStateSnapshot CreateEmpty(int width, int height)
+        public static InputStateSnapshot CreateEmpty(int width = 0, int height = 0)
         {
             return new InputStateSnapshot(new EmptyInputSnapshot(), width, height);
         }

@@ -87,13 +87,6 @@ namespace Veldrid.SceneGraph.Viewer
             ));
 
             _cullVisitor.ResourceLayout = _resourceLayout;
-            
-            if (_camera.View.GetType() != typeof(Viewer.View))
-            {
-                throw new InvalidCastException("Camera View type is not correct");
-            }
-            //var view = (Viewer.View) _camera.View;
-            //view.SceneData?.Accept(_cullVisitor);
 
             _resourceSet = factory.CreateResourceSet(
                 new ResourceSetDescription(_resourceLayout, _projectionBuffer, _viewBuffer));
@@ -116,8 +109,10 @@ namespace Veldrid.SceneGraph.Viewer
 
         private void Update()
         {
-            var view = (Viewer.View) _camera.View;
-            view.SceneData?.Accept(_updateVisitor);
+            if (_camera.View is Viewer.View viewerView)
+            {
+                viewerView.SceneData?.Accept(_updateVisitor);
+            }
         }
         
         private void Cull(GraphicsDevice device, ResourceFactory factory)
@@ -134,8 +129,10 @@ namespace Veldrid.SceneGraph.Viewer
                 mcv.Prepare();
             }
             
-            var view = (Viewer.View) _camera.View;
-            view.SceneData?.Accept(_cullVisitor);
+            if (_camera.View is Viewer.View viewerView)
+            {
+                viewerView.SceneData?.Accept(_cullVisitor);
+            }
         }
         
         private void Record(GraphicsDevice device, ResourceFactory factory)

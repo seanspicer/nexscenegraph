@@ -28,10 +28,26 @@ namespace Veldrid.SceneGraph
 
         public static IDisplaySettings Instance => lazy.Value;
 
-        public float ScreenWidth { get; set; }
-        public float ScreenHeight { get; set; }
-        public float ScreenDistance { get; set; }
-        
+        public float ScreenWidth { get; private set; }
+        public void SetScreenWidth(float width)
+        {
+            ScreenWidth = width;
+        }
+
+        public float ScreenHeight { get; private set; }
+
+        public void SetScreenHeight(float height)
+        {
+            ScreenHeight = height;
+        }
+
+        public float ScreenDistance { get; private set; }
+
+        public void SetScreenDistance(float distance)
+        {
+            ScreenDistance = distance;
+        }
+
         public GraphicsBackend GraphicsBackend { get; private set; }
         
         private DisplaySettings()
@@ -46,6 +62,10 @@ namespace Veldrid.SceneGraph
 
         private void SetDefaults()
         {
+            SetScreenWidth(0.325f);
+            SetScreenHeight(0.26f);
+            SetScreenDistance(0.5f);
+            
             bool isMacOS = RuntimeInformation.OSDescription.Contains("Darwin");
             if (isMacOS)
             {
