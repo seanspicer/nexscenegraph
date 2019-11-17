@@ -86,59 +86,68 @@ namespace Veldrid.SceneGraph.InputAdapter
         
         public void ComputeHomePosition(ICamera camera, bool useBoundingBox)
         {
-            if (null != GetNode())
+            if (null == GetNode()) return;
+            
+            var boundingSphere = BoundingSphere.Create();
+            if (useBoundingBox)
             {
-                IBoundingSphere boundingSphere;
-                if (useBoundingBox)
-                {
-                    // TODO - need to implement ComputeBoundsVisitor
-                    throw new NotImplementedException();
-                }
+                var cbVisitor = ComputeBoundsVisitor.Create();
+                GetNode().Accept(cbVisitor);
 
+                var bb = cbVisitor.GetBoundingBox();
+                if (bb.Valid())
+                {
+                    boundingSphere.ExpandBy(bb);
+                }
                 else
                 {
-                    boundingSphere = GetNode().ComputeBound();
+                    boundingSphere = GetNode().GetBound();
                 }
-                
-                System.Diagnostics.Debug.WriteLine($"    boundingSphere.Center= {boundingSphere.Center}");
-                System.Diagnostics.Debug.WriteLine($"    boundingSphere.Radius= {boundingSphere.Radius}");
-                
-                var radius = Math.Max(boundingSphere.Radius, 1e-6);
-                
-                var dist = 3.5f * radius;
+            }
 
-                if (null != camera)
+            else
+            {
+                boundingSphere = GetNode().ComputeBound();
+            }
+                
+            System.Diagnostics.Debug.WriteLine($"    boundingSphere.Center= {boundingSphere.Center}");
+            System.Diagnostics.Debug.WriteLine($"    boundingSphere.Radius= {boundingSphere.Radius}");
+                
+            var radius = Math.Max(boundingSphere.Radius, 1e-6);
+                
+            var dist = 3.5f * radius;
+
+            if (null != camera)
+            {
+                float left = 0, right = 0, bottom = 0, top = 0, zNear = 0, zFar = 0;
+                if (camera.GetProjectionMatrixAsFrustum(
+                    ref left, ref right,
+                    ref bottom, ref top,
+                    ref zNear, ref zFar))
                 {
-                    float left = 0, right = 0, bottom = 0, top = 0, zNear = 0, zFar = 0;
-                    if (camera.GetProjectionMatrixAsFrustum(
+                    var vertical2 = Math.Abs(right - left) / zNear / 2f;
+                    var horizontal2 = Math.Abs(top - bottom) / zNear / 2f;
+                    var dim = horizontal2 < vertical2 ? horizontal2 : vertical2;
+                    var viewAngle = Math.Atan2(dim,1f);
+                    dist = radius / Math.Sin(viewAngle);
+                }
+                else
+                {
+                    // Compute dist from ortho
+                    if (camera.GetProjectionMatrixAsOrtho(
                         ref left, ref right,
                         ref bottom, ref top,
                         ref zNear, ref zFar))
                     {
-                        var vertical2 = Math.Abs(right - left) / zNear / 2f;
-                        var horizontal2 = Math.Abs(top - bottom) / zNear / 2f;
-                        var dim = horizontal2 < vertical2 ? horizontal2 : vertical2;
-                        var viewAngle = Math.Atan2(dim,1f);
-                        dist = radius / Math.Sin(viewAngle);
-                    }
-                    else
-                    {
-                        // Compute dist from ortho
-                        if (camera.GetProjectionMatrixAsOrtho(
-                            ref left, ref right,
-                            ref bottom, ref top,
-                            ref zNear, ref zFar))
-                        {
-                            dist = Math.Abs(zFar - zNear) / 2f;
-                        }
+                        dist = Math.Abs(zFar - zNear) / 2f;
                     }
                 }
-                
-                SetHomePosition(boundingSphere.Center - (float)dist*Vector3.UnitY,
-                    boundingSphere.Center,
-                    Vector3.UnitZ,
-                    _autoComputeHomePosition);
             }
+                
+            SetHomePosition(boundingSphere.Center - (float)dist*Vector3.UnitY,
+                boundingSphere.Center,
+                Vector3.UnitZ,
+                _autoComputeHomePosition);
         }
         
         public void SetHomePosition(Vector3 eye, Vector3 center, Vector3 up, bool autoComputeHomePosition=false)

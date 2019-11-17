@@ -16,7 +16,7 @@ namespace Veldrid.SceneGraph.InputAdapter
             ComputeHomeUsingBoundingBox = 2,
             ProcessMouseWheel = 4,
             SetCenterOnForwardWheelMovement = 8,
-            DefaultSettings = UpdateModelSize | ProcessMouseWheel
+            DefaultSettings = UpdateModelSize | ComputeHomeUsingBoundingBox | ProcessMouseWheel
         };
 
         protected StandardManipulator(UserInteractionFlags flags = UserInteractionFlags.DefaultSettings)
