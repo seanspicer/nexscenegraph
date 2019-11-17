@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 
 namespace Veldrid.SceneGraph.InputAdapter
 {
@@ -23,12 +24,12 @@ namespace Veldrid.SceneGraph.InputAdapter
             _flags = flags;
         }
         
-        public INode GetNode()
+        public override INode GetNode()
         {
             return _node;
         }
         
-        public void SetNode(INode node)
+        public override void SetNode(INode node)
         {
             _node = node;
 
@@ -134,6 +135,26 @@ namespace Veldrid.SceneGraph.InputAdapter
         {
             return false;
         }
-        
+
+        public virtual void SetTransformation(Vector3 eye, Vector3 center, Vector3 up)
+        {
+        }
+
+        public override void Home(IInputStateSnapshot ea, IUiActionAdapter aa)
+        {
+            if (GetAutoComputeHomePosition())
+            {
+                if (aa is Viewer.IView view)
+                {
+                    ComputeHomePosition(view.Camera , 
+                        ( _flags & UserInteractionFlags.ComputeHomeUsingBoundingBox ) != 0 );
+                }
+                
+                SetTransformation( _homeEye, _homeCenter, _homeUp );
+
+                aa.RequestRedraw();
+                aa.RequestContinuousUpdate( false );
+            }
+        }
     }
 }

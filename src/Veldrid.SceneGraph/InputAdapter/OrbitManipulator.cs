@@ -47,6 +47,32 @@ namespace Veldrid.SceneGraph.InputAdapter
                                                       Matrix4x4.CreateTranslation(new Vector3(0.0f, 0.0f, -_distance));
 
         
+        public virtual void SetTransformation(Vector3 eye, Vector3 center, Vector3 up)
+        {
+            var lv = center - eye;
+
+            var f = Vector3.Normalize((new Vector3(lv.X, lv.Y, lv.Z)));
+
+            var s = Vector3.Normalize(Vector3.Cross(f, up));
+
+            var u = Vector3.Normalize(Vector3.Cross(s, f));
+
+            var rotationMatrix = new Matrix4x4(
+                s.X,  u.X, -f.X,  0.0f,
+                s.Y,  u.Y, -f.Y,  0.0f,
+                s.Z,  u.Z, -f.Z,  0.0f,
+                0.0f, 0.0f, 0.0f, 1.0f);
+
+            _center = center;
+            _distance = lv.Length();
+            _rotation = Quaternion.Inverse(Quaternion.CreateFromRotationMatrix(rotationMatrix));
+
+            if (VerticalAxisFixed)
+            {
+                throw new NotImplementedException();
+            }
+
+        }
         
         protected override bool PerformMovementLeftMouseButton(float dx, float dy)
         {

@@ -61,7 +61,7 @@ namespace Veldrid.SceneGraph
         
         void SetRenderer(IGraphicsDeviceOperation renderer);
 
-        //void HandleResizeEvent(IResizedEvent resizedEvent);
+        void Resize(int width, int height, ResizeMask resizeMask = ResizeMask.ResizeDefault);
 
         void SetProjectionMatrix(Matrix4x4 matrix);
 

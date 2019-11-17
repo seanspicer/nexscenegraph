@@ -25,6 +25,7 @@ using System.Threading;
 using Veldrid;
 using Veldrid.OpenGLBinding;
 using Veldrid.SceneGraph.InputAdapter;
+using Veldrid.SceneGraph.Util;
 using Veldrid.Sdl2;
 using Veldrid.Utilities;
 using Veldrid.StartupUtilities;
@@ -115,6 +116,8 @@ namespace Veldrid.SceneGraph.Viewer
 
         private SDL_EventFilter ResizeEventFilter = null;
 
+        private IUpdateVisitor _updateVisitor;
+        
         //private ILog _logger;
         
 
@@ -144,7 +147,7 @@ namespace Veldrid.SceneGraph.Viewer
             _viewerInputEvents = new Subject<IInputStateSnapshot>();
             _endFrameEvents = new Subject<IEndFrameEvent>();
             _resizeEvents = new Subject<IResizedEvent>();
-            
+            _updateVisitor = UpdateVisitor.Create();
             _windowTitle = title;
             
             var wci = new WindowCreateInfo()
@@ -393,9 +396,24 @@ namespace Veldrid.SceneGraph.Viewer
 
             if (null == _graphicsDevice) return;
 
+            UpdateTraversal();
             RenderingTraversals();
 
             _endFrameEvents.OnNext(new EndFrameEvent(deltaSeconds));
+        }
+
+        private void UpdateTraversal()
+        {
+            //_updateVisitor.Reset();
+            //_updateVisitor.SetFrameStamp(GetFrameStamp());
+            //_updateVisitor.SetTraversalNumber(GetFrameStamp().GetFrameNumber());
+            
+            SceneData?.Accept(_updateVisitor);
+
+            if (null != CameraManipulator)
+            {
+                CameraManipulator.UpdateCamera(Camera);
+            }
         }
 
         //
@@ -410,9 +428,9 @@ namespace Veldrid.SceneGraph.Viewer
                 DisplaySettings.Instance.SetScreenWidth(_window.Width);
                 DisplaySettings.Instance.SetScreenHeight(_window.Height);
                 
+                Camera.Resize(_window.Width, _window.Height);
                 
-                
-                _resizeEvents.OnNext(new ResizedEvent(_window.Width, _window.Height));
+                //_resizeEvents.OnNext(new ResizedEvent(_window.Width, _window.Height));
 
                 _sceneContext.SetOutputFramebufffer(_graphicsDevice.SwapchainFramebuffer);
                 

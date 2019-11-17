@@ -20,15 +20,38 @@ using System.Numerics;
 
 namespace Veldrid.SceneGraph.InputAdapter
 {
+    public interface ICameraManipulator : IInputEventHandler
+    {
+        void SetNode(INode node);
+
+        INode GetNode();
+        
+        void ViewAll();
+
+        void UpdateCamera(ICamera camera);
+
+        void ComputeHomePosition(ICamera camera=null, bool useBoundingBox=false);
+
+        void SetHomePosition(Vector3 eye, Vector3 center, Vector3 up, bool autoComputeHomePosition=false);
+        
+        void GetHomePosition(out Vector3 eye, out Vector3 center, out Vector3 up);
+
+        void SetAutoComputeHomePosition(bool flag);
+
+        bool GetAutoComputeHomePosition();
+
+        void Home(IInputStateSnapshot ea, IUiActionAdapter aa);
+    }
+    
     public abstract class CameraManipulator : InputEventHandler, ICameraManipulator
     {
         protected abstract Matrix4x4 InverseMatrix { get; }
 
         private bool _autoComputeHomePosition;
 
-        private Vector3 _homeEye;
-        private Vector3 _homeCenter;
-        private Vector3 _homeUp;
+        protected Vector3 _homeEye;
+        protected Vector3 _homeCenter;
+        protected Vector3 _homeUp;
         
         protected CameraManipulator()
         {
@@ -39,11 +62,11 @@ namespace Veldrid.SceneGraph.InputAdapter
             _homeUp = Vector3.UnitZ;
         }
 
-        public void SetNode(INode node)
+        public virtual void SetNode(INode node)
         {
         }
 
-        public INode GetNode()
+        public virtual INode GetNode()
         {
             return null;
         }
@@ -56,7 +79,7 @@ namespace Veldrid.SceneGraph.InputAdapter
         public abstract void ViewAll(float slack);
         
         // Update a camera
-        public virtual void UpdateCamera(ref ICamera camera)
+        public virtual void UpdateCamera(ICamera camera)
         {
             camera.SetViewMatrix(InverseMatrix);
         }
@@ -110,6 +133,11 @@ namespace Veldrid.SceneGraph.InputAdapter
                         }
                     }
                 }
+                
+                SetHomePosition(boundingSphere.Center - (float)dist*Vector3.UnitY,
+                    boundingSphere.Center,
+                    Vector3.UnitZ,
+                    _autoComputeHomePosition);
             }
         }
         

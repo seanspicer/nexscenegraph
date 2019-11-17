@@ -4,6 +4,6 @@ namespace Veldrid.SceneGraph.InputAdapter
     {
         void RequestRedraw();
 
-        void RequestContinuousRedraw();
+        void RequestContinuousUpdate(bool flag);
     }
 }

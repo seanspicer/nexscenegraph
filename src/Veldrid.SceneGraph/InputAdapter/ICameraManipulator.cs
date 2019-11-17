@@ -20,24 +20,5 @@ using System.Reactive.Concurrency;
 
 namespace Veldrid.SceneGraph.InputAdapter
 {
-    public interface ICameraManipulator : IInputEventHandler
-    {
-        void SetNode(INode node);
 
-        INode GetNode();
-        
-        void ViewAll();
-
-        void ComputeHomePosition(ICamera camera=null, bool useBoundingBox=false);
-
-        void SetHomePosition(Vector3 eye, Vector3 center, Vector3 up, bool autoComputeHomePosition=false);
-        
-        void GetHomePosition(out Vector3 eye, out Vector3 center, out Vector3 up);
-
-        void SetAutoComputeHomePosition(bool flag);
-
-        bool GetAutoComputeHomePosition();
-
-        void Home(IInputStateSnapshot ea, IUiActionAdapter aa);
-    }
 }

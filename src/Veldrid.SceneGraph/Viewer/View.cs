@@ -61,7 +61,6 @@ namespace Veldrid.SceneGraph.Viewer
         }
         
         public IObservable<IInputStateSnapshot> InputEvents { get; set; }
-        public IObservable<IResizedEvent> ResizeEvent { get; set; }
 
         private ICameraManipulator _cameraManipulator = null;
         public ICameraManipulator CameraManipulator
@@ -160,12 +159,13 @@ namespace Veldrid.SceneGraph.Viewer
 
         public void RequestRedraw()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
-        public void RequestContinuousRedraw()
+        public void RequestContinuousUpdate(bool flag)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
+        
     }
 }

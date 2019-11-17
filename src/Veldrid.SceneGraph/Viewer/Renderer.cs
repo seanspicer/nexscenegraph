@@ -32,7 +32,7 @@ namespace Veldrid.SceneGraph.Viewer
 {
     internal class Renderer : IGraphicsDeviceOperation
     {
-        private IUpdateVisitor _updateVisitor;
+        
         private ICullVisitor _cullVisitor;
         
         private ICamera _camera;
@@ -64,7 +64,6 @@ namespace Veldrid.SceneGraph.Viewer
         public Renderer(ICamera camera)
         {
             _camera = camera;
-            _updateVisitor = UpdateVisitor.Create();
             _cullVisitor = CullVisitor.Create();
             _logger = LogManager.CreateLogger<Renderer>();
             _fullScreenQuadRenderer = new FullScreenQuadRenderer();
@@ -107,14 +106,6 @@ namespace Veldrid.SceneGraph.Viewer
             _initialized = true;
         }
 
-        private void Update()
-        {
-            if (_camera.View is Viewer.View viewerView)
-            {
-                viewerView.SceneData?.Accept(_updateVisitor);
-            }
-        }
-        
         private void Cull(GraphicsDevice device, ResourceFactory factory)
         {
             using (var mcv = _cullVisitor.ToMutable())
@@ -422,9 +413,6 @@ namespace Veldrid.SceneGraph.Viewer
             _stopWatch.Reset();
             _stopWatch.Start();
 
-            // Run Update Traversal.
-            Update();
-            
             UpdateUniforms(device, factory);
 
             var postUpdate = _stopWatch.ElapsedMilliseconds;
@@ -445,7 +433,7 @@ namespace Veldrid.SceneGraph.Viewer
             
             var postSwap = _stopWatch.ElapsedMilliseconds;
             
-//            _logger.LogTrace(string.Format("Update = {0} ms, Cull = {1} ms, Record = {2}, Draw = {3} ms, Swap = {4} ms",
+//            _logger.LogTrace(string.Format("UpdateUniforms = {0} ms, Cull = {1} ms, Record = {2}, Draw = {3} ms, Swap = {4} ms",
 //                postUpdate, 
 //                postCull-postUpdate,
 //                postRecord-postCull,
