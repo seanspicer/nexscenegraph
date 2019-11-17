@@ -80,6 +80,8 @@ namespace Veldrid.SceneGraph.Viewer
 
             if (null != _cameraManipulator)
             {
+                AddInputEventHandler(_cameraManipulator);
+                
                 // TODO - need to set a coordinate frame callback
                 if (null != SceneData)
                 {

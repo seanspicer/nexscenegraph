@@ -72,9 +72,9 @@ namespace Veldrid.SceneGraph.Viewer
         public GraphicsBackend Backend => GraphicsDevice.ResourceFactory.BackendType;
         public Platform PlatformType { get; }
 
-        public IObservable<IResizedEvent> ResizeEvents => _resizeEvents;
-        public IObservable<IEndFrameEvent> EndFrameEvents => _endFrameEvents;
-        public IObservable<IInputStateSnapshot> ViewerInputEvents => _viewerInputEvents;
+        //public IObservable<IResizedEvent> ResizeEvents => _resizeEvents;
+        //public IObservable<IEndFrameEvent> EndFrameEvents => _endFrameEvents;
+        //public IObservable<IInputStateSnapshot> ViewerInputEvents => _viewerInputEvents;
 
         
         
@@ -88,8 +88,8 @@ namespace Veldrid.SceneGraph.Viewer
 
         private string _windowTitle = string.Empty;
 
-        private ISubject<IResizedEvent> _resizeEvents;
-        private ISubject<IEndFrameEvent> _endFrameEvents;
+        //private ISubject<IResizedEvent> _resizeEvents;
+        //private ISubject<IEndFrameEvent> _endFrameEvents;
         private ISubject<IInputStateSnapshot> _viewerInputEvents;
         
         private GraphicsDevice _graphicsDevice;
@@ -145,8 +145,11 @@ namespace Veldrid.SceneGraph.Viewer
             
             // Create Subjects
             _viewerInputEvents = new Subject<IInputStateSnapshot>();
-            _endFrameEvents = new Subject<IEndFrameEvent>();
-            _resizeEvents = new Subject<IResizedEvent>();
+            //_endFrameEvents = new Subject<IEndFrameEvent>();
+            //_resizeEvents = new Subject<IResizedEvent>();
+            
+            InputEvents = new Subject<IInputStateSnapshot>();
+            
             _updateVisitor = UpdateVisitor.Create();
             _windowTitle = title;
             
@@ -185,7 +188,7 @@ namespace Veldrid.SceneGraph.Viewer
             _window.KeyDown += OnKeyDown;
             GraphicsDeviceOperations += Camera.Renderer.HandleOperation;
             GraphicsDeviceResize += Camera.Renderer.HandleResize;
-            InputEvents = ViewerInputEvents;
+            InputEvents = _viewerInputEvents;
             SceneContext = _sceneContext;
 
         }
@@ -257,9 +260,9 @@ namespace Veldrid.SceneGraph.Viewer
                 Frame();
             }
             
-            _viewerInputEvents.OnCompleted();
-            _endFrameEvents.OnCompleted();
-            _resizeEvents.OnCompleted();
+            //_viewerInputEvents.OnCompleted();
+            //_endFrameEvents.OnCompleted();
+            //_resizeEvents.OnCompleted();
 
             DisposeResources();
         }
@@ -397,9 +400,10 @@ namespace Veldrid.SceneGraph.Viewer
             if (null == _graphicsDevice) return;
 
             UpdateTraversal();
+            
             RenderingTraversals();
 
-            _endFrameEvents.OnNext(new EndFrameEvent(deltaSeconds));
+            //_endFrameEvents.OnNext(new EndFrameEvent(deltaSeconds));
         }
 
         private void UpdateTraversal()

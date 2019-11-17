@@ -36,8 +36,8 @@ namespace Veldrid.SceneGraph.Viewer
     {
         Platform PlatformType { get; }
 
-        IObservable<IEndFrameEvent> EndFrameEvents { get; }
-        IObservable<IResizedEvent> ResizeEvents { get; }
+        //IObservable<IEndFrameEvent> EndFrameEvents { get; }
+        //IObservable<IResizedEvent> ResizeEvents { get; }
 
         uint Width { get; }
         uint Height { get; }
