@@ -172,11 +172,21 @@ namespace Veldrid.SceneGraph
                 double newWidth = width;
                 double newHeight = height;
 
-                if (Math.Abs(previousWidth - newWidth) > 1e-6 &&
+                if (Math.Abs(previousWidth) < 1e-6 && Math.Abs(previousHeight) < 1e-6)
+                {
+                    var dist = DisplaySettings.Instance.ScreenDistance;
+            
+                    // TODO: This is tricky - need to fix when ViewAll implemented
+                    var vfov = (float) Math.Atan2(height / 2.0f, dist) * 2.0f;
+
+                    var aspectRatio = (float)width / (float)height;
+                    SetProjectionMatrixAsPerspective(vfov, aspectRatio, 0.1f, 100f);
+                }
+
+                if (Math.Abs(previousWidth - newWidth) > 1e-6 ||
                     Math.Abs(previousHeight - newHeight) > 1e-6)
                 {
-                    if ((resizeMask & ResizeMask.ResizeProjectionMatrix) != 0 &&
-                        ProjectionResizePolicy != ProjectionResizePolicy.Fixed)
+                    if ((resizeMask & ResizeMask.ResizeProjectionMatrix) != 0)
                     {
                         var widthChangeRatio = newWidth / previousWidth;
                         var heightChangeRatio = newHeight / previousHeight;
@@ -195,6 +205,15 @@ namespace Veldrid.SceneGraph
                                                         Matrix4x4.CreateScale(1.0f, (float) aspectRatioChange, 1.0f));
                                     break;
                                 case ProjectionResizePolicy.Fixed:
+                                    
+                                    // NEED TO update Screen Distance properly
+                                    var dist = DisplaySettings.Instance.ScreenDistance;
+            
+                                    // TODO: This is tricky - need to fix when ViewAll implemented
+                                    var vfov = (float) Math.Atan2(height / 2.0f, dist) * 2.0f;
+
+                                    var aspectRatio = (float)width / (float)height;
+                                    SetProjectionMatrixAsPerspective(vfov, aspectRatio, 0.1f, 100f);
                                     break;
                             }
                         }

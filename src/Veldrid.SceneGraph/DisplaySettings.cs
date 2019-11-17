@@ -63,7 +63,7 @@ namespace Veldrid.SceneGraph
         private void SetDefaults()
         {
             SetScreenWidth(0.325f);
-            SetScreenHeight(0.26f);
+            SetScreenHeight(0.325f);
             SetScreenDistance(0.5f);
             
             bool isMacOS = RuntimeInformation.OSDescription.Contains("Darwin");

@@ -47,7 +47,7 @@ namespace Veldrid.SceneGraph.InputAdapter
                                                       Matrix4x4.CreateTranslation(new Vector3(0.0f, 0.0f, -_distance));
 
         
-        public virtual void SetTransformation(Vector3 eye, Vector3 center, Vector3 up)
+        public override void SetTransformation(Vector3 eye, Vector3 center, Vector3 up)
         {
             var lv = center - eye;
 

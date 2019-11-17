@@ -190,7 +190,8 @@ namespace Veldrid.SceneGraph.Viewer
             GraphicsDeviceResize += Camera.Renderer.HandleResize;
             InputEvents = _viewerInputEvents;
             SceneContext = _sceneContext;
-
+            
+            Camera.SetProjectionResizePolicy(ProjectionResizePolicy.Fixed);
         }
 
         public ICamera GetCamera()
@@ -438,7 +439,10 @@ namespace Veldrid.SceneGraph.Viewer
                 DisplaySettings.Instance.SetScreenWidth(_window.Width);
                 DisplaySettings.Instance.SetScreenHeight(_window.Height);
                 
-                Camera.Resize(_window.Width, _window.Height);
+                Camera.Resize(
+                    _window.Width, 
+                    _window.Height,
+                    ResizeMask.ResizeDefault | ResizeMask.ResizeProjectionMatrix);
                 
                 //_resizeEvents.OnNext(new ResizedEvent(_window.Width, _window.Height));
 
