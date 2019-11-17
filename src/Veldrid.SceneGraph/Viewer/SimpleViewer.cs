@@ -229,7 +229,7 @@ namespace Veldrid.SceneGraph.Viewer
         /// </summary>
         /// <param name="preferredBackend"></param>
         //
-        // TODO: This runs continuously, probably shoudl have a mode that runs one-frame-at-a-time.
+        // TODO: This runs continuously, probably should have a mode that runs one-frame-at-a-time.
         // 
         public void Run(GraphicsBackend? preferredBackend = null)
         {
@@ -409,6 +409,9 @@ namespace Veldrid.SceneGraph.Viewer
                 _graphicsDevice.ResizeMainWindow((uint) _window.Width, (uint) _window.Height);
                 DisplaySettings.Instance.SetScreenWidth(_window.Width);
                 DisplaySettings.Instance.SetScreenHeight(_window.Height);
+                
+                
+                
                 _resizeEvents.OnNext(new ResizedEvent(_window.Width, _window.Height));
 
                 _sceneContext.SetOutputFramebufffer(_graphicsDevice.SwapchainFramebuffer);
