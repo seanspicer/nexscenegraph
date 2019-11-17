@@ -348,6 +348,12 @@ namespace Veldrid.SceneGraph.Viewer
             
         }
 
+        public override void RequestRedraw()
+        {
+            base.RequestRedraw();
+            Frame();
+        }
+
         // 
         // Draw a frame
         // 

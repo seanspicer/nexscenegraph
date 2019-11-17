@@ -159,9 +159,8 @@ namespace Veldrid.SceneGraph.Viewer
             });
         }
 
-        public void RequestRedraw()
+        public virtual void RequestRedraw()
         {
-            //throw new NotImplementedException();
         }
 
         public void RequestContinuousUpdate(bool flag)
