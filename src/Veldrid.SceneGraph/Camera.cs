@@ -172,20 +172,20 @@ namespace Veldrid.SceneGraph
                 double newWidth = width;
                 double newHeight = height;
 
-                // First pass
-                if (Math.Abs(previousWidth) < 1e-6 && Math.Abs(previousHeight) < 1e-6)
+                // TODO -- THIS NEEDS TO BE MOVED, it shouldn't be necessary.
+                if (Math.Abs(previousWidth) < 1e-6 && Math.Abs(previousHeight) < 1e-6 && !IsOrthographicCamera())
                 {
                     var dist = DisplaySettings.Instance.ScreenDistance;
-            
+                    
                     // TODO: This is tricky - need to fix when ViewAll implemented
                     var vfov = (float) Math.Atan2(height / 2.0f, dist) * 2.0f;
-
+                    
                     var aspectRatio = (float)width / (float)height;
                     SetProjectionMatrixAsPerspective(vfov, aspectRatio, 0.1f, 100f);
                 }
 
-                if (Math.Abs(previousWidth - newWidth) > 1e-6 ||
-                    Math.Abs(previousHeight - newHeight) > 1e-6)
+                if (previousWidth > 1e-6 && Math.Abs(previousWidth - newWidth) > 1e-6 ||
+                    previousHeight > 1e-6 && Math.Abs(previousHeight - newHeight) > 1e-6)
                 {
                     if ((resizeMask & ResizeMask.ResizeProjectionMatrix) != 0)
                     {
@@ -265,8 +265,25 @@ namespace Veldrid.SceneGraph
             return ProjectionMatrix.GetOrtho(ref left, ref right, ref bottom, ref top, ref zNear, ref zFar);
         }
 
+        private bool IsOrthographicCamera()
+        {
+            float left = 0, right = 0, bottom = 0, top = 0, zNear = 0, zFar = 0;
+            return GetProjectionMatrixAsOrtho(
+                ref left, ref right,
+                ref bottom, ref top,
+                ref zNear, ref zFar);
+
+        }
+
         public void SetViewMatrix(Matrix4x4 matrix)
         {
+            if(IsOrthographicCamera())
+            {
+                matrix.M41 = 0;
+                matrix.M42 = 0;
+                matrix.M43 = 0;
+            }
+            
             ViewMatrix = matrix;
         }
 
