@@ -172,6 +172,7 @@ namespace Veldrid.SceneGraph
                 double newWidth = width;
                 double newHeight = height;
 
+                // First pass
                 if (Math.Abs(previousWidth) < 1e-6 && Math.Abs(previousHeight) < 1e-6)
                 {
                     var dist = DisplaySettings.Instance.ScreenDistance;
