@@ -234,9 +234,10 @@ namespace Veldrid.SceneGraph
                                         ref bottom, ref top,
                                         ref zNear, ref zFar))
                                     {
-                                        //SetProjectionMatrixAsOrthographic(width/(dist/10), height/(dist/10), dist/10, -dist/10);
-                                        SetProjectionMatrix(ProjectionMatrix *
-                                                            Matrix4x4.CreateScale((float)widthChangeRatio,  (float) heightChangeRatio, 1.0f));
+                                        //SetProjectionMatrixAsOrthographic((right - left)*(float)widthChangeRatio, (top-bottom)*(float)heightChangeRatio, zNear, zFar);
+                                        
+                                        SetProjectionMatrix(ProjectionMatrix * 
+                                                            Matrix4x4.CreateScale(1.0f / (float)widthChangeRatio,  1.0f / (float) heightChangeRatio, 1.0f));
                                     }
                                     else
                                     {

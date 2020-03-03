@@ -102,7 +102,7 @@ namespace Veldrid.SceneGraph.InputAdapter
 
                 const float winScale = 2.0f;
                 
-                var width = radius * winScale * aspectRatio * ZoomScale;
+                var width = radius * winScale  * aspectRatio * ZoomScale;
                 var height = radius * winScale * ZoomScale;
 
                 camera.SetProjectionMatrixAsOrthographic(width, height, winScale * radius, -winScale * radius);
