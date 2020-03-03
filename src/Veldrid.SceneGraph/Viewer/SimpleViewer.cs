@@ -254,7 +254,7 @@ namespace Veldrid.SceneGraph.Viewer
                 // TODO: Can remove InputTracker?
                 //InputTracker.UpdateFrameInput(inputSnapshot);
 
-                var inputStateSnap = InputStateSnapshot.Create(inputSnapshot, _window.Width, _window.Height);
+                var inputStateSnap = InputStateSnapshot.Create(inputSnapshot, _window.Width, _window.Height, Camera.ProjectionMatrix, Camera.ViewMatrix);
                 
                 _viewerInputEvents.OnNext(inputStateSnap);
                 

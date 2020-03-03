@@ -39,18 +39,21 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         public static InputStateSnapshot CreateEmpty(int width = 0, int height = 0)
         {
-            return new InputStateSnapshot(new EmptyInputSnapshot(), width, height);
+            return new InputStateSnapshot(new EmptyInputSnapshot(), width, height, Matrix4x4.Identity,
+                Matrix4x4.Identity);
         }
         
-        public static IInputStateSnapshot Create(InputSnapshot snapshot, int width, int height)
+        public static IInputStateSnapshot Create(InputSnapshot snapshot, int width, int height, Matrix4x4 projectionMatrix, Matrix4x4 viewMatrix)
         {
-            return new InputStateSnapshot(snapshot, width, height);
+            return new InputStateSnapshot(snapshot, width, height, projectionMatrix, viewMatrix);
         }
         
-        protected InputStateSnapshot(InputSnapshot snapshot, int width, int height)
+        protected InputStateSnapshot(InputSnapshot snapshot, int width, int height, Matrix4x4 projectionMatrix, Matrix4x4 viewMatrix)
         {
             WindowWidth = width;
             WindowHeight = height;
+            ProjectionMatrix = projectionMatrix;
+            ViewMatrix = viewMatrix;
             _snapshot = snapshot;
         }
 
@@ -67,5 +70,7 @@ namespace Veldrid.SceneGraph.InputAdapter
         
         public int WindowWidth { get; private set; }
         public int WindowHeight { get; private set; }
+        public Matrix4x4 ProjectionMatrix { get; private set; }
+        public Matrix4x4 ViewMatrix { get; private set; }
     }
 }

@@ -81,7 +81,7 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         }
         
-        protected override bool PerformMovementLeftMouseButton(float dx, float dy)
+        protected override bool PerformMovementLeftMouseButton(float dx, float dy, IInputStateSnapshot snapshot)
         {
             // rotate camera
             if (VerticalAxisFixed)
@@ -104,7 +104,7 @@ namespace Veldrid.SceneGraph.InputAdapter
             return true;
         }
 
-        protected override bool PerformMovementRightMouseButton(float dx, float dy)
+        protected override bool PerformMovementRightMouseButton(float dx, float dy, IInputStateSnapshot snapshot)
         {
             var xNorm = 2.0f*(InputStateTracker.MousePosition.Value.X / InputStateTracker.FrameSnapshot.WindowWidth)-1.0f;
             var yNorm = -2.0f*(InputStateTracker.MousePosition.Value.Y / InputStateTracker.FrameSnapshot.WindowHeight)+1.0f;
@@ -112,7 +112,7 @@ namespace Veldrid.SceneGraph.InputAdapter
             var xNormLast = 2.0f*(InputStateTracker.LastMousePosition.Value.X / InputStateTracker.FrameSnapshot.WindowWidth)-1.0f;
             var yNormLast = -2.0f*(InputStateTracker.LastMousePosition.Value.Y / InputStateTracker.FrameSnapshot.WindowHeight)+1.0f;
             
-            PanModel(xNorm, yNorm, xNormLast, yNormLast);
+            PanModel(snapshot, xNorm, yNorm, xNormLast, yNormLast);
             return true;
         }
 
@@ -170,27 +170,48 @@ namespace Veldrid.SceneGraph.InputAdapter
             uiActionAdapter.RequestRedraw();
         }
         
-        void PanModel(float p1x, float p1y, float p2x, float p2y)
+        void PanModel(IInputStateSnapshot snapshot, float p1x, float p1y, float p2x, float p2y)
         {
-            throw new NotImplementedException();
-//            var startNear = new Vector3(p1x, p1y, 0);
-//            
-//            var startFar = new Vector3(p1x, p1y, 1);
-//            var endFar = new Vector3(p2x, p2y, 1);
-//
-//            var worldStartNear = _camera.NormalizedScreenToWorld(startNear);
-//            var worldStartFar = _camera.NormalizedScreenToWorld(startFar);
-//
-//            var worldEndFar = _camera.NormalizedScreenToWorld(endFar);
-//            
-//            var lenFar = (worldEndFar - worldStartFar).Length();
-//            
-//            var motionDir = Vector3.Normalize(worldEndFar - worldStartFar);
-//            var d = (worldStartFar - worldStartNear).Length();
-//
-//            var motionLen = lenFar * _distance / d;
-//            
-//            _center += motionLen*motionDir;
+            //throw new NotImplementedException();
+            var startNear = new Vector3(p1x, p1y, 0);
+            
+            var startFar = new Vector3(p1x, p1y, 1);
+            var endFar = new Vector3(p2x, p2y, 1);
+
+            var worldStartNear = NormalizedScreenToWorld(startNear, snapshot.ProjectionMatrix, snapshot.ViewMatrix);
+            var worldStartFar = NormalizedScreenToWorld(startFar, snapshot.ProjectionMatrix, snapshot.ViewMatrix);
+
+            var worldEndFar = NormalizedScreenToWorld(endFar, snapshot.ProjectionMatrix, snapshot.ViewMatrix);
+            
+            var lenFar = (worldEndFar - worldStartFar).Length();
+            
+            var motionDir = Vector3.Normalize(worldEndFar - worldStartFar);
+            var d = (worldStartFar - worldStartNear).Length();
+
+            var motionLen = lenFar * _distance / d;
+            
+            _center += motionLen*motionDir;
+        }
+        
+        public Vector3 NormalizedScreenToWorld(Vector3 screenCoords, Matrix4x4 projectionMatrix, Matrix4x4 viewMatrix)
+        {
+            var viewProjectionMatrix = projectionMatrix.PreMultiply(viewMatrix);
+
+            Matrix4x4 vpi;
+            
+            if (Matrix4x4.Invert(viewProjectionMatrix, out vpi))
+            {
+                var nc = new Vector3(screenCoords.X, screenCoords.Y, screenCoords.Z);
+                var pc = vpi.PreMultiply(nc);
+
+                return pc;
+                
+            }
+            else
+            {
+                throw new Exception("Cannot invert view-projection matrix");
+            }
+            
         }
         
         void ZoomModel(float dy, bool pushForwardIfNeeded )

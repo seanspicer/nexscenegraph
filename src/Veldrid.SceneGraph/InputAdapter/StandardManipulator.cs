@@ -81,7 +81,7 @@ namespace Veldrid.SceneGraph.InputAdapter
         
         protected virtual void HandleDrag(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter)
         {
-            if (PerformMovement())
+            if (PerformMovement(snapshot))
             {
                 uiActionAdapter.RequestRedraw();
             }
@@ -107,7 +107,7 @@ namespace Veldrid.SceneGraph.InputAdapter
             //_logger.Debug(m => m("Wheel Delta"));
         }
 
-        protected virtual bool PerformMovement()
+        protected virtual bool PerformMovement(IInputStateSnapshot snapshot)
         {
             var dx = (InputStateTracker.MousePosition?.X - InputStateTracker.LastMousePosition?.X)/InputStateTracker.FrameSnapshot.WindowWidth;
             var dy = (InputStateTracker.MousePosition?.Y - InputStateTracker.LastMousePosition?.Y)/InputStateTracker.FrameSnapshot.WindowHeight;
@@ -116,22 +116,22 @@ namespace Veldrid.SceneGraph.InputAdapter
 
             if (InputStateTracker.GetMouseButton(MouseButton.Left))
             {
-                return PerformMovementLeftMouseButton(dx.Value, dy.Value); 
+                return PerformMovementLeftMouseButton(dx.Value, dy.Value, snapshot); 
             }
             else if (InputStateTracker.GetMouseButton(MouseButton.Right))
             {
-                return PerformMovementRightMouseButton(dx.Value, dy.Value); 
+                return PerformMovementRightMouseButton(dx.Value, dy.Value, snapshot); 
             }
 
             return true;
         }
 
-        protected virtual bool PerformMovementLeftMouseButton(float dx, float dy)
+        protected virtual bool PerformMovementLeftMouseButton(float dx, float dy, IInputStateSnapshot snapshot)
         {
             return false;
         }
         
-        protected virtual bool PerformMovementRightMouseButton(float dx, float dy)
+        protected virtual bool PerformMovementRightMouseButton(float dx, float dy, IInputStateSnapshot snapshot)
         {
             return false;
         }
