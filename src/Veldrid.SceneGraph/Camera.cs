@@ -228,11 +228,25 @@ namespace Veldrid.SceneGraph
                                     break;
                                 case ProjectionResizePolicy.Fixed:
                                     
-                                    // TODO: This is tricky - need to fix when ViewAll implemented
-                                    var vfov = (float) Math.Atan2(height / 2.0f, dist) * 2.0f;
+                                    float left = 0, right = 0, bottom = 0, top = 0, zNear = 0, zFar = 0;
+                                    if(GetProjectionMatrixAsOrtho(
+                                        ref left, ref right,
+                                        ref bottom, ref top,
+                                        ref zNear, ref zFar))
+                                    {
+                                        //SetProjectionMatrixAsOrthographic(width/(dist/10), height/(dist/10), dist/10, -dist/10);
+                                        SetProjectionMatrix(ProjectionMatrix *
+                                                            Matrix4x4.CreateScale((float)widthChangeRatio,  (float) heightChangeRatio, 1.0f));
+                                    }
+                                    else
+                                    {
+                                        // TODO: This is tricky - need to fix when ViewAll implemented
+                                        var vfov = (float) Math.Atan2(height / 2.0f, dist) * 2.0f;
 
-                                    var aspectRatio = (float)width / (float)height;
-                                    SetProjectionMatrixAsPerspective(vfov, aspectRatio, 0.1f, 100f);
+                                        var aspectRatio = (float)width / (float)height;
+                                        SetProjectionMatrixAsPerspective(vfov, aspectRatio, 0.1f, 100f);
+                                    }
+                                    
                                     break;
                             }
                         }
