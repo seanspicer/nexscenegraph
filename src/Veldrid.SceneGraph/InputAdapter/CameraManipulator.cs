@@ -46,7 +46,9 @@ namespace Veldrid.SceneGraph.InputAdapter
     public abstract class CameraManipulator : InputEventHandler, ICameraManipulator
     {
         protected abstract Matrix4x4 InverseMatrix { get; }
-
+        
+        protected abstract float ZoomScale { get; }
+        
         private bool _autoComputeHomePosition;
 
         protected Vector3 _homeEye;
@@ -81,7 +83,39 @@ namespace Veldrid.SceneGraph.InputAdapter
         // Update a camera
         public virtual void UpdateCamera(ICamera camera)
         {
-            camera.SetViewMatrix(InverseMatrix);
+            float left = 0, right = 0, bottom = 0, top = 0, zNear = 0, zFar = 0;
+            
+            if (camera.GetProjectionMatrixAsOrtho(
+                ref left, ref right,
+                ref bottom, ref top,
+                ref zNear, ref zFar))
+            {
+                var vertical2 = Math.Abs(right - left) / zNear / 2f;
+                var horizontal2 = Math.Abs(top - bottom) / zNear / 2f;
+                var dim = horizontal2 < vertical2 ? horizontal2 : vertical2;
+                var viewAngle = Math.Atan2(dim,1f);
+
+                var inverseMatrix = InverseMatrix;
+                var radius = -inverseMatrix.M43 * (float) Math.Sin(viewAngle);
+                
+                var aspectRatio = camera.Viewport.AspectRatio;
+
+                const float winScale = 2.0f;
+                
+                var width = radius * winScale * aspectRatio * ZoomScale;
+                var height = radius * winScale * ZoomScale;
+
+                camera.SetProjectionMatrixAsOrthographic(width, height, winScale * radius, -winScale * radius);
+
+                inverseMatrix.M43 = 0;
+                camera.SetViewMatrix(inverseMatrix);
+                
+            }
+            else
+            {
+                camera.SetViewMatrix(InverseMatrix);
+            }
+            
         }
         
         public void ComputeHomePosition(ICamera camera, bool useBoundingBox)
@@ -139,7 +173,11 @@ namespace Veldrid.SceneGraph.InputAdapter
                         ref bottom, ref top,
                         ref zNear, ref zFar))
                     {
-                        dist = Math.Abs(zFar - zNear) / 2f;
+                        var vertical2 = Math.Abs(right - left) / zNear / 2f;
+                        var horizontal2 = Math.Abs(top - bottom) / zNear / 2f;
+                        var dim = horizontal2 < vertical2 ? horizontal2 : vertical2;
+                        var viewAngle = Math.Atan2(dim,1f);
+                        dist = radius / Math.Sin(viewAngle);
                     }
                 }
             }

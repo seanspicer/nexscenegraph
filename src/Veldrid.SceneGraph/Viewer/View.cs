@@ -17,6 +17,7 @@
 using System;
 using System.Numerics;
 using System.Reactive.Subjects;
+using System.Xml.Serialization;
 using Veldrid.SceneGraph.InputAdapter;
 
 namespace Veldrid.SceneGraph.Viewer
@@ -38,6 +39,8 @@ namespace Veldrid.SceneGraph.Viewer
         void SetSceneData(INode node);
         
         void SetCameraManipulator(ICameraManipulator manipulator, bool resetPosition=true);
+
+        void SetCameraOrthographic();
     }
     
     public class View : Veldrid.SceneGraph.View, IUiActionAdapter, IView
@@ -66,6 +69,11 @@ namespace Veldrid.SceneGraph.Viewer
         public ICameraManipulator CameraManipulator
         {
             get => _cameraManipulator;
+        }
+
+        public void SetCameraOrthographic()
+        {
+            Camera.SetProjectionMatrixAsOrthographic(1, 1, 1, -1);
         }
 
         public void SetCameraManipulator(ICameraManipulator manipulator, bool resetPosition)

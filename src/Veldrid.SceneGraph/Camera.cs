@@ -15,10 +15,12 @@
 //
 
 using System;
+using System.ComponentModel.Design;
 using System.Data;
 using System.Numerics;
 using Veldrid.SceneGraph.RenderGraph;
 using Veldrid.SceneGraph.Util;
+using Vulkan;
 using Math = System.Math;
 
 namespace Veldrid.SceneGraph
@@ -65,6 +67,8 @@ namespace Veldrid.SceneGraph
 
         void SetProjectionMatrix(Matrix4x4 matrix);
 
+        bool IsOrthographicCamera();
+        
         void SetProjectionMatrixAsOrthographicOffCenter(
             float left,
             float right,
@@ -172,16 +176,33 @@ namespace Veldrid.SceneGraph
                 double newWidth = width;
                 double newHeight = height;
 
+                var dist = DisplaySettings.Instance.ScreenDistance;
+                
                 // TODO -- THIS NEEDS TO BE MOVED, it shouldn't be necessary.
-                if (Math.Abs(previousWidth) < 1e-6 && Math.Abs(previousHeight) < 1e-6 && !IsOrthographicCamera())
+                if (Math.Abs(previousWidth) < 1e-6 && Math.Abs(previousHeight) < 1e-6)
                 {
-                    var dist = DisplaySettings.Instance.ScreenDistance;
+                    float left = 0, right = 0, bottom = 0, top = 0, zNear = 0, zFar = 0;
+                    if(GetProjectionMatrixAsOrtho(
+                        ref left, ref right,
+                        ref bottom, ref top,
+                        ref zNear, ref zFar))
+                    {
+                        SetProjectionMatrixAsOrthographic(width/(dist/10), height/(dist/10), dist/10, -dist/10);
+                    }
+                    else
+                    {
                     
-                    // TODO: This is tricky - need to fix when ViewAll implemented
-                    var vfov = (float) Math.Atan2(height / 2.0f, dist) * 2.0f;
+                        // TODO: This is tricky - need to fix when ViewAll implemented
+                        var vfov = (float) Math.Atan2(height / 2.0f, dist) * 2.0f;
                     
-                    var aspectRatio = (float)width / (float)height;
-                    SetProjectionMatrixAsPerspective(vfov, aspectRatio, 0.1f, 100f);
+                        var aspectRatio = (float)width / (float)height;
+                        SetProjectionMatrixAsPerspective(vfov, aspectRatio, 0.1f, 100f);
+                    }
+                    
+                    if((resizeMask & ResizeMask.ResizeViewport) != 0)
+                    {
+                        SetViewport(0, 0, width, height);
+                    }
                 }
 
                 if (previousWidth > 1e-6 && Math.Abs(previousWidth - newWidth) > 1e-6 ||
@@ -207,9 +228,6 @@ namespace Veldrid.SceneGraph
                                     break;
                                 case ProjectionResizePolicy.Fixed:
                                     
-                                    // NEED TO update Screen Distance properly
-                                    var dist = DisplaySettings.Instance.ScreenDistance;
-            
                                     // TODO: This is tricky - need to fix when ViewAll implemented
                                     var vfov = (float) Math.Atan2(height / 2.0f, dist) * 2.0f;
 
@@ -243,9 +261,9 @@ namespace Veldrid.SceneGraph
             SetProjectionMatrix(Matrix4x4.CreateOrthographicOffCenter(left, right, bottom, top, zNear, zFar));
         }
 
-        public void SetProjectionMatrixAsOrthographic(float width, float height, float zNearPlane, float zFarPlane)
+        public void SetProjectionMatrixAsOrthographic(float width, float height, float zNear, float zFar)
         {
-            SetProjectionMatrix(Matrix4x4.CreateOrthographic(width, height, zNearPlane, zFarPlane));
+            SetProjectionMatrix(Matrix4x4.CreateOrthographic(width, height, zNear, zFar));
         }
         
         public void SetProjectionMatrixAsPerspective(float vfov, float aspectRatio, float zNear, float zFar)
@@ -265,7 +283,7 @@ namespace Veldrid.SceneGraph
             return ProjectionMatrix.GetOrtho(ref left, ref right, ref bottom, ref top, ref zNear, ref zFar);
         }
 
-        private bool IsOrthographicCamera()
+        public bool IsOrthographicCamera()
         {
             float left = 0, right = 0, bottom = 0, top = 0, zNear = 0, zFar = 0;
             return GetProjectionMatrixAsOrtho(
@@ -277,16 +295,9 @@ namespace Veldrid.SceneGraph
 
         public void SetViewMatrix(Matrix4x4 matrix)
         {
-            if(IsOrthographicCamera())
-            {
-                matrix.M41 = 0;
-                matrix.M42 = 0;
-                matrix.M43 = 0;
-            }
-            
             ViewMatrix = matrix;
         }
-
+        
         public void SetViewMatrixToLookAt(Vector3 position, Vector3 target, Vector3 upDirection)
         {
             SetViewMatrix(Matrix4x4.CreateLookAt(position, target, upDirection));

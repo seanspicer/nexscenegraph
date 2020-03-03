@@ -41,14 +41,21 @@ namespace Veldrid.SceneGraph.InputAdapter
         {
             
         }
+        
+        private Matrix4x4 _viewMatrix = Matrix4x4.Identity;
 
-        protected override Matrix4x4 InverseMatrix => Matrix4x4.CreateTranslation(-_center) *
-                                                      Matrix4x4.CreateFromQuaternion(Quaternion.Inverse(_rotation)) *
-                                                      Matrix4x4.CreateTranslation(new Vector3(0.0f, 0.0f, -_distance));
+        protected override Matrix4x4 InverseMatrix =>
+            Matrix4x4.CreateTranslation(-_center) *
+            Matrix4x4.CreateFromQuaternion(Quaternion.Inverse(_rotation)) *
+            Matrix4x4.CreateTranslation(new Vector3(0.0f, 0.0f, -_distance));
 
+        private float _zoomScale = 1;
+        protected override float ZoomScale => _zoomScale;
         
         public override void SetTransformation(Vector3 eye, Vector3 center, Vector3 up)
         {
+            _viewMatrix = Matrix4x4.CreateLookAt(eye, center, up);
+            
             var lv = center - eye;
 
             var f = Vector3.Normalize((new Vector3(lv.X, lv.Y, lv.Z)));
@@ -202,6 +209,7 @@ namespace Veldrid.SceneGraph.InputAdapter
             {
                 // regular zoom
                 _distance *= scale;
+                _zoomScale *= scale;
             }
             else
             {
