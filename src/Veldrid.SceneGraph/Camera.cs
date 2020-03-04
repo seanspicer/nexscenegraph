@@ -272,12 +272,17 @@ namespace Veldrid.SceneGraph
 
         public void SetProjectionMatrixAsOrthographicOffCenter(float left, float right, float bottom, float top, float zNear, float zFar)
         {
-            SetProjectionMatrix(Matrix4x4.CreateOrthographicOffCenter(left, right, bottom, top, zNear, zFar));
+            SetProjectionMatrix(Matrix4x4.CreateOrthographicOffCenter(left, right, bottom, top, zFar, zNear));
         }
 
         public void SetProjectionMatrixAsOrthographic(float width, float height, float zNear, float zFar)
         {
-            SetProjectionMatrix(Matrix4x4.CreateOrthographic(width, height, zNear, zFar));
+            var left = -width / 2.0f;
+            var right = width / 2.0f;
+            var top = height / 2.0f;
+            var bottom = -height / 2.0f;
+            
+            SetProjectionMatrixAsOrthographicOffCenter(left, right, bottom, top, zNear, zFar);
         }
         
         public void SetProjectionMatrixAsPerspective(float vfov, float aspectRatio, float zNear, float zFar)

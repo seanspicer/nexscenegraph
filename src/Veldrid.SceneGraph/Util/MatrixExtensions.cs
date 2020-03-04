@@ -101,8 +101,8 @@ namespace Veldrid.SceneGraph.Util
                 System.Math.Abs(mat.M44 - 1.0) > tol) 
                 return false;
 
-            zNear  = (mat.M43) / mat.M33;
-            zFar   = (mat.M43 - 1.0f) / mat.M33;
+            zFar  = (mat.M43) / mat.M33;
+            zNear   = (mat.M43 - 1.0f) / mat.M33;
 
             left   = -(1.0f + mat.M41) / mat.M11;
             right  =  (1.0f - mat.M41) / mat.M11;
