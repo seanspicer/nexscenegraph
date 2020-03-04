@@ -48,6 +48,7 @@ namespace Lighting
             var logger = Veldrid.SceneGraph.Logging.LogManager.CreateLogger<Program>();
             
             var viewer = SimpleViewer.Create("Phong Shaded Dragon Scene Graph", TextureSampleCount.Count8);
+            //viewer.SetCameraOrthographic();
             viewer.SetCameraManipulator(TrackballManipulator.Create());
 
             var root = LightingExampleScene.Build();
