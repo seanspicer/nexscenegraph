@@ -28,10 +28,7 @@ namespace Veldrid.SceneGraph.Viewer
         ICameraManipulator CameraManipulator { get; }
         ICamera Camera { get; }
         IObservable<IInputStateSnapshot> InputEvents { get; set; }
-        
-        [Obsolete("this is should not be used anywhere")]
-        Framebuffer Framebuffer { get; set; }
-        
+
         SceneContext SceneContext { get; set; }
         
         void AddInputEventHandler(IInputEventHandler handler);
@@ -49,11 +46,7 @@ namespace Veldrid.SceneGraph.Viewer
 
         private Renderer Renderer { get; set; }
         
-        public  Framebuffer Framebuffer 
-        { 
-            get => Renderer.Framebuffer; 
-            set => Renderer.Framebuffer = value;
-        }
+
 
         public SceneContext SceneContext
         {

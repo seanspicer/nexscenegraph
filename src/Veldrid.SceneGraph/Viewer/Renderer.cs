@@ -53,10 +53,7 @@ namespace Veldrid.SceneGraph.Viewer
         private List<Tuple<uint, ResourceSet>> _defaultResourceSets = new List<Tuple<uint, ResourceSet>>();
 
         private FullScreenQuadRenderer _fullScreenQuadRenderer;
-        
-        [Obsolete("this is should not be used anywhere")]
-        public Framebuffer Framebuffer { get; set; }
-        
+
         public SceneContext SceneContext { get; set; }
         
         private ILogger _logger;
@@ -67,7 +64,6 @@ namespace Veldrid.SceneGraph.Viewer
             _cullVisitor = CullVisitor.Create();
             _logger = LogManager.CreateLogger<Renderer>();
             _fullScreenQuadRenderer = new FullScreenQuadRenderer();
-            Framebuffer = null;
             SceneContext = null;
         }
 

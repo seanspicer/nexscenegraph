@@ -476,8 +476,6 @@ namespace Veldrid.SceneGraph.Viewer
                     _factory);
                 
                 GraphicsDeviceResize?.Invoke(_graphicsDevice);
-                
-                Framebuffer = _graphicsDevice.SwapchainFramebuffer;
             }
             
             GraphicsDeviceOperations?.Invoke(_graphicsDevice, _factory);

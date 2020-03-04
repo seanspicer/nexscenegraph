@@ -281,7 +281,6 @@ namespace Veldrid.SceneGraph.Wpf
             
             if (null != _view)
             {
-                _view.Framebuffer = _offscreenFB;
                 _sceneContext.SetOutputFramebufffer(_offscreenFB);
             }
             
