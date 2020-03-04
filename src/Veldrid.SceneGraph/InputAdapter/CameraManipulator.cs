@@ -83,13 +83,15 @@ namespace Veldrid.SceneGraph.InputAdapter
         // Update a camera
         public virtual void UpdateCamera(ICamera camera)
         {
-            float left = 0, right = 0, bottom = 0, top = 0, zNear = 0, zFar = 0;
-            
-            if (camera.GetProjectionMatrixAsOrtho(
-                ref left, ref right,
-                ref bottom, ref top,
-                ref zNear, ref zFar))
+            if(camera is IOrthographicCamera orthographicCamera) 
             {
+                float left = 0, right = 0, bottom = 0, top = 0, zNear = 0, zFar = 0;
+            
+                orthographicCamera.GetProjectionMatrixAsOrtho(
+                    ref left, ref right,
+                    ref bottom, ref top,
+                    ref zNear, ref zFar);
+            
                 var vertical2 = Math.Abs(right - left) / zNear / 2f;
                 var horizontal2 = Math.Abs(top - bottom) / zNear / 2f;
                 var dim = horizontal2 < vertical2 ? horizontal2 : vertical2;
@@ -105,7 +107,7 @@ namespace Veldrid.SceneGraph.InputAdapter
                 var width = radius * winScale  * aspectRatio * ZoomScale;
                 var height = radius * winScale * ZoomScale;
 
-                camera.SetProjectionMatrixAsOrthographic(width, height, winScale * radius, -winScale * radius);
+                orthographicCamera.SetProjectionMatrixAsOrthographic(width, height, winScale * radius, -winScale * radius);
 
                 inverseMatrix.M43 = 0;
                 camera.SetViewMatrix(inverseMatrix);
@@ -154,32 +156,43 @@ namespace Veldrid.SceneGraph.InputAdapter
             if (null != camera)
             {
                 float left = 0, right = 0, bottom = 0, top = 0, zNear = 0, zFar = 0;
-                if (camera.GetProjectionMatrixAsFrustum(
-                    ref left, ref right,
-                    ref bottom, ref top,
-                    ref zNear, ref zFar))
+                switch (camera)
                 {
-                    var vertical2 = Math.Abs(right - left) / zNear / 2f;
-                    var horizontal2 = Math.Abs(top - bottom) / zNear / 2f;
-                    var dim = horizontal2 < vertical2 ? horizontal2 : vertical2;
-                    var viewAngle = Math.Atan2(dim,1f);
-                    dist = radius / Math.Sin(viewAngle);
+                    case IPerspectiveCamera perspectiveCamera:
+                        perspectiveCamera.GetProjectionMatrixAsFrustum(
+                            ref left, ref right,
+                            ref bottom, ref top,
+                            ref zNear, ref zFar);
+                
+                        // var vertical2 = Math.Abs(right - left) / zNear / 2f;
+                        // var horizontal2 = Math.Abs(top - bottom) / zNear / 2f;
+                        // var dim = horizontal2 < vertical2 ? horizontal2 : vertical2;
+                        // var viewAngle = Math.Atan2(dim,1f);
+                        // dist = radius / Math.Sin(viewAngle);
+                        break;
+                    case IOrthographicCamera orthographicCamera:
+                        // Compute dist from ortho
+                        orthographicCamera.GetProjectionMatrixAsOrtho(
+                            ref left, ref right,
+                            ref bottom, ref top,
+                            ref zNear, ref zFar);
+                        //
+                        // var vertical2 = Math.Abs(right - left) / zNear / 2f;
+                        // var horizontal2 = Math.Abs(top - bottom) / zNear / 2f;
+                        // var dim = horizontal2 < vertical2 ? horizontal2 : vertical2;
+                        // var viewAngle = Math.Atan2(dim,1f);
+                        // dist = radius / Math.Sin(viewAngle);
+                        break;
+                    default:
+                        throw new Exception("Unknown Camera type detected");
+                        break;
                 }
-                else
-                {
-                    // Compute dist from ortho
-                    if (camera.GetProjectionMatrixAsOrtho(
-                        ref left, ref right,
-                        ref bottom, ref top,
-                        ref zNear, ref zFar))
-                    {
-                        var vertical2 = Math.Abs(right - left) / zNear / 2f;
-                        var horizontal2 = Math.Abs(top - bottom) / zNear / 2f;
-                        var dim = horizontal2 < vertical2 ? horizontal2 : vertical2;
-                        var viewAngle = Math.Atan2(dim,1f);
-                        dist = radius / Math.Sin(viewAngle);
-                    }
-                }
+                
+                var vertical2 = Math.Abs(right - left) / zNear / 2f;
+                var horizontal2 = Math.Abs(top - bottom) / zNear / 2f;
+                var dim = horizontal2 < vertical2 ? horizontal2 : vertical2;
+                var viewAngle = Math.Atan2(dim,1f);
+                dist = radius / Math.Sin(viewAngle);
             }
                 
             SetHomePosition(boundingSphere.Center - (float)dist*Vector3.UnitY,

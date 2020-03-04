@@ -26,7 +26,7 @@ namespace Veldrid.SceneGraph.Viewer
     {
         INode SceneData { get; }
         ICameraManipulator CameraManipulator { get; }
-        ICamera Camera { get; set; }
+        ICamera Camera { get; }
         IObservable<IInputStateSnapshot> InputEvents { get; set; }
         
         [Obsolete("this is should not be used anywhere")]
@@ -39,8 +39,6 @@ namespace Veldrid.SceneGraph.Viewer
         void SetSceneData(INode node);
         
         void SetCameraManipulator(ICameraManipulator manipulator, bool resetPosition=true);
-
-        void SetCameraOrthographic();
     }
     
     public class View : Veldrid.SceneGraph.View, IUiActionAdapter, IView
@@ -71,11 +69,12 @@ namespace Veldrid.SceneGraph.Viewer
             get => _cameraManipulator;
         }
 
-        public void SetCameraOrthographic()
+        public override void SetCamera(ICamera camera)
         {
-            Camera.SetProjectionMatrixAsOrthographic(1, 1, 1, -1);
+            camera.SetRenderer(CreateRenderer(camera));
+            base.SetCamera(camera);
         }
-
+        
         public void SetCameraManipulator(ICameraManipulator manipulator, bool resetPosition)
         {
             // TODO this is probably temporary now.
@@ -155,7 +154,14 @@ namespace Veldrid.SceneGraph.Viewer
 
         private IGraphicsDeviceOperation CreateRenderer(ICamera camera)
         {
+            SceneContext currentSceneContext = null;
+            if (null != Renderer)
+            {
+                currentSceneContext = Renderer.SceneContext;
+            }
+            
             Renderer = new Renderer(camera);
+            Renderer.SceneContext = currentSceneContext;
             return Renderer;
         }
         

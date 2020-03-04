@@ -59,6 +59,8 @@ namespace Veldrid.SceneGraph
         
         void SetViewport(int x, int y, int width, int height);
         
+        void SetViewport(IViewport viewport);
+        
         IGraphicsDeviceOperation Renderer { get; }
         
         void SetRenderer(IGraphicsDeviceOperation renderer);
@@ -66,9 +68,38 @@ namespace Veldrid.SceneGraph
         void Resize(int width, int height, ResizeMask resizeMask = ResizeMask.ResizeDefault);
 
         void SetProjectionMatrix(Matrix4x4 matrix);
-
-        bool IsOrthographicCamera();
         
+        void SetViewMatrix(Matrix4x4 matrix);
+        
+        void SetViewMatrixToLookAt(Vector3 position, Vector3 target, Vector3 upDirection);
+        
+
+        Vector3 NormalizedScreenToWorld(Vector3 screenCoords);
+        
+        RgbaFloat ClearColor { get; }
+
+        void SetClearColor(RgbaFloat color);
+    }
+
+    public interface IPerspectiveCamera : ICamera
+    {
+        /// <summary>
+        /// Create a symmetrical perspective projection. 
+        /// </summary>
+        /// <param name="vfov"></param>
+        /// <param name="aspectRatio"></param>
+        /// <param name="zNear"></param>
+        /// <param name="zFar"></param>
+        void SetProjectionMatrixAsPerspective(float vfov, float aspectRatio, float zNear, float zFar);
+        
+        bool GetProjectionMatrixAsFrustum( 
+            ref float left, ref float right, 
+            ref float bottom, ref float top,
+            ref float zNear, ref float zFar);
+    }
+
+    public interface IOrthographicCamera : ICamera
+    {
         void SetProjectionMatrixAsOrthographicOffCenter(
             float left,
             float right,
@@ -83,38 +114,13 @@ namespace Veldrid.SceneGraph
             float zNearPlane,
             float zFarPlane);
         
-        /// <summary>
-        /// Create a symmetrical perspective projection. 
-        /// </summary>
-        /// <param name="vfov"></param>
-        /// <param name="aspectRatio"></param>
-        /// <param name="zNear"></param>
-        /// <param name="zFar"></param>
-        void SetProjectionMatrixAsPerspective(float vfov, float aspectRatio, float zNear, float zFar);
-
-        bool GetProjectionMatrixAsFrustum( 
-            ref float left, ref float right, 
-            ref float bottom, ref float top,
-            ref float zNear, ref float zFar);
-        
         bool GetProjectionMatrixAsOrtho( 
             ref float left, ref float right, 
             ref float bottom, ref float top,
             ref float zNear, ref float zFar);
-        
-        void SetViewMatrix(Matrix4x4 matrix);
-        
-        void SetViewMatrixToLookAt(Vector3 position, Vector3 target, Vector3 upDirection);
-        
-
-        Vector3 NormalizedScreenToWorld(Vector3 screenCoords);
-        
-        RgbaFloat ClearColor { get; }
-
-        void SetClearColor(RgbaFloat color);
     }
     
-    public class Camera : Transform, ICamera
+    public abstract class Camera : Transform, ICamera
     {
         public IView View { get; private set; }
         
@@ -139,13 +145,13 @@ namespace Veldrid.SceneGraph
         {
             Viewport = SceneGraph.Viewport.Create(x, y, width, height);
         }
+        
+        public void SetViewport(IViewport viewport)
+        {
+            Viewport = viewport;
+        }
 
         public IGraphicsDeviceOperation Renderer { get; private set; }
-
-        public static ICamera Create()
-        {
-            return new Camera();
-        }
         
         protected Camera()
         {
@@ -166,98 +172,14 @@ namespace Veldrid.SceneGraph
 //        {
 //            Resize(resizedEvent.Width, resizedEvent.Height);
 //        }
+
+        protected abstract void ResizeProjection(int width, int height, ResizeMask resizeMask = ResizeMask.ResizeDefault);
         
         public void Resize(int width, int height, ResizeMask resizeMask = ResizeMask.ResizeDefault)
         {
             if (null != Viewport)
             {
-                double previousWidth = Viewport.Width;
-                double previousHeight = Viewport.Height;
-                double newWidth = width;
-                double newHeight = height;
-
-                var dist = DisplaySettings.Instance.ScreenDistance;
-                
-                // TODO -- THIS NEEDS TO BE MOVED, it shouldn't be necessary.
-                if (Math.Abs(previousWidth) < 1e-6 && Math.Abs(previousHeight) < 1e-6)
-                {
-                    float left = 0, right = 0, bottom = 0, top = 0, zNear = 0, zFar = 0;
-                    if(GetProjectionMatrixAsOrtho(
-                        ref left, ref right,
-                        ref bottom, ref top,
-                        ref zNear, ref zFar))
-                    {
-                        SetProjectionMatrixAsOrthographic(width/(dist/10), height/(dist/10), dist/10, -dist/10);
-                    }
-                    else
-                    {
-                    
-                        // TODO: This is tricky - need to fix when ViewAll implemented
-                        var vfov = (float) Math.Atan2(height / 2.0f, dist) * 2.0f;
-                    
-                        var aspectRatio = (float)width / (float)height;
-                        SetProjectionMatrixAsPerspective(vfov, aspectRatio, 0.1f, 100f);
-                    }
-                    
-                    if((resizeMask & ResizeMask.ResizeViewport) != 0)
-                    {
-                        SetViewport(0, 0, width, height);
-                    }
-                }
-
-                if (previousWidth > 1e-6 && Math.Abs(previousWidth - newWidth) > 1e-6 ||
-                    previousHeight > 1e-6 && Math.Abs(previousHeight - newHeight) > 1e-6)
-                {
-                    if ((resizeMask & ResizeMask.ResizeProjectionMatrix) != 0)
-                    {
-                        var widthChangeRatio = newWidth / previousWidth;
-                        var heightChangeRatio = newHeight / previousHeight;
-                        var aspectRatioChange = widthChangeRatio / heightChangeRatio;
-
-                        if (Math.Abs(aspectRatioChange - 1.0) > 1e-6)
-                        {
-                            switch (ProjectionResizePolicy)
-                            {
-                                case ProjectionResizePolicy.Horizontal:
-                                    SetProjectionMatrix(ProjectionMatrix *
-                                                        Matrix4x4.CreateScale(1.0f / (float) aspectRatioChange, 1.0f, 1.0f));
-                                    break;
-                                case ProjectionResizePolicy.Vertical:
-                                    SetProjectionMatrix(ProjectionMatrix *
-                                                        Matrix4x4.CreateScale(1.0f, (float) aspectRatioChange, 1.0f));
-                                    break;
-                                case ProjectionResizePolicy.Fixed:
-                                    
-                                    float left = 0, right = 0, bottom = 0, top = 0, zNear = 0, zFar = 0;
-                                    if(GetProjectionMatrixAsOrtho(
-                                        ref left, ref right,
-                                        ref bottom, ref top,
-                                        ref zNear, ref zFar))
-                                    {
-                                        //SetProjectionMatrixAsOrthographic((right - left)*(float)widthChangeRatio, (top-bottom)*(float)heightChangeRatio, zNear, zFar);
-                                        
-                                        SetProjectionMatrix(ProjectionMatrix * 
-                                                            Matrix4x4.CreateScale(1.0f / (float)widthChangeRatio,  1.0f / (float) heightChangeRatio, 1.0f));
-                                    }
-                                    else
-                                    {
-                                        // TODO: This is tricky - need to fix when ViewAll implemented
-                                        var vfov = (float) Math.Atan2(height / 2.0f, dist) * 2.0f;
-
-                                        var aspectRatio = (float)width / (float)height;
-                                        SetProjectionMatrixAsPerspective(vfov, aspectRatio, 0.1f, 100f);
-                                    }
-                                    
-                                    break;
-                            }
-                        }
-                    }
-                    
-                    if((resizeMask & ResizeMask.ResizeViewport) != 0)
-                    {
-                        SetViewport(0, 0, width, height);
-                    }
-                }
+                ResizeProjection(width, height, resizeMask);
             }
 
             if ((resizeMask & ResizeMask.ResizeAttachments) != 0)
@@ -270,48 +192,16 @@ namespace Veldrid.SceneGraph
         {
             ProjectionMatrix = matrix;
         }
-
-        public void SetProjectionMatrixAsOrthographicOffCenter(float left, float right, float bottom, float top, float zNear, float zFar)
-        {
-            SetProjectionMatrix(Matrix4x4.CreateOrthographicOffCenter(left, right, bottom, top, zFar, zNear));
-        }
-
-        public void SetProjectionMatrixAsOrthographic(float width, float height, float zNear, float zFar)
-        {
-            var left = -width / 2.0f;
-            var right = width / 2.0f;
-            var top = height / 2.0f;
-            var bottom = -height / 2.0f;
-            
-            SetProjectionMatrixAsOrthographicOffCenter(left, right, bottom, top, zNear, zFar);
-        }
         
-        public void SetProjectionMatrixAsPerspective(float vfov, float aspectRatio, float zNear, float zFar)
-        {
-            SetProjectionMatrix(Matrix4x4.CreatePerspectiveFieldOfView(vfov, aspectRatio, zNear, zFar));
-        }
-
-        public bool GetProjectionMatrixAsFrustum(ref float left, ref float right, ref float bottom, ref float top, ref float zNear,
-            ref float zFar)
-        {
-            return ProjectionMatrix.GetFrustum(ref left, ref right, ref bottom, ref top, ref zNear, ref zFar);
-        }
-
-        public bool GetProjectionMatrixAsOrtho(ref float left, ref float right, ref float bottom, ref float top, ref float zNear,
-            ref float zFar)
-        {
-            return ProjectionMatrix.GetOrtho(ref left, ref right, ref bottom, ref top, ref zNear, ref zFar);
-        }
-
-        public bool IsOrthographicCamera()
-        {
-            float left = 0, right = 0, bottom = 0, top = 0, zNear = 0, zFar = 0;
-            return GetProjectionMatrixAsOrtho(
-                ref left, ref right,
-                ref bottom, ref top,
-                ref zNear, ref zFar);
-
-        }
+        // public bool IsOrthographicCamera()
+        // {
+        //     float left = 0, right = 0, bottom = 0, top = 0, zNear = 0, zFar = 0;
+        //     return GetProjectionMatrixAsOrtho(
+        //         ref left, ref right,
+        //         ref bottom, ref top,
+        //         ref zNear, ref zFar);
+        //
+        // }
 
         public void SetViewMatrix(Matrix4x4 matrix)
         {

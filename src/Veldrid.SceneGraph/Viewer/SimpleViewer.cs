@@ -194,6 +194,29 @@ namespace Veldrid.SceneGraph.Viewer
             Camera.SetProjectionResizePolicy(ProjectionResizePolicy.Fixed);
         }
 
+        public override void SetCamera(ICamera camera)
+        {
+            GraphicsDeviceOperations -= Camera.Renderer.HandleOperation;
+            GraphicsDeviceResize -= Camera.Renderer.HandleResize;
+            
+            base.SetCamera(camera);
+            
+            GraphicsDeviceOperations += Camera.Renderer.HandleOperation;
+            GraphicsDeviceResize += Camera.Renderer.HandleResize;
+        }
+
+        public void SetCameraOrthographic()
+        {
+            var camera = OrthographicCamera.Create();
+            SetCamera(camera);
+        }
+
+        public void SetCameraPerspective()
+        {
+            var camera = PerspectiveCamera.Create();
+            SetCamera(camera);
+        }
+
         public ICamera GetCamera()
         {
             return Camera;
