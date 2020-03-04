@@ -22,7 +22,7 @@ namespace Veldrid.SceneGraph
 {
     public class OrthographicCamera : Camera, IOrthographicCamera
     {
-        public static IOrthographicCamera Create()
+        public new static IOrthographicCamera Create()
         {
             return new OrthographicCamera();
         }

@@ -22,7 +22,7 @@ namespace Veldrid.SceneGraph
 {
     public class PerspectiveCamera : Camera, IPerspectiveCamera
     {
-        public static IPerspectiveCamera Create()
+        public new static IPerspectiveCamera Create()
         {
             return new PerspectiveCamera();
         }

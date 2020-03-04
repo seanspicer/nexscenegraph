@@ -163,29 +163,16 @@ namespace Veldrid.SceneGraph.InputAdapter
                             ref left, ref right,
                             ref bottom, ref top,
                             ref zNear, ref zFar);
-                
-                        // var vertical2 = Math.Abs(right - left) / zNear / 2f;
-                        // var horizontal2 = Math.Abs(top - bottom) / zNear / 2f;
-                        // var dim = horizontal2 < vertical2 ? horizontal2 : vertical2;
-                        // var viewAngle = Math.Atan2(dim,1f);
-                        // dist = radius / Math.Sin(viewAngle);
                         break;
+                    
                     case IOrthographicCamera orthographicCamera:
-                        // Compute dist from ortho
                         orthographicCamera.GetProjectionMatrixAsOrtho(
                             ref left, ref right,
                             ref bottom, ref top,
                             ref zNear, ref zFar);
-                        //
-                        // var vertical2 = Math.Abs(right - left) / zNear / 2f;
-                        // var horizontal2 = Math.Abs(top - bottom) / zNear / 2f;
-                        // var dim = horizontal2 < vertical2 ? horizontal2 : vertical2;
-                        // var viewAngle = Math.Atan2(dim,1f);
-                        // dist = radius / Math.Sin(viewAngle);
                         break;
                     default:
                         throw new Exception("Unknown Camera type detected");
-                        break;
                 }
                 
                 var vertical2 = Math.Abs(right - left) / zNear / 2f;
