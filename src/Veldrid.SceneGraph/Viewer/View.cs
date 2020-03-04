@@ -145,6 +145,11 @@ namespace Veldrid.SceneGraph.Viewer
             }
         }
 
+        public static IView Create()
+        {
+            return new View();
+        }
+        
         protected View()
         {
             _scene = new Scene();

@@ -24,6 +24,8 @@ namespace Veldrid.SceneGraph.Wpf
         public float WheelDelta { get; set; }
         public int WindowWidth { get; }
         public int WindowHeight { get; }
+        public Matrix4x4 ProjectionMatrix { get; }
+        public Matrix4x4 ViewMatrix { get; }
 
         private bool[] _mouseDown = new bool[13];
         public bool[] MouseDown => _mouseDown;

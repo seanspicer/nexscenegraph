@@ -244,10 +244,10 @@ namespace Veldrid.SceneGraph.Viewer
             Camera.SetClearColor(color);
         }
 
-        public void AddInputEventHandler(IInputEventHandler handler)
-        {
-            AddInputEventHandler(handler);
-        }
+        // public void AddInputEventHandler(IInputEventHandler handler)
+        // {
+        //     AddInputEventHandler(handler);
+        // }
         
         public void Run()
         {
