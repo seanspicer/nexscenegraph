@@ -16,16 +16,9 @@
 
 using System;
 using System.Numerics;
+using System.Reactive.Concurrency;
 
 namespace Veldrid.SceneGraph.InputAdapter
 {
-    public interface ICameraManipulator : IInputEventHandler
-    {
-        void SetCamera(ICamera camera);
-        void ViewAll();
 
-        void SetProjectionMatrixAsPerspective(float vfov, float aspectRatio, float zNear, float zFar);
-
-        void SetViewMatrixToLookAt(Vector3 position, Vector3 target, Vector3 upDirection);
-    }
 }

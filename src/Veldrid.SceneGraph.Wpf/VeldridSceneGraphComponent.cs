@@ -55,7 +55,7 @@ namespace Veldrid.SceneGraph.Wpf
                 _sceneData = value;
                 if (null != _view)
                 {
-                    ((Veldrid.SceneGraph.Viewer.View) _view).SceneData = _sceneData;
+                    _view.SetSceneData(_sceneData);
                 }
             }
         }
@@ -68,10 +68,7 @@ namespace Veldrid.SceneGraph.Wpf
             set
             {
                 _cameraManipulator = value;
-                if (null != _view)
-                {
-                    ((Veldrid.SceneGraph.Viewer.View) _view).CameraManipulator = _cameraManipulator;
-                }
+                _view?.SetCameraManipulator(_cameraManipulator);
             }
         }
 
@@ -83,12 +80,8 @@ namespace Veldrid.SceneGraph.Wpf
             set
             {
                 _eventHandler = value;
-                if (null != _view)
-                {
-                    _eventHandler.SetView((Veldrid.SceneGraph.Viewer.View)_view);
-                    ((Veldrid.SceneGraph.Viewer.View) _view).AddInputEventHandler(_eventHandler);
-                }
-                
+                _view?.AddInputEventHandler(_eventHandler);
+
             }
         }
 
@@ -168,15 +161,14 @@ namespace Veldrid.SceneGraph.Wpf
             
             //_cl = _gd.ResourceFactory.CreateCommandList();
             
-            DisplaySettings.Instance.ScreenWidth = width;
-            DisplaySettings.Instance.ScreenHeight = height;
-            DisplaySettings.Instance.ScreenDistance = 1000.0f;
+            DisplaySettings.Instance.SetScreenWidth(width);
+            DisplaySettings.Instance.SetScreenHeight(height);
+            DisplaySettings.Instance.SetScreenDistance(1000.0f);
             
-            var view = Veldrid.SceneGraph.Viewer.View.Create(_resizeEvents);
+            var view = Viewer.View.Create();
             view.InputEvents = ViewerInputEvents;
-            view.SceneData = _sceneData;
-            view.CameraManipulator = _cameraManipulator;
-            _eventHandler.SetView((Veldrid.SceneGraph.Viewer.View)view);
+            view.SetSceneData(_sceneData);
+            view.SetCameraManipulator(_cameraManipulator);
             view.AddInputEventHandler(_eventHandler);
 
             GraphicsDeviceOperations += view.Camera.Renderer.HandleOperation;
@@ -262,7 +254,7 @@ namespace Veldrid.SceneGraph.Wpf
             int width =  (ActualWidth < 0 ? 0 : (int)Math.Ceiling(ActualWidth * dpiScale));
             int height = (ActualHeight < 0 ? 0 : (int)Math.Ceiling(ActualHeight * dpiScale));
 
-            var inputStateSnap = InputStateSnapshot.Create(_inputState, width, height);
+            var inputStateSnap = InputStateSnapshot.Create(_inputState, width, height, _view.Camera.ProjectionMatrix, _view.Camera.ViewMatrix);
             _viewerInputEvents.OnNext(inputStateSnap);
             _inputState.MouseEventList.Clear();
             _inputState.KeyEventList.Clear();
@@ -363,22 +355,22 @@ namespace Veldrid.SceneGraph.Wpf
         
         public void ViewAll()
         {
-            ((Veldrid.SceneGraph.Viewer.View)_view).CameraManipulator?.ViewAll();
+            _view.CameraManipulator?.ViewAll();
         }
         
         public void SetSceneData(IGroup root)
         {
-            ((Veldrid.SceneGraph.Viewer.View)_view).SceneData = root;
+            _view.SetSceneData(root);
         }
 
         public void SetCameraManipulator(ICameraManipulator cameraManipulator)
         {
-            ((Veldrid.SceneGraph.Viewer.View)_view).CameraManipulator = cameraManipulator;
+            _view.SetCameraManipulator(cameraManipulator);
         }
 
         public void AddInputEventHandler(IInputEventHandler handler)
         {
-            ((Veldrid.SceneGraph.Viewer.View)_view).AddInputEventHandler(handler);
+            _view.AddInputEventHandler(handler);
         }
 
         protected override sealed void Uninitialize()
@@ -443,8 +435,8 @@ namespace Veldrid.SceneGraph.Wpf
             uint width = (uint) (ActualWidth < 0 ? 0 : Math.Ceiling(ActualWidth * dpiScale));
             uint height = (uint) (ActualHeight < 0 ? 0 : Math.Ceiling(ActualHeight * dpiScale));
             _graphicsDevice.ResizeMainWindow(width, height);
-            DisplaySettings.Instance.ScreenWidth = width;
-            DisplaySettings.Instance.ScreenHeight = height;
+            DisplaySettings.Instance.SetScreenWidth(width);
+            DisplaySettings.Instance.SetScreenHeight(height);
             _resizeEvents.OnNext(new ResizedEvent((int)width, (int)height));
         }
 

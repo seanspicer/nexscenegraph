@@ -17,17 +17,5 @@ using System.Numerics;
 
 namespace Veldrid.SceneGraph
 {
-    public interface IPolytope
-    {
-        Matrix4x4 ViewProjectionMatrix { get; }
-        void SetViewProjectionMatrix(Matrix4x4 viewProjectionMatrix);
 
-        void SetToViewProjectionFrustum(
-            Matrix4x4 viewProjectionMatrix, 
-            bool withNear=true, 
-            bool withFar = true);
-
-        bool Contains(IBoundingBox bb);
-        bool Contains(IBoundingBox bb, Matrix4x4 transformMatrix);
-    }
 }

@@ -27,19 +27,16 @@ namespace CullingColoredCubes
 {
     public class PickEventHandler : InputEventHandler
     {
-        private Veldrid.SceneGraph.Viewer.IView _view;
-
         private readonly ILogger _logger;
         
         public PickEventHandler(Veldrid.SceneGraph.Viewer.IView view)
         {
             _logger = Log.Logger.ForContext("Source", "CullingColoredCubes");
-            _view = view;
         }
         
-        public override void HandleInput(IInputStateSnapshot snapshot)
+        public override void HandleInput(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter)
         {
-            base.HandleInput(snapshot);
+            base.HandleInput(snapshot, uiActionAdapter);
             
             foreach (var keyEvent in snapshot.KeyEvents)
             {
@@ -48,7 +45,7 @@ namespace CullingColoredCubes
                     switch (keyEvent.Key)
                     {
                         case Key.P:
-                            DoPick(snapshot);
+                            DoPick(snapshot, uiActionAdapter as Veldrid.SceneGraph.Viewer.IView);
                             break;
                     }
                     
@@ -56,17 +53,17 @@ namespace CullingColoredCubes
             }
         }
 
-        private void DoPick(IInputStateSnapshot snapshot)
+        private void DoPick(IInputStateSnapshot snapshot, Veldrid.SceneGraph.Viewer.IView view)
         {
             var norm = GetNormalizedMousePosition();
             
-            var startPos = _view.Camera.NormalizedScreenToWorld(new Vector3(norm.X, norm.Y, 0.0f)); // Near plane
-            var endPos = _view.Camera.NormalizedScreenToWorld(new Vector3(norm.X, norm.Y, 1.0f)); // Far plane
+            var startPos = view.Camera.NormalizedScreenToWorld(new Vector3(norm.X, norm.Y, 0.0f)); // Near plane
+            var endPos = view.Camera.NormalizedScreenToWorld(new Vector3(norm.X, norm.Y, 1.0f)); // Far plane
             var intersector = LineSegmentIntersector.Create(startPos, endPos);
             
             var intersectionVisitor = IntersectionVisitor.Create(intersector);
             
-            _view.SceneData?.Accept(intersectionVisitor);
+            view.SceneData?.Accept(intersectionVisitor);
 
             if (intersector.Intersections.Any())
             {

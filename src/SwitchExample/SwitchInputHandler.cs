@@ -33,9 +33,9 @@ namespace SwitchExample
             _pos = -1;
         }
         
-        public override void HandleInput(IInputStateSnapshot snapshot)
+        public override void HandleInput(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter)
         {
-            base.HandleInput(snapshot);
+            base.HandleInput(snapshot,uiActionAdapter);
             
             foreach (var keyEvent in snapshot.KeyEvents)
             {

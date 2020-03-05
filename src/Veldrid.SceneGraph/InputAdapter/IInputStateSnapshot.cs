@@ -29,5 +29,9 @@ namespace Veldrid.SceneGraph.InputAdapter
         float WheelDelta { get; }
         int WindowWidth { get; }
         int WindowHeight { get; }
+
+        Matrix4x4 ProjectionMatrix { get; }
+        Matrix4x4 ViewMatrix { get; }
+
     }
 }

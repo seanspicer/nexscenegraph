@@ -90,6 +90,26 @@ layout(location = 6) out vec3 fsin_Constants;
 
 //layout(location = 4) out LightData fsin_lightData; 
 
+bool isOrthographicProjection(mat4 projection) {
+    const double tol = 1e-6;
+    if (projection[0][3] > tol || projection[1][3] > tol || projection[2][3] > tol || (projection[3][3]-1) > tol) return false;
+    
+    return true;
+}
+
+vec3 getEyePosition(mat4 projection) {
+    
+    if(isOrthographicProjection(projection)) {
+    
+        float zNear = (projection[3][2] - 1.0) / projection[2][2];
+        return vec3(0, 0, zNear);
+        
+    } else {
+        return vec3(0, 0, 0);
+    }
+    
+}
+
 void main()
 {
     //vec4 LightPos = vec4(0,0,0,1);
@@ -98,7 +118,7 @@ void main()
     gl_Position = field_Projection * field_View * (field_Model * v4Pos);
     
     vec3 vertexPosition_cameraspace = ( field_View * field_Model * v4Pos).xyz;
-    vec3 EyeDirection_cameraspace = vec3(0,0,0) - vertexPosition_cameraspace;
+    vec3 EyeDirection_cameraspace = getEyePosition(field_Projection) - vertexPosition_cameraspace;
     
     vec3 LightPosition_cameraspace = (1-lightSource.IsHeadlight) * ( field_View * field_Model * lightSource.Position).xyz;
     vec3 LightDirection_cameraspace = LightPosition_cameraspace + EyeDirection_cameraspace;

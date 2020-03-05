@@ -54,7 +54,9 @@ namespace HelloNsg
             Bootstrapper.Configure();
             
             var viewer = SimpleViewer.Create("Hello Veldrid Scene Graph", TextureSampleCount.Count32);
-            viewer.SetCameraManipulator(TrackballManipulator.Create());
+            var trackball = TrackballManipulator.Create();
+            trackball.SetHomePosition(-Vector3.UnitZ, Vector3.Zero, Vector3.UnitY);
+            viewer.SetCameraManipulator(trackball);
             viewer.SetBackgroundColor(RgbaFloat.Black);
 
             var root = Group.Create();
@@ -100,7 +102,7 @@ namespace HelloNsg
 
             viewer.ViewAll();
             
-            viewer.Run(GraphicsBackend.OpenGL);
+            viewer.Run();
 
         }
     }

@@ -18,9 +18,15 @@ namespace Veldrid.SceneGraph
 {
     public interface IDisplaySettings
     {
-        float ScreenWidth { get; set; }
-        float ScreenHeight { get; set; }
-        float ScreenDistance { get; set; }
+        float ScreenWidth { get; }
+        void SetScreenWidth(float width);
+        
+        float ScreenHeight { get; }
+        void SetScreenHeight(float height);
+        
+        float ScreenDistance { get; }
+        void SetScreenDistance(float distance);
+        
         GraphicsBackend GraphicsBackend { get; }
     }
 }
