@@ -7,11 +7,13 @@ using SharpDX.D3DCompiler;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using Veldrid.SceneGraph.InputAdapter;
+using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Viewer;
 using Veldrid.SceneGraph.Wpf.Element;
 using Veldrid.Utilities;
 using Buffer = SharpDX.Direct3D11.Buffer;
 using Device = SharpDX.DXGI.Device;
+using Math = System.Math;
 
 namespace Veldrid.SceneGraph.Wpf
 {
@@ -146,10 +148,13 @@ namespace Veldrid.SceneGraph.Wpf
 
         private bool _initialized;
         
+        private readonly IUpdateVisitor _updateVisitor;
+        
         public VeldridSceneGraphRenderer()
         {
             DpiScale = 1.0d;
             _initialized = false;
+            _updateVisitor = UpdateVisitor.Create();
             _graphicsDevice = GraphicsDevice.CreateD3D11(new GraphicsDeviceOptions());
             
             if (_graphicsDevice.GetD3D11Info(out var backendInfo))
@@ -328,10 +333,24 @@ namespace Veldrid.SceneGraph.Wpf
 
             if (null == _graphicsDevice) return;
 
-            GraphicsDeviceOperations?.Invoke(_graphicsDevice, _factory);
+            UpdateTraversal();
+
+            RenderingTraversal();
 
             _endFrameEvents.OnNext(new EndFrameEvent(deltaSeconds));
             
+        }
+        
+        private void UpdateTraversal()
+        {
+            SceneData?.Accept(_updateVisitor);
+
+            CameraManipulator?.UpdateCamera(_view.Camera);
+        }
+
+        private void RenderingTraversal()
+        {
+            GraphicsDeviceOperations?.Invoke(_graphicsDevice, _factory);
         }
 
         public override void RenderCore(DrawEventArgs args)

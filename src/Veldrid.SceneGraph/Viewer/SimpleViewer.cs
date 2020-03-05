@@ -116,7 +116,7 @@ namespace Veldrid.SceneGraph.Viewer
 
         private SDL_EventFilter ResizeEventFilter = null;
 
-        private IUpdateVisitor _updateVisitor;
+        private readonly IUpdateVisitor _updateVisitor;
         
         //private ILog _logger;
         
