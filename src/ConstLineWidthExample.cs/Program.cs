@@ -27,8 +27,6 @@ namespace ConstLineWidthExample.cs
         static void Main(string[] args)
         {
             Bootstrapper.Configure();
-
-            var logger = Veldrid.SceneGraph.Logging.LogManager.CreateLogger<Program>();
             
             var viewer = SimpleViewer.Create("Const Line Width Example");
             viewer.SetCameraManipulator(TrackballManipulator.Create());

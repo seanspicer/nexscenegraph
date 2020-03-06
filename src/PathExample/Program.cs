@@ -28,7 +28,7 @@ namespace PathExample
         {
             Bootstrapper.Configure();
 
-            var logger = Veldrid.SceneGraph.Logging.LogManager.CreateLogger<Program>();
+            //var logger = Veldrid.SceneGraph.Logging.LogManager.CreateLogger<Program>();
             
             var viewer = SimpleViewer.Create("Path Shape Example");
             viewer.SetCameraManipulator(TrackballManipulator.Create());
