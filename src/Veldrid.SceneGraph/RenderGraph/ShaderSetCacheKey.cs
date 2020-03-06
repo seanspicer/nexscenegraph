@@ -6,16 +6,19 @@ namespace Veldrid.SceneGraph.RenderGraph
     {
         public string Name { get; }
         public SpecializationConstant[] Specializations { get; }
+        
+        public GraphicsDevice Device { get; }
 
-        public ShaderSetCacheKey(string name, SpecializationConstant[] specializations) : this()
+        public ShaderSetCacheKey(GraphicsDevice device, string name, SpecializationConstant[] specializations) : this()
         {
             Name = name;
             Specializations = specializations;
+            Device = device;
         }
 
         public bool Equals(ShaderSetCacheKey other)
         {
-            return Name.Equals(other.Name) && ArraysEqual(Specializations, other.Specializations);
+            return Device.Equals(other.Device) && Name.Equals(other.Name) && ArraysEqual(Specializations, other.Specializations);
         }
 
         public override int GetHashCode()
@@ -25,6 +28,8 @@ namespace Veldrid.SceneGraph.RenderGraph
             {
                 hash ^= specConst.GetHashCode();
             }
+
+            hash ^= Device.GetHashCode();
             return hash;
         }
 

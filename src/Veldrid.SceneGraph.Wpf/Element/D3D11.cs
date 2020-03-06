@@ -146,6 +146,7 @@ namespace Veldrid.SceneGraph.Wpf.Element
         /// <param name="args"></param>
         public override void EndRender(DrawEventArgs args)
         {
+            // KLUDGE - this line crashes multi-window demo - SEAN
             m_device.ImmediateContext.Flush();
         }
 

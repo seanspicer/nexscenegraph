@@ -195,7 +195,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             IShaderSet shaderSet)
         {
             SpecializationConstant[] constants = GetSpecializations(gd, framebuffer);
-            ShaderSetCacheKey cacheKey = new ShaderSetCacheKey(shaderSet.Name, constants);
+            ShaderSetCacheKey cacheKey = new ShaderSetCacheKey(gd, shaderSet.Name, constants);
             if (!s_shaderSets.TryGetValue(cacheKey, out (Shader vs, Shader fs) set))
             {
                 set = LoadSPIRV(gd, gd.ResourceFactory, framebuffer, shaderSet);
