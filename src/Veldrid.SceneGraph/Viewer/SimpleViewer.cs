@@ -72,8 +72,6 @@ namespace Veldrid.SceneGraph.Viewer
         public GraphicsBackend Backend => GraphicsDevice.ResourceFactory.BackendType;
         public Platform PlatformType { get; }
 
-        //public IObservable<IResizedEvent> ResizeEvents => _resizeEvents;
-        //public IObservable<IEndFrameEvent> EndFrameEvents => _endFrameEvents;
         //public IObservable<IInputStateSnapshot> ViewerInputEvents => _viewerInputEvents;
 
         
@@ -88,8 +86,6 @@ namespace Veldrid.SceneGraph.Viewer
 
         private string _windowTitle = string.Empty;
 
-        //private ISubject<IResizedEvent> _resizeEvents;
-        //private ISubject<IEndFrameEvent> _endFrameEvents;
         private ISubject<IInputStateSnapshot> _viewerInputEvents;
         
         private GraphicsDevice _graphicsDevice;
@@ -145,8 +141,6 @@ namespace Veldrid.SceneGraph.Viewer
             
             // Create Subjects
             _viewerInputEvents = new Subject<IInputStateSnapshot>();
-            //_endFrameEvents = new Subject<IEndFrameEvent>();
-            //_resizeEvents = new Subject<IResizedEvent>();
             
             InputEvents = new Subject<IInputStateSnapshot>();
             
@@ -285,8 +279,6 @@ namespace Veldrid.SceneGraph.Viewer
             }
             
             //_viewerInputEvents.OnCompleted();
-            //_endFrameEvents.OnCompleted();
-            //_resizeEvents.OnCompleted();
 
             DisposeResources();
         }
@@ -466,8 +458,6 @@ namespace Veldrid.SceneGraph.Viewer
                     _window.Width, 
                     _window.Height,
                     ResizeMask.ResizeDefault | ResizeMask.ResizeProjectionMatrix);
-                
-                //_resizeEvents.OnNext(new ResizedEvent(_window.Width, _window.Height));
 
                 _sceneContext.SetOutputFramebufffer(_graphicsDevice.SwapchainFramebuffer);
                 

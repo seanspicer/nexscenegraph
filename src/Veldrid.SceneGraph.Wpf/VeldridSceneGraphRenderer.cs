@@ -19,7 +19,6 @@ namespace Veldrid.SceneGraph.Wpf
 {
     public class VeldridSceneGraphRenderer : BaseRenderer
     {
-        private ISubject<IResizedEvent> _resizeEvents;
         private ISubject<IEndFrameEvent> _endFrameEvents;
         private ISubject<IInputStateSnapshot> _viewerInputEvents;
 
@@ -113,7 +112,6 @@ namespace Veldrid.SceneGraph.Wpf
             get => _view;
         }
         
-        public IObservable<IResizedEvent> ResizeEvents => _resizeEvents;
         public IObservable<IEndFrameEvent> EndFrameEvents => _endFrameEvents;
         public IObservable<IInputStateSnapshot> ViewerInputEvents => _viewerInputEvents;
         
@@ -180,7 +178,6 @@ namespace Veldrid.SceneGraph.Wpf
             // Create Subjects
             _viewerInputEvents = new Subject<IInputStateSnapshot>();
             _endFrameEvents = new Subject<IEndFrameEvent>();
-            _resizeEvents = new Subject<IResizedEvent>();
             _inputState = new WpfInputStateSnapshot();
             
             
@@ -190,7 +187,6 @@ namespace Veldrid.SceneGraph.Wpf
         {
             _viewerInputEvents.OnCompleted();
             _endFrameEvents.OnCompleted();
-            _resizeEvents.OnCompleted();
             
             _graphicsDevice.WaitForIdle();
             _factory.DisposeCollector.DisposeAll();
@@ -370,7 +366,8 @@ namespace Veldrid.SceneGraph.Wpf
 
         public void Resize(IResizedEvent resizeEvent)
         {
-            _resizeEvents.OnNext(resizeEvent);
+            _view.Camera.Resize(resizeEvent.Width, resizeEvent.Height, ResizeMask.ResizeDefault | ResizeMask.ResizeProjectionMatrix);
+            
         }
     }
 }

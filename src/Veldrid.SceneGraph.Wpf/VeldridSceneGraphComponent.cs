@@ -90,7 +90,6 @@ namespace Veldrid.SceneGraph.Wpf
             get => (Veldrid.SceneGraph.Viewer.View)_view;
         }
         
-        public IObservable<IResizedEvent> ResizeEvents => _resizeEvents;
         public IObservable<IEndFrameEvent> EndFrameEvents => _endFrameEvents;
         public IObservable<IInputStateSnapshot> ViewerInputEvents => _viewerInputEvents;
         
@@ -100,7 +99,6 @@ namespace Veldrid.SceneGraph.Wpf
 
         private string _windowTitle = string.Empty;
 
-        private ISubject<IResizedEvent> _resizeEvents;
         private ISubject<IEndFrameEvent> _endFrameEvents;
         private ISubject<IInputStateSnapshot> _viewerInputEvents;
         
@@ -128,7 +126,6 @@ namespace Veldrid.SceneGraph.Wpf
             // Create Subjects
             _viewerInputEvents = new Subject<IInputStateSnapshot>();
             _endFrameEvents = new Subject<IEndFrameEvent>();
-            _resizeEvents = new Subject<IResizedEvent>();
             _inputState = new WpfInputStateSnapshot();
             
             var options = new GraphicsDeviceOptions(
@@ -381,7 +378,6 @@ namespace Veldrid.SceneGraph.Wpf
             
             _viewerInputEvents.OnCompleted();
             _endFrameEvents.OnCompleted();
-            _resizeEvents.OnCompleted();
 
             DisposeResources();
         }
@@ -437,7 +433,6 @@ namespace Veldrid.SceneGraph.Wpf
             _graphicsDevice.ResizeMainWindow(width, height);
             DisplaySettings.Instance.SetScreenWidth(width);
             DisplaySettings.Instance.SetScreenHeight(height);
-            _resizeEvents.OnNext(new ResizedEvent((int)width, (int)height));
         }
 
         protected virtual void Frame()
