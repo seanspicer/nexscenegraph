@@ -22,7 +22,7 @@ using Veldrid.SceneGraph.InputAdapter;
 
 namespace Veldrid.SceneGraph.Viewer
 {
-    public interface IView
+    public interface IView : IUiActionAdapter
     {
         INode SceneData { get; }
         ICameraManipulator CameraManipulator { get; }
@@ -38,7 +38,7 @@ namespace Veldrid.SceneGraph.Viewer
         void SetCameraManipulator(ICameraManipulator manipulator, bool resetPosition=true);
     }
     
-    public class View : Veldrid.SceneGraph.View, IUiActionAdapter, IView
+    public class View : Veldrid.SceneGraph.View, IView
     {
         private Scene _scene;
 

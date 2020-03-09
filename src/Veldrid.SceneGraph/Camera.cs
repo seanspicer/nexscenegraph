@@ -83,6 +83,8 @@ namespace Veldrid.SceneGraph
 
     public interface IPerspectiveCamera : ICamera
     {
+        float VerticalFov { get; }
+
         /// <summary>
         /// Create a symmetrical perspective projection. 
         /// </summary>

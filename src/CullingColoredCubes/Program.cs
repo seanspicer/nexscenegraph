@@ -56,6 +56,7 @@ namespace ColoredCube
             Bootstrapper.Configure();
             
             var viewer = SimpleViewer.Create("Culling Colored Cube Scene Graph");
+            //viewer.SetCameraOrthographic();
             viewer.SetCameraManipulator(TrackballManipulator.Create());
             //viewer.AddInputEventHandler(new PickEventHandler(viewer.View));
 

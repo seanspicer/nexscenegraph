@@ -7,7 +7,7 @@ namespace Veldrid.SceneGraph.InputAdapter
     {
         private INode _node;
         private float _modelSize;
-        private UserInteractionFlags _flags;
+        protected UserInteractionFlags _flags;
      
         [Flags]
         public enum UserInteractionFlags
@@ -136,7 +136,7 @@ namespace Veldrid.SceneGraph.InputAdapter
             return false;
         }
 
-        public virtual void SetTransformation(Vector3 eye, Vector3 center, Vector3 up)
+        public virtual void SetTransformation(Vector3 eye, Vector3 center, Vector3 up, bool excludeRotation = false)
         {
         }
 

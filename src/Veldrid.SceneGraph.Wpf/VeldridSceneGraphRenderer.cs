@@ -35,7 +35,7 @@ namespace Veldrid.SceneGraph.Wpf
                 if (null != _view)
                 {
                     _view.SetSceneData(_sceneData);
-                    CameraManipulator?.ViewAll();
+                    CameraManipulator?.ViewAll(View);
                 }
             }
         }
@@ -51,7 +51,7 @@ namespace Veldrid.SceneGraph.Wpf
                 if (null != _view)
                 {
                     _view.SetCameraManipulator(_cameraManipulator);
-                    CameraManipulator?.ViewAll();
+                    CameraManipulator?.ViewAll(View);
                 }
             }
         }
@@ -225,7 +225,7 @@ namespace Veldrid.SceneGraph.Wpf
             _view = view;
             
             
-            CameraManipulator?.ViewAll();
+            CameraManipulator?.ViewAll(View);
 
             _initialized = true;
         }

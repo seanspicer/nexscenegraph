@@ -26,7 +26,7 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         INode GetNode();
         
-        void ViewAll();
+        void ViewAll(IUiActionAdapter aa);
 
         void UpdateCamera(ICamera camera);
 
@@ -73,12 +73,12 @@ namespace Veldrid.SceneGraph.InputAdapter
             return null;
         }
 
-        public void ViewAll()
+        public void ViewAll(IUiActionAdapter aa)
         {
-            ViewAll(20);
+            ViewAll(aa, 20);
         }
 
-        public abstract void ViewAll(float slack);
+        public abstract void ViewAll(IUiActionAdapter aa, float slack);
         
         // Update a camera
         public virtual void UpdateCamera(ICamera camera)

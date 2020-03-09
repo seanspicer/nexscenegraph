@@ -15,7 +15,6 @@
 //
 
 using System.Numerics;
-using Vulkan;
 
 namespace Veldrid.SceneGraph.Util
 {
@@ -111,6 +110,19 @@ namespace Veldrid.SceneGraph.Util
             top    =  (1.0f - mat.M42) / mat.M22;
 
             return true;
+        }
+
+        public static void GetLookAt(this Matrix4x4 mat, out Vector3 eye, out Vector3 center, out Vector3 up,
+            float lookDistance)
+        { 
+            Matrix4x4.Invert(mat, out var inv);
+            eye = inv.PreMultiply(Vector3.Zero);
+            up = VectorExtensions.Transform3X3(Vector3.UnitY, mat);
+            var c = VectorExtensions.Transform3X3(-Vector3.UnitZ, mat);
+            c = Vector3.Normalize(c);
+
+            center = eye + c * lookDistance;
+            
         }
     }
 }

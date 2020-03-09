@@ -32,7 +32,7 @@ namespace WpfDemo
 
         //private readonly ILogger _logger;
         
-        public PickEventHandler(Veldrid.SceneGraph.Viewer.IView view)
+        public PickEventHandler()
         {
             //_logger = Log.Logger.ForContext("Source", "CullingColoredCubes");
             //_view = view;
@@ -51,8 +51,11 @@ namespace WpfDemo
                         case Key.P:
                             DoPick(snapshot, uiActionAdapter as IView);
                             break;
+                        // case Key.V:
+                        //     var view = uiActionAdapter as IView;
+                        //     view?.CameraManipulator.ViewAll();
+                        //     break;
                     }
-                    
                 }
             }
         }

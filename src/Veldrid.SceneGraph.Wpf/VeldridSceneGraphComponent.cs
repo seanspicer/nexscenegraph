@@ -174,7 +174,7 @@ namespace Veldrid.SceneGraph.Wpf
             
             Rendering = true;
             
-            CameraManipulator.ViewAll();
+            CameraManipulator.ViewAll(_view);
 
             // Left Button
             HwndLButtonDown += OnMouseLButtonDown;
@@ -352,7 +352,7 @@ namespace Veldrid.SceneGraph.Wpf
         
         public void ViewAll()
         {
-            _view.CameraManipulator?.ViewAll();
+            _view.CameraManipulator?.ViewAll(_view);
         }
         
         public void SetSceneData(IGroup root)

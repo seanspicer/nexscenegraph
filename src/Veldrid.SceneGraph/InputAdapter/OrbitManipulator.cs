@@ -16,6 +16,8 @@
 
 using System;
 using System.Numerics;
+using Microsoft.Extensions.Logging;
+using Veldrid.SceneGraph.Logging;
 using Veldrid.SceneGraph.Util;
 using Math = System.Math;
 
@@ -52,7 +54,7 @@ namespace Veldrid.SceneGraph.InputAdapter
         private float _zoomScale = 1;
         protected override float ZoomScale => _zoomScale;
         
-        public override void SetTransformation(Vector3 eye, Vector3 center, Vector3 up)
+        public override void SetTransformation(Vector3 eye, Vector3 center, Vector3 up, bool excludeRotation=false)
         {
             _viewMatrix = Matrix4x4.CreateLookAt(eye, center, up);
             
@@ -72,7 +74,12 @@ namespace Veldrid.SceneGraph.InputAdapter
 
             _center = center;
             _distance = lv.Length();
-            _rotation = Quaternion.Inverse(Quaternion.CreateFromRotationMatrix(rotationMatrix));
+
+            if (false == excludeRotation)
+            {
+                _rotation = Quaternion.Inverse(Quaternion.CreateFromRotationMatrix(rotationMatrix));
+            }
+            
 
             if (VerticalAxisFixed)
             {
@@ -260,7 +267,7 @@ namespace Veldrid.SceneGraph.InputAdapter
                     switch (keyEvent.Key)
                     {
                         case Key.V:
-                            ViewAll();
+                            ViewAll(uiActionAdapter);
                             uiActionAdapter.RequestRedraw();
                             break;
                     }
@@ -269,52 +276,94 @@ namespace Veldrid.SceneGraph.InputAdapter
             }
         }
 
-        public override void ViewAll(float slack = 1)
+        public override void ViewAll(IUiActionAdapter aa, float slack = 1)
         {
-            // Find the bounding sphere of the scene
-//            var sceneView = _camera.View as SceneGraph.Viewer.IView;  // TODO: fixme this is just bad.
-//            var bSphere = sceneView.SceneData.GetBound();
-//
-//            if (bSphere.Radius < 0) return;
-//            
-//            var radius = bSphere.Radius;
-//            var center = bSphere.Center;
-//
-//            // Compute an aspect-radius to ensure that the 
-//            // scene will be inside the viewing volume
-//            var aspect = _camera.Viewport.AspectRatio;
-//            if (aspect >= 1.0) {
-//                aspect = 1.0f;
-//            }
-//            var aspectRadius = radius / aspect;
-//
-//            // Compute the direction of motion for the camera
-//            // between it's current position and the scene center
-//            var direction = _camera.Position - center; 
-//            var normDirection = Vector3.Normalize(direction);
-//
-//            // Compute the length to move the camera by examining
-//            // the tangent to the bounding sphere
-//            var moveLen = radius + aspectRadius / Math.Tan(_camera.Fov / 2.0);
-//
-//            // Compute the new camera position
-//            var moveDirection = normDirection * (float)moveLen;
-//            var cameraPos = center + moveDirection;
-//
-//            // Compute the near and far plane locations
-//            const double epsilon = 0.001;
-//            var distToMid = (cameraPos - center).Length();
-//            var zNear = (float) Math.Max(distToMid * epsilon, distToMid - radius * slack);
-//            var zFar = distToMid + radius * slack;
-//
-//            // Set the camera view and projection matrices.
-//            //Camera.SetViewMatrixToLookAt(cameraPos, center, new Vector3(0, 1, 0));
-//            _center = center;
-//            _distance = distToMid;
-//            
-//            // TODO - fix this nasty cast
-//            ((Camera)_camera).SetProjectionMatrixAsPerspective(_camera.Fov, _camera.AspectRatio, zNear, zFar);
-//            
+            if (aa is Viewer.IView view) {
+                
+                var bSphere = GetNode().ComputeBound();
+                if (bSphere.Radius < 0) return;
+
+                var radius = bSphere.Radius;
+                var center = bSphere.Center;
+                
+                switch (view.Camera)
+                {
+                    case IPerspectiveCamera perspectiveCamera:
+                    {
+                        // Compute an aspect-radius to ensure that the 
+                        // scene will be inside the viewing volume
+                        var aspect = view.Camera.Viewport.AspectRatio;
+                        if (aspect >= 1.0)
+                        {
+                            aspect = 1.0f;
+                        }
+
+                        var aspectRadius = radius / aspect;
+
+                        Vector3 camEye;
+                        Vector3 camCenter;
+                        Vector3 camUp;
+
+                        perspectiveCamera.ProjectionMatrix.GetLookAt(out camEye, out camCenter, out camUp, 1);
+
+                        // Compute the direction of motion for the camera
+                        // between it's current position and the scene center
+                        var direction = camEye - camCenter;
+                        var normDirection = Vector3.Normalize(direction);
+
+                        // Compute the length to move the camera by examining
+                        // the tangent to the bounding sphere
+                        var moveLen = radius + aspectRadius / Math.Tan(perspectiveCamera.VerticalFov / 2.0);
+
+                        // Compute the new camera position
+                        var moveDirection = normDirection * (float) moveLen;
+                        var cameraPos = center + moveDirection;
+
+                        // Compute the near and far plane locations
+                        const double epsilon = 0.001;
+                        var distToMid = (cameraPos - center).Length();
+                        var zNear = (float) Math.Max(distToMid * epsilon, distToMid - radius * slack);
+                        var zFar = distToMid + radius * slack;
+
+                        _center = center;
+                        _distance = distToMid;
+
+                        perspectiveCamera.SetProjectionMatrixAsPerspective(perspectiveCamera.VerticalFov,
+                            perspectiveCamera.Viewport.AspectRatio, zNear, zFar);
+                        break;
+                    }
+                    case IOrthographicCamera orthoCamera:
+                    {
+                        _zoomScale = 1.0f;
+                        const float winScale = 2.0f;
+                        var width = radius * winScale  * view.Camera.Viewport.AspectRatio * ZoomScale;
+                        var height = radius * winScale * ZoomScale;
+                        var zNear = winScale * radius;
+                        var zFar = -winScale * radius;
+                        
+                        var vertical2 = Math.Abs(width) / zNear / 2f;
+                        var horizontal2 = Math.Abs(height) / zNear / 2f;
+                        var dim = horizontal2 < vertical2 ? horizontal2 : vertical2;
+                        var viewAngle = Math.Atan2(dim,1f);
+                        var dist = (float) (radius / Math.Sin(viewAngle));
+                        
+                        orthoCamera.SetProjectionMatrixAsOrthographic(width, height, zNear, zFar);
+
+                        _center = center;
+                        _distance = dist;
+                        
+                        break;
+                    }
+                    
+                }
+            }
+            // Fallback - should really not be called.
+            else
+            {
+                LogManager.LoggerFactory.CreateLogger<OrbitManipulator>().LogWarning("In ViewAll() fallback -- this should not be called.");
+                ComputeHomePosition(null, (_flags & UserInteractionFlags.ComputeHomeUsingBoundingBox) != 0);
+                SetTransformation( _homeEye, _homeCenter, _homeUp, excludeRotation: true );
+            }
         }
     }
 }

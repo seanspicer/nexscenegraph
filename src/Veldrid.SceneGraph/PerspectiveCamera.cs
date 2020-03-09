@@ -22,6 +22,8 @@ namespace Veldrid.SceneGraph
 {
     public class PerspectiveCamera : Camera, IPerspectiveCamera
     {
+        public float VerticalFov { get; private set; } 
+        
         public new static IPerspectiveCamera Create()
         {
             return new PerspectiveCamera();
@@ -34,10 +36,10 @@ namespace Veldrid.SceneGraph
             var dist = DisplaySettings.Instance.ScreenDistance;
             
             // TODO: This is tricky - need to fix when ViewAll implemented
-            var vfov = (float) System.Math.Atan2(height / 2.0f, dist) * 2.0f; 
+            VerticalFov = (float) System.Math.Atan2(height / 2.0f, dist) * 2.0f; 
 
             // TODO - fix this nasty cast
-            SetProjectionMatrixAsPerspective(vfov, width / height, 1.0f, 10000f);
+            SetProjectionMatrixAsPerspective(VerticalFov, width / height, 1.0f, 10000f);
         }
         
         public void SetProjectionMatrixAsPerspective(float vfov, float aspectRatio, float zNear, float zFar)
@@ -101,10 +103,10 @@ namespace Veldrid.SceneGraph
                             case ProjectionResizePolicy.Fixed:
                                 
                                 // TODO: This is tricky - need to fix when ViewAll implemented
-                                var vfov = (float) System.Math.Atan2(height / 2.0f, dist) * 2.0f;
+                                VerticalFov = (float) System.Math.Atan2(height / 2.0f, dist) * 2.0f;
 
                                 var aspectRatio = (float)width / (float)height;
-                                SetProjectionMatrixAsPerspective(vfov, aspectRatio, 0.1f, 100f);
+                                SetProjectionMatrixAsPerspective(VerticalFov, aspectRatio, 0.1f, 100f);
                                 
                                 break;
                         }
