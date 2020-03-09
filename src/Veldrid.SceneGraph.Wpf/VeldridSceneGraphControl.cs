@@ -51,7 +51,11 @@ namespace Veldrid.SceneGraph.Wpf
             
             Loaded += OnLoaded;
         }
-        
+
+        public IUiActionAdapter GetUiActionAdapter()
+        {
+            return _vsgRenderer.View;
+        }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {

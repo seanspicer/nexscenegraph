@@ -276,7 +276,7 @@ namespace Veldrid.SceneGraph.InputAdapter
             }
         }
 
-        public override void ViewAll(IUiActionAdapter aa, float slack = 1)
+        public override void ViewAll(IUiActionAdapter aa, float slack = 20)
         {
             if (aa is Viewer.IView view) {
                 
