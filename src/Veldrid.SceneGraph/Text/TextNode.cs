@@ -17,6 +17,7 @@
 using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.WindowsRuntime;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.ColorSpaces;
@@ -430,7 +431,21 @@ namespace Veldrid.SceneGraph.Text
 
             }
         }
-        
+
+        protected override IBoundingBox ComputeBoundingBox()
+        {
+            var bb = base.ComputeBoundingBox();
+
+            if (CharacterSizeMode != CharacterSizeModes.ObjectCoords)
+            {
+                var newBb = BoundingBox.Create(bb.Min / 1000, bb.Max / 1000);
+                bb = newBb;
+            }
+
+            return bb;
+        }
+
+
         public override bool ComputeMatrix(ref Matrix4x4 computedMatrix, IState state)
         {
             if (CharacterSizeMode != CharacterSizeModes.ObjectCoords || AutoRotateToScreen)

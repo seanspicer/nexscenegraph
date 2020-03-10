@@ -313,7 +313,7 @@ namespace Veldrid.SceneGraph.InputAdapter
 
                         // Compute the length to move the camera by examining
                         // the tangent to the bounding sphere
-                        var moveLen = radius + aspectRadius / Math.Tan(perspectiveCamera.VerticalFov / 2.0);
+                        var moveLen = radius + aspectRadius / (Math.Tan(perspectiveCamera.VerticalFov / 2.0));
 
                         // Compute the new camera position
                         var moveDirection = normDirection * (float) moveLen;

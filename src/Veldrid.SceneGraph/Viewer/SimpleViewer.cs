@@ -218,7 +218,7 @@ namespace Veldrid.SceneGraph.Viewer
         
         public void ViewAll()
         {
-            Home();
+            CameraManipulator?.ViewAll(this);
         }
 
         public void Home()
