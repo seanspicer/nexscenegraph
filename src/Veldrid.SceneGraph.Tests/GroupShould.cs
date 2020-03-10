@@ -25,7 +25,7 @@ namespace Veldrid.SceneGraph.Tests
             var boundingSphere = group.GetBound();
             
             Assert.That(boundingSphere.Center, Is.EqualTo(Vector3.Zero));
-            Assert.That(boundingSphere.Radius, Is.EqualTo(System.Math.Sqrt(3)).Within(1e-6));
+            Assert.That(boundingSphere.Radius, Is.EqualTo(2.41421366).Within(1e-6));
         }
     }
 }
