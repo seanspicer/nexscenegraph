@@ -22,7 +22,10 @@ namespace Veldrid.SceneGraph
 {
     public class PerspectiveCamera : Camera, IPerspectiveCamera
     {
-        public float VerticalFov { get; private set; } 
+        public float VerticalFov { get; private set; }
+
+        private float _zNear = 1.0f;
+        private float _zFar = 100f;
         
         public new static IPerspectiveCamera Create()
         {
@@ -39,12 +42,15 @@ namespace Veldrid.SceneGraph
             VerticalFov = (float) System.Math.Atan2(height / 2.0f, dist) * 2.0f; 
 
             // TODO - fix this nasty cast
-            SetProjectionMatrixAsPerspective(VerticalFov, width / height, 1.0f, 10000f);
+            SetProjectionMatrixAsPerspective(VerticalFov, width / height, _zNear, _zFar);
         }
         
         public void SetProjectionMatrixAsPerspective(float vfov, float aspectRatio, float zNear, float zFar)
         {
+            _zNear = zNear;
+            _zFar = zFar;
             SetProjectionMatrix(Matrix4x4.CreatePerspectiveFieldOfView(vfov, aspectRatio, zNear, zFar));
+            
         }
 
         public bool GetProjectionMatrixAsFrustum(ref float left, ref float right, ref float bottom, ref float top, ref float zNear,
@@ -70,7 +76,7 @@ namespace Veldrid.SceneGraph
                 var vfov = (float) System.Math.Atan2(height / 2.0f, dist) * 2.0f;
             
                 var aspectRatio = (float)width / (float)height;
-                SetProjectionMatrixAsPerspective(vfov, aspectRatio, 0.1f, 100f);
+                SetProjectionMatrixAsPerspective(vfov, aspectRatio, _zNear, _zFar);
                 
                 
                 if((resizeMask & ResizeMask.ResizeViewport) != 0)
@@ -102,11 +108,8 @@ namespace Veldrid.SceneGraph
                                 break;
                             case ProjectionResizePolicy.Fixed:
                                 
-                                // TODO: This is tricky - need to fix when ViewAll implemented
-                                VerticalFov = (float) System.Math.Atan2(height / 2.0f, dist) * 2.0f;
-
                                 var aspectRatio = (float)width / (float)height;
-                                SetProjectionMatrixAsPerspective(VerticalFov, aspectRatio, 0.1f, 100f);
+                                SetProjectionMatrixAsPerspective(VerticalFov, aspectRatio, _zNear, _zFar);
                                 
                                 break;
                         }
