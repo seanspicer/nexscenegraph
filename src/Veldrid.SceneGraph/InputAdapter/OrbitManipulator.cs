@@ -278,9 +278,14 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         public override void ViewAll(IUiActionAdapter aa, float slack = 20)
         {
-            if (aa is Viewer.IView view) {
+            if (aa is Viewer.IView view)
+            {
+
+                var cbv = ComputeBoundsVisitor.Create();
+                GetNode().Accept(cbv);
                 
-                var bSphere = GetNode().ComputeBound();
+                var bSphere = BoundingSphere.Create();
+                bSphere.ExpandBy(cbv.GetBoundingBox());
                 if (bSphere.Radius < 0) return;
 
                 var radius = bSphere.Radius;
