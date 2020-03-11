@@ -4,6 +4,7 @@
         <TargetFramework>net48</TargetFramework>
         <UseWPF>true</UseWPF>
         <LangVersion>8</LangVersion>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
       <PlatformTarget>x64</PlatformTarget>

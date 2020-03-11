@@ -278,9 +278,8 @@ namespace Veldrid.SceneGraph.Wpf
 
         private void ProcessEvents()
         {
-            double dpiScale = GetDpiScale();
-            int width =  (ActualWidth < 0 ? 0 : (int)Math.Ceiling(ActualWidth * dpiScale));
-            int height = (ActualHeight < 0 ? 0 : (int)Math.Ceiling(ActualHeight * dpiScale));
+            int width =  (ActualWidth < 0 ? 0 : (int)Math.Ceiling(ActualWidth));
+            int height = (ActualHeight < 0 ? 0 : (int)Math.Ceiling(ActualHeight));
 
             var inputStateSnap = InputStateSnapshot.Create(_inputState, width, height, _vsgRenderer.View.Camera.ProjectionMatrix, _vsgRenderer.View.Camera.ViewMatrix);
             _vsgRenderer.HandleInput(inputStateSnap);
