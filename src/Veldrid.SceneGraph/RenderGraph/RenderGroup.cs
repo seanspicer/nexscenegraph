@@ -30,6 +30,14 @@ namespace Veldrid.SceneGraph.RenderGraph
         public DeviceBuffer IndexBuffer;
     }
     
+    public interface IRenderGroup
+    {
+        bool HasDrawableElements();
+        void Reset();
+        IEnumerable<IRenderGroupState> GetStateList();
+        IRenderGroupState GetOrCreateState(GraphicsDevice device, IPipelineState pso, PrimitiveTopology pt, VertexLayoutDescription vl);
+    }
+    
     public class RenderGroup : IRenderGroup
     {
         public bool HasDrawableElements()

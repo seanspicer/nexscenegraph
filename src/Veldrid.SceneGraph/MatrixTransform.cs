@@ -20,6 +20,14 @@ using Veldrid.SceneGraph.Viewer;
 
 namespace Veldrid.SceneGraph
 {
+    public interface IMatrixTransform : IGroup
+    {
+        Matrix4x4 Matrix { get; }
+        Matrix4x4 Inverse { get; }
+        void PreMultiply(Matrix4x4 mat);
+        void PostMultiply(Matrix4x4 mat);
+    }
+    
     public class MatrixTransform : Transform, IMatrixTransform
     {
         private Matrix4x4 _matrix = Matrix4x4.Identity;

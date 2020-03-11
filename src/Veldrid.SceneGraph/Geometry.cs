@@ -22,6 +22,12 @@ using Veldrid;
 
 namespace Veldrid.SceneGraph
 {    
+    public interface IGeometry<T> : IDrawable where T : struct, IPrimitiveElement
+    {
+        T[] VertexData { get; set; }
+        uint[] IndexData { get; set; }
+    }
+    
     public class Geometry<T> : Drawable, IGeometry<T> where T : struct, IPrimitiveElement
     {
         public T[] VertexData { get; set; }

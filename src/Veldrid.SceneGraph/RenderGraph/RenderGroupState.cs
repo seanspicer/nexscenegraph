@@ -37,6 +37,17 @@ namespace Veldrid.SceneGraph.RenderGraph
         }
     }
     
+    public interface IRenderGroupState
+    {
+        List<RenderGroupElement> Elements { get; }
+        RenderInfo GetPipelineAndResources(
+            GraphicsDevice graphicsDevice, 
+            ResourceFactory resourceFactory, 
+            ResourceLayout vpLayout, 
+            Framebuffer framebuffer);
+        void ReleaseUnmanagedResources();
+    }
+    
     public class RenderGroupState : IRenderGroupState
     {
         private IPipelineState PipelineState;

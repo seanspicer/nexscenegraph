@@ -19,6 +19,19 @@ using Veldrid.SceneGraph.Shaders;
 
 namespace Veldrid.SceneGraph
 {
+    public interface IPipelineState
+    {
+        IShaderSet ShaderSet { get; set; }
+        IReadOnlyList<ITexture2D> TextureList { get; }
+        IReadOnlyList<IBindable> UniformList { get; }
+        BlendStateDescription BlendStateDescription { get; set; }
+        DepthStencilStateDescription DepthStencilState { get; set; }
+        RasterizerStateDescription RasterizerStateDescription { get; set; }
+        void AddTexture(ITexture2D texture);
+        void AddUniform(IBindable uniform);
+        void AddUniform(IDrawable drawable, IBindable uniform);
+    }
+    
     public class PipelineState : IPipelineState
     {
         public IShaderSet ShaderSet { get; set; }

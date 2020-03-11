@@ -20,6 +20,21 @@ using System.Numerics;
 
 namespace Veldrid.SceneGraph
 {
+    public interface IDrawable : INode
+    {
+        string Name { get; set; }
+        Type VertexType { get; }
+        IBoundingBox InitialBoundingBox { get; set; }
+        VertexLayoutDescription VertexLayout { get; set; }
+        List<IPrimitiveSet> PrimitiveSets { get; }
+        void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory);
+        DeviceBuffer GetVertexBufferForDevice(GraphicsDevice device);
+        DeviceBuffer GetIndexBufferForDevice(GraphicsDevice device);
+        IBoundingBox GetBoundingBox();
+        bool ComputeMatrix(ref Matrix4x4 computedMatrix, IState state);
+
+    }
+    
     public abstract class Drawable : Node, IDrawable
     {
         public string Name { get; set; } = string.Empty;

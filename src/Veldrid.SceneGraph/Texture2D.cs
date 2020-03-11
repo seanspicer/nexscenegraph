@@ -23,6 +23,14 @@ using Veldrid.SceneGraph.AssetProcessor;
 
 namespace Veldrid.SceneGraph
 {
+    public interface ITexture2D
+    {
+        ProcessedTexture ProcessedTexture { get; }
+        uint ResourceSetNo { get; set; }
+        string TextureName { get; set; }
+        string SamplerName { get; set; }
+    }
+    
     public class Texture2D : ITexture2D
     {
         public enum ImageFormatType

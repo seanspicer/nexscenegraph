@@ -14,8 +14,24 @@
 // limitations under the License.
 //
 
+using Veldrid.SceneGraph.RenderGraph;
+
 namespace Veldrid.SceneGraph
 {
+    public interface ICallback
+    {
+        bool Run(IObject obj, IObject data);
+    }
+
+    public interface INodeCallback : ICallback
+    {
+    }
+
+    public interface IDrawableCullCallback : INodeCallback
+    {
+        bool Cull(ICullVisitor cv, IDrawable drawable);
+    }
+    
     public class Callback : ICallback
     {
         public virtual bool Run(IObject obj, IObject data)

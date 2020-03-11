@@ -28,6 +28,36 @@ using Veldrid.Utilities;
 
 namespace Veldrid.SceneGraph.RenderGraph
 {
+    public interface IMutableCullVisitor : IDisposable
+    {
+        void SetCurrentCamera(ICamera camera);
+        
+        void Reset();
+        
+        void Prepare();
+    }
+    
+    public interface ICullVisitor : INodeVisitor
+    {
+        IRenderGroup OpaqueRenderGroup { get; set; }
+        IRenderGroup TransparentRenderGroup { get; set; }
+        GraphicsDevice GraphicsDevice { get; set; }
+        ResourceFactory ResourceFactory { get; set; }
+        ResourceLayout ResourceLayout { get; set; }
+        int RenderElementCount { get; }
+        
+
+        ICamera GetCurrentCamera();
+        Matrix4x4 GetModelViewMatrix();
+        Matrix4x4 GetModelViewProjectionMatrix();
+        Matrix4x4 GetModelViewInverseMatrix();
+        Matrix4x4 GetModelViewProjectionInverseMatrix();
+        Matrix4x4 GetProjectionMatrix();
+        Vector3 GetEyeLocal();
+
+        IMutableCullVisitor ToMutable();
+    }
+    
     public class CullVisitor : NodeVisitor, ICullVisitor
     {
         public IRenderGroup OpaqueRenderGroup { get; set; } = RenderGroup.Create();

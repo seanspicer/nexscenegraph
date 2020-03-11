@@ -18,6 +18,11 @@ using System.Numerics;
 
 namespace Veldrid.SceneGraph
 {
+    public interface ITransformVisitor
+    {
+        void Accumulate(NodePath nodePath);
+    }
+    
     public class TransformVisitor : NodeVisitor, ITransformVisitor
     {
         public enum CoordMode

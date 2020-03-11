@@ -24,6 +24,13 @@ using Veldrid.SceneGraph.Viewer;
 namespace Veldrid.SceneGraph
 {
 
+    public interface IBillboard : IGeode
+    {
+        Billboard.Modes Mode { get; set; }
+        Billboard.SizeModes SizeMode { get; set; }
+        Matrix4x4 ComputeMatrix(Matrix4x4 modelView, Matrix4x4 projection, Vector3 eyeLocal);
+    }
+    
     public class Billboard : Geode, IBillboard
     {
         public enum Modes

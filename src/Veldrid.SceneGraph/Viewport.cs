@@ -18,6 +18,20 @@ using System.Numerics;
 
 namespace Veldrid.SceneGraph
 {
+    public interface IViewport
+    {
+        int X { get; }
+        int Y { get; }
+        int Width { get; }
+        int Height { get; }
+
+        float AspectRatio { get; }
+        
+        bool Valid();
+        
+        Matrix4x4 ComputeWindowMatrix4X4();
+    }
+    
     public class Viewport : IViewport
     {
         public int X { get; }

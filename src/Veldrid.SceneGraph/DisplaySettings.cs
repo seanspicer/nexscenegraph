@@ -19,6 +19,20 @@ using System.Runtime.InteropServices;
 
 namespace Veldrid.SceneGraph
 {
+    public interface IDisplaySettings
+    {
+        float ScreenWidth { get; }
+        void SetScreenWidth(float width);
+        
+        float ScreenHeight { get; }
+        void SetScreenHeight(float height);
+        
+        float ScreenDistance { get; }
+        void SetScreenDistance(float distance);
+        
+        GraphicsBackend GraphicsBackend { get; }
+    }
+    
     /// <summary>
     /// Singleton class to capture information required for rendering
     /// </summary>
