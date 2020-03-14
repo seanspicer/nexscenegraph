@@ -91,7 +91,7 @@ layout(location = 6) out vec3 fsin_Constants;
 //layout(location = 4) out LightData fsin_lightData; 
 
 bool isOrthographicProjection(mat4 projection) {
-    const double tol = 1e-6;
+    const float tol = 1e-6;
     if (projection[0][3] > tol || projection[1][3] > tol || projection[2][3] > tol || (projection[3][3]-1) > tol) return false;
     
     return true;
