@@ -86,7 +86,7 @@ namespace Veldrid.SceneGraph.Util.Shape
                     var nzTop= (float)System.Math.Sin(lTop);
                     var nRatioTop= (float)System.Math.Cos(lTop);
 
-                    Begin();
+                    BeginQuadStrip();
 
                     var angle = 0.0f;
                     var texCoord = 0.0f;
@@ -145,7 +145,7 @@ namespace Veldrid.SceneGraph.Util.Shape
                     var nzTop= (float)System.Math.Sin(lTop);
                     var nRatioTop= (float)System.Math.Cos(lTop);
 
-                    Begin();
+                    BeginQuadStrip();
 
                     var angle = 0.0f;
                     var texCoord = 0.0f;

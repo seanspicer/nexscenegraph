@@ -89,7 +89,7 @@ namespace Veldrid.SceneGraph.Util.Shape
             // Build from quad strips
             for (var j = 0; j < nSegments-1; ++j)
             {
-                Begin();
+                BeginQuadStrip();
                 
                 BuildFromIndicies(j, j+1, extrusion, path);
                 
@@ -98,6 +98,12 @@ namespace Veldrid.SceneGraph.Util.Shape
             
             // Join the last bit...
             BuildFromIndicies(nSegments-1, 0, extrusion, path);
+
+            if (hints.CreateEndCaps)
+            {
+                // Build end caps
+                BuildEndCaps(extrusion, path); 
+            }
             
             BuildVertexAndIndexArrays(out var vertexArray, out var indexArray, colors);
             
@@ -118,10 +124,12 @@ namespace Veldrid.SceneGraph.Util.Shape
             geometry.PrimitiveSets.Add(pSet);
             
         }
+        
+        
 
         private void BuildFromIndicies(int a, int b, Vector3[,] extrusion, IPath path)
         {
-            Begin();
+            BeginQuadStrip();
                 
             for (var i = 0; i < path.PathLocations.Length-1; ++i)
             {
@@ -161,6 +169,53 @@ namespace Veldrid.SceneGraph.Util.Shape
             }
                 
             End();
+        }
+
+        private void BuildEndCaps(Vector3[,] extrusion, IPath path)
+        {
+            BuildEndCap(0, extrusion, path);
+            BuildEndCap(path.PathLocations.Length-1, extrusion, path);
+        }
+        
+        private void BuildEndCap(int idx, Vector3[,] extrusion, IPath path) 
+        {
+            var npts = extrusion.GetLength(1);
+            
+            // Begin
+            var beginCtr = path.PathLocations[idx];
+            
+            // Begin Normal
+            var beginVtx0 = extrusion[idx, 0];
+            var beginVtx1 = extrusion[idx, 1];
+
+            var bV1 = beginVtx0 - beginCtr;
+            var bV2 = beginVtx1 - beginCtr;
+            var bNrm = Vector3.Normalize(Vector3.Cross(bV1, bV2));
+
+            if (idx > 0)
+            {
+                bNrm = -bNrm;
+            }
+            
+            BeginTriangleFan();
+            
+            Vertex3f(beginCtr);
+            Normal3f(bNrm);
+            TexCoord2f(1.0f, 0.0f);
+            
+            for (var i = 0; i < npts; ++i)
+            {
+                Vertex3f(extrusion[idx, i]);
+                Normal3f(bNrm);
+                TexCoord2f(1.0f, 0.0f);
+            }
+
+            Vertex3f(extrusion[idx, 0]);
+            Normal3f(bNrm);
+            TexCoord2f(1.0f, 0.0f);
+            
+            End();
+
         }
     }
 }
