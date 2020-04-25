@@ -15,6 +15,7 @@
 //
 
 using System.Numerics;
+using System.Reactive;
 
 namespace Veldrid.SceneGraph.Util
 {
@@ -48,6 +49,53 @@ namespace Veldrid.SceneGraph.Util
             return new Vector3( (mat.M11*v.X + mat.M12*v.Y + mat.M13*v.Z + mat.M14)*d,
                 (mat.M21*v.X + mat.M22*v.Y + mat.M23*v.Z + mat.M24)*d,
                 (mat.M31*v.X + mat.M32*v.Y + mat.M33*v.Z + mat.M34)*d) ;
+        }
+
+        public static Matrix4x4 PostMultiplyScale(this Matrix4x4 mat, Vector3 v)
+        {
+            mat.M11 *= v.X; mat.M21 *= v.X; mat.M31 *= v.X; mat.M41 *= v.X;
+            mat.M12 *= v.Y; mat.M22 *= v.Y; mat.M32 *= v.Y; mat.M42 *= v.Y;
+            mat.M13 *= v.Z; mat.M23 *= v.Z; mat.M33 *= v.Z; mat.M43 *= v.Z;
+
+            return mat;
+        }
+        
+        public static Matrix4x4 PostMultiplyTranslate(this Matrix4x4 mat, Vector3 v)
+        {
+            var tol = 1e-6;
+            Matrix4x4 result = mat;
+            
+            if (System.Math.Abs(v.X) > tol)
+            {
+                result.M11 = v.X * mat.M14;
+                result.M21 = v.X * mat.M24;
+                result.M31 = v.X * mat.M34;
+                result.M41 = v.X * mat.M44;
+            }
+
+            if (System.Math.Abs(v.Y) > tol)
+            {
+                result.M12 = v.Y * mat.M14;
+                result.M22 = v.Y * mat.M24;
+                result.M32 = v.Y * mat.M34;
+                result.M42 = v.Y * mat.M44;
+            }
+
+            if (System.Math.Abs(v.Z) > tol)
+            {
+                result.M13 = v.Z * mat.M14;
+                result.M23 = v.Z * mat.M24;
+                result.M33 = v.Z * mat.M34;
+                result.M43 = v.Z * mat.M44;
+            }
+            
+            return result;
+        }
+
+        public static Matrix4x4 PostMultiplyRotate(this Matrix4x4 mat , Quaternion q)
+        {
+            var r = Matrix4x4.CreateFromQuaternion(q);
+            return mat.PostMultiply(r);
         }
         
         // TODO - UNIT TEST

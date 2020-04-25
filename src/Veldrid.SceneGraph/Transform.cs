@@ -43,6 +43,34 @@ namespace Veldrid.SceneGraph
         {
             ReferenceFrame = ReferenceFrameType.Relative;
         }
+
+        public static Matrix4x4 ComputeLocalToWorld(NodePath nodePath, bool ignoreCameras=true)
+        {
+            var tv = TransformVisitor.Create(Matrix4x4.Identity, TransformVisitor.CoordMode.LocalToWorld, ignoreCameras);
+            tv.Accumulate(nodePath);
+            return tv.Matrix;
+        }
+        
+        public static Matrix4x4 ComputeWorldToLocal(NodePath nodePath, bool ignoreCameras=true)
+        {
+            var tv = TransformVisitor.Create(Matrix4x4.Identity, TransformVisitor.CoordMode.WorldToLocal, ignoreCameras);
+            tv.Accumulate(nodePath);
+            return tv.Matrix;
+        }
+        
+        public static Matrix4x4 ComputeLocalToEye(Matrix4x4 modelView, NodePath nodePath, bool ignoreCameras=true)
+        {
+            var tv = TransformVisitor.Create(modelView, TransformVisitor.CoordMode.LocalToWorld, ignoreCameras);
+            tv.Accumulate(nodePath);
+            return tv.Matrix;
+        }
+        
+        public static Matrix4x4 ComputeEyeToLocal(Matrix4x4 modelView, NodePath nodePath, bool ignoreCameras=true)
+        {
+            var tv = TransformVisitor.Create(modelView, TransformVisitor.CoordMode.WorldToLocal, ignoreCameras);
+            tv.Accumulate(nodePath);
+            return tv.Matrix;
+        }
         
         // Required for double-dispatch
         public override void Accept(INodeVisitor nv)

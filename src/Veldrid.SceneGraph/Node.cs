@@ -25,9 +25,9 @@ namespace Veldrid.SceneGraph
     public class CollectParentPaths : NodeVisitor
     {
         private INode _haltTraversalAtNode;
-        private List<LinkedList<INode>> _nodePaths;
+        private NodePathList _nodePaths;
         
-        public IReadOnlyList<LinkedList<INode>> NodePaths
+        public NodePathList NodePaths
         {
             get => _nodePaths;
         }
@@ -36,7 +36,7 @@ namespace Veldrid.SceneGraph
             base(VisitorType.NodeVisitor, TraversalModeType.TraverseParents)
         {
             _haltTraversalAtNode = haltTraversalAtNode;
-            _nodePaths = new List<LinkedList<INode>>();
+            _nodePaths = new NodePathList();
         }
 
         public override void Apply(INode node)
@@ -68,6 +68,7 @@ namespace Veldrid.SceneGraph
         int GetNumChildrenRequiringUpdateTraversal();
         void SetNumChildrenRequiringEventTraversal(int i);
         void SetNumChildrenRequiringUpdateTraversal(int i);
+        NodePathList GetParentalNodePaths(INode haltTraversalAtNode=null);
         event Func<Node, BoundingSphere> ComputeBoundCallback;
 
         void SetUpdateCallback(ICallback callback);
@@ -186,6 +187,13 @@ namespace Veldrid.SceneGraph
 //                    parentNode.SetNumChildrenRequiringUpdateTraversal(parentNode.GetNumChildrenRequiringUpdateTraversal()+1);
 //                }
 //            }
+        }
+
+        public NodePathList GetParentalNodePaths(INode haltTraversalAtNode=null)
+        {
+            var collectParentsVisitor = new CollectParentPaths(haltTraversalAtNode);
+            Accept(collectParentsVisitor);
+            return collectParentsVisitor.NodePaths;
         }
         
         public virtual ICallback GetUpdateCallback()

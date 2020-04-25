@@ -20,7 +20,7 @@ using Veldrid.SceneGraph.Viewer;
 
 namespace Veldrid.SceneGraph
 {
-    public interface IMatrixTransform : IGroup
+    public interface IMatrixTransform : ITransform
     {
         Matrix4x4 Matrix { get; }
         Matrix4x4 Inverse { get; }

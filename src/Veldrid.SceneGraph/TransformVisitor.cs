@@ -20,7 +20,10 @@ namespace Veldrid.SceneGraph
 {
     public interface ITransformVisitor
     {
+        Matrix4x4 Matrix { get; }
+        
         void Accumulate(NodePath nodePath);
+        
     }
     
     public class TransformVisitor : NodeVisitor, ITransformVisitor
@@ -31,6 +34,8 @@ namespace Veldrid.SceneGraph
             LocalToWorld
         }
 
+        public Matrix4x4 Matrix => _matrix;
+        
         private readonly CoordMode _coordMode;
         private Matrix4x4 _matrix;
         private readonly bool _ignoreCameras;
