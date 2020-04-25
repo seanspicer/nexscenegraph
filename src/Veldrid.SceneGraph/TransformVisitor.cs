@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 
+using System.Linq;
 using System.Numerics;
 
 namespace Veldrid.SceneGraph
@@ -69,12 +70,14 @@ namespace Veldrid.SceneGraph
         {
             if (0 == nodePath.Count) return;
 
+            var i = 0;
             var elt = nodePath.First;
             if (_ignoreCameras)
             {
                 // We need to find the last absolute Camera in NodePath and
                 // set the i index to after it so the final accumulation set ignores it.
                 elt = nodePath.Last;
+                i = nodePath.Count;
                 while (elt != null)
                 {
                     if (elt.Value is Camera camera &&
@@ -84,13 +87,13 @@ namespace Veldrid.SceneGraph
                     }
 
                     elt = elt.Previous;
+                    --i;
                 }
             }
 
-            while (elt != null)
+            for (; i < nodePath.Count; ++i)
             {
-                elt.Value.Accept(this);
-                elt = elt.Next;
+                nodePath.ElementAt(i).Accept(this);
             }
         }
     }

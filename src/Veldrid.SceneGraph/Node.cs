@@ -43,7 +43,7 @@ namespace Veldrid.SceneGraph
         {
             if (node.NumParents == 0 || node == _haltTraversalAtNode)
             {
-                _nodePaths.Add(NodePath);
+                _nodePaths.Add(NodePath.Copy());
             }
             else
             {
