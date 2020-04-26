@@ -21,9 +21,6 @@ namespace Veldrid.SceneGraph.Tests
             
             Assert.That(mat[3, 2], Is.EqualTo(4d));
             Assert.That(mat[2, 1], Is.EqualTo(5d));
-            
-            Assert.That(mat[3][2], Is.EqualTo(4d));
-            Assert.That(mat[2][1], Is.EqualTo(5d));
         }
         
         [TestCase]
