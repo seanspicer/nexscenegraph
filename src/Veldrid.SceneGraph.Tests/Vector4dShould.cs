@@ -3,7 +3,7 @@ using NUnit.Framework;
 namespace Veldrid.SceneGraph.Tests
 {
     [TestFixture]
-    public class DoubleVector4Should
+    public class Vector4dShould
     {
         [TestCase]
         public void PassCanaryTest()
@@ -14,7 +14,7 @@ namespace Veldrid.SceneGraph.Tests
         [TestCase]
         public void GetValueFromIndexerCorrectly()
         {
-            var vec = new DoubleVector4();
+            var vec = new Vector4d();
             vec.X = 1.0d;
             vec.Y = 2.0d;
             vec.Z = 3.0d;
@@ -29,7 +29,7 @@ namespace Veldrid.SceneGraph.Tests
         [TestCase]
         public void SetValueWithIndexerCorrectly()
         {
-            var vec = new DoubleVector4();
+            var vec = new Vector4d();
             vec[0] = 1.0d;
             vec[1] = 2.0d;
             vec[2] = 3.0d;

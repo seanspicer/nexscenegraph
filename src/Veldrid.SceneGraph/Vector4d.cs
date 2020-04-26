@@ -1,8 +1,10 @@
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Veldrid.SceneGraph
 {
-    public struct DoubleVector4
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Vector4d
     {
         /// <summary>
         /// Value at row 1, column 1 of the matrix.

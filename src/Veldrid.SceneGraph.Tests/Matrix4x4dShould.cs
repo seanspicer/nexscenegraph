@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace Veldrid.SceneGraph.Tests
 {
     [TestFixture]
-    public class DoubleMatrix4x4Should
+    public class Matrix4x4dShould
     {
         [TestCase]
         public void PassCanaryTest()
@@ -15,7 +15,7 @@ namespace Veldrid.SceneGraph.Tests
         [TestCase]
         public void GetValueFromIndexerCorrectly()
         {
-            var mat = DoubleMatrix4x4.Identity;
+            var mat = Matrix4x4d.Identity;
             mat.M43 = 4d;
             mat.M32 = 5d;
             
@@ -26,7 +26,7 @@ namespace Veldrid.SceneGraph.Tests
         [TestCase]
         public void SetValueFromIndexerCorrectly()
         {
-            var mat = DoubleMatrix4x4.Identity;
+            var mat = Matrix4x4d.Identity;
             mat[3,2] = 4d;
             mat[2,1] = 5d;
             
