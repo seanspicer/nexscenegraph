@@ -20,9 +20,9 @@ using Veldrid.SceneGraph.Viewer;
 
 namespace Veldrid.SceneGraph
 {
-    public interface IMatrixTransform : IGroup
+    public interface IMatrixTransform : ITransform
     {
-        Matrix4x4 Matrix { get; }
+        Matrix4x4 Matrix { get; set; }
         Matrix4x4 Inverse { get; }
         void PreMultiply(Matrix4x4 mat);
         void PostMultiply(Matrix4x4 mat);
@@ -35,7 +35,7 @@ namespace Veldrid.SceneGraph
         public Matrix4x4 Matrix
         {
             get => _matrix;
-            private set { 
+            set { 
                 _matrix = value;
                 _inverseDirty = true;
                 DirtyBound();

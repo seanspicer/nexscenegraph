@@ -6,8 +6,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Examples.Common\Examples.Common.csproj" />
-      <ProjectReference Include="..\Veldrid.SceneGraph\Veldrid.SceneGraph.csproj" />
+        <ProjectReference Include="..\Examples.Common\Examples.Common.csproj" />
+        <ProjectReference Include="..\Veldrid.SceneGraph\Veldrid.SceneGraph.csproj" />
     </ItemGroup>
 
 </Project>

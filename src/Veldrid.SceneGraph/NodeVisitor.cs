@@ -22,6 +22,8 @@ using Veldrid.SceneGraph.Text;
 
 namespace Veldrid.SceneGraph
 {
+  
+    
     public class NodePath : LinkedList<INode>
     {
         public NodePath Copy()
@@ -35,6 +37,8 @@ namespace Veldrid.SceneGraph
             return result;
         }
     }
+    
+    public class NodePathList : List<NodePath> {}
 
     public class NodeVisitorEventArgs : EventArgs
     {
