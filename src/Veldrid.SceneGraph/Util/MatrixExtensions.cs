@@ -67,26 +67,26 @@ namespace Veldrid.SceneGraph.Util
             
             if (System.Math.Abs(v.X) > tol)
             {
-                result.M11 = v.X * mat.M14;
-                result.M21 = v.X * mat.M24;
-                result.M31 = v.X * mat.M34;
-                result.M41 = v.X * mat.M44;
+                result.M11 = mat.M11 + (v.X * mat.M14);
+                result.M21 = mat.M21 + (v.X * mat.M24);
+                result.M31 = mat.M31 + (v.X * mat.M34);
+                result.M41 = mat.M41 + (v.X * mat.M44);
             }
 
             if (System.Math.Abs(v.Y) > tol)
             {
-                result.M12 = v.Y * mat.M14;
-                result.M22 = v.Y * mat.M24;
-                result.M32 = v.Y * mat.M34;
-                result.M42 = v.Y * mat.M44;
+                result.M12 = mat.M12 + (v.Y * mat.M14);
+                result.M22 = mat.M22 + (v.Y * mat.M24);
+                result.M32 = mat.M32 + (v.Y * mat.M34);
+                result.M42 = mat.M42 + (v.Y * mat.M44);
             }
 
             if (System.Math.Abs(v.Z) > tol)
             {
-                result.M13 = v.Z * mat.M14;
-                result.M23 = v.Z * mat.M24;
-                result.M33 = v.Z * mat.M34;
-                result.M43 = v.Z * mat.M44;
+                result.M13 = mat.M13 + (v.Z * mat.M14);
+                result.M23 = mat.M23 + (v.Z * mat.M24);
+                result.M33 = mat.M33 + (v.Z * mat.M34);
+                result.M43 = mat.M43 + (v.Z * mat.M44);
             }
             
             return result;

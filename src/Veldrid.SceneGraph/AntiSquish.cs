@@ -115,6 +115,12 @@ namespace Veldrid.SceneGraph
             return true;
         }
 
+        // This method is to enable unit testing
+        protected virtual Matrix4x4 GetLocalToWorld(NodePath np)
+        {
+            return ComputeLocalToWorld(np);
+        }
+
         protected bool ComputeUnsquishedMatrix(ref Matrix4x4 unsquished)
         {
             var nodePaths = GetParentalNodePaths();
@@ -127,7 +133,7 @@ namespace Veldrid.SceneGraph
             np.RemoveLast();
             
             // Get the accululated modeling matrix
-            var localToWorld = ComputeLocalToWorld(np);
+            var localToWorld = GetLocalToWorld(np);
 
             // Reuse cached value 
             if (false == _cacheDirty && _cacheLocalToWorld == localToWorld)
@@ -151,7 +157,7 @@ namespace Veldrid.SceneGraph
                 unsquished = unsquished.PostMultiplyTranslate(-_pivot);
                 unsquished = unsquished.PostMultiplyScale(s);
                 unsquished = unsquished.PostMultiplyRotate(r);
-                unsquished.PostMultiplyTranslate(t);
+                unsquished = unsquished.PostMultiplyTranslate(t);
                 
                 if(false == Matrix4x4.Invert(localToWorld, out var invltw))
                 {
@@ -174,7 +180,7 @@ namespace Veldrid.SceneGraph
             {
                 unsquished = unsquished.PostMultiplyScale(s);
                 unsquished = unsquished.PostMultiplyRotate(r);
-                unsquished.PostMultiplyTranslate(t);
+                unsquished = unsquished.PostMultiplyTranslate(t);
                 
                 if(false == Matrix4x4.Invert(localToWorld, out var invltw))
                 {
