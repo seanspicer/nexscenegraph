@@ -3,6 +3,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <ShaderOutputPath>$(BaseIntermediateOutputPath)Shaders</ShaderOutputPath>
     <ShaderContentIncludePath>Shaders</ShaderContentIncludePath>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -11,44 +12,37 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.2" />
     <PackageReference Include="SixLabors.Fonts" Version="1.0.0-beta0009" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0007" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0007" />
     <PackageReference Include="SixLabors.Shapes.Text" Version="1.0.0-beta0009" />
     <PackageReference Include="System.Reactive" Version="4.1.6" />
     <PackageReference Include="Veldrid" Version="4.7.0" />
-    <PackageReference Include="Veldrid.SPIRV" Version="1.0.12" />
+    <PackageReference Include="Veldrid.SPIRV" Version="1.0.11" />
     <PackageReference Include="Veldrid.StartupUtilities" Version="4.7.0" />
     <PackageReference Include="Veldrid.Utilities" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AssetProcessor\AssetProcessor.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="Assets\Shaders\Vertex2Color4.frag.spv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\Shaders\Vertex2Color4.vert.spv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\Shaders\Vertex3Color4.vert.spv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\Shaders\Vertex3Color4.frag.spv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\Shaders\BasicTextureShader.frag.spv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\Shaders\BasicTextureShader.vert.spv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Assets\Shaders\Phong-fragment.glsl" />
     <EmbeddedResource Include="Assets\Shaders\Phong-vertex.glsl" />
+    <None Remove="Assets\Shaders\BasicTextureShader-fragment.glsl" />
+    <EmbeddedResource Include="Assets\Shaders\BasicTextureShader-fragment.glsl" />
+    <None Remove="Assets\Shaders\BasicTextureShader-vertex.glsl" />
+    <EmbeddedResource Include="Assets\Shaders\BasicTextureShader-vertex.glsl" />
+    <None Remove="Assets\Shaders\Vertex2Color4-fragment.glsl" />
+    <EmbeddedResource Include="Assets\Shaders\Position3Color3-fragment.glsl" />
+    <EmbeddedResource Include="Assets\Shaders\Position3Color3-vertex.glsl" />
+    <EmbeddedResource Include="Assets\Shaders\Vertex2Color4-fragment.glsl" />
+    <None Remove="Assets\Shaders\Vertex2Color4-vertex.glsl" />
+    <EmbeddedResource Include="Assets\Shaders\Vertex2Color4-vertex.glsl" />
+    <None Remove="Assets\Shaders\Vertex3Color4-vertex.glsl" />
+    <EmbeddedResource Include="Assets\Shaders\Vertex3Color4-vertex.glsl" />
+    <EmbeddedResource Include="Assets\Shaders\Vertex3Color4-fragment.glsl" />
+    <None Remove="Assets\Shaders\FullScreenQuadShader-vertex.glsl" />
+    <EmbeddedResource Include="Assets\Shaders\FullScreenQuadShader-vertex.glsl" />
+    <None Remove="Assets\Shaders\FullScreenQuadShader-fragment.glsl" />
+    <EmbeddedResource Include="Assets\Shaders\FullScreenQuadShader-fragment.glsl" />
   </ItemGroup>
   <Target Name="IncludeGeneratedShaderEmbeddedResource" AfterTargets="AssignTargetPaths" Condition="'$(ShaderContentIncludePath)' != ''">
     <ItemGroup>

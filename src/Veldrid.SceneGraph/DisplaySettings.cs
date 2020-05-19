@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,20 @@ using System.Runtime.InteropServices;
 
 namespace Veldrid.SceneGraph
 {
+    public interface IDisplaySettings
+    {
+        float ScreenWidth { get; }
+        void SetScreenWidth(float width);
+        
+        float ScreenHeight { get; }
+        void SetScreenHeight(float height);
+        
+        float ScreenDistance { get; }
+        void SetScreenDistance(float distance);
+        
+        GraphicsBackend GraphicsBackend { get; }
+    }
+    
     /// <summary>
     /// Singleton class to capture information required for rendering
     /// </summary>
@@ -28,10 +42,26 @@ namespace Veldrid.SceneGraph
 
         public static IDisplaySettings Instance => lazy.Value;
 
-        public float ScreenWidth { get; set; }
-        public float ScreenHeight { get; set; }
-        public float ScreenDistance { get; set; }
-        
+        public float ScreenWidth { get; private set; }
+        public void SetScreenWidth(float width)
+        {
+            ScreenWidth = width;
+        }
+
+        public float ScreenHeight { get; private set; }
+
+        public void SetScreenHeight(float height)
+        {
+            ScreenHeight = height;
+        }
+
+        public float ScreenDistance { get; private set; }
+
+        public void SetScreenDistance(float distance)
+        {
+            ScreenDistance = distance;
+        }
+
         public GraphicsBackend GraphicsBackend { get; private set; }
         
         private DisplaySettings()
@@ -46,6 +76,10 @@ namespace Veldrid.SceneGraph
 
         private void SetDefaults()
         {
+            SetScreenWidth(0.325f);
+            SetScreenHeight(0.26f);
+            SetScreenDistance(0.5f);
+            
             bool isMacOS = RuntimeInformation.OSDescription.Contains("Darwin");
             if (isMacOS)
             {

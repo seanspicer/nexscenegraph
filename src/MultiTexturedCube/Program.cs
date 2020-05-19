@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ using Examples.Common;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
+using Veldrid.SceneGraph.Shaders;
 using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Viewer;
 
@@ -137,12 +138,22 @@ namespace MultiTexturedCube
             
             geometry.PrimitiveSets.Add(pSet);
 
-            var vsBytes = ShaderTools.LoadBytecode(GraphicsBackend.Vulkan, "MultiTexturedCubeShader", ShaderStages.Vertex);
-            var fsBytes = ShaderTools.LoadBytecode(GraphicsBackend.Vulkan, "MultiTexturedCubeShader", ShaderStages.Fragment);
+            var vertexShaderDescription  = new ShaderDescription(
+                ShaderStages.Vertex, 
+                ShaderTools.ReadEmbeddedAssetBytes(@"MultiTexturedCube.Assets.Shaders.MultiTexturedCubeShader-vertex.glsl",
+                    typeof(Program).Assembly), 
+                "main", true);
             
-            geometry.PipelineState.VertexShaderDescription = new ShaderDescription(ShaderStages.Vertex, vsBytes, "main", true);
-            geometry.PipelineState.FragmentShaderDescription = new ShaderDescription(ShaderStages.Fragment, fsBytes, "main", true);
+            var fragmentShaderDescription = new ShaderDescription(
+                ShaderStages.Fragment, 
+                ShaderTools.ReadEmbeddedAssetBytes(@"MultiTexturedCube.Assets.Shaders.MultiTexturedCubeShader-fragment.glsl", 
+                    typeof(Program).Assembly), 
+                "main", true);
 
+            geometry.PipelineState.ShaderSet = ShaderSet.Create("MultiTexturedCubeShader", vertexShaderDescription,
+                fragmentShaderDescription);
+            
+            
             geometry.PipelineState.AddTexture(
                 Texture2D.Create(Texture2D.ImageFormatType.Png,
                     ShaderTools.ReadEmbeddedAssetBytes(

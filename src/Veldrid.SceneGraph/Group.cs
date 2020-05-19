@@ -1,5 +1,5 @@
 //
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,17 @@ using System.Linq;
 
 namespace Veldrid.SceneGraph
 {
+    public interface IGroup : INode
+    {
+        bool AddChild(INode child);
+        bool InsertChild(int index, INode child);
+        bool RemoveChild(INode child);
+        bool RemoveChildren(int pos, int numChildrenToRemove);
+        void ChildInserted(int index);
+        void ChildRemoved(int index, int count);
+        int GetNumChildren();
+    }
+    
     public class Group : Node, IGroup
     {
         protected List<Tuple<INode, bool>> _children = new List<Tuple<INode, bool>>();
@@ -140,7 +151,7 @@ namespace Veldrid.SceneGraph
         public override IBoundingSphere ComputeBound()
         {
             var bsphere = BoundingSphere.Create();
-            if (0 == _children.Count)
+            if (false == _children.Any())
             {
                 return bsphere;
             }
@@ -150,18 +161,20 @@ namespace Veldrid.SceneGraph
             // are handled, Transform relative to and absolute reference frame are ignored.
 
             var bb = BoundingBox.Create();
-            foreach(var child in _children)
+            foreach(var (child, _) in _children)
             {
-                switch (child.Item1)
+                switch (child)
                 {
                     case Transform transform when transform.ReferenceFrame != Transform.ReferenceFrameType.Relative:
                         continue;
-                    case Geode geode:
+                    case IDrawable drawable:
+                        bb.ExpandBy(drawable.GetBoundingBox());
+                        break;
+                    case IGeode geode:
                         bb.ExpandBy(geode.GetBoundingBox());
                         break;
                     default:
-                        var bs = child.Item1.GetBound();
-                        bb.ExpandBy(bs);
+                        bb.ExpandBy(child.GetBound());
                         break;
                 }
             }
@@ -173,12 +186,14 @@ namespace Veldrid.SceneGraph
 
             bsphere.Center = bb.Center;
             bsphere.Radius = 0.0f;
-            foreach(var child in _children)
+
+            foreach (var (child, _) in _children)
             {
-                if (child.Item1 is Transform transform &&
-                    transform.ReferenceFrame != Transform.ReferenceFrameType.Relative) continue;
-                var bs = child.Item1.GetBound();
-                bsphere.ExpandRadiusBy(bs);
+                if (!(child is Transform transform) ||
+                    transform.ReferenceFrame == Transform.ReferenceFrameType.Relative)
+                {
+                    bsphere.ExpandRadiusBy(child.GetBound());
+                }
             }
 
             return bsphere;

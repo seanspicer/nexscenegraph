@@ -1,5 +1,5 @@
 //
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,17 +20,23 @@ using System.Collections.Generic;
 namespace Veldrid.SceneGraph
 {
 
-    public class Geode : Node, IGeode
+    public interface IGeode : IGroup
     {
-        private List<IDrawable> _drawables = new List<IDrawable>();
-        public IReadOnlyList<IDrawable> Drawables => _drawables;
+        IBoundingBox GetBoundingBox();
+        bool AddDrawable(IDrawable drawable);
+
+        int GetNumDrawables();
+
+        IDrawable GetDrawable(int index);
+    }
+    
+    public class Geode : Group, IGeode
+    {
         
         protected IBoundingBox _boundingBox;
         protected IBoundingBox _initialBoundingBox = BoundingBox.Create();
 
-        public event Func<INode, IBoundingBox> ComputeBoundingBoxCallback;
-
-        public static IGeode Create()
+        public new static IGeode Create()
         {
             return new Geode();
         }
@@ -50,44 +56,64 @@ namespace Veldrid.SceneGraph
             };
         }
 
-        public virtual void AddDrawable(IDrawable drawable)
+        public virtual bool AddDrawable(IDrawable drawable)
         {
-            _drawables.Add(drawable);
+            return AddChild(drawable);
         }
-        
+
+        public int GetNumDrawables()
+        {
+            return _children.Count;
+        }
+
+        public IDrawable GetDrawable(int index)
+        {
+            if (index < 0 || index > _children.Count)
+            {
+                throw new ArgumentException("Index out of bounds");
+            }
+            
+            return _children[(int)index].Item1 as IDrawable;
+        }
+
         public IBoundingBox GetBoundingBox()
         {
-            if (_boundingSphereComputed) return _boundingBox;
+            if (!_boundingSphereComputed) GetBound();
+            return _boundingBox;
             
-            _boundingBox = _initialBoundingBox;
+        }
 
-            _boundingBox.ExpandBy(null != ComputeBoundingBoxCallback
-                ? ComputeBoundingBoxCallback(this)
-                : ComputeBoundingBox());
+        public override IBoundingSphere ComputeBound()
+        {
+            var boundingSphere = SceneGraph.BoundingSphere.Create();
+            var bb = BoundingBox.Create();
+            foreach (var child in _children)
+            {
+                switch (child.Item1)
+                {
+                    case Transform transform when transform.ReferenceFrame != Transform.ReferenceFrameType.Relative:
+                        continue;
+                    case IDrawable drawable:
+                        bb.ExpandBy(drawable.GetBoundingBox());
+                        break;
+                    case IGeode geode:
+                        bb.ExpandBy(geode.GetBoundingBox());
+                        break;
+                    default:
+                        var bs = child.Item1.GetBound();
+                        bb.ExpandBy(bs);
+                        break;
+                }
+            }
+
+            _boundingBox = bb;
 
             if (_boundingBox.Valid())
             {
-                _boundingSphere.Set(_boundingBox.Center, _boundingBox.Radius);
-            }
-            else
-            {
-                _boundingSphere.Init();
+                boundingSphere.ExpandBy(_boundingBox);
             }
 
-            _boundingSphereComputed = true;
-
-            return _boundingBox;
-        }
-
-        protected IBoundingBox ComputeBoundingBox()
-        {
-            var bb = BoundingBox.Create();
-            foreach (var drawable in Drawables)
-            {
-                bb.ExpandBy(drawable.GetBoundingBox());
-            }
-
-            return bb;
+            return boundingSphere;
         }
     }
 }

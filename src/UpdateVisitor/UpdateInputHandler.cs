@@ -1,5 +1,5 @@
 //
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
 
-namespace SwitchExample
+namespace UpdateVisitor
 {
     public class UpdateInputHandler : InputEventHandler
     {
@@ -32,9 +32,9 @@ namespace SwitchExample
             _root = rootNode;
         }
         
-        public override void HandleInput(IInputStateSnapshot snapshot)
+        public override void HandleInput(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter)
         {
-            base.HandleInput(snapshot);
+            base.HandleInput(snapshot, uiActionAdapter);
             
             foreach (var keyEvent in snapshot.KeyEvents)
             {

@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,7 +23,21 @@ namespace Veldrid.SceneGraph
 
     public class PlaneList : List<IPlane> {}
 
+    public interface IPolytope
+    {
+        Matrix4x4 ViewProjectionMatrix { get; }
+        void SetViewProjectionMatrix(Matrix4x4 viewProjectionMatrix);
 
+        void Add(IPlane plane);
+        
+        void SetToViewProjectionFrustum(
+            Matrix4x4 viewProjectionMatrix, 
+            bool withNear=true, 
+            bool withFar = true);
+
+        bool Contains(IBoundingBox bb);
+        bool Contains(IBoundingBox bb, Matrix4x4 transformMatrix);
+    }
 
     /// <summary>
     /// Class representing convex clipping volumes made up from planes.
@@ -50,22 +64,27 @@ namespace Veldrid.SceneGraph
         {
             _viewProjectionMatrix = viewProjectionMatrix;
         }
-        
+
+        public void Add(IPlane plane)
+        {
+            _planeList.Add(plane);
+        }
+
         public void SetToUnitFrustum(bool withNear=true, bool withFar = true)
         {
             _planeList.Clear();
-            _planeList.Add(Plane.Create( 1.0f, 0.0f, 0.0f,1.0f)); // left plane.
-            _planeList.Add(Plane.Create(-1.0f, 0.0f, 0.0f,1.0f)); // right plane.
-            _planeList.Add(Plane.Create( 0.0f, 1.0f, 0.0f,1.0f)); // bottom plane.
-            _planeList.Add(Plane.Create( 0.0f,-1.0f, 0.0f,1.0f)); // top plane.
+            Add(Plane.Create( 1.0f, 0.0f, 0.0f,1.0f)); // left plane.
+            Add(Plane.Create(-1.0f, 0.0f, 0.0f,1.0f)); // right plane.
+            Add(Plane.Create( 0.0f, 1.0f, 0.0f,1.0f)); // bottom plane.
+            Add(Plane.Create( 0.0f,-1.0f, 0.0f,1.0f)); // top plane.
             if (withNear)
             {
-                _planeList.Add(Plane.Create(0.0f, 0.0f, 1.0f, 1.0f)); // near plane
+                Add(Plane.Create(0.0f, 0.0f, 1.0f, 1.0f)); // near plane
             }
 
             if (withFar)
             {
-                _planeList.Add(Plane.Create(0.0f, 0.0f, -1.0f, 1.0f)); // far plane
+                Add(Plane.Create(0.0f, 0.0f, -1.0f, 1.0f)); // far plane
             }
         }
 

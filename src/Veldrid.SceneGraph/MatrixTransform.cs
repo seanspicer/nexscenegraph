@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,14 @@ using Veldrid.SceneGraph.Viewer;
 
 namespace Veldrid.SceneGraph
 {
+    public interface IMatrixTransform : ITransform
+    {
+        Matrix4x4 Matrix { get; set; }
+        Matrix4x4 Inverse { get; }
+        void PreMultiply(Matrix4x4 mat);
+        void PostMultiply(Matrix4x4 mat);
+    }
+    
     public class MatrixTransform : Transform, IMatrixTransform
     {
         private Matrix4x4 _matrix = Matrix4x4.Identity;
@@ -27,7 +35,7 @@ namespace Veldrid.SceneGraph
         public Matrix4x4 Matrix
         {
             get => _matrix;
-            private set { 
+            set { 
                 _matrix = value;
                 _inverseDirty = true;
                 DirtyBound();

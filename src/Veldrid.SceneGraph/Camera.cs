@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,81 +15,75 @@
 //
 
 using System;
+using System.ComponentModel.Design;
 using System.Data;
 using System.Numerics;
+using Veldrid.SceneGraph.RenderGraph;
 using Veldrid.SceneGraph.Util;
-using Veldrid.SceneGraph.Viewer;
+using Vulkan;
+using Math = System.Math;
 
 namespace Veldrid.SceneGraph
 {
-    public class Camera : Transform, ICamera
+    
+    public enum ProjectionResizePolicy
     {
-        public View View { get; set; }
+        Horizontal, 
+        Vertical, 
+        Fixed
+    }
+
+    [Flags]
+    public enum ResizeMask
+    {
+        ResizeViewport = 1,
+        ResizeAttachments = 2,
+        ResizeProjectionMatrix = 4,
+        ResizeDefault = ResizeViewport | ResizeAttachments
+    }
+    
+    public interface ICamera : ITransform
+    {
+        IView View { get; }
+
+        void SetView(IView view);
         
-        public Matrix4x4 ProjectionMatrix { get; set; }
-        public Matrix4x4 ViewMatrix { get; set; }
-
-        // Perspective info
-        private float _fov = 1f;
-        private float _near = 0.1f;
-        private float _far = 10000.0f;
-        private float _aspectRatio = 1;
+        Matrix4x4 ProjectionMatrix { get; }
+        Matrix4x4 ViewMatrix { get;  }
         
-        private float _yaw = 0.45f;
-        private float _pitch = -0.55f;
+        ProjectionResizePolicy ProjectionResizePolicy { get; }
+
+        void SetProjectionResizePolicy(ProjectionResizePolicy policy);
         
-        // View info
-        private Vector3 _position = new Vector3(0, 0, 5.0f);
-        private Vector3 _target = new Vector3(0, 0, 0);
-        private Vector3 _lookDirection = Vector3.UnitZ;
-        private Vector3 _upDirection = Vector3.UnitY;
+        IViewport Viewport { get; }
         
-        public Vector3 Up => _upDirection;
-
-        public Vector3 Look => _lookDirection;
-
-        public Vector3 Position => _position;
-
-        public float Near => _near;
-
-        public float Far => _far;
-
-        public float AspectRatio => _aspectRatio;
-
-        public float Fov => _fov;
-
-        public float Yaw { get => _yaw; set { _yaw = value; UpdateViewMatrix(); } }
-        public float Pitch { get => _pitch; set { _pitch = value; UpdateViewMatrix(); } }
+        void SetViewport(int x, int y, int width, int height);
         
-        public IGraphicsDeviceOperation Renderer { get; set; }
-
-        private float _width { get; set; }
-        private float _height { get; set; }
+        void SetViewport(IViewport viewport);
         
-        public static ICamera Create(float width, float height)
-        {
-            return new Camera(width, height);
-        }
+        IGraphicsDeviceOperation Renderer { get; }
         
-        protected Camera(float width, float height)
-        {
-            _width = width;
-            _height = height;
-            
-            _aspectRatio = width / height;
-            ProjectionMatrix = Matrix4x4.Identity;
-            ViewMatrix = Matrix4x4.Identity;
-            UpdateProjectionMatrix();
-            UpdateViewMatrix();
+        void SetRenderer(IGraphicsDeviceOperation renderer);
 
-        }
+        void Resize(int width, int height, ResizeMask resizeMask = ResizeMask.ResizeDefault);
 
-        public void HandleResizeEvent(IResizedEvent resizedEvent)
-        {
-            _aspectRatio = (float)resizedEvent.Width / (float)resizedEvent.Height;
-            
-            UpdateProjectionMatrix();
-        }
+        void SetProjectionMatrix(Matrix4x4 matrix);
+        
+        void SetViewMatrix(Matrix4x4 matrix);
+        
+        void SetViewMatrixToLookAt(Vector3 position, Vector3 target, Vector3 upDirection);
+        
+
+        Vector3 NormalizedScreenToWorld(Vector3 screenCoords);
+        
+        RgbaFloat ClearColor { get; }
+
+        void SetClearColor(RgbaFloat color);
+    }
+
+    public interface IPerspectiveCamera : ICamera
+    {
+        float VerticalFov { get; }
 
         /// <summary>
         /// Create a symmetrical perspective projection. 
@@ -98,30 +92,132 @@ namespace Veldrid.SceneGraph
         /// <param name="aspectRatio"></param>
         /// <param name="zNear"></param>
         /// <param name="zFar"></param>
-        public void SetProjectionMatrixAsPerspective(float vfov, float aspectRatio, float zNear, float zFar)
+        void SetProjectionMatrixAsPerspective(float vfov, float aspectRatio, float zNear, float zFar);
+        
+        bool GetProjectionMatrixAsFrustum( 
+            ref float left, ref float right, 
+            ref float bottom, ref float top,
+            ref float zNear, ref float zFar);
+    }
+
+    public interface IOrthographicCamera : ICamera
+    {
+        void SetProjectionMatrixAsOrthographicOffCenter(
+            float left,
+            float right,
+            float bottom,
+            float top,
+            float zNear,
+            float zFar);
+
+        void SetProjectionMatrixAsOrthographic(
+            float width,
+            float height,
+            float zNearPlane,
+            float zFarPlane);
+        
+        bool GetProjectionMatrixAsOrtho( 
+            ref float left, ref float right, 
+            ref float bottom, ref float top,
+            ref float zNear, ref float zFar);
+    }
+    
+    public abstract class Camera : Transform, ICamera
+    {
+        public IView View { get; private set; }
+        
+        public void SetView(IView view)
         {
-            _fov = vfov;
-            _near = zNear;
-            _far = zFar;
-            _aspectRatio = aspectRatio;
-            
-            UpdateProjectionMatrix();
+            View = view;
         }
 
+        public Matrix4x4 ProjectionMatrix { get; set; }
+        public Matrix4x4 ViewMatrix { get; set; }
+        
+        public ProjectionResizePolicy ProjectionResizePolicy { get; private set; }
+
+        public void SetProjectionResizePolicy(ProjectionResizePolicy policy)
+        {
+            ProjectionResizePolicy = policy;
+        }
+
+        public IViewport Viewport { get; private set; }
+
+        public void SetViewport(int x, int y, int width, int height)
+        {
+            Viewport = SceneGraph.Viewport.Create(x, y, width, height);
+        }
+        
+        public void SetViewport(IViewport viewport)
+        {
+            Viewport = viewport;
+        }
+
+        public IGraphicsDeviceOperation Renderer { get; private set; }
+        
+        protected Camera()
+        {
+            ClearColor = RgbaFloat.Grey;
+            Viewport = null;
+            ProjectionMatrix = Matrix4x4.Identity;
+            ViewMatrix = Matrix4x4.Identity;
+            ProjectionResizePolicy = ProjectionResizePolicy.Fixed;
+        }
+
+
+        public void SetRenderer(IGraphicsDeviceOperation renderer)
+        {
+            Renderer = renderer;
+        }
+
+//        public void HandleResizeEvent(IResizedEvent resizedEvent)
+//        {
+//            Resize(resizedEvent.Width, resizedEvent.Height);
+//        }
+
+        protected abstract void ResizeProjection(int width, int height, ResizeMask resizeMask = ResizeMask.ResizeDefault);
+        
+        public void Resize(int width, int height, ResizeMask resizeMask = ResizeMask.ResizeDefault)
+        {
+            if (null != Viewport)
+            {
+                ResizeProjection(width, height, resizeMask);
+            }
+
+            if ((resizeMask & ResizeMask.ResizeAttachments) != 0)
+            {
+                // TODO: resize attached framebuffer.
+            }
+        }
+
+        public void SetProjectionMatrix(Matrix4x4 matrix)
+        {
+            ProjectionMatrix = matrix;
+        }
+        
+        // public bool IsOrthographicCamera()
+        // {
+        //     float left = 0, right = 0, bottom = 0, top = 0, zNear = 0, zFar = 0;
+        //     return GetProjectionMatrixAsOrtho(
+        //         ref left, ref right,
+        //         ref bottom, ref top,
+        //         ref zNear, ref zFar);
+        //
+        // }
+
+        public void SetViewMatrix(Matrix4x4 matrix)
+        {
+            ViewMatrix = matrix;
+        }
+        
         public void SetViewMatrixToLookAt(Vector3 position, Vector3 target, Vector3 upDirection)
         {
-            _position = position;
-            _target = target;
-            _upDirection = upDirection;
-            
-            UpdateViewMatrix();
+            SetViewMatrix(Matrix4x4.CreateLookAt(position, target, upDirection));
         }
 
         public Vector3 NormalizedScreenToWorld(Vector3 screenCoords)
         {
-            var viewProjectionMatrix = Matrix4x4.Identity;
-
-            viewProjectionMatrix = ProjectionMatrix.PreMultiply(ViewMatrix);
+            var viewProjectionMatrix = ProjectionMatrix.PreMultiply(ViewMatrix);
 
             Matrix4x4 vpi;
             
@@ -139,22 +235,12 @@ namespace Veldrid.SceneGraph
             }
             
         }
-        
-        private Vector3 GetLookDir()
-        {
-            Quaternion lookRotation = Quaternion.CreateFromYawPitchRoll(Yaw, Pitch, 0f);
-            Vector3 lookDir = Vector3.Transform(-Vector3.UnitZ, lookRotation);
-            return lookDir;
-        }
 
-        private void UpdateViewMatrix()
-        {
-            ViewMatrix = Matrix4x4.CreateLookAt(_position, _target, _upDirection);
-        }
+        public RgbaFloat ClearColor { get; private set; }
 
-        public void UpdateProjectionMatrix()
+        public void SetClearColor(RgbaFloat color)
         {
-            ProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(_fov, _aspectRatio, _near, _far);
+            ClearColor = color;
         }
     }
 }

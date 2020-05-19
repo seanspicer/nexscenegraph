@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,10 +14,19 @@
 // limitations under the License.
 //
 
+using System.Linq;
 using System.Numerics;
 
 namespace Veldrid.SceneGraph
 {
+    public interface ITransformVisitor
+    {
+        Matrix4x4 Matrix { get; }
+        
+        void Accumulate(NodePath nodePath);
+        
+    }
+    
     public class TransformVisitor : NodeVisitor, ITransformVisitor
     {
         public enum CoordMode
@@ -26,6 +35,8 @@ namespace Veldrid.SceneGraph
             LocalToWorld
         }
 
+        public Matrix4x4 Matrix => _matrix;
+        
         private readonly CoordMode _coordMode;
         private Matrix4x4 _matrix;
         private readonly bool _ignoreCameras;
@@ -59,12 +70,14 @@ namespace Veldrid.SceneGraph
         {
             if (0 == nodePath.Count) return;
 
+            var i = 0;
             var elt = nodePath.First;
             if (_ignoreCameras)
             {
                 // We need to find the last absolute Camera in NodePath and
                 // set the i index to after it so the final accumulation set ignores it.
                 elt = nodePath.Last;
+                i = nodePath.Count;
                 while (elt != null)
                 {
                     if (elt.Value is Camera camera &&
@@ -74,13 +87,13 @@ namespace Veldrid.SceneGraph
                     }
 
                     elt = elt.Previous;
+                    --i;
                 }
             }
 
-            while (elt != null)
+            for (; i < nodePath.Count; ++i)
             {
-                elt.Value.Accept(this);
-                elt = elt.Next;
+                nodePath.ElementAt(i).Accept(this);
             }
         }
     }

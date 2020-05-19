@@ -1,5 +1,5 @@
 //
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+
+using Veldrid.SceneGraph.Text;
 
 namespace Veldrid.SceneGraph.Util
 {
@@ -48,6 +50,11 @@ namespace Veldrid.SceneGraph.Util
             base.Apply(billboard);
         }
 
+        public override void Apply(IDrawable drawable)
+        {
+            base.Apply(drawable);
+        }
+
         protected void HandleCallbacks(IPipelineState state)
         {
             // TODO Handle state updates.
@@ -60,11 +67,17 @@ namespace Veldrid.SceneGraph.Util
                 HandleCallbacks(node.PipelineState);
             }
 
-            var updateCallback = node.GetUpdateCallback();
-            updateCallback?.Invoke(this, node);
-            
-            Traverse(node);
-            
+            var callback = node.GetUpdateCallback();
+            if (null != callback)
+            {
+                callback.Run(node, this);
+            }
+            else
+            {
+                // TODO - this should be:
+                // if(node.GetNumChildrenRequiringUpdateTraversal() > 0) Traverse(node);
+                Traverse(node);
+            }
         }
     }
 }

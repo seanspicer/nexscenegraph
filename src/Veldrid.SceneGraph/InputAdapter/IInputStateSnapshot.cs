@@ -1,5 +1,5 @@
 //
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,5 +29,9 @@ namespace Veldrid.SceneGraph.InputAdapter
         float WheelDelta { get; }
         int WindowWidth { get; }
         int WindowHeight { get; }
+
+        Matrix4x4 ProjectionMatrix { get; }
+        Matrix4x4 ViewMatrix { get; }
+
     }
 }

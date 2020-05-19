@@ -1,5 +1,5 @@
 //
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 using Examples.Common.Wpf;
 using SharpDX.Win32;
+using Veldrid;
 using Veldrid.SceneGraph.InputAdapter;
 
 namespace Lighting.Wpf
@@ -26,6 +27,7 @@ namespace Lighting.Wpf
         {
             SceneRoot = Examples.Common.LightingExampleScene.Build();
             CameraManipulator = TrackballManipulator.Create();
+            FsaaCount = TextureSampleCount.Count8; // 8x FSAA
         }
     }
 }

@@ -10,22 +10,15 @@
     <ItemGroup>
         <EmbeddedResource Include="Textures\tree.png" />
         <EmbeddedResource Include="Textures\spnza_bricks_a_diff.png" />
+        <None Remove="Assets\Shaders\MultiTexturedCubeShader-vertex.glsl" />
+        <EmbeddedResource Include="Assets\Shaders\MultiTexturedCubeShader-vertex.glsl" />
+        <None Remove="Assets\Shaders\MultiTexturedCubeShader-fragment.glsl" />
+        <EmbeddedResource Include="Assets\Shaders\MultiTexturedCubeShader-fragment.glsl" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\AssetPrimitives\AssetPrimitives.csproj" />
-        <ProjectReference Include="..\AssetProcessor\AssetProcessor.csproj" />
         <ProjectReference Include="..\Examples.Common\Examples.Common.csproj" />
         <ProjectReference Include="..\Veldrid.SceneGraph\Veldrid.SceneGraph.csproj" />
-    </ItemGroup>
-    
-    <ItemGroup>
-      <None Update="Assets\Shaders\MultiTexturedCubeShader.frag.spv">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Assets\Shaders\MultiTexturedCubeShader.vert.spv">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
     </ItemGroup>
 
     <Target Name="IncludeGeneratedShaderEmbeddedResource" AfterTargets="AssignTargetPaths" Condition="'$(ShaderContentIncludePath)' != ''">

@@ -91,7 +91,7 @@ namespace Veldrid.SceneGraph.Wpf.Element
 					using (Surface surface = texture.GetSurfaceLevel(0))
 					{
 						Lock();
-						SetBackBuffer(D3DResourceType.IDirect3DSurface9, surface.NativePointer);
+						SetBackBuffer(D3DResourceType.IDirect3DSurface9, surface.NativePointer, true);
 						AddDirtyRect(new Int32Rect(0, 0, base.PixelWidth, base.PixelHeight));
 						Unlock();
 					}
@@ -99,7 +99,7 @@ namespace Veldrid.SceneGraph.Wpf.Element
 				else
 				{
 					Lock();
-					SetBackBuffer(D3DResourceType.IDirect3DSurface9, IntPtr.Zero);
+					SetBackBuffer(D3DResourceType.IDirect3DSurface9, IntPtr.Zero, true);
 					AddDirtyRect(new Int32Rect(0, 0, base.PixelWidth, base.PixelHeight));
 					Unlock();
 				}

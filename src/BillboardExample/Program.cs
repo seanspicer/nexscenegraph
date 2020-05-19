@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -91,6 +91,7 @@ namespace BillboardExample
             geode.AddDrawable(geometry);
             
             var billboard = Billboard.Create();
+            //billboard.SizeMode = Billboard.SizeModes.ScreenCoords;
             billboard.AddDrawable(geometry);
             
             var leftXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(1, 0, 0));
@@ -113,8 +114,7 @@ namespace BillboardExample
         {
             var pso = PipelineState.Create();
 
-            pso.VertexShaderDescription = Vertex3Color4Shader.Instance.VertexShaderDescription;
-            pso.FragmentShaderDescription = Vertex3Color4Shader.Instance.FragmentShaderDescription;
+            pso.ShaderSet = Vertex3Color4Shader.Instance.ShaderSet;
 
             return pso;
         }

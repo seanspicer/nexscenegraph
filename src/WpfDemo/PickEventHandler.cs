@@ -1,5 +1,5 @@
 //
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,36 +17,30 @@
 using System;
 using System.Linq;
 using System.Numerics;
+using System.Windows.Controls;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Util;
+using IView = Veldrid.SceneGraph.Viewer.IView;
 
 namespace WpfDemo
 {
     public class PickEventHandler : InputEventHandler
     {
-        private Veldrid.SceneGraph.Viewer.View _view;
+        //private Veldrid.SceneGraph.Viewer.IView _view;
 
         //private readonly ILogger _logger;
         
         public PickEventHandler()
         {
             //_logger = Log.Logger.ForContext("Source", "CullingColoredCubes");
+            //_view = view;
         }
 
-        public override void SetView(IView view)
+        public override void HandleInput(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter)
         {
-            var wpfView = view as Veldrid.SceneGraph.Viewer.View;
-            if (null != wpfView)
-            {
-                _view = wpfView;
-            }
-        }
-        
-        public override void HandleInput(IInputStateSnapshot snapshot)
-        {
-            base.HandleInput(snapshot);
+            base.HandleInput(snapshot, uiActionAdapter);
             
             foreach (var keyEvent in snapshot.KeyEvents)
             {
@@ -55,25 +49,28 @@ namespace WpfDemo
                     switch (keyEvent.Key)
                     {
                         case Key.P:
-                            DoPick(snapshot);
+                            DoPick(snapshot, uiActionAdapter as IView);
                             break;
+                        // case Key.V:
+                        //     var view = uiActionAdapter as IView;
+                        //     view?.CameraManipulator.ViewAll();
+                        //     break;
                     }
-                    
                 }
             }
         }
 
-        private void DoPick(IInputStateSnapshot snapshot)
+        private void DoPick(IInputStateSnapshot snapshot, IView view)
         {
             var norm = GetNormalizedMousePosition();
             
-            var startPos = _view.Camera.NormalizedScreenToWorld(new Vector3(norm.X, norm.Y, 0.0f)); // Near plane
-            var endPos = _view.Camera.NormalizedScreenToWorld(new Vector3(norm.X, norm.Y, 1.0f)); // Far plane
+            var startPos = view.Camera.NormalizedScreenToWorld(new Vector3(norm.X, norm.Y, 0.0f)); // Near plane
+            var endPos = view.Camera.NormalizedScreenToWorld(new Vector3(norm.X, norm.Y, 1.0f)); // Far plane
             var intersector = LineSegmentIntersector.Create(startPos, endPos);
             
             var intersectionVisitor = IntersectionVisitor.Create(intersector);
             
-            _view.SceneData?.Accept(intersectionVisitor);
+            view.SceneData?.Accept(intersectionVisitor);
 
             if (intersector.Intersections.Any())
             {

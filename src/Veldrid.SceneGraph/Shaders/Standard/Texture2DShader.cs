@@ -1,5 +1,5 @@
 //
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,27 +15,21 @@
 //
 
 using System;
+using System.Reflection;
 using Veldrid.SceneGraph.Text;
 using Veldrid.SceneGraph.Util;
 
 namespace Veldrid.SceneGraph.Shaders.Standard
 {
-    public class Texture2DShader
+    public class Texture2DShader : StandardShaderBase
     {
         private static readonly Lazy<Texture2DShader> lazy = new Lazy<Texture2DShader>(() => new Texture2DShader());
 
         public static Texture2DShader Instance => lazy.Value;
-
-        public ShaderDescription VertexShaderDescription { get; }
-        public ShaderDescription FragmentShaderDescription { get; }
         
-        private Texture2DShader()
+        private Texture2DShader() : base(@"BasicTextureShader", @"BasicTextureShader-vertex.glsl", "BasicTextureShader-fragment.glsl")
         {
-            var vsBytes = ShaderTools.LoadBytecode(GraphicsBackend.Vulkan, "BasicTextureShader", ShaderStages.Vertex);
-            var fsBytes = ShaderTools.LoadBytecode(GraphicsBackend.Vulkan, "BasicTextureShader", ShaderStages.Fragment);
-            
-            VertexShaderDescription = new ShaderDescription(ShaderStages.Vertex, vsBytes, "main", true);
-            FragmentShaderDescription = new ShaderDescription(ShaderStages.Fragment, fsBytes, "main", true);
+
         }
     }
 }

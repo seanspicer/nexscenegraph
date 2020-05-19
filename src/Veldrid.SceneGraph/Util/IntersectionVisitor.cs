@@ -1,5 +1,5 @@
 //
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -142,11 +142,17 @@ namespace Veldrid.SceneGraph.Util
         {
             if (false == Enter(geode)) return;
 
-            foreach (var drawable in geode.Drawables)
-            {
-                Intersect(drawable);
-            }
+            Traverse(geode);
 
+            Leave();
+        }
+
+        public override void Apply(IDrawable drawable)
+        {
+            if (false == Enter(drawable)) return;
+            
+            Intersect(drawable);
+            
             Leave();
         }
 

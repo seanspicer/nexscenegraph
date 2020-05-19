@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -56,8 +56,9 @@ namespace ColoredCube
             Bootstrapper.Configure();
             
             var viewer = SimpleViewer.Create("Culling Colored Cube Scene Graph");
+            //viewer.SetCameraOrthographic();
             viewer.SetCameraManipulator(TrackballManipulator.Create());
-            viewer.AddInputEventHandler(new PickEventHandler(viewer.View));
+            //viewer.AddInputEventHandler(new PickEventHandler(viewer.View));
 
             var root = Group.Create();
             root.NameString = "Root";
@@ -173,8 +174,7 @@ namespace ColoredCube
         {
             var pso = PipelineState.Create();
 
-            pso.VertexShaderDescription = Vertex3Color4Shader.Instance.VertexShaderDescription;
-            pso.FragmentShaderDescription = Vertex3Color4Shader.Instance.FragmentShaderDescription;
+            pso.ShaderSet = Vertex3Color4Shader.Instance.ShaderSet;
 
             return pso;
         }

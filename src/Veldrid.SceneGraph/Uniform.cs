@@ -5,6 +5,13 @@ using SharpDX.DXGI;
 
 namespace Veldrid.SceneGraph
 {
+    public interface IUniform<T> : IBindable where T : struct
+    {
+        T[] UniformData { get; set; }
+        
+        string Name { get; }
+    }
+    
     public class Uniform<T> : IUniform<T> where T : struct
     {
         public T[] UniformData { get; set; }

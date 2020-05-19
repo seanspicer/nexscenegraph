@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,30 +23,11 @@ using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Shaders.Standard;
 using Veldrid.SceneGraph.Util;
+using Veldrid.SceneGraph.VertexTypes;
 using Veldrid.SceneGraph.Viewer;
 
 namespace TexturedCube
 {
-    public struct VertexPositionTexture : IPrimitiveElement
-    {
-        public const uint SizeInBytes = 20;
-
-        public Vector3 Position;
-        public Vector2 TexCoord;
-        
-        public VertexPositionTexture(Vector3 position, Vector2 texCoord)
-        {
-            Position = position;
-            TexCoord = texCoord;
-        }
-
-        public Vector3 VertexPosition
-        {
-            get => Position;
-            set => Position = value;
-        }
-    }
-    
     class Program
     {
         static void Main(string[] args)
@@ -72,40 +53,40 @@ namespace TexturedCube
 
         static IGeode CreateCube()
         {
-            var geometry = Geometry<VertexPositionTexture>.Create();
+            var geometry = Geometry<Position3TexCoord2>.Create();
 
-            var vertices = new VertexPositionTexture[]
+            var vertices = new Position3TexCoord2[]
             {
                 // Top
-                new VertexPositionTexture(new Vector3(-1.0f, +1.0f, -1.0f), new Vector2(0, 0)),
-                new VertexPositionTexture(new Vector3(+1.0f, +1.0f, -1.0f), new Vector2(1, 0)),
-                new VertexPositionTexture(new Vector3(+1.0f, +1.0f, +1.0f), new Vector2(1, 1)),
-                new VertexPositionTexture(new Vector3(-1.0f, +1.0f, +1.0f), new Vector2(0, 1)),
+                new Position3TexCoord2(new Vector3(-1.0f, +1.0f, -1.0f), new Vector2(0, 0)),
+                new Position3TexCoord2(new Vector3(+1.0f, +1.0f, -1.0f), new Vector2(1, 0)),
+                new Position3TexCoord2(new Vector3(+1.0f, +1.0f, +1.0f), new Vector2(1, 1)),
+                new Position3TexCoord2(new Vector3(-1.0f, +1.0f, +1.0f), new Vector2(0, 1)),
                 // Bottom                                                             
-                new VertexPositionTexture(new Vector3(-1.0f,-1.0f, +1.0f),  new Vector2(0, 0)),
-                new VertexPositionTexture(new Vector3(+1.0f,-1.0f, +1.0f),  new Vector2(1, 0)),
-                new VertexPositionTexture(new Vector3(+1.0f,-1.0f, -1.0f),  new Vector2(1, 1)),
-                new VertexPositionTexture(new Vector3(-1.0f,-1.0f, -1.0f),  new Vector2(0, 1)),
+                new Position3TexCoord2(new Vector3(-1.0f,-1.0f, +1.0f),  new Vector2(0, 0)),
+                new Position3TexCoord2(new Vector3(+1.0f,-1.0f, +1.0f),  new Vector2(1, 0)),
+                new Position3TexCoord2(new Vector3(+1.0f,-1.0f, -1.0f),  new Vector2(1, 1)),
+                new Position3TexCoord2(new Vector3(-1.0f,-1.0f, -1.0f),  new Vector2(0, 1)),
                 // Left                                                               
-                new VertexPositionTexture(new Vector3(-1.0f, +1.0f, -1.0f), new Vector2(0, 0)),
-                new VertexPositionTexture(new Vector3(-1.0f, +1.0f, +1.0f), new Vector2(1, 0)),
-                new VertexPositionTexture(new Vector3(-1.0f, -1.0f, +1.0f), new Vector2(1, 1)),
-                new VertexPositionTexture(new Vector3(-1.0f, -1.0f, -1.0f), new Vector2(0, 1)),
+                new Position3TexCoord2(new Vector3(-1.0f, +1.0f, -1.0f), new Vector2(0, 0)),
+                new Position3TexCoord2(new Vector3(-1.0f, +1.0f, +1.0f), new Vector2(1, 0)),
+                new Position3TexCoord2(new Vector3(-1.0f, -1.0f, +1.0f), new Vector2(1, 1)),
+                new Position3TexCoord2(new Vector3(-1.0f, -1.0f, -1.0f), new Vector2(0, 1)),
                 // Right                                                              
-                new VertexPositionTexture(new Vector3(+1.0f, +1.0f, +1.0f), new Vector2(0, 0)),
-                new VertexPositionTexture(new Vector3(+1.0f, +1.0f, -1.0f), new Vector2(1, 0)),
-                new VertexPositionTexture(new Vector3(+1.0f, -1.0f, -1.0f), new Vector2(1, 1)),
-                new VertexPositionTexture(new Vector3(+1.0f, -1.0f, +1.0f), new Vector2(0, 1)),
+                new Position3TexCoord2(new Vector3(+1.0f, +1.0f, +1.0f), new Vector2(0, 0)),
+                new Position3TexCoord2(new Vector3(+1.0f, +1.0f, -1.0f), new Vector2(1, 0)),
+                new Position3TexCoord2(new Vector3(+1.0f, -1.0f, -1.0f), new Vector2(1, 1)),
+                new Position3TexCoord2(new Vector3(+1.0f, -1.0f, +1.0f), new Vector2(0, 1)),
                 // Back                                                               
-                new VertexPositionTexture(new Vector3(+1.0f, +1.0f, -1.0f), new Vector2(0, 0)),
-                new VertexPositionTexture(new Vector3(-1.0f, +1.0f, -1.0f), new Vector2(1, 0)),
-                new VertexPositionTexture(new Vector3(-1.0f, -1.0f, -1.0f), new Vector2(1, 1)),
-                new VertexPositionTexture(new Vector3(+1.0f, -1.0f, -1.0f), new Vector2(0, 1)),
+                new Position3TexCoord2(new Vector3(+1.0f, +1.0f, -1.0f), new Vector2(0, 0)),
+                new Position3TexCoord2(new Vector3(-1.0f, +1.0f, -1.0f), new Vector2(1, 0)),
+                new Position3TexCoord2(new Vector3(-1.0f, -1.0f, -1.0f), new Vector2(1, 1)),
+                new Position3TexCoord2(new Vector3(+1.0f, -1.0f, -1.0f), new Vector2(0, 1)),
                 // Front                                                              
-                new VertexPositionTexture(new Vector3(-1.0f, +1.0f, +1.0f), new Vector2(0, 0)),
-                new VertexPositionTexture(new Vector3(+1.0f, +1.0f, +1.0f), new Vector2(1, 0)),
-                new VertexPositionTexture(new Vector3(+1.0f, -1.0f, +1.0f), new Vector2(1, 1)),
-                new VertexPositionTexture(new Vector3(-1.0f, -1.0f, +1.0f), new Vector2(0, 1)),
+                new Position3TexCoord2(new Vector3(-1.0f, +1.0f, +1.0f), new Vector2(0, 0)),
+                new Position3TexCoord2(new Vector3(+1.0f, +1.0f, +1.0f), new Vector2(1, 0)),
+                new Position3TexCoord2(new Vector3(+1.0f, -1.0f, +1.0f), new Vector2(1, 1)),
+                new Position3TexCoord2(new Vector3(-1.0f, -1.0f, +1.0f), new Vector2(0, 1)),
             };
             
             uint[] indices =
@@ -121,11 +102,9 @@ namespace TexturedCube
             geometry.VertexData = vertices;
             geometry.IndexData = indices;
 
-            geometry.VertexLayout = new VertexLayoutDescription(
-                new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
-                new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2));
-
-            var pSet = DrawElements<VertexPositionTexture>.Create(
+            geometry.VertexLayout = Position3TexCoord2.VertexLayoutDescription;
+            
+            var pSet = DrawElements<Position3TexCoord2>.Create(
                 geometry, 
                 PrimitiveTopology.TriangleList,
                 (uint)geometry.IndexData.Length, 
@@ -136,8 +115,7 @@ namespace TexturedCube
             
             geometry.PrimitiveSets.Add(pSet);
 
-            geometry.PipelineState.VertexShaderDescription = Texture2DShader.Instance.VertexShaderDescription;
-            geometry.PipelineState.FragmentShaderDescription = Texture2DShader.Instance.FragmentShaderDescription;
+            geometry.PipelineState.ShaderSet = Texture2DShader.Instance.ShaderSet;
             
             geometry.PipelineState.AddTexture(
                 Texture2D.Create(Texture2D.ImageFormatType.Png,

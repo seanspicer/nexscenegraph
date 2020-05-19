@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,6 +22,12 @@ using Veldrid;
 
 namespace Veldrid.SceneGraph
 {    
+    public interface IGeometry<T> : IDrawable where T : struct, IPrimitiveElement
+    {
+        T[] VertexData { get; set; }
+        uint[] IndexData { get; set; }
+    }
+    
     public class Geometry<T> : Drawable, IGeometry<T> where T : struct, IPrimitiveElement
     {
         public T[] VertexData { get; set; }
@@ -77,7 +83,7 @@ namespace Veldrid.SceneGraph
                 primitiveSet.Draw(commandList);
             }
         }
-
+        
         protected override IBoundingBox ComputeBoundingBox()
         {
             var bb = BoundingBox.Create();

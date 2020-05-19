@@ -1,5 +1,5 @@
 //
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,6 +28,14 @@ namespace Veldrid.SceneGraph.RenderGraph
         public Matrix4x4 ModelViewMatrix;
         public DeviceBuffer VertexBuffer;
         public DeviceBuffer IndexBuffer;
+    }
+    
+    public interface IRenderGroup
+    {
+        bool HasDrawableElements();
+        void Reset();
+        IEnumerable<IRenderGroupState> GetStateList();
+        IRenderGroupState GetOrCreateState(GraphicsDevice device, IPipelineState pso, PrimitiveTopology pt, VertexLayoutDescription vl);
     }
     
     public class RenderGroup : IRenderGroup

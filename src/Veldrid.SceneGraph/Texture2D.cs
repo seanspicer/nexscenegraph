@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,11 +18,19 @@ using System;
 using System.ComponentModel;
 using System.Dynamic;
 using System.IO;
-using AssetPrimitives;
-using AssetProcessor;
+using Veldrid.SceneGraph.AssetPrimitives;
+using Veldrid.SceneGraph.AssetProcessor;
 
 namespace Veldrid.SceneGraph
 {
+    public interface ITexture2D
+    {
+        ProcessedTexture ProcessedTexture { get; }
+        uint ResourceSetNo { get; set; }
+        string TextureName { get; set; }
+        string SamplerName { get; set; }
+    }
+    
     public class Texture2D : ITexture2D
     {
         public enum ImageFormatType

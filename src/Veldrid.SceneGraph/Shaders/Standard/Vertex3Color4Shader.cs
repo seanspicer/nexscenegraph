@@ -1,5 +1,5 @@
 //
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,26 +15,19 @@
 //
 
 using System;
+using System.Reflection;
 using Veldrid.SceneGraph.Util;
 
 namespace Veldrid.SceneGraph.Shaders.Standard
 {
-    public class Vertex3Color4Shader
+    public class Vertex3Color4Shader : StandardShaderBase
     {
         private static readonly Lazy<Vertex3Color4Shader> Lazy = new Lazy<Vertex3Color4Shader>(() => new Vertex3Color4Shader());
 
         public static Vertex3Color4Shader Instance => Lazy.Value;
 
-        public ShaderDescription VertexShaderDescription { get; }
-        public ShaderDescription FragmentShaderDescription { get; }
-        
-        private Vertex3Color4Shader()
+        private Vertex3Color4Shader() : base(@"Vertex3Color4",@"Vertex3Color4-vertex.glsl", @"Vertex3Color4-fragment.glsl")
         {
-            var vsBytes = ShaderTools.LoadBytecode(GraphicsBackend.Vulkan, "Vertex3Color4", ShaderStages.Vertex);
-            var fsBytes = ShaderTools.LoadBytecode(GraphicsBackend.Vulkan, "Vertex3Color4", ShaderStages.Fragment);
-            
-            VertexShaderDescription = new ShaderDescription(ShaderStages.Vertex, vsBytes, "main", true);
-            FragmentShaderDescription = new ShaderDescription(ShaderStages.Fragment, fsBytes, "main", true);
         }
     }
 }

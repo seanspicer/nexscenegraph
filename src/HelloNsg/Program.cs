@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -53,8 +53,11 @@ namespace HelloNsg
         {
             Bootstrapper.Configure();
             
-            var viewer = SimpleViewer.Create("Hello Veldrid Scene Graph");
-            viewer.SetCameraManipulator(TrackballManipulator.Create());
+            var viewer = SimpleViewer.Create("Hello Veldrid Scene Graph", TextureSampleCount.Count32);
+            var trackball = TrackballManipulator.Create();
+            trackball.SetHomePosition(-Vector3.UnitZ, Vector3.Zero, Vector3.UnitY);
+            viewer.SetCameraManipulator(trackball);
+            viewer.SetBackgroundColor(RgbaFloat.Black);
 
             var root = Group.Create();
             
@@ -88,8 +91,7 @@ namespace HelloNsg
             
             geometry.PrimitiveSets.Add(pSet);
 
-            geometry.PipelineState.VertexShaderDescription = Vertex2Color4Shader.Instance.VertexShaderDescription;
-            geometry.PipelineState.FragmentShaderDescription = Vertex2Color4Shader.Instance.FragmentShaderDescription;
+            geometry.PipelineState.ShaderSet = Vertex2Color4Shader.Instance.ShaderSet;
 
             var geode = Geode.Create();
             geode.AddDrawable(geometry);

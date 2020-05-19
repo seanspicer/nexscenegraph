@@ -7,17 +7,18 @@ using SharpDX.D3DCompiler;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using Veldrid.SceneGraph.InputAdapter;
+using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Viewer;
 using Veldrid.SceneGraph.Wpf.Element;
 using Veldrid.Utilities;
 using Buffer = SharpDX.Direct3D11.Buffer;
 using Device = SharpDX.DXGI.Device;
+using Math = System.Math;
 
 namespace Veldrid.SceneGraph.Wpf
 {
     public class VeldridSceneGraphRenderer : BaseRenderer
     {
-        private ISubject<IResizedEvent> _resizeEvents;
         private ISubject<IEndFrameEvent> _endFrameEvents;
         private ISubject<IInputStateSnapshot> _viewerInputEvents;
 
@@ -33,8 +34,8 @@ namespace Veldrid.SceneGraph.Wpf
                 _sceneData = value;
                 if (null != _view)
                 {
-                    ((Veldrid.SceneGraph.Viewer.View) _view).SceneData = _sceneData;
-                    CameraManipulator?.ViewAll();
+                    _view.SetSceneData(_sceneData);
+                    CameraManipulator?.ViewAll(View);
                 }
             }
         }
@@ -49,8 +50,8 @@ namespace Veldrid.SceneGraph.Wpf
                 _cameraManipulator = value;
                 if (null != _view)
                 {
-                    ((Veldrid.SceneGraph.Viewer.View) _view).CameraManipulator = _cameraManipulator;
-                    CameraManipulator?.ViewAll();
+                    _view.SetCameraManipulator(_cameraManipulator);
+                    CameraManipulator?.ViewAll(View);
                 }
             }
         }
@@ -65,12 +66,43 @@ namespace Veldrid.SceneGraph.Wpf
                 _eventHandler = value;
                 if (null != _view)
                 {
-                    _eventHandler.SetView((Veldrid.SceneGraph.Viewer.View)_view);
-                    ((Veldrid.SceneGraph.Viewer.View) _view).AddInputEventHandler(_eventHandler);
+                    _view.AddInputEventHandler(_eventHandler);
                 }
                 
             }
         }
+
+        private TextureSampleCount _fsaaCount;
+
+        public TextureSampleCount FsaaCount
+        {
+            get => _fsaaCount;
+            set
+            {
+                _fsaaCount = value;
+                if (null != _graphicsDevice)
+                {
+                    _sceneContext.SetMainSceneSampleCount(_fsaaCount, _graphicsDevice, (uint)DisplaySettings.Instance.ScreenWidth, (uint)DisplaySettings.Instance.ScreenHeight);
+                }
+                
+            }
+        }
+
+        private RgbaFloat _clearColor;
+
+        public RgbaFloat ClearColor
+        {
+            get => _clearColor;
+            set
+            {
+                _clearColor = value;
+                if (null != _view)
+                {
+                    _view.Camera.SetClearColor(_clearColor);
+                }
+            }
+        }
+        
         
         public double DpiScale { get; set; }
 
@@ -80,7 +112,6 @@ namespace Veldrid.SceneGraph.Wpf
             get => _view;
         }
         
-        public IObservable<IResizedEvent> ResizeEvents => _resizeEvents;
         public IObservable<IEndFrameEvent> EndFrameEvents => _endFrameEvents;
         public IObservable<IInputStateSnapshot> ViewerInputEvents => _viewerInputEvents;
         
@@ -89,8 +120,12 @@ namespace Veldrid.SceneGraph.Wpf
         private CommandList _commandList;
         private GraphicsDevice _graphicsDevice;
         
+        private SceneContext _sceneContext;
+        
         private Framebuffer _offscreenFB;
+        
         private Texture _offscreenColor;
+        
         private Texture _offscreenDepth;
 
         private Fence _fence;
@@ -98,6 +133,7 @@ namespace Veldrid.SceneGraph.Wpf
         private DisposeCollectorResourceFactory _factory;
         
         private event Action<GraphicsDevice, ResourceFactory> GraphicsDeviceOperations;
+        private event Action<GraphicsDevice> GraphicsDeviceResize;
         
         private const uint NFramesInBuffer = 30;
         private ulong _frameCounter = 0;
@@ -110,10 +146,13 @@ namespace Veldrid.SceneGraph.Wpf
 
         private bool _initialized;
         
+        private readonly IUpdateVisitor _updateVisitor;
+        
         public VeldridSceneGraphRenderer()
         {
             DpiScale = 1.0d;
             _initialized = false;
+            _updateVisitor = UpdateVisitor.Create();
             _graphicsDevice = GraphicsDevice.CreateD3D11(new GraphicsDeviceOptions());
             
             if (_graphicsDevice.GetD3D11Info(out var backendInfo))
@@ -128,6 +167,7 @@ namespace Veldrid.SceneGraph.Wpf
             _stopwatch = Stopwatch.StartNew();
             _previousElapsed = _stopwatch.Elapsed.TotalSeconds;
             _frameInfoSubject = new Subject<float>();
+            
         }
         
         protected override void Attach()
@@ -138,7 +178,6 @@ namespace Veldrid.SceneGraph.Wpf
             // Create Subjects
             _viewerInputEvents = new Subject<IInputStateSnapshot>();
             _endFrameEvents = new Subject<IEndFrameEvent>();
-            _resizeEvents = new Subject<IResizedEvent>();
             _inputState = new WpfInputStateSnapshot();
             
             
@@ -148,7 +187,6 @@ namespace Veldrid.SceneGraph.Wpf
         {
             _viewerInputEvents.OnCompleted();
             _endFrameEvents.OnCompleted();
-            _resizeEvents.OnCompleted();
             
             _graphicsDevice.WaitForIdle();
             _factory.DisposeCollector.DisposeAll();
@@ -158,30 +196,36 @@ namespace Veldrid.SceneGraph.Wpf
 
         public void Initialize()
         {
-            var view = Veldrid.SceneGraph.Viewer.View.Create(_resizeEvents);
+            var view = Veldrid.SceneGraph.Viewer.View.Create();
             view.InputEvents = ViewerInputEvents;
+            
+            _sceneContext = new SceneContext(FsaaCount);
+            _sceneContext.CreateDeviceObjects(_graphicsDevice, _factory);
+            view.SceneContext = _sceneContext;
 
             if (null != _sceneData)
             {
-                view.SceneData = _sceneData;
+                view.SetSceneData(_sceneData);
             }
 
             if (null != _cameraManipulator)
             {
-                view.CameraManipulator = _cameraManipulator;
+                view.SetCameraManipulator(_cameraManipulator);
             }
 
             if (null != _eventHandler)
             {
-                _eventHandler.SetView((Veldrid.SceneGraph.Viewer.View)view);
                 view.AddInputEventHandler(_eventHandler);
             }
             
+            
             GraphicsDeviceOperations += view.Camera.Renderer.HandleOperation;
+            GraphicsDeviceResize += view.Camera.Renderer.HandleResize;
             
             _view = view;
             
-            CameraManipulator?.ViewAll();
+            
+            CameraManipulator?.ViewAll(View);
 
             _initialized = true;
         }
@@ -201,29 +245,49 @@ namespace Veldrid.SceneGraph.Wpf
             uint width = (uint)(args.RenderSize.Width < 0 ? 0 : Math.Ceiling(args.RenderSize.Width * dpiScale));
             uint height = (uint)(args.RenderSize.Height < 0 ? 0 : Math.Ceiling(args.RenderSize.Height * dpiScale));
 
-            DisplaySettings.Instance.ScreenWidth = width;
-            DisplaySettings.Instance.ScreenHeight = height;
+            DisplaySettings.Instance.SetScreenWidth(width);
+            DisplaySettings.Instance.SetScreenHeight(height);
 
+            //_graphicsDevice.ResizeMainWindow((uint) width, (uint) height);
+            
             if (!_initialized)
             {
-                DisplaySettings.Instance.ScreenDistance = 1000.0f;
+                DisplaySettings.Instance.SetScreenDistance(1000.0f);
                 Initialize();
             }
+
+            //_sceneContext.RecreateWindowSizedResources(_graphicsDevice, _factory, width, height);
             
-            _offscreenColor = _factory.CreateTexture(TextureDescription.Texture2D(
-                width, height, 1, 1,
-                PixelFormat.B8_G8_R8_A8_UNorm, TextureUsage.RenderTarget | TextureUsage.Sampled));
+            var mainColorDesc = TextureDescription.Texture2D(
+                width,
+                height,
+                1,
+                1,
+                PixelFormat.B8_G8_R8_A8_UNorm,
+                TextureUsage.RenderTarget);
+
+            _offscreenColor = _factory.CreateTexture(ref mainColorDesc);
             
             _offscreenDepth = _factory.CreateTexture(TextureDescription.Texture2D(
-                width, height, 1, 1, PixelFormat.D24_UNorm_S8_UInt, TextureUsage.DepthStencil));
+                width, 
+                height, 
+                1, 
+                1, 
+                PixelFormat.D24_UNorm_S8_UInt, 
+                TextureUsage.DepthStencil));
+            
             _offscreenFB = _factory.CreateFramebuffer(new FramebufferDescription(_offscreenDepth, _offscreenColor));
 
             var od = _offscreenFB.OutputDescription;
             
             if (null != _view)
             {
-                _view.Framebuffer = _offscreenFB;
+                _sceneContext.SetOutputFramebufffer(_offscreenFB);
             }
+            
+            _sceneContext.RecreateWindowSizedResources(_graphicsDevice, _factory, width, height);
+            
+            GraphicsDeviceResize?.Invoke(_graphicsDevice);
         }
         
         protected virtual void Frame()
@@ -265,15 +329,29 @@ namespace Veldrid.SceneGraph.Wpf
 
             if (null == _graphicsDevice) return;
 
-            GraphicsDeviceOperations?.Invoke(_graphicsDevice, _factory);
+            UpdateTraversal();
+
+            RenderingTraversal();
 
             _endFrameEvents.OnNext(new EndFrameEvent(deltaSeconds));
             
         }
+        
+        private void UpdateTraversal()
+        {
+            SceneData?.Accept(_updateVisitor);
+
+            CameraManipulator?.UpdateCamera(_view.Camera);
+        }
+
+        private void RenderingTraversal()
+        {
+            GraphicsDeviceOperations?.Invoke(_graphicsDevice, _factory);
+        }
 
         public override void RenderCore(DrawEventArgs args)
         {
-            if (null != _view && _view.Framebuffer != null)
+            if (null != _view && null != _view.SceneContext && null != _view.SceneContext.OutputFramebuffer)
             {
                 Frame();
 
@@ -284,6 +362,12 @@ namespace Veldrid.SceneGraph.Wpf
                     new SharpDX.Direct3D11.Texture2D(backendInfo.GetTexturePointer(_offscreenColor));
                 d3d11RenderTarget?.Device.ImmediateContext.CopyResource(d3d11RenderTarget, Renderer.RenderTarget);
             }
+        }
+
+        public void Resize(IResizedEvent resizeEvent)
+        {
+            _view.Camera.Resize(resizeEvent.Width, resizeEvent.Height, ResizeMask.ResizeDefault | ResizeMask.ResizeProjectionMatrix);
+            
         }
     }
 }

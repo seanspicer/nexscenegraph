@@ -17,6 +17,8 @@ namespace Veldrid.SceneGraph.Wpf
         private ISubject<IGroup> _sceneDataSubject;
         private ISubject<ICameraManipulator> _cameraManipulatorSubject;
         private ISubject<IInputEventHandler> _eventHandlerSubject;
+        private ISubject<RgbaFloat> _clearColorSubject;
+        private ISubject<TextureSampleCount> _fsaaCountSubject;
 
         private VeldridSceneGraphRenderer _vsgRenderer;
         
@@ -41,13 +43,19 @@ namespace Veldrid.SceneGraph.Wpf
             _sceneDataSubject = new ReplaySubject<IGroup>();
             _cameraManipulatorSubject = new ReplaySubject<ICameraManipulator>();
             _eventHandlerSubject = new ReplaySubject<IInputEventHandler>();
+            _clearColorSubject = new ReplaySubject<RgbaFloat>();
+            _fsaaCountSubject = new ReplaySubject<TextureSampleCount>();
             _inputState = new WpfInputStateSnapshot();
 
             ShouldHandleKeyEvents = false;
             
             Loaded += OnLoaded;
         }
-        
+
+        public IUiActionAdapter GetUiActionAdapter()
+        {
+            return _vsgRenderer.View;
+        }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
@@ -72,12 +80,35 @@ namespace Veldrid.SceneGraph.Wpf
             {
                 _vsgRenderer.EventHandler = eventHandler;
             });
+            _clearColorSubject.Subscribe((clearColor) =>
+            {
+                _vsgRenderer.ClearColor = clearColor;
+            });
+            _fsaaCountSubject.Subscribe((fsaaCout) =>
+            {
+                _vsgRenderer.FsaaCount = fsaaCout;
+            });
 
             Renderer = _vsgRenderer;
             _vsgRenderer.FrameInfo.Subscribe((frameInfo) => { this.FrameInfo = $"FPS: {frameInfo.ToString("#.0")}"; });
             _vsgRenderer.DpiScale = GetDpiScale();
         }
 
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        {
+            base.OnRenderSizeChanged(sizeInfo);
+            if (sizeInfo.HeightChanged || sizeInfo.WidthChanged)
+            {
+                var resizeEvent = new ResizedEvent((int)sizeInfo.NewSize.Width, (int)sizeInfo.NewSize.Height);
+                _vsgRenderer.Resize(resizeEvent);
+            }
+        }
+
+        public ICamera GetCamera()
+        {
+            return _vsgRenderer.View.Camera;
+        }
+        
         protected override void OnMouseEnter(MouseEventArgs e)
         {
             base.OnMouseEnter(e);
@@ -247,15 +278,20 @@ namespace Veldrid.SceneGraph.Wpf
 
         private void ProcessEvents()
         {
-            double dpiScale = GetDpiScale();
-            int width =  (ActualWidth < 0 ? 0 : (int)Math.Ceiling(ActualWidth * dpiScale));
-            int height = (ActualHeight < 0 ? 0 : (int)Math.Ceiling(ActualHeight * dpiScale));
+            int width =  (ActualWidth < 0 ? 0 : (int)Math.Ceiling(ActualWidth));
+            int height = (ActualHeight < 0 ? 0 : (int)Math.Ceiling(ActualHeight));
 
-            var inputStateSnap = InputStateSnapshot.Create(_inputState, width, height);
+            var inputStateSnap = InputStateSnapshot.Create(_inputState, width, height, _vsgRenderer.View.Camera.ProjectionMatrix, _vsgRenderer.View.Camera.ViewMatrix);
             _vsgRenderer.HandleInput(inputStateSnap);
             _inputState.MouseEventList.Clear();
             _inputState.KeyEventList.Clear();
             _inputState.WheelDelta = 0;
+
+            if (false == IsReallyLoopRendering)
+            {
+                Render(); // Event processing needs to trigger render for remote desktop to work...this is a bit like render-on-demand
+            }
+            
         }
         
         private double GetDpiScale()
@@ -333,5 +369,48 @@ namespace Veldrid.SceneGraph.Wpf
             _eventHandlerSubject.OnNext((IInputEventHandler) e.NewValue); 
         }
         #endregion
+        
+        #region ClearColorProperty
+        public static readonly DependencyProperty ClearColorProperty = 
+            DependencyProperty.Register("ClearColor", typeof(RgbaFloat), typeof(VeldridSceneGraphControl), 
+                new PropertyMetadata(RgbaFloat.Grey, new PropertyChangedCallback(OnClearColorChanged)));  
+
+        public RgbaFloat ClearColor 
+        {
+            get => (RgbaFloat) GetValue(ClearColorProperty);
+            set => SetValue(ClearColorProperty, value);
+        }
+        
+        private static void OnClearColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {  
+            var vsgControl = d as VeldridSceneGraphControl;  
+            vsgControl?.SetClearColor(e);  
+        } 
+        
+        private void SetClearColor(DependencyPropertyChangedEventArgs e) {  
+            _clearColorSubject.OnNext((RgbaFloat) e.NewValue); 
+        }
+        #endregion
+        
+        #region FSAAProperty
+        public static readonly DependencyProperty FsaaCountProperty = 
+            DependencyProperty.Register("FsaaCount", typeof(TextureSampleCount), typeof(VeldridSceneGraphControl), 
+                new PropertyMetadata(TextureSampleCount.Count1, new PropertyChangedCallback(OnFsaaCountChanged)));  
+
+        public TextureSampleCount FsaaCount 
+        {
+            get => (TextureSampleCount) GetValue(FsaaCountProperty);
+            set => SetValue(FsaaCountProperty, value);
+        }
+        
+        private static void OnFsaaCountChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {  
+            var vsgControl = d as VeldridSceneGraphControl;  
+            vsgControl?.SetFsaaCount(e);  
+        } 
+        
+        private void SetFsaaCount(DependencyPropertyChangedEventArgs e) {  
+            _fsaaCountSubject.OnNext((TextureSampleCount) e.NewValue); 
+        }
+        #endregion
+        
     }
 }

@@ -1,5 +1,5 @@
 //
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 //
 
 using Examples.Common.Wpf;
+using Veldrid;
 using Veldrid.SceneGraph.InputAdapter;
 
 namespace PathExample.Wpf
@@ -25,6 +26,7 @@ namespace PathExample.Wpf
         {
             SceneRoot = Examples.Common.PathExampleScene.Build();
             CameraManipulator = TrackballManipulator.Create();
+            FsaaCount = TextureSampleCount.Count16;
         }
     }
 }

@@ -1,5 +1,5 @@
 //
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,17 @@ using System;
 
 namespace Veldrid.SceneGraph
 {
+    public interface IPrimitiveSet : IObject
+    {
+        IBoundingBox InitialBoundingBox { get; set; }
+        IDrawable Drawable { get; }
+        PrimitiveTopology PrimitiveTopology { get; set; }
+        event Func<PrimitiveSet, IBoundingBox> ComputeBoundingBoxCallback;
+        void DirtyBound();
+        IBoundingBox GetBoundingBox();
+        void Draw(CommandList commandList);
+    }
+    
     public abstract class PrimitiveSet : Object, IPrimitiveSet
     {
         protected bool _boundingSphereComputed = false;

@@ -1,5 +1,5 @@
 //
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,12 +15,10 @@
 //
 
 using System;
+using System.Numerics;
+using System.Reactive.Concurrency;
 
 namespace Veldrid.SceneGraph.InputAdapter
 {
-    public interface ICameraManipulator : IInputEventHandler
-    {
-        void SetCamera(ICamera camera);
-        void ViewAll();
-    }
+
 }

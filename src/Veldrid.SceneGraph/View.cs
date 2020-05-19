@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,28 +18,36 @@ using System;
 
 namespace Veldrid.SceneGraph
 {
-    public class View : IView
+    public interface IView
     {
-        public ICamera Camera { get; set; }
+        void SetCamera(ICamera camera);
+    }
+    
+    public abstract class View : IView
+    {
+        public ICamera Camera { get; private set; }
 
-        public static IView Create()
-        {
-            return new View();
-        }
-        
         protected View()
         {
-            Camera = Veldrid.SceneGraph.Camera.Create(DisplaySettings.Instance.ScreenWidth, DisplaySettings.Instance.ScreenHeight);
-            Camera.View = this;
+            Camera = PerspectiveCamera.Create();;
+            Camera.SetViewport(0, 0, (int)DisplaySettings.Instance.ScreenWidth, (int)DisplaySettings.Instance.ScreenHeight);
+            Camera.SetView(this);
+        }
 
-            var height = DisplaySettings.Instance.ScreenHeight;
-            var width = DisplaySettings.Instance.ScreenWidth;
-            var dist = DisplaySettings.Instance.ScreenDistance;
+        public virtual void SetCamera(ICamera newCamera)
+        {
+            if (null != Camera)
+            {
+                var viewport = Camera.Viewport;
+                newCamera.SetViewport(viewport);
+            }
+            else
+            {
+                newCamera.SetViewport(0, 0, (int)DisplaySettings.Instance.ScreenWidth, (int)DisplaySettings.Instance.ScreenHeight);
+            }
             
-            // TODO: This is tricky - need to fix when ViewAll implemented
-            var vfov = (float) Math.Atan2(height / 2.0f, dist) * 2.0f; 
-
-            Camera.SetProjectionMatrixAsPerspective(vfov, width / height, 0.1f, 100f);
+            newCamera.SetView(this);
+            Camera = newCamera;
         }
     }
 }

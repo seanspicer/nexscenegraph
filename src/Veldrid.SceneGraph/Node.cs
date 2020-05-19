@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections.Generic;
+using Veldrid.SceneGraph.RenderGraph;
 using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Viewer;
 
@@ -24,9 +25,9 @@ namespace Veldrid.SceneGraph
     public class CollectParentPaths : NodeVisitor
     {
         private INode _haltTraversalAtNode;
-        private List<LinkedList<INode>> _nodePaths;
+        private NodePathList _nodePaths;
         
-        public IReadOnlyList<LinkedList<INode>> NodePaths
+        public NodePathList NodePaths
         {
             get => _nodePaths;
         }
@@ -35,20 +36,72 @@ namespace Veldrid.SceneGraph
             base(VisitorType.NodeVisitor, TraversalModeType.TraverseParents)
         {
             _haltTraversalAtNode = haltTraversalAtNode;
-            _nodePaths = new List<LinkedList<INode>>();
+            _nodePaths = new NodePathList();
         }
 
         public override void Apply(INode node)
         {
             if (node.NumParents == 0 || node == _haltTraversalAtNode)
             {
-                _nodePaths.Add(NodePath);
+                _nodePaths.Add(NodePath.Copy());
             }
             else
             {
                 Traverse(node);
             }
         }
+    }
+    
+    public interface INode : IObject
+    {
+        Guid Id { get; }
+        uint NodeMask { get; set; }
+        string NameString { get; set; }
+        int NumParents { get; }
+        bool CullingActive { get; set; }
+        int NumChildrenWithCullingDisabled { get; set; }
+        bool IsCullingActive { get; }
+        IPipelineState PipelineState { get; set; }
+        bool HasPipelineState { get; }
+        IBoundingSphere InitialBound { get; set; }
+        int GetNumChildrenRequiringEventTraversal();
+        int GetNumChildrenRequiringUpdateTraversal();
+        void SetNumChildrenRequiringEventTraversal(int i);
+        void SetNumChildrenRequiringUpdateTraversal(int i);
+        NodePathList GetParentalNodePaths(INode haltTraversalAtNode=null);
+        event Func<Node, BoundingSphere> ComputeBoundCallback;
+
+        void SetUpdateCallback(ICallback callback);
+        ICallback GetUpdateCallback();
+        
+        void SetCullCallback(ICallback callback);
+        ICallback GetCullCallback();
+        
+        
+        void AddParent(IGroup parent);
+        void RemoveParent(IGroup parent);
+
+        /// <summary>
+        /// Mark this node's bounding sphere dirty.  Forcing it to be computed on the next call
+        /// to GetBound();
+        /// </summary>
+        void DirtyBound();
+
+        /// <summary>
+        /// Get the bounding sphere for this node.
+        /// </summary>
+        /// <returns></returns>
+        IBoundingSphere GetBound();
+
+        /// <summary>
+        /// Compute the bounding sphere of this geometry
+        /// </summary>
+        /// <returns></returns>
+        IBoundingSphere ComputeBound();
+
+        void Accept(INodeVisitor nv);
+        void Ascend(INodeVisitor nv);
+        void Traverse(INodeVisitor nv);
     }
    
     public abstract class Node : Object, INode
@@ -118,11 +171,9 @@ namespace Veldrid.SceneGraph
 
         public event Func<Node, BoundingSphere> ComputeBoundCallback;
 
-        private Action<INodeVisitor, INode> _updateCallback;
-
+        private ICallback _updateCallback;
         
-        
-        public virtual void SetUpdateCallback(Action<INodeVisitor, INode> callback)
+        public virtual void SetUpdateCallback(ICallback callback)
         {
             _updateCallback = callback;
 
@@ -137,9 +188,29 @@ namespace Veldrid.SceneGraph
 //                }
 //            }
         }
-        public virtual Action<INodeVisitor, INode> GetUpdateCallback()
+
+        public NodePathList GetParentalNodePaths(INode haltTraversalAtNode=null)
+        {
+            var collectParentsVisitor = new CollectParentPaths(haltTraversalAtNode);
+            Accept(collectParentsVisitor);
+            return collectParentsVisitor.NodePaths;
+        }
+        
+        public virtual ICallback GetUpdateCallback()
         {
             return _updateCallback;
+        }
+        
+        private ICallback _cullCallback;
+        
+        public virtual void SetCullCallback(ICallback callback)
+        {
+            _cullCallback = callback;
+        }
+        
+        public virtual ICallback GetCullCallback()
+        {
+            return _cullCallback;
         }
 
         protected Node()

@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,13 +15,26 @@
 //
 
 using System.Collections.Generic;
+using Veldrid.SceneGraph.Shaders;
 
 namespace Veldrid.SceneGraph
 {
+    public interface IPipelineState
+    {
+        IShaderSet ShaderSet { get; set; }
+        IReadOnlyList<ITexture2D> TextureList { get; }
+        IReadOnlyList<IBindable> UniformList { get; }
+        BlendStateDescription BlendStateDescription { get; set; }
+        DepthStencilStateDescription DepthStencilState { get; set; }
+        RasterizerStateDescription RasterizerStateDescription { get; set; }
+        void AddTexture(ITexture2D texture);
+        void AddUniform(IBindable uniform);
+        void AddUniform(IDrawable drawable, IBindable uniform);
+    }
+    
     public class PipelineState : IPipelineState
     {
-        public ShaderDescription? VertexShaderDescription { get; set; }
-        public ShaderDescription? FragmentShaderDescription { get; set; }
+        public IShaderSet ShaderSet { get; set; }
         
         private readonly List<ITexture2D> _textureList = new List<ITexture2D>();
         public IReadOnlyList<ITexture2D> TextureList => _textureList;

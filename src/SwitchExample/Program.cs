@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -154,8 +154,7 @@ namespace SwitchExample
             
             geometry.PrimitiveSets.Add(pSet);
                       
-            geometry.PipelineState.VertexShaderDescription = Vertex3Color4Shader.Instance.VertexShaderDescription;
-            geometry.PipelineState.FragmentShaderDescription = Vertex3Color4Shader.Instance.FragmentShaderDescription;
+            geometry.PipelineState.ShaderSet = Vertex3Color4Shader.Instance.ShaderSet;
 
             var geode = Geode.Create();
             geode.AddDrawable(geometry);

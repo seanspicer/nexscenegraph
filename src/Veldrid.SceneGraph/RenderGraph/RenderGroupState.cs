@@ -1,5 +1,5 @@
 //
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Veldrid.SceneGraph.Shaders;
 using Veldrid.SPIRV;
 using Veldrid.Utilities;
 
@@ -34,6 +35,17 @@ namespace Veldrid.SceneGraph.RenderGraph
         {
             UniformStrides = new List<uint>();
         }
+    }
+    
+    public interface IRenderGroupState
+    {
+        List<RenderGroupElement> Elements { get; }
+        RenderInfo GetPipelineAndResources(
+            GraphicsDevice graphicsDevice, 
+            ResourceFactory resourceFactory, 
+            ResourceLayout vpLayout, 
+            Framebuffer framebuffer);
+        void ReleaseUnmanagedResources();
     }
     
     public class RenderGroupState : IRenderGroupState
@@ -145,20 +157,13 @@ namespace Veldrid.SceneGraph.RenderGraph
             pd.RasterizerState = PipelineState.RasterizerStateDescription;
 
             // TODO - cache based on the shader description and reuse shader objects
-            if (null != PipelineState.VertexShaderDescription && null != PipelineState.FragmentShaderDescription)
+            if (null != PipelineState.ShaderSet)
             {
-                Shader[] shaders = resourceFactory.CreateFromSpirv(
-                    PipelineState.VertexShaderDescription.Value,
-                    PipelineState.FragmentShaderDescription.Value,
-                    GetOptions(graphicsDevice, framebuffer)
-                );
+                (Shader vs, Shader fs) = GetShaders(graphicsDevice, framebuffer, PipelineState.ShaderSet);
                 
-                Shader vs = shaders[0];
-                Shader fs = shaders[1];
-
                 pd.ShaderSet = new ShaderSetDescription(
                     vertexLayouts: new VertexLayoutDescription[] {VertexLayout},
-                    shaders: new Shader[] {vs, fs});
+                    shaders: new[] { vs, fs });
             }
 
             pd.ResourceLayouts = new[] {vpLayout, ri.ResourceLayout};
@@ -171,7 +176,46 @@ namespace Veldrid.SceneGraph.RenderGraph
             
             return ri;
         }
+        
+        private static (Shader vs, Shader fs) LoadSPIRV(
+            GraphicsDevice gd,
+            ResourceFactory factory,
+            Framebuffer fb,
+            IShaderSet shaderSet)
+        {
+            Shader[] shaders = factory.CreateFromSpirv(
+                shaderSet.VertexShaderDescription,
+                shaderSet.FragmentShaderDescription,
+                GetOptions(gd,fb));
 
+            Shader vs = shaders[0];
+            Shader fs = shaders[1];
+
+            vs.Name = shaderSet.Name + "-Vertex";
+            fs.Name = shaderSet.Name + "-Fragment";
+
+            return (vs, fs);
+        }
+
+        private static readonly Dictionary<ShaderSetCacheKey, (Shader, Shader)> s_shaderSets
+            = new Dictionary<ShaderSetCacheKey, (Shader, Shader)>();
+        
+        internal static (Shader vs, Shader fs) GetShaders(
+            GraphicsDevice gd,
+            Framebuffer framebuffer,
+            IShaderSet shaderSet)
+        {
+            SpecializationConstant[] constants = GetSpecializations(gd, framebuffer);
+            ShaderSetCacheKey cacheKey = new ShaderSetCacheKey(gd, shaderSet.Name, constants);
+            if (!s_shaderSets.TryGetValue(cacheKey, out (Shader vs, Shader fs) set))
+            {
+                set = LoadSPIRV(gd, gd.ResourceFactory, framebuffer, shaderSet);
+                s_shaderSets.Add(cacheKey, set);
+            }
+
+            return set;
+        }
+        
         private static CrossCompileOptions GetOptions(GraphicsDevice gd, Framebuffer framebuffer)
         {
             SpecializationConstant[] specializations = GetSpecializations(gd, framebuffer);
@@ -184,7 +228,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             return new CrossCompileOptions(fixClipZ, invertY, specializations);
         }
         
-        public static SpecializationConstant[] GetSpecializations(GraphicsDevice gd, Framebuffer framebuffer)
+        private static SpecializationConstant[] GetSpecializations(GraphicsDevice gd, Framebuffer framebuffer)
         {
             bool glOrGles = gd.BackendType == GraphicsBackend.OpenGL || gd.BackendType == GraphicsBackend.OpenGLES;
 

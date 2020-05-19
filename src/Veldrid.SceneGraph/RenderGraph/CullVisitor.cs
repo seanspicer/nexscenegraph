@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
-using AssetProcessor;
 using Veldrid.SceneGraph.Text;
 using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Viewer;
@@ -29,6 +28,36 @@ using Veldrid.Utilities;
 
 namespace Veldrid.SceneGraph.RenderGraph
 {
+    public interface IMutableCullVisitor : IDisposable
+    {
+        void SetCurrentCamera(ICamera camera);
+        
+        void Reset();
+        
+        void Prepare();
+    }
+    
+    public interface ICullVisitor : INodeVisitor
+    {
+        IRenderGroup OpaqueRenderGroup { get; set; }
+        IRenderGroup TransparentRenderGroup { get; set; }
+        GraphicsDevice GraphicsDevice { get; set; }
+        ResourceFactory ResourceFactory { get; set; }
+        ResourceLayout ResourceLayout { get; set; }
+        int RenderElementCount { get; }
+        
+
+        ICamera GetCurrentCamera();
+        Matrix4x4 GetModelViewMatrix();
+        Matrix4x4 GetModelViewProjectionMatrix();
+        Matrix4x4 GetModelViewInverseMatrix();
+        Matrix4x4 GetModelViewProjectionInverseMatrix();
+        Matrix4x4 GetProjectionMatrix();
+        Vector3 GetEyeLocal();
+
+        IMutableCullVisitor ToMutable();
+    }
+    
     public class CullVisitor : NodeVisitor, ICullVisitor
     {
         public IRenderGroup OpaqueRenderGroup { get; set; } = RenderGroup.Create();
@@ -37,7 +66,7 @@ namespace Veldrid.SceneGraph.RenderGraph
         public GraphicsDevice GraphicsDevice { get; set; } = null;
         public ResourceFactory ResourceFactory { get; set; } = null;
         public ResourceLayout ResourceLayout { get; set; } = null;
-
+        
         private Stack<Matrix4x4> ModelMatrixStack { get; set; } = new Stack<Matrix4x4>();
 
         private readonly Stack<IPipelineState> PipelineStateStack = new Stack<IPipelineState>();
@@ -48,12 +77,19 @@ namespace Veldrid.SceneGraph.RenderGraph
 
         public int RenderElementCount { get; private set; } = 0;
 
-        private Matrix4x4 ViewMatrix { get; set; } = Matrix4x4.Identity;
-        private Matrix4x4 ProjectionMatrix { get; set; } = Matrix4x4.Identity;
+        private Matrix4x4 ViewMatrix => GetCurrentCamera().ViewMatrix;
+        private Matrix4x4 ProjectionMatrix => GetCurrentCamera().ProjectionMatrix;
 
+        private ICamera _camera;
+        
         public static ICullVisitor Create()
         {
             return new CullVisitor();
+        }
+
+        public IMutableCullVisitor ToMutable()
+        {
+            return new MutableCullVisitor(this);
         }
         
         protected CullVisitor() : 
@@ -62,7 +98,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             ModelMatrixStack.Push(Matrix4x4.Identity);
         }
 
-        public void Reset()
+        internal void Reset()
         {
             ModelMatrixStack.Clear();
             ModelMatrixStack.Push(Matrix4x4.Identity);
@@ -75,30 +111,41 @@ namespace Veldrid.SceneGraph.RenderGraph
             
         }
 
-        public void SetViewMatrix(Matrix4x4 viewMatrix)
+        internal void SetCurrentCamera(ICamera camera)
         {
-            ViewMatrix = viewMatrix;
-        }
-        
-        public void SetProjectionMatrix(Matrix4x4 projectionMatrix)
-        {
-            ProjectionMatrix = projectionMatrix;
+            _camera = camera;
+            
         }
 
-        public void Prepare()
+        public ICamera GetCurrentCamera()
+        {
+            return _camera;
+        }
+
+        internal void Prepare()
         {
             var vp = ViewMatrix.PostMultiply(ProjectionMatrix);
             CullingFrustum.SetViewProjectionMatrix(vp);
         }
 
-        private Matrix4x4 GetModelViewMatrix()
+        public Matrix4x4 GetProjectionMatrix()
+        {
+            return ProjectionMatrix;
+        }
+        
+        public Matrix4x4 GetModelViewMatrix()
         {
             return ModelMatrixStack.Peek().PostMultiply(ViewMatrix);
         }
         
-        private Matrix4x4 GetModelViewInverseMatrix()
+        public Matrix4x4 GetModelViewProjectionMatrix()
         {
-            var canInvert = Matrix4x4.Invert(ModelMatrixStack.Peek().PostMultiply(ViewMatrix), out var inverse);
+            return ModelMatrixStack.Peek().PostMultiply(ViewMatrix).PostMultiply(ProjectionMatrix);
+        }
+        
+        public Matrix4x4 GetModelViewInverseMatrix()
+        {
+            var canInvert = Matrix4x4.Invert(GetModelViewMatrix(), out var inverse);
             if (false == canInvert)
             {
                 throw new Exception("ModelView Matrix Cannot be Inverted");
@@ -107,7 +154,18 @@ namespace Veldrid.SceneGraph.RenderGraph
             return inverse;
         }
 
-        private Vector3 GetEyeLocal()
+        public Matrix4x4 GetModelViewProjectionInverseMatrix()
+        {
+            var canInvert = Matrix4x4.Invert(GetModelViewProjectionMatrix(), out var inverse);
+            if (false == canInvert)
+            {
+                throw new Exception("ModelViewProjection Matrix Cannot be Inverted");
+            }
+
+            return inverse;
+        }
+        
+        public Vector3 GetEyeLocal()
         {
             var eyeWorld = Vector3.Zero;
             var modelViewInverse = GetModelViewInverseMatrix();
@@ -130,7 +188,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                 needsPop = true;
             }
             
-            Traverse(node);
+            HandleCallbacksAndTraverse(node);
 
             if (needsPop)
             {
@@ -155,76 +213,93 @@ namespace Veldrid.SceneGraph.RenderGraph
             var bb = geode.GetBoundingBox();
             if (IsCulled(bb, ModelMatrixStack.Peek())) return;
             
-            IPipelineState pso = null;
-
-            // Node specific state
+            var needsPop = false;
             if (geode.HasPipelineState)
             {
-                pso = geode.PipelineState;
+                PipelineStateStack.Push(geode.PipelineState);
+                needsPop = true;
             }
+            
+            HandleCallbacksAndTraverse((Node)geode);
 
-            // Shared State
-            else if (PipelineStateStack.Count != 0)
+            if (needsPop)
             {
-                pso = PipelineStateStack.Peek();
+                PipelineStateStack.Pop();
             }
+            
+            
+//            IPipelineState pso = null;
 
-            // Fallback
-            else
-            {
-                pso = PipelineState.Create();
-            }
+//            // Node specific state
+//            if (geode.HasPipelineState)
+//            {
+//                pso = geode.PipelineState;
+//            }
+//
+//            // Shared State
+//            else if (PipelineStateStack.Count != 0)
+//            {
+//                pso = PipelineStateStack.Peek();
+//            }
+//
+//            // Fallback
+//            else
+//            {
+//                pso = PipelineState.Create();
+//            }
 
-            foreach (var drawable in geode.Drawables)
-            {
-                if (IsCulled(drawable.GetBoundingBox(), ModelMatrixStack.Peek())) continue;
-                
-                var drawablePso = pso;
-                if (drawable.HasPipelineState)
-                {
-                    drawablePso = drawable.PipelineState;
-                }
-
-                //
-                // This allocates / updates vbo/ibos
-                //
-                drawable.ConfigureDeviceBuffers(GraphicsDevice, ResourceFactory);
-
-                var renderElementCache = new Dictionary<IRenderGroupState, RenderGroupElement>();
-                
-                foreach (var pset in drawable.PrimitiveSets)
-                {
-                    if (IsCulled(pset.GetBoundingBox(), ModelMatrixStack.Peek())) continue;
-                    
-                    //            
-                    // Sort into appropriate render group
-                    // 
-                    IRenderGroupState renderGroupState = null;
-                    if (drawablePso.BlendStateDescription.AttachmentStates.Contains(BlendAttachmentDescription.AlphaBlend))
-                    {
-                        renderGroupState = TransparentRenderGroup.GetOrCreateState(GraphicsDevice, drawablePso, pset.PrimitiveTopology, drawable.VertexLayout);
-                    }
-                    else
-                    {
-                        renderGroupState = OpaqueRenderGroup.GetOrCreateState(GraphicsDevice, drawablePso, pset.PrimitiveTopology, drawable.VertexLayout);
-                    }
-
-                    if (false == renderElementCache.TryGetValue(renderGroupState, out var renderElement))
-                    {
-                        renderElement = new RenderGroupElement()
-                        {
-                            ModelViewMatrix = GetModelViewMatrix(),
-                            VertexBuffer = drawable.GetVertexBufferForDevice(GraphicsDevice),
-                            IndexBuffer = drawable.GetIndexBufferForDevice(GraphicsDevice),
-                            PrimitiveSets = new List<IPrimitiveSet>()
-                        };
-                        renderGroupState.Elements.Add(renderElement);
-                        
-                        renderElementCache.Add(renderGroupState, renderElement);
-                    }
-                    renderElement.PrimitiveSets.Add(pset);
-                }
-            }
+            
+            
+//            foreach (var drawable in geode.Drawables)
+//            {
+//                if (IsCulled(drawable.GetBoundingBox(), ModelMatrixStack.Peek())) continue;
+//                
+//                var drawablePso = pso;
+//                if (drawable.HasPipelineState)
+//                {
+//                    drawablePso = drawable.PipelineState;
+//                }
+//
+//                //
+//                // This allocates / updates vbo/ibos
+//                //
+//                drawable.ConfigureDeviceBuffers(GraphicsDevice, ResourceFactory);
+//
+//                var renderElementCache = new Dictionary<IRenderGroupState, RenderGroupElement>();
+//                
+//                foreach (var pset in drawable.PrimitiveSets)
+//                {
+//                    if (IsCulled(pset.GetBoundingBox(), ModelMatrixStack.Peek())) continue;
+//                    
+//                    //            
+//                    // Sort into appropriate render group
+//                    // 
+//                    IRenderGroupState renderGroupState = null;
+//                    if (drawablePso.BlendStateDescription.AttachmentStates.Contains(BlendAttachmentDescription.AlphaBlend))
+//                    {
+//                        renderGroupState = TransparentRenderGroup.GetOrCreateState(GraphicsDevice, drawablePso, pset.PrimitiveTopology, drawable.VertexLayout);
+//                    }
+//                    else
+//                    {
+//                        renderGroupState = OpaqueRenderGroup.GetOrCreateState(GraphicsDevice, drawablePso, pset.PrimitiveTopology, drawable.VertexLayout);
+//                    }
+//
+//                    if (false == renderElementCache.TryGetValue(renderGroupState, out var renderElement))
+//                    {
+//                        renderElement = new RenderGroupElement()
+//                        {
+//                            ModelViewMatrix = GetModelViewMatrix(),
+//                            VertexBuffer = drawable.GetVertexBufferForDevice(GraphicsDevice),
+//                            IndexBuffer = drawable.GetIndexBufferForDevice(GraphicsDevice),
+//                            PrimitiveSets = new List<IPrimitiveSet>()
+//                        };
+//                        renderGroupState.Elements.Add(renderElement);
+//                        
+//                        renderElementCache.Add(renderGroupState, renderElement);
+//                    }
+//                    renderElement.PrimitiveSets.Add(pset);
+//                }
+//            }
         }
 
         /// <summary>
@@ -259,12 +334,15 @@ namespace Veldrid.SceneGraph.RenderGraph
             var eyeLocal = GetEyeLocal();
             var modelView = GetModelViewMatrix();
 
-            foreach (var drawable in billboard.Drawables)
+            
+            for(var i=0; i<billboard.GetNumChildren();++i)
             {
+                var drawable = billboard.GetDrawable(i);
+                
                 // TODO - need to modify is culled to handle billboard matrix offset
                 //if (IsCulled(drawable.GetBoundingBox(), ModelMatrixStack.Peek())) continue;
 
-                var billboardMatrix = billboard.ComputeMatrix(modelView, eyeLocal);
+                var billboardMatrix = billboard.ComputeMatrix(modelView, ProjectionMatrix, eyeLocal);
                 
                 var drawablePso = pso;
                 if (drawable.HasPipelineState)
@@ -313,6 +391,160 @@ namespace Veldrid.SceneGraph.RenderGraph
                     renderElement.PrimitiveSets.Add(pset);
                 }
             }
+        }
+
+        internal class State : IState
+        {
+            public Matrix4x4 ModelViewMatrix { get; set; }
+            public Matrix4x4 ProjectionMatrix { get; set; }
+            public IViewport Viewport { get; set; }
+        }
+
+        public override void Apply(IDrawable drawable)
+        {
+            var bb = drawable.GetBoundingBox();
+            if (IsCulled(bb, ModelMatrixStack.Peek())) return;
+
+            // Check custom cull callback
+            var callback = drawable.GetCullCallback();
+            if (null != callback)
+            {
+                if (callback is IDrawableCullCallback dcb)
+                {
+                    if (dcb.Cull(this, drawable)) return;
+                }
+                else
+                {
+                    callback.Run(drawable, this);
+                }
+            }
+            
+            IPipelineState pso = null;
+
+            // Node specific state
+            if (drawable.HasPipelineState)
+            {
+                pso = drawable.PipelineState;
+            }
+
+            // Shared State
+            else if (PipelineStateStack.Count != 0)
+            {
+                pso = PipelineStateStack.Peek();
+            }
+
+            // Fallback
+            else
+            {
+                pso = PipelineState.Create();
+            }
+
+            //
+            // This allocates / updates vbo/ibos
+            //
+            drawable.ConfigureDeviceBuffers(GraphicsDevice, ResourceFactory);
+
+            var renderElementCache = new Dictionary<IRenderGroupState, RenderGroupElement>();
+
+            var state = new State();
+            state.ModelViewMatrix = GetModelViewMatrix();
+            state.ProjectionMatrix = ProjectionMatrix;
+
+            state.Viewport = _camera.Viewport;
+            
+            var matrix = Matrix4x4.Identity;
+            var matrixNeedsToUpdate = drawable.ComputeMatrix(ref matrix, state);
+            
+            foreach (var pset in drawable.PrimitiveSets)
+            {
+                if (IsCulled(pset.GetBoundingBox(), ModelMatrixStack.Peek())) continue;
+                
+                //            
+                // Sort into appropriate render group
+                // 
+                IRenderGroupState renderGroupState = null;
+                if (pso.BlendStateDescription.AttachmentStates.Contains(BlendAttachmentDescription.AlphaBlend))
+                {
+                    renderGroupState = TransparentRenderGroup.GetOrCreateState(GraphicsDevice, pso, pset.PrimitiveTopology, drawable.VertexLayout);
+                }
+                else
+                {
+                    renderGroupState = OpaqueRenderGroup.GetOrCreateState(GraphicsDevice, pso, pset.PrimitiveTopology, drawable.VertexLayout);
+                }
+
+                if (false == renderElementCache.TryGetValue(renderGroupState, out var renderElement))
+                {
+                    var modMatrix = Matrix4x4.Identity;
+                    if (matrixNeedsToUpdate)
+                    {
+                        modMatrix = matrix;
+                    } 
+                    
+                    renderElement = new RenderGroupElement()
+                    {
+                        ModelViewMatrix = modMatrix.PostMultiply(GetModelViewMatrix()),
+                        VertexBuffer = drawable.GetVertexBufferForDevice(GraphicsDevice),
+                        IndexBuffer = drawable.GetIndexBufferForDevice(GraphicsDevice),
+                        PrimitiveSets = new List<IPrimitiveSet>()
+                    };
+                    renderGroupState.Elements.Add(renderElement);
+                    
+                    renderElementCache.Add(renderGroupState, renderElement);
+                }
+                renderElement.PrimitiveSets.Add(pset);
+            }
+        }
+        
+        protected void HandleCallbacks(IPipelineState state)
+        {
+            // TODO Handle state updates.
+        }
+        
+        protected void HandleCallbacksAndTraverse(INode node)
+        {
+            if (node.HasPipelineState)
+            {
+                HandleCallbacks(node.PipelineState);
+            }
+
+            var callback = node.GetCullCallback();
+            if (null != callback)
+            {
+                callback.Run(node, this);
+            }
+            else
+            {
+                Traverse(node);
+            }
+        }
+    }
+
+    internal class MutableCullVisitor : IMutableCullVisitor
+    {
+        private CullVisitor _cullVisitor;
+
+        internal MutableCullVisitor(CullVisitor cullVisitor)
+        {
+            _cullVisitor = cullVisitor;
+        }
+        
+        public void Dispose()
+        {
+        }
+
+        public void SetCurrentCamera(ICamera camera)
+        {
+            _cullVisitor.SetCurrentCamera(camera);
+        }
+
+        public void Reset()
+        {
+            _cullVisitor.Reset();
+        }
+
+        public void Prepare()
+        {
+            _cullVisitor.Prepare();
         }
     }
 }

@@ -1,5 +1,5 @@
 //
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -62,7 +62,22 @@ namespace Veldrid.SceneGraph.Tests
         }
 
         [TestCase]
-        public void PreMultiplySameAsTransform()
+        public void PreMultiplyNotSameAsTransformIfScaled()
+        {
+            var m = Matrix4x4.CreateRotationX(0.56f);
+            m.M34 = -1;
+            m.M43 = 40;
+            m.M44 = 41;
+            var v = new Vector3(1, 2, 3);
+
+            var v1 = m.PreMultiply(v);
+            var v2 = Vector3.Transform(v, m);
+
+            Assert.That(v1, Is.Not.EqualTo(v2));
+        }
+
+        [TestCase]
+        public void PreMultiplySameAsTransformIfNoScale()
         {
             var m = Matrix4x4.CreateRotationX(0.56f);
             var v = new Vector3(1, 2, 3);

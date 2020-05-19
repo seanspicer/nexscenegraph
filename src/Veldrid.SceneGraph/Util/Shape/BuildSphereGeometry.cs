@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -86,7 +86,7 @@ namespace Veldrid.SceneGraph.Util.Shape
                     var nzTop= (float)System.Math.Sin(lTop);
                     var nRatioTop= (float)System.Math.Cos(lTop);
 
-                    Begin();
+                    BeginQuadStrip();
 
                     var angle = 0.0f;
                     var texCoord = 0.0f;
@@ -145,7 +145,7 @@ namespace Veldrid.SceneGraph.Util.Shape
                     var nzTop= (float)System.Math.Sin(lTop);
                     var nRatioTop= (float)System.Math.Cos(lTop);
 
-                    Begin();
+                    BeginQuadStrip();
 
                     var angle = 0.0f;
                     var texCoord = 0.0f;

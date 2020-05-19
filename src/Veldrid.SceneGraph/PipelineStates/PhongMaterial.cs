@@ -1,5 +1,5 @@
 //
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Reflection;
+using Veldrid.SceneGraph.Shaders;
 
 namespace Veldrid.SceneGraph.PipelineStates
 {
@@ -125,9 +126,8 @@ namespace Veldrid.SceneGraph.PipelineStates
             
             var frgShader =
                 new ShaderDescription(ShaderStages.Fragment, ReadEmbeddedAssetBytes(@"Veldrid.SceneGraph.Assets.Shaders.Phong-fragment.glsl"), "main");
-            
-            pso.VertexShaderDescription = vtxShader;
-            pso.FragmentShaderDescription = frgShader;
+
+            pso.ShaderSet = ShaderSet.Create("PhongShader", vtxShader, frgShader);
             
             pso.AddUniform(CreateLightSourceUniform());
             pso.AddUniform(CreateMaterialUniform());

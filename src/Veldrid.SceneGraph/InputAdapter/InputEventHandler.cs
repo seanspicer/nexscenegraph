@@ -1,5 +1,5 @@
 //
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,12 +22,7 @@ namespace Veldrid.SceneGraph.InputAdapter
     {
         protected InputStateTracker InputStateTracker { get; }= new InputStateTracker();
 
-        public virtual void SetView(IView view)
-        {
-            
-        }
-
-        public virtual void HandleInput(IInputStateSnapshot snapshot)
+        public virtual void HandleInput(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter)
         {
             InputStateTracker.UpdateFrameInput(snapshot);
         }

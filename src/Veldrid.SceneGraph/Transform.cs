@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,13 @@ using System.Numerics;
 
 namespace Veldrid.SceneGraph
 {
+    public interface ITransform : IGroup
+    {
+        Transform.ReferenceFrameType ReferenceFrame { get; set; }
+        bool ComputeLocalToWorldMatrix(ref Matrix4x4 matrix, NodeVisitor visitor);
+        bool ComputeWorldToLocalMatrix(ref Matrix4x4 matrix, NodeVisitor visitor);
+    }
+    
     /// <summary>
     /// A Transform is a node which transforms all children
     /// </summary>
@@ -35,6 +42,34 @@ namespace Veldrid.SceneGraph
         protected Transform()
         {
             ReferenceFrame = ReferenceFrameType.Relative;
+        }
+
+        public static Matrix4x4 ComputeLocalToWorld(NodePath nodePath, bool ignoreCameras=true)
+        {
+            var tv = TransformVisitor.Create(Matrix4x4.Identity, TransformVisitor.CoordMode.LocalToWorld, ignoreCameras);
+            tv.Accumulate(nodePath);
+            return tv.Matrix;
+        }
+        
+        public static Matrix4x4 ComputeWorldToLocal(NodePath nodePath, bool ignoreCameras=true)
+        {
+            var tv = TransformVisitor.Create(Matrix4x4.Identity, TransformVisitor.CoordMode.WorldToLocal, ignoreCameras);
+            tv.Accumulate(nodePath);
+            return tv.Matrix;
+        }
+        
+        public static Matrix4x4 ComputeLocalToEye(Matrix4x4 modelView, NodePath nodePath, bool ignoreCameras=true)
+        {
+            var tv = TransformVisitor.Create(modelView, TransformVisitor.CoordMode.LocalToWorld, ignoreCameras);
+            tv.Accumulate(nodePath);
+            return tv.Matrix;
+        }
+        
+        public static Matrix4x4 ComputeEyeToLocal(Matrix4x4 modelView, NodePath nodePath, bool ignoreCameras=true)
+        {
+            var tv = TransformVisitor.Create(modelView, TransformVisitor.CoordMode.WorldToLocal, ignoreCameras);
+            tv.Accumulate(nodePath);
+            return tv.Matrix;
         }
         
         // Required for double-dispatch

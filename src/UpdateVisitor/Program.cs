@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,13 +17,15 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using Examples.Common;
-using SwitchExample;
+using SharpDX.Direct3D11;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Shaders.Standard;
 using Veldrid.SceneGraph.Viewer;
+using INodeCallback = Veldrid.SceneGraph.INodeCallback;
 
 namespace UpdateVisitor
 {
@@ -44,6 +46,15 @@ namespace UpdateVisitor
         {
             get => Position;
             set => Position = value;
+        }
+    }
+
+    internal class UpdateCallback : INodeCallback
+    {
+        public bool Run(IObject obj, IObject data)
+        {
+            Console.WriteLine("UpdateCallback");
+            return true;
         }
     }
     
@@ -67,14 +78,8 @@ namespace UpdateVisitor
             
             var rightXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(5, 0, 0));
             rightXForm.AddChild(cube);
-
-            Action<INodeVisitor, INode> updateCallback = (nodeVisitor, node) =>
-            {
-                Console.WriteLine("UpdateCallback");
-            };
             
-            rightXForm.SetUpdateCallback(updateCallback);
-            
+            rightXForm.SetUpdateCallback(new UpdateCallback());
             
             root.AddChild(leftXForm);
             root.AddChild(centerXForm);
@@ -163,8 +168,7 @@ namespace UpdateVisitor
             
             geometry.PrimitiveSets.Add(pSet);
                       
-            geometry.PipelineState.VertexShaderDescription = Vertex3Color4Shader.Instance.VertexShaderDescription;
-            geometry.PipelineState.FragmentShaderDescription = Vertex3Color4Shader.Instance.FragmentShaderDescription;
+            geometry.PipelineState.ShaderSet = Vertex3Color4Shader.Instance.ShaderSet;
 
             var geode = Geode.Create();
             geode.AddDrawable(geometry);

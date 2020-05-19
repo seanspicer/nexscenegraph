@@ -1,0 +1,33 @@
+﻿<Window x:Class="MultiControlExample.Wpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MultiControlExample.Wpf"
+        xmlns:wpf="clr-namespace:Veldrid.SceneGraph.Wpf;assembly=Veldrid.SceneGraph.Wpf"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="525">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <wpf:VeldridSceneGraphControl
+            x:Name="VSGElement"
+            Grid.Column="0"
+            SceneRoot="{Binding SceneViewModel1.SceneRoot}"
+            CameraManipulator="{Binding SceneViewModel1.CameraManipulator}"
+            EventHandler="{Binding SceneViewModel1.EventHandler}"
+            FsaaCount="{Binding SceneViewModel1.FsaaCount}">
+        </wpf:VeldridSceneGraphControl>
+        <!-- <Button Grid.Column="0">Test</Button> -->
+        <wpf:VeldridSceneGraphControl 
+            x:Name="VSGElement2"
+            Grid.Column="1"
+            SceneRoot="{Binding SceneViewModel2.SceneRoot}"
+            CameraManipulator="{Binding SceneViewModel2.CameraManipulator}"
+            EventHandler="{Binding SceneViewModel2.EventHandler}"
+            FsaaCount="{Binding SceneViewModel2.FsaaCount}">
+        </wpf:VeldridSceneGraphControl>
+    </Grid>
+</Window>

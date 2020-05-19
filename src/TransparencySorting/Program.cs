@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018 Sean Spicer 
+// Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -191,8 +191,7 @@ namespace TransparencySorting
         {
             var pso = PipelineState.Create();
 
-            pso.VertexShaderDescription = Vertex3Color4Shader.Instance.VertexShaderDescription;
-            pso.FragmentShaderDescription = Vertex3Color4Shader.Instance.FragmentShaderDescription;
+            pso.ShaderSet = Vertex3Color4Shader.Instance.ShaderSet;
 
             pso.BlendStateDescription = BlendStateDescription.SingleAlphaBlend;
             pso.RasterizerStateDescription = RasterizerStateDescription.CullNone;
