@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Numerics;
 using CullingColoredCubes;
 using Examples.Common;
-using ShaderGen;
 using SharpDX.Mathematics.Interop;
 using Veldrid;
 using Veldrid.SceneGraph;
@@ -34,9 +33,7 @@ namespace ColoredCube
     {
         public const uint SizeInBytes = 28;
 
-        [PositionSemantic] 
         public Vector3 Position;
-        [ColorSemantic]
         public Vector4 Color;
         
         public VertexPositionColor(Vector3 position, Vector4 color)
@@ -71,8 +68,8 @@ namespace ColoredCube
             var cube = CreateCube();
             scale_xform.AddChild(cube);
 
-            var gridSize = 5;
-            var transF = 1.0f / gridSize;
+            var gridSize = 10;
+            var transF = 2.0f / gridSize;
             for (var i = -gridSize; i <= gridSize; ++i)
             {
                 for (var j = -gridSize; j <= gridSize; ++j)
@@ -119,11 +116,11 @@ namespace ColoredCube
                 new Vector4(0.1f, 0.1f, 0.1f, 1.0f) 
             };
 
-            ushort[] cubeIndices   = {3, 2, 7, 6, 4, 2, 0, 3, 1, 7, 5, 4, 1, 0};
+            uint[] cubeIndices   = {3, 2, 7, 6, 4, 2, 0, 3, 1, 7, 5, 4, 1, 0};
             ushort[] colorIndices = {0, 0, 4, 1, 1, 2, 2, 3, 3, 4, 5, 5};
             
             var cubeTriangleVertices = new List<VertexPositionColor>();
-            var cubeTriangleIndices = new List<ushort>();
+            var cubeTriangleIndices = new List<uint>();
 
             for (var i = 0; i < cubeIndices.Length-2; ++i)
             {
@@ -140,9 +137,9 @@ namespace ColoredCube
                     cubeTriangleVertices.Add(new VertexPositionColor(cubeVertices[cubeIndices[i+2]], faceColors[colorIndices[i]]));
                 }
                 
-                cubeTriangleIndices.Add((ushort) (3 * i));
-                cubeTriangleIndices.Add((ushort) (3 * i + 1));
-                cubeTriangleIndices.Add((ushort) (3 * i + 2));
+                cubeTriangleIndices.Add((uint) (3 * i));
+                cubeTriangleIndices.Add((uint) (3 * i + 1));
+                cubeTriangleIndices.Add((uint) (3 * i + 2));
             }
 
             geometry.VertexData = cubeTriangleVertices.ToArray();
@@ -150,8 +147,8 @@ namespace ColoredCube
             geometry.IndexData = cubeTriangleIndices.ToArray();
 
             geometry.VertexLayout = new VertexLayoutDescription(
-                new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
-                new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
+                new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
+                new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4));
 
             var pSet = DrawElements<VertexPositionColor>.Create(
                 geometry, 

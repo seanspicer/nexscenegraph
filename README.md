@@ -1,8 +1,91 @@
 # NexSceneGraph
 
+##### October 2019
+
+NexSceneGraph is approaching a first set of milestone releases.   Currently we are working on the core API and exposing higher-level concepts so that developers new to 3D programming don't necessarily have to start by learning vertex layouts, shaders, pipelines, pipeline states, etc.   The current 0.2.x API makes it simple to create a shape such as a box, and apply PhongLighting (against per-face normals)
+
+The Example below uses Veldrid.SceneGraph 0.2.1-alpha310 on NuGet.org: 
+https://www.nuget.org/packages/Veldrid.SceneGraph/
+
+
+```C#
+using System.Numerics;
+using Veldrid.SceneGraph;
+using Veldrid.SceneGraph.InputAdapter;
+using Veldrid.SceneGraph.PipelineStates;
+using Veldrid.SceneGraph.Util.Shape;
+using Veldrid.SceneGraph.VertexTypes;
+using Veldrid.SceneGraph.Viewer;
+
+namespace Veldrid.SceneGraph.MyFirstCube
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // Create a basic shape
+            var cubeShape = Box.Create(Vector3.Zero, 0.5f*Vector3.One);
+            
+            // Tessellate the shape into a drawable
+            var hints = TessellationHints.Create();
+            hints.NormalsType = NormalsType.PerFace;
+            hints.ColorsType = ColorsType.ColorOverall;
+
+            var cubeDrawable = 
+                ShapeDrawable<Position3Texture2Color3Normal3>.Create(
+                    cubeShape, 
+                    hints, 
+                    new Vector3[] {Vector3.UnitX});
+            
+            // Create a material
+            var cubeMaterial = PhongMaterial.Create(
+                PhongMaterialParameters.Create(
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    50f),
+                PhongHeadlight.Create(PhongLightParameters.Create(
+                    new Vector3(0.5f, 0.5f, 0.5f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    1f,
+                    0)),
+                false);
+
+            // Assign the material by attaching the pipeline state
+            // to the drawable.  This could also be done for any Geode
+            cubeDrawable.PipelineState = cubeMaterial.CreatePipelineState();
+            
+            // Create an SDL Viewer
+            var viewer = SimpleViewer.Create("My First Cube!");
+            
+            // Create a trackball manipulator and assign it to the viewer
+            viewer.SetCameraManipulator(TrackballManipulator.Create());
+
+            // Create a geode and add the drawable to it.
+            var cubeGeode = Geode.Create();
+            cubeGeode.AddDrawable(cubeDrawable);
+            
+            // Create a root node (Group) and add the Geode as a child
+            var root = Group.Create();
+            root.AddChild(cubeGeode);
+            
+            // Set the root of the scene that the viewer is viewing
+            viewer.SetSceneData(root);
+            
+            // Set the camera to view all extents.
+            viewer.ViewAll();            
+            
+            // Run the app
+            viewer.Run();
+        }
+    }
+}
+```
+
 ##### February 2019
 
-NexSeceneGraph is an ongoing experiment to design a scene graph around modern low-level graphics APIs using .NET Core.  The genesis of this work arose from the need for an Open-Source, robust, Scene Graph API for scientific visualization applications in .NET.    An early decision was made to build upon [Veldrid](https://github.com/mellinoe/veldrid), by Eric Mellinoe - as this project has already accomplished of the difficult work involved with low-level binding to backed APIs and presentation of the underlying features in a common API surface.   Common to Veldird, our intent is to support the following backends:
+NexSeceneGraph is an ongoing experiment to design a scene graph around modern low-level graphics APIs using .NET Core.  The genesis of this work arose from the need for an Open-Source, robust, Scene Graph API for scientific visualization applications in .NET.    An early decision was made to build upon [Veldrid](https://github.com/mellinoe/veldrid), by Eric Mellino - as this project has already accomplished most of the difficult work involved with low-level binding to backed APIs and presentation of the underlying features in a common API surface.   Common to Veldrid, our intent is to support the following backends:
 
 * Direct3D 11
 * Vulkan
@@ -45,7 +128,7 @@ There are a number of examples available highlighting current syntax.  These are
   This example demonstrate a simple billboard geometry node
 
 * __Text Rendering:__   
-  This exmaple demonstrates a text geometry node
+  This example demonstrates a text geometry node
 
 * __Switch Example:__   
   This example demonstrates the use of a switch geometry node

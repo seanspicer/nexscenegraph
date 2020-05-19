@@ -21,7 +21,7 @@ using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
-using Common.Logging;
+//using Common.Logging;
 using Veldrid;
 using Veldrid.OpenGLBinding;
 using Veldrid.SceneGraph.InputAdapter;
@@ -123,7 +123,7 @@ namespace Veldrid.SceneGraph.Viewer
 
         private SDL_EventFilter ResizeEventFilter = null;
 
-        private ILog _logger;
+        //private ILog _logger;
         
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -146,7 +146,7 @@ namespace Veldrid.SceneGraph.Viewer
         //
         protected unsafe SimpleViewer(string title)
         {
-            _logger = LogManager.GetLogger<SimpleViewer>();
+            //_logger = LogManager.GetLogger<SimpleViewer>();
             
             // Create Subjects
             _viewerInputEvents = new Subject<IInputStateSnapshot>();
@@ -188,7 +188,7 @@ namespace Veldrid.SceneGraph.Viewer
 
 
             _window.KeyDown += OnKeyDown;
-            _view = Viewer.View.Create();
+            _view = Viewer.View.Create(_resizeEvents);
             GraphicsDeviceOperations += _view.Camera.Renderer.HandleOperation;
             _view.InputEvents = ViewerInputEvents;
 
@@ -312,18 +312,27 @@ namespace Veldrid.SceneGraph.Viewer
         {
             var options = new GraphicsDeviceOptions(
                 debug: false,
-                swapchainDepthFormat: PixelFormat.R16_UNorm,
+                swapchainDepthFormat: PixelFormat.R32_Float,
                 syncToVerticalBlank: true,
-                resourceBindingModel: ResourceBindingModel.Improved);
+                resourceBindingModel: ResourceBindingModel.Improved,
+                preferDepthRangeZeroToOne: true,
+                preferStandardClipSpaceYDirection: true,
+                swapchainSrgbFormat: false);
 #if DEBUG
             options.Debug = true;
 #endif
-            _logger.Info(m => m($"Creating Graphics Device with {_preferredBackend} Backend"));
+            //_logger.Info(m => m($"Creating Graphics Device with {_preferredBackend} Backend"));
+            
+            
             
             _graphicsDevice = VeldridStartup.CreateGraphicsDevice(_window, options, _preferredBackend);
+            _view.Framebuffer = _graphicsDevice.SwapchainFramebuffer;
+            bool isDirect3DSupported = GraphicsDevice.IsBackendSupported(GraphicsBackend.Direct3D11);
             _factory = new DisposeCollectorResourceFactory(_graphicsDevice.ResourceFactory);
             _stopwatch = Stopwatch.StartNew();
             _previousElapsed = _stopwatch.Elapsed.TotalSeconds;
+            
+            
         }
 
         // 
@@ -337,8 +346,6 @@ namespace Veldrid.SceneGraph.Viewer
                 _firstFrame = false;
             }
 
-            
-            
             if (!_window.Exists) return;
 
             var newElapsed = _stopwatch.Elapsed.TotalSeconds;
@@ -396,6 +403,7 @@ namespace Veldrid.SceneGraph.Viewer
                 DisplaySettings.Instance.ScreenWidth = _window.Width;
                 DisplaySettings.Instance.ScreenHeight = _window.Height;
                 _resizeEvents.OnNext(new ResizedEvent(_window.Width, _window.Height));
+                _view.Framebuffer = _graphicsDevice.SwapchainFramebuffer;
             }
             
             GraphicsDeviceOperations?.Invoke(_graphicsDevice, _factory);

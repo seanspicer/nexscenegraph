@@ -63,6 +63,9 @@ namespace Veldrid.SceneGraph
         
         public IGraphicsDeviceOperation Renderer { get; set; }
 
+        private float _width { get; set; }
+        private float _height { get; set; }
+        
         public static ICamera Create(float width, float height)
         {
             return new Camera(width, height);
@@ -70,12 +73,22 @@ namespace Veldrid.SceneGraph
         
         protected Camera(float width, float height)
         {
+            _width = width;
+            _height = height;
+            
             _aspectRatio = width / height;
             ProjectionMatrix = Matrix4x4.Identity;
             ViewMatrix = Matrix4x4.Identity;
             UpdateProjectionMatrix();
             UpdateViewMatrix();
 
+        }
+
+        public void HandleResizeEvent(IResizedEvent resizedEvent)
+        {
+            _aspectRatio = (float)resizedEvent.Width / (float)resizedEvent.Height;
+            
+            UpdateProjectionMatrix();
         }
 
         /// <summary>

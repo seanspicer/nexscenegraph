@@ -35,6 +35,11 @@ namespace Veldrid.SceneGraph
         }
     }
 
+    public class NodeVisitorEventArgs : EventArgs
+    {
+        public NodeVisitor NodeVisitor { get; set; }
+    }
+
     /// <summary>
     /// Base class for all visitors
     /// </summary>

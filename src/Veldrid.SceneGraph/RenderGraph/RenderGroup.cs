@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Numerics;
 
 namespace Veldrid.SceneGraph.RenderGraph
@@ -36,7 +37,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             return RenderGroupStateCache.Count > 0;
         }
         
-        private Dictionary<Tuple<IPipelineState, PrimitiveTopology, VertexLayoutDescription>, IRenderGroupState> RenderGroupStateCache;
+        private Dictionary<Tuple<IPipelineState, PrimitiveTopology, VertexLayoutDescription>, List<IRenderGroupState>> RenderGroupStateCache;
 
         public static IRenderGroup Create()
         {
@@ -45,31 +46,63 @@ namespace Veldrid.SceneGraph.RenderGraph
         
         protected RenderGroup()
         {
-            RenderGroupStateCache = new Dictionary<Tuple<IPipelineState, PrimitiveTopology, VertexLayoutDescription>, IRenderGroupState>();
+            RenderGroupStateCache = new Dictionary<Tuple<IPipelineState, PrimitiveTopology, VertexLayoutDescription>, List<IRenderGroupState>>();
         }
 
         public void Reset()
         {
-            foreach (var rgs in RenderGroupStateCache.Values)
+            // TODO - maybe implement an LRU cache here so that the size of the cache doesn't
+            // Grow indefinitely as a user navigates a scene.
+            foreach (var rgs in GetStateList())
             {
                 rgs.Elements.Clear();
             }
+            
+            // This call is *crazy* expensive
+            //RenderGroupStateCache.Clear();
         }
         
         public IEnumerable<IRenderGroupState> GetStateList()
         {
-            return RenderGroupStateCache.Values;
+            foreach (var renderGroupStateList in RenderGroupStateCache.Values)
+            {
+                foreach (var renderGroupState in renderGroupStateList)
+                {
+                    yield return renderGroupState;
+                }
+            }
         }
         
-        public IRenderGroupState GetOrCreateState(IPipelineState pso, PrimitiveTopology pt, VertexLayoutDescription vl)
+        public IRenderGroupState GetOrCreateState(GraphicsDevice device, IPipelineState pso, PrimitiveTopology pt, VertexLayoutDescription vl)
         {
-            var key = new Tuple<IPipelineState, PrimitiveTopology, VertexLayoutDescription>(pso, pt, vl);
-            if (RenderGroupStateCache.TryGetValue(key, out var renderGroupState)) return renderGroupState;
-            
-            renderGroupState = RenderGroupState.Create(pso, pt, vl);
-            RenderGroupStateCache.Add(key, renderGroupState);
+            var modelOffset = 64u;
+            if (device.UniformBufferMinOffsetAlignment > 64)
+            {
+                modelOffset = device.UniformBufferMinOffsetAlignment;
+            }
 
-            return renderGroupState;
+            var maxAllowedDrawables = 65536u / modelOffset;
+            
+            var key = new Tuple<IPipelineState, PrimitiveTopology, VertexLayoutDescription>(pso, pt, vl);
+            if (RenderGroupStateCache.TryGetValue(key, out var renderGroupStateList))
+            {
+                // Check to see if this state list can accept any more drawables, if not, allocate a new one
+                foreach (var renderGroupState in renderGroupStateList)
+                {
+                    if (renderGroupState.Elements.Count < maxAllowedDrawables)
+                    {
+                        return renderGroupState;
+                    }
+                }
+                
+                renderGroupStateList.Add(RenderGroupState.Create(pso, pt, vl));
+                return renderGroupStateList.Last();
+            }
+
+            renderGroupStateList = new List<IRenderGroupState> {RenderGroupState.Create(pso, pt, vl)}; 
+            RenderGroupStateCache.Add(key, renderGroupStateList);
+
+            return renderGroupStateList.Last();
         }
     }
 }

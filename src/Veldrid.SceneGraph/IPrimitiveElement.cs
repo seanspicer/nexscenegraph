@@ -14,6 +14,8 @@
 // limitations under the License.
 //
 
+using System;
+using System.Drawing;
 using System.Numerics;
 
 namespace Veldrid.SceneGraph
@@ -21,5 +23,21 @@ namespace Veldrid.SceneGraph
     public interface IPrimitiveElement
     {
         Vector3 VertexPosition { get; set; }
+    }
+
+    public interface ISettablePrimitiveElement : IPrimitiveElement
+    {
+        bool HasPosition { get; }
+        bool HasNormal { get; }
+        bool HasTexCoord { get; }
+        bool HasColor3 { get; }
+        bool HasColor4 { get; }
+
+        void SetPosition(Vector3 position);
+        void SetNormal(Vector3 normal);
+        void SetTexCoord(Vector2 texCoord);
+        void SetColor3(Vector3 color);
+        void SetColor4(Vector4 color);
+        VertexLayoutDescription GetVertexLayoutDescription();
     }
 }

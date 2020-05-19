@@ -23,7 +23,6 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.Primitives;
-using ShaderGen;
 using Veldrid;
 using Veldrid.SceneGraph.Shaders.Standard;
 using Veldrid.SceneGraph.Util;
@@ -36,9 +35,9 @@ namespace Veldrid.SceneGraph.Text
     {
         public const uint SizeInBytes = 20;
 
-        [PositionSemantic] 
+        //[PositionSemantic] 
         public Vector3 Position;
-        [ColorSemantic]
+        //[ColorSemantic]
         public Vector2 TexCoord;
         
         public VertexPositionTexture(Vector3 position, Vector2 texCoord)
@@ -77,7 +76,7 @@ namespace Veldrid.SceneGraph.Text
                 new VertexPositionTexture(new Vector3(-1.0f, -1.0f, +0.0f), new Vector2(0, 1))
             };
 
-            IndexData = new ushort[]
+            IndexData = new uint[]
             {
                 0, 1, 2, 0, 2, 3,
             };
@@ -86,7 +85,7 @@ namespace Veldrid.SceneGraph.Text
             PrimitiveSets.Add(pSet);
             
             VertexLayout = new VertexLayoutDescription(
-                new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
+                new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
                 new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2));
 
             PipelineState.VertexShaderDescription = Texture2DShader.Instance.VertexShaderDescription;

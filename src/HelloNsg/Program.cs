@@ -18,7 +18,6 @@ using System;
 using System.IO;
 using System.Numerics;
 using Examples.Common;
-using ShaderGen;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
@@ -32,9 +31,7 @@ namespace HelloNsg
     {
         public const uint SizeInBytes = 24;
         
-        [PositionSemantic]
         public Vector2 Position;
-        [ColorSemantic]
         public Vector4 Color;
         
         public VertexPositionColor(Vector2 position, Vector4 color)
@@ -73,12 +70,12 @@ namespace HelloNsg
 
             geometry.VertexData = quadVertices;
             
-            ushort[] quadIndices = { 0, 1, 2, 3 };
+            uint[] quadIndices = { 0, 1, 2, 3 };
             geometry.IndexData = quadIndices;
             
             geometry.VertexLayout = new VertexLayoutDescription(
-                new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float2),
-                new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
+                new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
+                new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4));
 
             var pSet = DrawElements<VertexPositionColor>.Create(
                 geometry, 

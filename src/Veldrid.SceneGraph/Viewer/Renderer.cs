@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright 2018 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,15 +20,20 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
-using Common.Logging;
+using Microsoft.Extensions.Logging;
+//using Common.Logging;
 using Veldrid.MetalBindings;
+using Veldrid.SceneGraph.Logging;
 using Veldrid.SceneGraph.RenderGraph;
+using Veldrid.SceneGraph.Util;
 
 namespace Veldrid.SceneGraph.Viewer
 {
-    public class Renderer : IGraphicsDeviceOperation
+    internal class Renderer : IGraphicsDeviceOperation
     {
+        private IUpdateVisitor _updateVisitor;
         private ICullVisitor _cullVisitor;
+        
         private ICamera _camera;
         
         private DeviceBuffer _projectionBuffer;
@@ -36,7 +41,8 @@ namespace Veldrid.SceneGraph.Viewer
         private CommandList _commandList;
         private ResourceLayout _resourceLayout;
         private ResourceSet _resourceSet;
-
+        private Fence _fence;
+        
         private bool _initialized = false;
 
         private RenderInfo _renderInfo;
@@ -45,13 +51,17 @@ namespace Veldrid.SceneGraph.Viewer
 
         private List<Tuple<uint, ResourceSet>> _defaultResourceSets = new List<Tuple<uint, ResourceSet>>();
 
-        private ILog _logger;
+        public Framebuffer Framebuffer { get; set; }
+        
+        private ILogger _logger;
         
         public Renderer(ICamera camera)
         {
             _camera = camera;
+            _updateVisitor = UpdateVisitor.Create();
             _cullVisitor = CullVisitor.Create();
-            _logger = LogManager.GetLogger<Renderer>();
+            _logger = LogManager.CreateLogger<Renderer>();
+            Framebuffer = null;
         }
 
         private void Initialize(GraphicsDevice device, ResourceFactory factory)
@@ -90,13 +100,19 @@ namespace Veldrid.SceneGraph.Viewer
             _renderInfo.ResourceLayout = _resourceLayout;
             _renderInfo.ResourceSet = _resourceSet;
 
-            //_fence = factory.CreateFence(false);
+            _fence = factory.CreateFence(false);
 
             _defaultResourceSets.Add(Tuple.Create((uint)0, _resourceSet));
             
             _initialized = true;
         }
 
+        private void Update()
+        {
+            var view = (Viewer.View) _camera.View;
+            view.SceneData?.Accept(_updateVisitor);
+        }
+        
         private void Cull(GraphicsDevice device, ResourceFactory factory)
         {    
             // Reset the visitor
@@ -124,7 +140,7 @@ namespace Veldrid.SceneGraph.Viewer
             _commandList.Begin();
 
             // We want to render directly to the output window.
-            _commandList.SetFramebuffer(device.SwapchainFramebuffer);
+            _commandList.SetFramebuffer(Framebuffer);
             
             // TODO Set from Camera color ?
             _commandList.ClearColorTarget(0, RgbaFloat.Grey);
@@ -148,39 +164,57 @@ namespace Veldrid.SceneGraph.Viewer
 
         private void Draw(GraphicsDevice device)
         {
-            // TODO - this doesn't work on Metal
-            //device.ResetFence(_fence);
-            
-            device.SubmitCommands(_commandList);
+            device.ResetFence(_fence);
+            device.SubmitCommands(_commandList, _fence);
+            device.WaitForFence(_fence);
             device.WaitForIdle();
         }
 
         private void DrawOpaqueRenderGroups(GraphicsDevice device, ResourceFactory factory)
         {
-            var currModelViewMatrix = Matrix4x4.Identity;
+            var alignment = device.UniformBufferMinOffsetAlignment;
+            var modelViewMatrixObjSizeInBytes = 64u;
+            var hostBuffStride = 1u;
+            if (alignment > 64u)
+            {
+                hostBuffStride = alignment / 64u;
+                modelViewMatrixObjSizeInBytes = alignment;
+            }
+            
             foreach (var state in _cullVisitor.OpaqueRenderGroup.GetStateList())
             {
-                var ri = state.GetPipelineAndResources(device, factory, _resourceLayout);
+                var ri = state.GetPipelineAndResources(device, factory, _resourceLayout, Framebuffer);
                 
                 _commandList.SetPipeline(ri.Pipeline);
                 
-                foreach (var element in state.Elements)
+                var nDrawables = (uint)state.Elements.Count;
+                var modelMatrixViewBuffer = new Matrix4x4[nDrawables*hostBuffStride]; // TODO - do we need to allocate this every frame?
+                for(var i=0; i<nDrawables; ++i)
                 {
-                    _commandList.SetVertexBuffer(0, element.VertexBuffer);
-                    
-                    _commandList.SetIndexBuffer(element.IndexBuffer, IndexFormat.UInt16);
-                    
-                    _commandList.SetGraphicsResourceSet(0, _resourceSet);
-                    
-                    _commandList.SetGraphicsResourceSet(1, ri.ResourceSet);
-                    
-                    // TODO Optimize with uniform buffer later on
-                    if (element.ModelViewMatrix != currModelViewMatrix)
+                    modelMatrixViewBuffer[i*hostBuffStride] = state.Elements[i].ModelViewMatrix;
+                }
+                _commandList.UpdateBuffer(ri.ModelViewBuffer, 0, modelMatrixViewBuffer);
+                
+                for(var i=0; i<nDrawables; ++i)
+                {
+                    var element = state.Elements[i];
+                    var offsetsList = new List<uint>();
+
+                    foreach (var stride in ri.UniformStrides)
                     {
-                        _commandList.UpdateBuffer(ri.ModelViewBuffer, 0, element.ModelViewMatrix);
-                        currModelViewMatrix = element.ModelViewMatrix;
+                        offsetsList.Add((uint)i*stride);
                     }
                     
+                    var offsets = offsetsList.ToArray();
+                    
+                    _commandList.SetVertexBuffer(0, element.VertexBuffer);
+                    
+                    _commandList.SetIndexBuffer(element.IndexBuffer, IndexFormat.UInt32);
+                    
+                    _commandList.SetGraphicsResourceSet(0, _resourceSet);
+
+                    _commandList.SetGraphicsResourceSet(1, ri.ResourceSet, offsets);
+           
                     foreach (var primitiveSet in element.PrimitiveSets)
                     {
                         primitiveSet.Draw(_commandList);
@@ -191,17 +225,35 @@ namespace Veldrid.SceneGraph.Viewer
         
         private void DrawTransparentRenderGroups(GraphicsDevice device, ResourceFactory factory)
         {
+            var alignment = device.UniformBufferMinOffsetAlignment;
+            var modelBuffStride = 64u;
+            var hostBuffStride = 1u;
+            if (alignment > 64u)
+            {
+                hostBuffStride = alignment / 64u;
+                modelBuffStride = alignment;
+            }
+            
             //
             // First sort the transparent render elements by distance to eye point (if not culled).
             //
-            var drawOrderMap = new SortedList<float, List<Tuple<IRenderGroupState, RenderGroupElement, IPrimitiveSet>>>();
+            var drawOrderMap = new SortedList<float, List<Tuple<IRenderGroupState, RenderGroupElement, IPrimitiveSet,uint>>>();
             drawOrderMap.Capacity = _cullVisitor.RenderElementCount;
             var transparentRenderGroupStates = _cullVisitor.TransparentRenderGroup.GetStateList();
+            
+            var stateToUniformDict = new Dictionary<IRenderGroupState, Matrix4x4[]>();
+            
             foreach (var state in transparentRenderGroupStates)
             {
+                var nDrawables = (uint)state.Elements.Count;
+                var modelMatrixViewBuffer = new Matrix4x4[nDrawables*hostBuffStride];
+                
                 // Iterate over all elements in this state
-                foreach (var renderElement in state.Elements)
+                for(var j=0; j<nDrawables; ++j)
                 {
+                    var renderElement = state.Elements[j];
+                    modelMatrixViewBuffer[j*hostBuffStride] = state.Elements[j].ModelViewMatrix;
+                    
                     // Iterate over all primitive sets in this state
                     foreach (var pset in renderElement.PrimitiveSets)
                     {
@@ -214,13 +266,14 @@ namespace Veldrid.SceneGraph.Viewer
 
                         if (!drawOrderMap.TryGetValue(dist, out var renderList))
                         {
-                            renderList = new List<Tuple<IRenderGroupState, RenderGroupElement, IPrimitiveSet>>();
+                            renderList = new List<Tuple<IRenderGroupState, RenderGroupElement, IPrimitiveSet, uint>>();
                             drawOrderMap.Add(dist, renderList);
                         }
 
-                        renderList.Add(Tuple.Create(state, renderElement, pset));
+                        renderList.Add(Tuple.Create(state, renderElement, pset, (uint)j));
                     }
                 }
+                stateToUniformDict.Add(state, modelMatrixViewBuffer);
             }
 
             DeviceBuffer boundVertexBuffer = null;
@@ -240,24 +293,21 @@ namespace Veldrid.SceneGraph.Viewer
 
                     if (null == lastState || state != lastState)
                     {
-                        ri = state.GetPipelineAndResources(device, factory, _resourceLayout);
+                        ri = state.GetPipelineAndResources(device, factory, _resourceLayout, Framebuffer);
 
                         // Set this state's pipeline
                         _commandList.SetPipeline(ri.Pipeline);
 
+                        _commandList.UpdateBuffer(ri.ModelViewBuffer, 0, stateToUniformDict[state]);
+                        
                         // Set the resources
                         _commandList.SetGraphicsResourceSet(0, _resourceSet);
-
-                        // Set state-local resources
-                        _commandList.SetGraphicsResourceSet(1, ri.ResourceSet);
                     }
 
-                    if (element.Item2.ModelViewMatrix != currModelViewMatrix)
-                    {
-                        _commandList.UpdateBuffer(ri.ModelViewBuffer, 0, element.Item2.ModelViewMatrix);
-                        currModelViewMatrix = element.Item2.ModelViewMatrix;
-                    }
-                    
+                    uint offset = element.Item4*modelBuffStride;
+                        
+                    // Set state-local resources
+                    _commandList.SetGraphicsResourceSet(1, ri.ResourceSet, 1, ref offset);                    
                     
                     var renderGroupElement = element.Item2;
 
@@ -271,7 +321,7 @@ namespace Veldrid.SceneGraph.Viewer
                     if (boundIndexBuffer != renderGroupElement.IndexBuffer)
                     {
                         // Set index buffer
-                        _commandList.SetIndexBuffer(renderGroupElement.IndexBuffer, IndexFormat.UInt16);
+                        _commandList.SetIndexBuffer(renderGroupElement.IndexBuffer, IndexFormat.UInt32);
                         boundIndexBuffer = renderGroupElement.IndexBuffer;
                     }
                     
@@ -299,16 +349,19 @@ namespace Veldrid.SceneGraph.Viewer
 
         private void SwapBuffers(GraphicsDevice device)
         {
-            device.SwapBuffers();
+            if (Framebuffer == device.SwapchainFramebuffer)
+            {
+                device.SwapBuffers();
+            }
         }
 
         public void HandleOperation(GraphicsDevice device, ResourceFactory factory)
         {
             // TODO - this doesn't work on Metal
-            //if (null != _fence)
-            //{
-            //    device.WaitForFence(_fence);
-            //}
+            if (null != _fence)
+            {
+                device.WaitForFence(_fence);
+            }
             
             if (!_initialized)
             {
@@ -317,6 +370,9 @@ namespace Veldrid.SceneGraph.Viewer
             
             _stopWatch.Reset();
             _stopWatch.Start();
+
+            // Run Update Traversal.
+            Update();
             
             UpdateUniforms(device, factory);
 
@@ -338,12 +394,12 @@ namespace Veldrid.SceneGraph.Viewer
             
             var postSwap = _stopWatch.ElapsedMilliseconds;
             
-            _logger.Trace(m => m(string.Format("Update = {0} ms, Cull = {1} ms, Record = {2}, Draw = {3} ms, Swap = {4} ms",
+            _logger.LogTrace(string.Format("Update = {0} ms, Cull = {1} ms, Record = {2}, Draw = {3} ms, Swap = {4} ms",
                 postUpdate, 
                 postCull-postUpdate,
                 postRecord-postCull,
                 postDraw-postRecord,
-                postSwap-postDraw)));
+                postSwap-postDraw));
         }
     }
 }

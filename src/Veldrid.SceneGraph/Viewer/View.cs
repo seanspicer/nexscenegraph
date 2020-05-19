@@ -25,7 +25,16 @@ namespace Veldrid.SceneGraph.Viewer
     {
         public IGroup SceneData { get; set; }
 
+        private Renderer Renderer { get; set; }
+        
+        public Framebuffer Framebuffer 
+        { 
+            get => Renderer.Framebuffer;
+            set => Renderer.Framebuffer = value;
+        }
+        
         public IObservable<IInputStateSnapshot> InputEvents { get; set; }
+        public IObservable<IResizedEvent> ResizeEvent { get; set; }
 
         private ICameraManipulator _cameraManipulator = null;
         public ICameraManipulator CameraManipulator
@@ -44,14 +53,16 @@ namespace Veldrid.SceneGraph.Viewer
             }
         }
 
-        public new static IView Create()
+        public static IView Create(IObservable<IResizedEvent> resizeEvents)
         {
-            return new View();
+            return new View(resizeEvents);
         }
         
-        protected View()
+        protected View(IObservable<IResizedEvent> resizeEvents)
         {
-            Camera.Renderer = new Renderer(Camera);
+            Renderer = new Renderer(Camera);
+            Camera.Renderer = Renderer;
+            resizeEvents.Subscribe(Camera.HandleResizeEvent);
         }
 
         public void AddInputEventHandler(IInputEventHandler handler)

@@ -1,0 +1,194 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>NativeLibraryLoader</name>
+    </assembly>
+    <members>
+        <member name="T:NativeLibraryLoader.LibraryLoader">
+            <summary>
+            Exposes functionality for loading native libraries and function pointers.
+            </summary>
+        </member>
+        <member name="M:NativeLibraryLoader.LibraryLoader.LoadNativeLibrary(System.String)">
+            <summary>
+            Loads a native library by name and returns an operating system handle to it.
+            </summary>
+            <param name="name">The name of the library to open.</param>
+            <returns>The operating system handle for the shared library.</returns>
+        </member>
+        <member name="M:NativeLibraryLoader.LibraryLoader.LoadNativeLibrary(System.String[])">
+            <summary>
+            Loads a native library by name and returns an operating system handle to it.
+            </summary>
+            <param name="names">An ordered list of names. Each name is tried in turn, until the library is successfully loaded.
+            </param>
+            <returns>The operating system handle for the shared library.</returns>
+        </member>
+        <member name="M:NativeLibraryLoader.LibraryLoader.LoadNativeLibrary(System.String,NativeLibraryLoader.PathResolver)">
+            <summary>
+            Loads a native library by name and returns an operating system handle to it.
+            </summary>
+            <param name="name">The name of the library to open.</param>
+            <param name="pathResolver">The path resolver to use.</param>
+            <returns>The operating system handle for the shared library.</returns>
+        </member>
+        <member name="M:NativeLibraryLoader.LibraryLoader.LoadNativeLibrary(System.String[],NativeLibraryLoader.PathResolver)">
+            <summary>
+            Loads a native library by name and returns an operating system handle to it.
+            </summary>
+            <param name="names">An ordered list of names. Each name is tried in turn, until the library is successfully loaded.
+            </param>
+            <param name="pathResolver">The path resolver to use.</param>
+            <returns>The operating system handle for the shared library.</returns>
+        </member>
+        <member name="M:NativeLibraryLoader.LibraryLoader.LoadFunctionPointer(System.IntPtr,System.String)">
+            <summary>
+            Loads a function pointer out of the given library by name.
+            </summary>
+            <param name="handle">The operating system handle of the opened shared library.</param>
+            <param name="functionName">The name of the exported function to load.</param>
+            <returns>A pointer to the loaded function.</returns>
+        </member>
+        <member name="M:NativeLibraryLoader.LibraryLoader.FreeNativeLibrary(System.IntPtr)">
+            <summary>
+            Frees the library represented by the given operating system handle.
+            </summary>
+            <param name="handle">The handle of the open shared library.</param>
+        </member>
+        <member name="M:NativeLibraryLoader.LibraryLoader.CoreLoadNativeLibrary(System.String)">
+            <summary>
+            Loads a native library by name and returns an operating system handle to it.
+            </summary>
+            <param name="name">The name of the library to open. This parameter must not be null or empty.</param>
+            <returns>The operating system handle for the shared library.
+            If the library cannot be loaded, IntPtr.Zero should be returned.</returns>
+        </member>
+        <member name="M:NativeLibraryLoader.LibraryLoader.CoreFreeNativeLibrary(System.IntPtr)">
+            <summary>
+            Frees the library represented by the given operating system handle.
+            </summary>
+            <param name="handle">The handle of the open shared library. This must not be zero.</param>
+        </member>
+        <member name="M:NativeLibraryLoader.LibraryLoader.CoreLoadFunctionPointer(System.IntPtr,System.String)">
+            <summary>
+            Loads a function pointer out of the given library by name.
+            </summary>
+            <param name="handle">The operating system handle of the opened shared library. This must not be zero.</param>
+            <param name="functionName">The name of the exported function to load. This must not be null or empty.</param>
+            <returns>A pointer to the loaded function.</returns>
+        </member>
+        <member name="M:NativeLibraryLoader.LibraryLoader.GetPlatformDefaultLoader">
+            <summary>
+            Returns a default library loader for the running operating system.
+            </summary>
+            <returns>A LibraryLoader suitable for loading libraries.</returns>
+        </member>
+        <member name="T:NativeLibraryLoader.NativeLibrary">
+            <summary>
+            Represents a native shared library opened by the operating system.
+            This type can be used to load native function pointers by name.
+            </summary>
+        </member>
+        <member name="P:NativeLibraryLoader.NativeLibrary.Handle">
+            <summary>
+            The operating system handle of the loaded library.
+            </summary>
+        </member>
+        <member name="M:NativeLibraryLoader.NativeLibrary.#ctor(System.String)">
+            <summary>
+            Constructs a new NativeLibrary using the platform's default library loader.
+            </summary>
+            <param name="name">The name of the library to load.</param>
+        </member>
+        <member name="M:NativeLibraryLoader.NativeLibrary.#ctor(System.String[])">
+            <summary>
+            Constructs a new NativeLibrary using the platform's default library loader.
+            </summary>
+            <param name="names">An ordered list of names to attempt to load.</param>
+        </member>
+        <member name="M:NativeLibraryLoader.NativeLibrary.#ctor(System.String,NativeLibraryLoader.LibraryLoader)">
+            <summary>
+            Constructs a new NativeLibrary using the specified library loader.
+            </summary>
+            <param name="name">The name of the library to load.</param>
+            <param name="loader">The loader used to open and close the library, and to load function pointers.</param>
+        </member>
+        <member name="M:NativeLibraryLoader.NativeLibrary.#ctor(System.String[],NativeLibraryLoader.LibraryLoader)">
+            <summary>
+            Constructs a new NativeLibrary using the specified library loader.
+            </summary>
+            <param name="names">An ordered list of names to attempt to load.</param>
+            <param name="loader">The loader used to open and close the library, and to load function pointers.</param>
+        </member>
+        <member name="M:NativeLibraryLoader.NativeLibrary.#ctor(System.String,NativeLibraryLoader.LibraryLoader,NativeLibraryLoader.PathResolver)">
+            <summary>
+            Constructs a new NativeLibrary using the specified library loader.
+            </summary>
+            <param name="name">The name of the library to load.</param>
+            <param name="loader">The loader used to open and close the library, and to load function pointers.</param>
+            <param name="pathResolver">The path resolver, used to identify possible load targets for the library.</param>
+        </member>
+        <member name="M:NativeLibraryLoader.NativeLibrary.#ctor(System.String[],NativeLibraryLoader.LibraryLoader,NativeLibraryLoader.PathResolver)">
+            <summary>
+            Constructs a new NativeLibrary using the specified library loader.
+            </summary>
+            <param name="names">An ordered list of names to attempt to load.</param>
+            <param name="loader">The loader used to open and close the library, and to load function pointers.</param>
+            <param name="pathResolver">The path resolver, used to identify possible load targets for the library.</param>
+        </member>
+        <member name="M:NativeLibraryLoader.NativeLibrary.LoadFunction``1(System.String)">
+            <summary>
+            Loads a function whose signature matches the given delegate type's signature.
+            </summary>
+            <typeparam name="T">The type of delegate to return.</typeparam>
+            <param name="name">The name of the native export.</param>
+            <returns>A delegate wrapping the native function.</returns>
+            <exception cref="T:System.InvalidOperationException">Thrown when no function with the given name
+            is exported from the native library.</exception>
+        </member>
+        <member name="M:NativeLibraryLoader.NativeLibrary.LoadFunction(System.String)">
+            <summary>
+            Loads a function pointer with the given name.
+            </summary>
+            <param name="name">The name of the native export.</param>
+            <returns>A function pointer for the given name, or 0 if no function with that name exists.</returns>
+        </member>
+        <member name="M:NativeLibraryLoader.NativeLibrary.Dispose">
+            <summary>
+            Frees the native library. Function pointers retrieved from this library will be void.
+            </summary>
+        </member>
+        <member name="T:NativeLibraryLoader.PathResolver">
+            <summary>
+            Enumerates possible library load targets.
+            </summary>
+        </member>
+        <member name="M:NativeLibraryLoader.PathResolver.EnumeratePossibleLibraryLoadTargets(System.String)">
+            <summary>
+            Returns an enumerator which yields possible library load targets, in priority order.
+            </summary>
+            <param name="name">The name of the library to load.</param>
+            <returns>An enumerator yielding load targets.</returns>
+        </member>
+        <member name="P:NativeLibraryLoader.PathResolver.Default">
+            <summary>
+            Gets a default path resolver.
+            </summary>
+        </member>
+        <member name="T:NativeLibraryLoader.DefaultPathResolver">
+            <summary>
+            Enumerates possible library load targets. This default implementation returns the following load targets:
+            First: The library contained in the applications base folder.
+            Second: The simple name, unchanged.
+            Third: The library as resolved via the default DependencyContext, in the default nuget package cache folder.
+            </summary>
+        </member>
+        <member name="M:NativeLibraryLoader.DefaultPathResolver.EnumeratePossibleLibraryLoadTargets(System.String)">
+            <summary>
+            Returns an enumerator which yields possible library load targets, in priority order.
+            </summary>
+            <param name="name">The name of the library to load.</param>
+            <returns>An enumerator yielding load targets.</returns>
+        </member>
+    </members>
+</doc>

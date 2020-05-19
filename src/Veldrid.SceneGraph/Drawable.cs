@@ -22,7 +22,10 @@ namespace Veldrid.SceneGraph
     public abstract class Drawable : Object, IDrawable
     {
         public string Name { get; set; } = string.Empty;
+
+        public Type VertexType => GetVertexType();
         
+
         protected bool _boundingSphereComputed = false;
         protected IBoundingSphere _boundingSphere = BoundingSphere.Create();
         
@@ -60,6 +63,8 @@ namespace Veldrid.SceneGraph
         protected Drawable()
         {
         }
+        
+        protected abstract Type GetVertexType();
         
         public void Draw(GraphicsDevice device, List<Tuple<uint, ResourceSet>> resourceSets, CommandList commandList)
         {

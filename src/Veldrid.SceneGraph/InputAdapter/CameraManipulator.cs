@@ -16,7 +16,7 @@
 
 using System;
 using System.Numerics;
-using Common.Logging;
+//using Common.Logging;
 
 namespace Veldrid.SceneGraph.InputAdapter
 {
@@ -26,11 +26,11 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         protected ICamera _camera;
 
-        private ILog _logger;
+        //private ILog _logger;
         
         protected CameraManipulator()
         {
-            _logger = LogManager.GetLogger<CameraManipulator>();
+            //_logger = LogManager.GetLogger<CameraManipulator>();
         }
 
         public void SetCamera(ICamera camera)
@@ -97,22 +97,22 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         protected virtual void HandleMouseMove()
         {
-            _logger.Debug(m => m("Move Event!"));
+            //_logger.Debug(m => m("Move Event!"));
         }
 
         protected virtual void HandleMouseButtonPushed()
         {
-            _logger.Debug(m => m("Button Pushed!"));
+            //_logger.Debug(m => m("Button Pushed!"));
         }
 
         protected virtual void HandleMouseButtonReleased()
         {
-            _logger.Debug(m => m("Button Released!"));
+            //_logger.Debug(m => m("Button Released!"));
         }
 
         protected virtual void HandleWheelDelta()
         {
-            _logger.Debug(m => m("Wheel Delta"));
+            //_logger.Debug(m => m("Wheel Delta"));
         }
 
         protected virtual bool PerformMovement()

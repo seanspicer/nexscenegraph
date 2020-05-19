@@ -14,10 +14,9 @@
 // limitations under the License.
 //
 
-using Common.Logging;
-using Common.Logging.Serilog;
 using Serilog;
 using SharpDX.Win32;
+using Veldrid.SceneGraph.Logging;
 
 namespace Examples.Common
 {
@@ -30,14 +29,14 @@ namespace Examples.Common
 
         private static void BuildLogger()
         {
-            Log.Logger = new LoggerConfiguration()
-                .Enrich.FromLogContext()
-                .MinimumLevel.Information()
-                .WriteTo.ColoredConsole(outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm::ss} [{Level}]: {Message}{NewLine}")
-                .CreateLogger();
-
-            // Assign to Common.Logging adapter.
-            LogManager.Adapter = new SerilogFactoryAdapter(Log.Logger);
+//            Log.Logger = new LoggerConfiguration()
+//                .Enrich.FromLogContext()
+//                .MinimumLevel.Information()
+//                .WriteTo.ColoredConsole(outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm::ss} [{Level}]: {Message}{NewLine}")
+//                .CreateLogger();
+//
+//            // Assign to Common.Logging adapter.
+//            LogManager.Adapter = new SerilogFactoryAdapter(Log.Logger);
             
         }
     }

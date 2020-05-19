@@ -75,5 +75,53 @@ namespace Veldrid.SceneGraph.Util
                             : "300.glsles";
         }
 
+        public static byte[] LoadBytecode(GraphicsBackend backend, string setName, ShaderStages stage)
+        {
+            string stageExt = stage == ShaderStages.Vertex ? "vert" : "frag";
+            string name = setName + "." + stageExt;
+
+            if (backend == GraphicsBackend.Vulkan || backend == GraphicsBackend.Direct3D11)
+            {
+                string bytecodeExtension = GetBytecodeExtension(backend);
+                string bytecodePath = AssetHelper.GetPath(Path.Combine("Shaders", name + bytecodeExtension));
+                if (File.Exists(bytecodePath))
+                {
+                    return File.ReadAllBytes(bytecodePath);
+                }
+            }
+
+            string extension = GetSourceExtension(backend);
+            string path = AssetHelper.GetPath(Path.Combine("Shaders.Generated", name + extension));
+            return File.ReadAllBytes(path);
+        }
+
+        private static string GetBytecodeExtension(GraphicsBackend backend)
+        {
+            switch (backend)
+            {
+                case GraphicsBackend.Direct3D11: return ".hlsl.bytes";
+                case GraphicsBackend.Vulkan: return ".spv";
+                case GraphicsBackend.OpenGL:
+                    throw new InvalidOperationException("OpenGL and OpenGLES do not support shader bytecode.");
+                default: throw new InvalidOperationException("Invalid Graphics backend: " + backend);
+            }
+        }
+
+        private static string GetSourceExtension(GraphicsBackend backend)
+        {
+            switch (backend)
+            {
+                case GraphicsBackend.Direct3D11: return ".hlsl";
+                case GraphicsBackend.Vulkan: return ".450.glsl";
+                case GraphicsBackend.OpenGL:
+                    return ".330.glsl";
+                case GraphicsBackend.OpenGLES:
+                    return ".300.glsles";
+                case GraphicsBackend.Metal:
+                    return ".metallib";
+                default: throw new InvalidOperationException("Invalid Graphics backend: " + backend);
+            }
+        }
+        
     }
 }

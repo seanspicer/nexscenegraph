@@ -19,8 +19,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
 using Examples.Common;
-using MultiTexturedCube.Shaders;
-using ShaderGen;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
@@ -33,11 +31,8 @@ namespace MultiTexturedCube
     {
         public const uint SizeInBytes = 36;
 
-        [PositionSemantic] 
         public Vector3 Position;
-        [TextureCoordinateSemantic]
         public Vector2 TexCoord;
-        [ColorSemantic]
         public Vector4 Color;
         
         public VertexPositionTexture(Vector3 position, Vector2 texCoord, Vector4 color)
@@ -112,7 +107,7 @@ namespace MultiTexturedCube
                 new VertexPositionTexture(new Vector3(-0.5f, -0.5f, +0.5f), new Vector2(0, 1), new Vector4(1, 0, 1, 1)),
             };
             
-            ushort[] indices =
+            uint[] indices =
             {
                 0,1,2, 0,2,3,
                 4,5,6, 4,6,7,
@@ -127,9 +122,9 @@ namespace MultiTexturedCube
             geometry.IndexData = indices;
 
             geometry.VertexLayout = new VertexLayoutDescription(
-                new VertexElementDescription("Position", VertexElementSemantic.Position, VertexElementFormat.Float3),
+                new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
                 new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
-                new VertexElementDescription("Color", VertexElementSemantic.Color, VertexElementFormat.Float4));
+                new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4));
 
             var pSet = DrawElements<VertexPositionTexture>.Create(
                 geometry, 
@@ -142,20 +137,12 @@ namespace MultiTexturedCube
             
             geometry.PrimitiveSets.Add(pSet);
 
-            geometry.PipelineState.VertexShaderDescription = new ShaderDescription(
-                ShaderStages.Vertex,
-                ShaderTools.LoadShaderBytes(DisplaySettings.Instance.GraphicsBackend,
-                    typeof(Program).Assembly,
-                    "MultiTexturedCubeShader", ShaderStages.Vertex), 
-                "VS");
+            var vsBytes = ShaderTools.LoadBytecode(GraphicsBackend.Vulkan, "MultiTexturedCubeShader", ShaderStages.Vertex);
+            var fsBytes = ShaderTools.LoadBytecode(GraphicsBackend.Vulkan, "MultiTexturedCubeShader", ShaderStages.Fragment);
             
-            geometry.PipelineState.FragmentShaderDescription = new ShaderDescription(
-                ShaderStages.Fragment, 
-                ShaderTools.LoadShaderBytes(DisplaySettings.Instance.GraphicsBackend,
-                    typeof(Program).Assembly,
-                    "MultiTexturedCubeShader", ShaderStages.Fragment),
-                "FS");
-            
+            geometry.PipelineState.VertexShaderDescription = new ShaderDescription(ShaderStages.Vertex, vsBytes, "main", true);
+            geometry.PipelineState.FragmentShaderDescription = new ShaderDescription(ShaderStages.Fragment, fsBytes, "main", true);
+
             geometry.PipelineState.AddTexture(
                 Texture2D.Create(Texture2D.ImageFormatType.Png,
                     ShaderTools.ReadEmbeddedAssetBytes(
