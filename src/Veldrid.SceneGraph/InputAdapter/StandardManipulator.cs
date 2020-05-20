@@ -140,21 +140,22 @@ namespace Veldrid.SceneGraph.InputAdapter
         {
         }
 
-        public override void Home(IInputStateSnapshot ea, IUiActionAdapter aa)
+        public override void Home(IUiActionAdapter aa)
         {
             if (GetAutoComputeHomePosition())
             {
                 if (aa is Viewer.IView view)
                 {
-                    ComputeHomePosition(view.Camera , 
-                        ( _flags & UserInteractionFlags.ComputeHomeUsingBoundingBox ) != 0 );
+                    ComputeHomePosition(view.Camera,
+                        (_flags & UserInteractionFlags.ComputeHomeUsingBoundingBox) != 0);
                 }
-                
-                SetTransformation( _homeEye, _homeCenter, _homeUp );
-
-                aa.RequestRedraw();
-                aa.RequestContinuousUpdate( false );
             }
+
+            SetTransformation( _homeEye, _homeCenter, _homeUp );
+
+            aa.RequestRedraw(); 
+            aa.RequestContinuousUpdate( false );
+            
         }
     }
 }

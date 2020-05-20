@@ -90,11 +90,7 @@ namespace Veldrid.SceneGraph.Viewer
 
                 if (resetPosition)
                 {
-                    _cameraManipulator.Home(
-                        InputStateSnapshot.CreateEmpty(
-                            (int)DisplaySettings.Instance.ScreenWidth,
-                            (int)DisplaySettings.Instance.ScreenHeight), 
-                        this);
+                    _cameraManipulator.Home(this);
                 }
             }
         }
@@ -128,7 +124,7 @@ namespace Veldrid.SceneGraph.Viewer
             if (null != CameraManipulator)
             {
                 CameraManipulator.SetNode(sceneData);
-                CameraManipulator.Home(InputStateSnapshot.CreateEmpty(), this);
+                CameraManipulator.Home(this);
             }
 
             if (null != Camera)

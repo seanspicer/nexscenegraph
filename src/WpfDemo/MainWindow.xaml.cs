@@ -24,10 +24,18 @@ namespace WpfDemo
     /// </summary>
     public partial class MainWindow
     {
+        private MainWindowViewModel _viewModel;
+        
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new MainWindowViewModel();
+            _viewModel = new MainWindowViewModel();
+            DataContext = _viewModel;
+        }
+
+        private void ChangeCameraButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            _viewModel.ChangeCamera(VSGElement.GetUiActionAdapter(), VSGElement.GetCamera());
         }
     }
 }

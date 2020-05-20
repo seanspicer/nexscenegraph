@@ -223,11 +223,7 @@ namespace Veldrid.SceneGraph.Viewer
 
         public void Home()
         {
-            CameraManipulator?.Home(
-                InputStateSnapshot.CreateEmpty(
-                    (int)DisplaySettings.Instance.ScreenWidth,
-                    (int)DisplaySettings.Instance.ScreenHeight), 
-                this);
+            CameraManipulator?.Home(this);
         }
         
         

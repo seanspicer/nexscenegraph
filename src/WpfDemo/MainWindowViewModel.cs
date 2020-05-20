@@ -23,6 +23,7 @@ using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Shaders.Standard;
+using Veldrid.SceneGraph.Util;
 using WpfDemo.Annotations;
 
 namespace WpfDemo
@@ -80,6 +81,11 @@ namespace WpfDemo
             EventHandler = new WpfDemo.PickEventHandler();
             ClearColor = RgbaFloat.Blue;
             FsaaCount = TextureSampleCount.Count16;
+            
+            CameraManipulator.SetHomePosition(
+                new Vector3(0, 0, 20),
+                Vector3.Zero,
+                Vector3.UnitX);
         }
         
         static IGeode CreateCube()
@@ -170,6 +176,49 @@ namespace WpfDemo
             pso.ShaderSet = Vertex3Color4Shader.Instance.ShaderSet;
 
             return pso;
+        }
+
+        private int _camPosIdx = 0;
+        public void ChangeCamera(IUiActionAdapter uiActionAdapter, ICamera camera)
+        {
+            Vector3 eye;
+            Vector3 center;
+            Vector3 up;
+
+            var lookDistance = 1f;
+            if (CameraManipulator is TrackballManipulator trackballManipulator)
+            {
+                lookDistance = trackballManipulator.Distance;
+            }
+            
+            camera.ProjectionMatrix.GetLookAt(out eye, out center, out up, lookDistance);
+
+            var dist = (center - eye).Length();
+            
+            switch (_camPosIdx)
+            {
+                case 0:
+                    eye = new Vector3(dist, 0, 0);
+                    center = Vector3.Zero;
+                    up = new Vector3(0, 0, 1);
+                    break;
+                case 1:
+                    eye = new Vector3(0, dist, 0);
+                    center = Vector3.Zero;
+                    up = new Vector3(0, 0, 1);
+                    break;
+                case 2:
+                    eye = new Vector3(0, 0, dist);
+                    center = Vector3.Zero;
+                    up = new Vector3(1, 0, 0);
+                    break;
+            }
+            
+            CameraManipulator.SetHomePosition(eye, center, up);
+            CameraManipulator.Home(uiActionAdapter);
+
+            _camPosIdx++;
+            if (_camPosIdx > 2) _camPosIdx = 0;
         }
     }
 }

@@ -40,7 +40,7 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         bool GetAutoComputeHomePosition();
 
-        void Home(IInputStateSnapshot ea, IUiActionAdapter aa);
+        void Home(IUiActionAdapter aa);
     }
     
     public abstract class CameraManipulator : InputEventHandler, ICameraManipulator
@@ -208,6 +208,6 @@ namespace Veldrid.SceneGraph.InputAdapter
             return _autoComputeHomePosition;
         }
 
-        public virtual void Home(IInputStateSnapshot ea, IUiActionAdapter aa) {}
+        public virtual void Home(IUiActionAdapter aa) {}
     }
 }

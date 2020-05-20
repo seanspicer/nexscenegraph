@@ -8,15 +8,24 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Button
+            x:Name="ChangeCameraButton"
+            Grid.Row="0" 
+            Content="Change Camera"
+            Click="ChangeCameraButton_OnClick"/>
         <wpf1:VeldridSceneGraphControl 
             x:Name="VSGElement"
+            Grid.Row="1"
             SceneRoot="{Binding SceneRoot}"
             CameraManipulator="{Binding CameraManipulator}"
             EventHandler="{Binding EventHandler}"
             ClearColor="{Binding ClearColor}"
             FsaaCount="{Binding FsaaCount}">
         </wpf1:VeldridSceneGraphControl>
-        
         <Canvas>
         
              <TextBlock Canvas.Left="9" Canvas.Top="8" 
