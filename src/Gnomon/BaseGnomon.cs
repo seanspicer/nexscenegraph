@@ -54,15 +54,15 @@ namespace Gnomon
 
         private void setUpSubGraph()
         {
-
+            var len = 10l;
             var n = CreateCylinder(new Vector3(0, 0, 0), 
-                new Vector3(0, 1, 0),
+                new Vector3(0, len, 0),
                 Color.FromScRgb(1, 0, .8f, 0f));
             var e = CreateCylinder(new Vector3(0, 0, 0), 
-                new Vector3(1, 0, 0),
+                new Vector3(len, 0, 0),
                 Color.FromScRgb(1, .8f, 0f, 0f));
             var u = CreateCylinder(new Vector3(0, 0, 0), 
-                new Vector3(0, 0, 1),
+                new Vector3(0, 0, len),
                 Color.FromScRgb(1, 0f, 0f, .8f));
 
             var translate = MatrixTransform.Create();
