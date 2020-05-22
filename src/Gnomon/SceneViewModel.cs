@@ -52,8 +52,8 @@ namespace Gnomon
             FsaaCount = TextureSampleCount.Count16;
             
             GnomonRoot = Group.Create();
-            // var gnomon = BaseGnomon.Build();
-            // GnomonRoot.AddChild(gnomon);
+            var gnomon = BaseGnomon.Build();
+            GnomonRoot.AddChild(gnomon);
             
             // EventHandler = new ViewMatrixEventHandler(this);
         }

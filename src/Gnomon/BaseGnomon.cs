@@ -27,9 +27,16 @@ namespace Gnomon
     {
         
     }
+    
     public class BaseGnomon : Geode, IBaseGnomon
     {
         
+        public static IGeode Build()
+        {
+            var na =  new SimpleGnomon();
+            na.Init();
+            return na;
+        }
     }
     
     public class SimpleGnomon : BaseGnomon

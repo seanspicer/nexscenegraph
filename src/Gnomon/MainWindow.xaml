@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:Gnomon"
         xmlns:wpf="clr-namespace:Veldrid.SceneGraph.Wpf;assembly=Veldrid.SceneGraph.Wpf"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="350" Width="525"
+        Activated="window_Activated">
     <Grid>
         <wpf:VeldridSceneGraphControl 
             x:Name="VSGElement"
