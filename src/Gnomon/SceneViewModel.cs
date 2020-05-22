@@ -55,7 +55,7 @@ namespace Gnomon
             var gnomon = BaseGnomon.Build();
             GnomonRoot.AddChild(gnomon);
             
-            // EventHandler = new ViewMatrixEventHandler(this);
+            EventHandler = new ViewMatrixEventHandler(this);
         }
     }
 }

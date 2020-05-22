@@ -52,6 +52,7 @@
         </ApplicationDefinition>
         <Compile Include="BaseGnomon.cs" />
         <Compile Include="SceneViewModel.cs" />
+        <Compile Include="ViewMatrixEventHandler.cs" />
         <Page Include="MainWindow.xaml">
             <Generator>MSBuild:Compile</Generator>
             <SubType>Designer</SubType>
