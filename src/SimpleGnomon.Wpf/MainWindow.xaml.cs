@@ -17,7 +17,7 @@ namespace SimpleGnomon.Wpf
             DataContext = new GnomonSceneViewModel();
         }
 
-        void window_Activated(object sender, EventArgs e)
+        private void window_Activated(object sender, EventArgs e)
         {
             var vm = DataContext as GnomonSceneViewModel;
             vm.PropertyChanged += new PropertyChangedEventHandler(VmPropertyHandler);
