@@ -17,7 +17,7 @@
             FsaaCount = "{Binding FsaaCount}">
         </wpf:VeldridSceneGraphControl>
         
-        <Border Height="250" Width="250"
+        <Border Height="100" Width="100"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Bottom">
             <wpf:VeldridSceneGraphControl 

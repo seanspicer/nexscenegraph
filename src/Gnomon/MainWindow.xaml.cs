@@ -21,7 +21,7 @@ namespace Gnomon
             var vm = DataContext as SceneViewModel;
             vm.PropertyChanged += new PropertyChangedEventHandler(VmPropertyHandler);
             var camera = VsgElementGnomon.GetCamera();
-            _gnomonStepBack = Matrix4x4.CreateTranslation(0, 0, -10.0f);
+            _gnomonStepBack = Matrix4x4.CreateTranslation(0, 0, -25.0f);
             camera.SetViewMatrix(_gnomonStepBack);
         }
         private void VmPropertyHandler(object sender, PropertyChangedEventArgs e)
