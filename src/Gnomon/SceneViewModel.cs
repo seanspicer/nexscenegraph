@@ -45,6 +45,18 @@ namespace Gnomon
             }
         }
         
+
+        private ICameraManipulator _gnomonCameraManipulator;
+
+        public ICameraManipulator GnomonCameraManipulator
+        {
+            get => _gnomonCameraManipulator;
+            set
+            {
+                _gnomonCameraManipulator = value;
+                OnPropertyChanged("_gnomonCameraManipulator");
+            }
+        }
         internal SceneViewModel()
         {
             SceneRoot = Examples.Common.PathExampleScene.Build();
@@ -56,6 +68,7 @@ namespace Gnomon
             GnomonRoot.AddChild(gnomon);
             
             EventHandler = new ViewMatrixEventHandler(this);
+            GnomonCameraManipulator = TrackballManipulator.Create();
         }
     }
 }

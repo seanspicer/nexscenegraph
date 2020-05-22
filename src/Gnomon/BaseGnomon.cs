@@ -54,7 +54,7 @@ namespace Gnomon
 
         private void setUpSubGraph()
         {
-            var len = 10l;
+            var len = 10;
             var n = CreateCylinder(new Vector3(0, 0, 0), 
                 new Vector3(0, len, 0),
                 Color.FromScRgb(1, 0, .8f, 0f));
