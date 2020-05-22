@@ -1,9 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Numerics;
-using Examples.Common.Wpf;
 
-namespace SceneInScene.Wpf
+namespace SimpleGnomon.Wpf
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -15,12 +14,12 @@ namespace SceneInScene.Wpf
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new SceneInSceneViewModel();
+            DataContext = new GnomonSceneViewModel();
         }
 
         void window_Activated(object sender, EventArgs e)
         {
-            var vm = DataContext as SceneInSceneViewModel;
+            var vm = DataContext as GnomonSceneViewModel;
             vm.PropertyChanged += new PropertyChangedEventHandler(VmPropertyHandler);
             var camera = VsgElementGnomon.GetCamera();
             _gnomonStepBack = Matrix4x4.CreateTranslation(0, 0, -10.0f);
@@ -31,7 +30,7 @@ namespace SceneInScene.Wpf
         {
             if (e.PropertyName == "MainViewMatrix")
             {
-                var vm = DataContext as SceneInSceneViewModel;
+                var vm = DataContext as GnomonSceneViewModel;
                 Matrix4x4 matrix;
                 var ok = Matrix4x4.Decompose(vm.MainViewMatrix, out var scale, out var rotation, out var translation);
                 if (ok)

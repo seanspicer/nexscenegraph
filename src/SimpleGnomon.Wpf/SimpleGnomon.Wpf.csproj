@@ -4,10 +4,10 @@
     <PropertyGroup>
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-        <ProjectGuid>{B136CA06-C7A3-490E-8843-9870F6C223EA}</ProjectGuid>
+        <ProjectGuid>{BD34CDC3-F829-4097-AED1-E5DA1C874C0A}</ProjectGuid>
         <OutputType>WinExe</OutputType>
-        <RootNamespace>SceneInScene.Wpf</RootNamespace>
-        <AssemblyName>SceneInScene.Wpf</AssemblyName>
+        <RootNamespace>SimpleGnomon.Wpf</RootNamespace>
+        <AssemblyName>SimpleGnomon.Wpf</AssemblyName>
         <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
         <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -38,6 +38,7 @@
         <Reference Include="System" />
         <Reference Include="System.Core" />
         <Reference Include="System.Data" />
+        <Reference Include="System.Numerics" />
         <Reference Include="System.Xml" />
         <Reference Include="System.Xaml">
             <RequiredTargetFramework>4.0</RequiredTargetFramework>
@@ -61,13 +62,13 @@
             <SubType>Code</SubType>
         </Compile>
         <Compile Include="Gnomon.cs" />
+        <Compile Include="GnomonSceneViewModel.cs" />
         <Compile Include="MainWindow.xaml.cs">
             <DependentUpon>MainWindow.xaml</DependentUpon>
             <SubType>Code</SubType>
         </Compile>
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="SceneInSceneViewModel.cs" />
         <Compile Include="Properties\AssemblyInfo.cs">
             <SubType>Code</SubType>
         </Compile>
@@ -101,6 +102,9 @@
         <Project>{a088ad02-92c8-48ca-877c-ef2a749cb6fd}</Project>
         <Name>Veldrid.SceneGraph</Name>
       </ProjectReference>
+    </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="Veldrid.SPIRV" Version="1.0.13" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

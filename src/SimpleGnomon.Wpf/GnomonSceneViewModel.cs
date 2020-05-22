@@ -16,14 +16,13 @@
 
 using System.Numerics;
 using Examples.Common.Wpf;
-using ImageFrac.Common.UserControls.Graphics._3D;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
 
-namespace SceneInScene.Wpf
+namespace SimpleGnomon.Wpf
 {
-    public class SceneInSceneViewModel : ViewModelBase
+    public class GnomonSceneViewModel : ViewModelBase
     {
         
         // <Gnomons>
@@ -50,7 +49,7 @@ namespace SceneInScene.Wpf
         }
         // </Gnomons>
         
-        internal SceneInSceneViewModel() : base()
+        internal GnomonSceneViewModel() : base()
         {
             SceneRoot = Examples.Common.PathExampleScene.Build();
             CameraManipulator = TrackballManipulator.Create();

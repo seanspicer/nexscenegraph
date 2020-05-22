@@ -21,7 +21,7 @@ using Veldrid.SceneGraph.Util.Shape;
 using Veldrid.SceneGraph.VertexTypes;
 using MatrixTransform = Veldrid.SceneGraph.MatrixTransform;
 
-namespace ImageFrac.Common.UserControls.Graphics._3D
+namespace SimpleGnomon.Wpf
 {
     public interface IGnomon : IGeode
     {

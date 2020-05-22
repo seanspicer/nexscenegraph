@@ -1,13 +1,13 @@
 
 using Veldrid.SceneGraph.InputAdapter;
 
-namespace SceneInScene.Wpf
+namespace SimpleGnomon.Wpf
 {
     public class ViewMatrixEventHandler : InputEventHandler
     {
-        private readonly SceneInSceneViewModel _viewModel;
+        private readonly GnomonSceneViewModel _viewModel;
         
-        public ViewMatrixEventHandler(SceneInSceneViewModel viewModel)
+        public ViewMatrixEventHandler(GnomonSceneViewModel viewModel)
         {
             _viewModel = viewModel;
         }

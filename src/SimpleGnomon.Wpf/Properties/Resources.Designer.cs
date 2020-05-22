@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace SceneInScene.Wpf.Properties
+namespace SimpleGnomon.Wpf.Properties
 {
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
@@ -45,7 +45,7 @@ namespace SceneInScene.Wpf.Properties
                 if ((resourceMan == null))
                 {
                     global::System.Resources.ResourceManager temp =
-                        new global::System.Resources.ResourceManager("SceneInScene.Wpf.Properties.Resources",
+                        new global::System.Resources.ResourceManager("SimpleGnomon.Wpf.Properties.Resources",
                             typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
