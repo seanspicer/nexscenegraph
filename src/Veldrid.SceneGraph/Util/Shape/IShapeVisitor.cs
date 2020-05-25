@@ -24,6 +24,8 @@ namespace Veldrid.SceneGraph.Util.Shape
 
         void Apply(ISphere sphere);
 
+        void Apply(ICone cone);
+
         void Apply(IPath path);
     }
 }

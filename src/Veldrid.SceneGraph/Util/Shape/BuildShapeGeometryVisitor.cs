@@ -77,6 +77,12 @@ namespace Veldrid.SceneGraph.Util.Shape
             builder.Build(_geometry, _tessellationHints, _colors, sphere);
         }
 
+        public void Apply(ICone cone)
+        {
+            var builder = new BuildConeGeometry<T>();
+            builder.Build(_geometry, _tessellationHints, _colors, cone);
+        }
+
         public void Apply(IPath path)
         {
             var builder = new PathGeometryBuilder<T>();

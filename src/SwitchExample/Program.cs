@@ -21,7 +21,10 @@ using Examples.Common;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
+using Veldrid.SceneGraph.PipelineStates;
 using Veldrid.SceneGraph.Shaders.Standard;
+using Veldrid.SceneGraph.Util.Shape;
+using Veldrid.SceneGraph.VertexTypes;
 using Veldrid.SceneGraph.Viewer;
 
 namespace SwitchExample
@@ -57,12 +60,13 @@ namespace SwitchExample
 
             var root = Switch.Create();
             var cube = CreateCube();
+            var cone = CreateCone();
 
             var leftXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(-5, 0, 0));
             leftXForm.AddChild(cube);
 
             var centerXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(0, 0, 0));
-            centerXForm.AddChild(cube);
+            centerXForm.AddChild(cone);
             
             var rightXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(5, 0, 0));
             rightXForm.AddChild(cube);
@@ -88,25 +92,25 @@ namespace SwitchExample
             // TODO - make this a color index cube
             Vector3[] cubeVertices =
             {
-                new Vector3( 1.0f, 1.0f,-1.0f), // (0) Back top right  
-                new Vector3(-1.0f, 1.0f,-1.0f), // (1) Back top left
-                new Vector3( 1.0f, 1.0f, 1.0f), // (2) Front top right
-                new Vector3(-1.0f, 1.0f, 1.0f), // (3) Front top left
-                new Vector3( 1.0f,-1.0f,-1.0f), // (4) Back bottom right
-                new Vector3(-1.0f,-1.0f,-1.0f), // (5) Back bottom left
-                new Vector3( 1.0f,-1.0f, 1.0f), // (6) Front bottom right
-                new Vector3(-1.0f,-1.0f, 1.0f)  // (7) Front bottom left
+                new Vector3( 0.5f, 0.5f,-0.5f), // (0) Back top right  
+                new Vector3(-0.5f, 0.5f,-0.5f), // (1) Back top left
+                new Vector3( 0.5f, 0.5f, 0.5f), // (2) Front top right
+                new Vector3(-0.5f, 0.5f, 0.5f), // (3) Front top left
+                new Vector3( 0.5f,-0.5f,-0.5f), // (4) Back bottom right
+                new Vector3(-0.5f,-0.5f,-0.5f), // (5) Back bottom left
+                new Vector3( 0.5f,-0.5f, 0.5f), // (6) Front bottom right
+                new Vector3(-0.5f,-0.5f, 0.5f)  // (7) Front bottom left
             };
 
             Vector4[] faceColors =
             {
-                new Vector4(1.0f, 0.0f, 0.0f, 1.0f),
-                new Vector4(1.0f, 1.0f, 0.0f, 1.0f),
-                new Vector4(0.0f, 1.0f, 0.0f, 1.0f),
-                new Vector4(0.0f, 1.0f, 1.0f, 1.0f),
-                new Vector4(0.0f, 0.0f, 1.0f, 1.0f),
-                new Vector4(1.0f, 0.0f, 1.0f, 1.0f),
-                new Vector4(0.1f, 0.1f, 0.1f, 1.0f) 
+                new Vector4(0.5f, 0.0f, 0.0f, 0.5f),
+                new Vector4(0.5f, 0.5f, 0.0f, 0.5f),
+                new Vector4(0.0f, 0.5f, 0.0f, 0.5f),
+                new Vector4(0.0f, 0.5f, 0.5f, 0.5f),
+                new Vector4(0.0f, 0.0f, 0.5f, 0.5f),
+                new Vector4(0.5f, 0.0f, 0.5f, 0.5f),
+                new Vector4(0.1f, 0.1f, 0.1f, 0.5f) 
             };
 
             uint[] cubeIndices   = {3, 2, 7, 6, 4, 2, 0, 3, 1, 7, 5, 4, 1, 0};
@@ -160,6 +164,38 @@ namespace SwitchExample
             geode.AddDrawable(geometry);
 
             return geode;
+        }
+
+        static IGeode CreateCone()
+        {
+            var coneShape = Cone.Create(-0.5f*Vector3.UnitZ, 0.5f, 1.0f);
+            var coneHints = TessellationHints.Create();
+            coneHints.SetDetailRatio(1.6f);
+            
+            var coneDrawable =
+                ShapeDrawable<Position3Texture2Color3Normal3>.Create(
+                    coneShape,
+                    coneHints,
+                    new Vector3[] {new Vector3(1.0f, 0.0f, 0.0f)});
+            
+            var coneMaterial = PhongMaterial.Create(
+                PhongMaterialParameters.Create(
+                    new Vector3(0.0f, 0.0f, 1.0f),
+                    new Vector3(0.0f, 0.0f, 1.0f),
+                    new Vector3(0.0f, 0.0f, 0.0f),
+                    5f),
+                PhongHeadlight.Create(PhongLightParameters.Create(
+                    new Vector3(0.5f, 0.5f, 0.5f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    1f,
+                    0)),
+                true);
+            
+            var cone = Geode.Create();
+            cone.PipelineState = coneMaterial.CreatePipelineState();
+            cone.AddDrawable(coneDrawable);
+            return cone;
         }
     }
 }
