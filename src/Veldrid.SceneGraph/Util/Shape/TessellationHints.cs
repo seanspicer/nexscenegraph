@@ -40,6 +40,7 @@ namespace Veldrid.SceneGraph.Util.Shape
         bool CreateFrontFace { get; set; }
         bool CreateBackFace { get; set; }
         bool CreateBody { get; set; }
+        bool CreateTop { get; set; }
         bool CreateBottom { get; set; }
         bool CreateEndCaps { get; set; }
         float DetailRatio { get; }
@@ -56,6 +57,7 @@ namespace Veldrid.SceneGraph.Util.Shape
         public bool CreateFrontFace { get; set; }
         public bool CreateBackFace { get; set; }
         public bool CreateBody { get; set; }
+        public bool CreateTop { get; set; }
         public bool CreateBottom { get; set; }
         public bool CreateEndCaps { get; set; }
         public float DetailRatio { get; private set; }
@@ -74,6 +76,7 @@ namespace Veldrid.SceneGraph.Util.Shape
             CreateBackFace = true;
             CreateEndCaps = true;
             CreateBody = true;
+            CreateTop = true;
             CreateBottom = true;
             NormalsType = NormalsType.PerVertex;
             ColorsType = ColorsType.ColorOverall;

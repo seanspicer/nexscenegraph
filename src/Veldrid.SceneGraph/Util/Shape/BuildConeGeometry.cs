@@ -73,7 +73,7 @@ namespace Veldrid.SceneGraph.Util.Shape
             var hDelta = (cone.Height)/(float)numRows;
             var rDelta = cone.Radius/(float)numRows;
 
-            var topz=cone.Center.Z + cone.Height;
+            var topz=cone.Center.Z + cone.Height/2.0f;
             var topr=0.0f;
             var topv=1.0f;
             var basez = topz-hDelta;
@@ -125,7 +125,7 @@ namespace Veldrid.SceneGraph.Util.Shape
 
                     angle = (float) System.Math.PI*2.0f;
                     texCoord = 1.0f;
-                    basez = cone.Center.Z;
+                    basez = cone.Center.Z-cone.Height/2.0f;
 
                     Normal3f(0.0f,0.0f,-1.0f);
                     TexCoord2f(0.5f,0.5f);

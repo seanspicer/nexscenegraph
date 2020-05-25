@@ -61,6 +61,7 @@ namespace SwitchExample
             var root = Switch.Create();
             var cube = CreateCube();
             var cone = CreateCone();
+            var cyl = CreateCylinder();
 
             var leftXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(-5, 0, 0));
             leftXForm.AddChild(cube);
@@ -69,7 +70,7 @@ namespace SwitchExample
             centerXForm.AddChild(cone);
             
             var rightXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(5, 0, 0));
-            rightXForm.AddChild(cube);
+            rightXForm.AddChild(cyl);
             
             root.AddChild(leftXForm, true);
             root.AddChild(centerXForm, true);
@@ -168,7 +169,7 @@ namespace SwitchExample
 
         static IGeode CreateCone()
         {
-            var coneShape = Cone.Create(-0.5f*Vector3.UnitZ, 0.5f, 1.0f);
+            var coneShape = Cone.Create(Vector3.Zero, 0.5f, 1.0f);
             var coneHints = TessellationHints.Create();
             coneHints.SetDetailRatio(1.6f);
             
@@ -196,6 +197,39 @@ namespace SwitchExample
             cone.PipelineState = coneMaterial.CreatePipelineState();
             cone.AddDrawable(coneDrawable);
             return cone;
+        }
+        
+        static IGeode CreateCylinder()
+        {
+            var cylinderShape = Cylinder.Create(Vector3.Zero, 0.5f, 1.0f);
+            var cylinderHints = TessellationHints.Create();
+            cylinderHints.CreateBackFace = false;
+            cylinderHints.SetDetailRatio(1.6f);
+            
+            var cylinderDrawable =
+                ShapeDrawable<Position3Texture2Color3Normal3>.Create(
+                    cylinderShape,
+                    cylinderHints,
+                    new Vector3[] {new Vector3(1.0f, 0.0f, 0.0f)});
+            
+            var cylinderMaterial = PhongMaterial.Create(
+                PhongMaterialParameters.Create(
+                    new Vector3(0.0f, 1.0f, 0.0f),
+                    new Vector3(0.0f, 1.0f, 0.0f),
+                    new Vector3(0.0f, 0.0f, 0.0f),
+                    5f),
+                PhongHeadlight.Create(PhongLightParameters.Create(
+                    new Vector3(0.5f, 0.5f, 0.5f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    1f,
+                    0)),
+                true);
+            
+            var cylinder = Geode.Create();
+            cylinder.PipelineState = cylinderMaterial.CreatePipelineState();
+            cylinder.AddDrawable(cylinderDrawable);
+            return cylinder;
         }
     }
 }

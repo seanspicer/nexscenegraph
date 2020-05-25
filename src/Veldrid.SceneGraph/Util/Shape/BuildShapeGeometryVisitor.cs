@@ -82,6 +82,12 @@ namespace Veldrid.SceneGraph.Util.Shape
             var builder = new BuildConeGeometry<T>();
             builder.Build(_geometry, _tessellationHints, _colors, cone);
         }
+        
+        public void Apply(ICylinder cylinder)
+        {
+            var builder = new BuildCylinderGeometry<T>();
+            builder.Build(_geometry, _tessellationHints, _colors, cylinder);
+        }
 
         public void Apply(IPath path)
         {

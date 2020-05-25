@@ -26,6 +26,8 @@ namespace Veldrid.SceneGraph.Util.Shape
 
         void Apply(ICone cone);
 
+        void Apply(ICylinder cylinder);
+
         void Apply(IPath path);
     }
 }
