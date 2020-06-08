@@ -112,7 +112,7 @@ namespace Veldrid.SceneGraph.Wpf
         protected override void OnMouseEnter(MouseEventArgs e)
         {
             base.OnMouseEnter(e);
-            Focus();
+            //Focus();
             ShouldHandleKeyEvents = true;
         }
 
