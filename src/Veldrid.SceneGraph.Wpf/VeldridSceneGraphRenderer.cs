@@ -82,7 +82,11 @@ namespace Veldrid.SceneGraph.Wpf
                 _fsaaCount = value;
                 if (null != _graphicsDevice)
                 {
-                    _sceneContext.SetMainSceneSampleCount(_fsaaCount, _graphicsDevice, (uint)DisplaySettings.Instance.ScreenWidth, (uint)DisplaySettings.Instance.ScreenHeight);
+                    _sceneContext.SetMainSceneSampleCount(
+                        _fsaaCount, 
+                        _graphicsDevice, 
+                        (uint)DisplaySettings.Instance(View).ScreenWidth, 
+                        (uint)DisplaySettings.Instance(View).ScreenHeight);
                 }
                 
             }
@@ -194,9 +198,14 @@ namespace Veldrid.SceneGraph.Wpf
             // TODO - probably should dispose the graphics device here, need to figure out how to do it cleanly.
         }
 
-        public void Initialize()
+        public void Initialize(uint width, uint height)
         {
-            var view = Veldrid.SceneGraph.Viewer.View.Create();
+            var view = Veldrid.SceneGraph.Viewer.View.Create(width, height, 1000.0f);
+            
+            DisplaySettings.Instance(view).SetScreenDistance(1000.0f);
+            DisplaySettings.Instance(view).SetScreenWidth(width);
+            DisplaySettings.Instance(view).SetScreenHeight(height);
+            
             view.InputEvents = ViewerInputEvents;
             
             _sceneContext = new SceneContext(FsaaCount);
@@ -244,18 +253,20 @@ namespace Veldrid.SceneGraph.Wpf
             double dpiScale = 1.0;  // TODO: Check this is okay
             uint width = (uint)(args.RenderSize.Width < 0 ? 0 : Math.Ceiling(args.RenderSize.Width * dpiScale));
             uint height = (uint)(args.RenderSize.Height < 0 ? 0 : Math.Ceiling(args.RenderSize.Height * dpiScale));
-
-            DisplaySettings.Instance.SetScreenWidth(width);
-            DisplaySettings.Instance.SetScreenHeight(height);
-
+            
             //_graphicsDevice.ResizeMainWindow((uint) width, (uint) height);
             
             if (!_initialized)
             {
-                DisplaySettings.Instance.SetScreenDistance(1000.0f);
-                Initialize();
+                Initialize(width, height);
             }
-
+            else
+            {
+                DisplaySettings.Instance(View).SetScreenWidth(width);
+                DisplaySettings.Instance(View).SetScreenHeight(height);
+            }
+            
+            
             //_sceneContext.RecreateWindowSizedResources(_graphicsDevice, _factory, width, height);
             
             var mainColorDesc = TextureDescription.Texture2D(

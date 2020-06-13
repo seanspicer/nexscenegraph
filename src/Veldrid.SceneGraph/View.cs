@@ -27,10 +27,10 @@ namespace Veldrid.SceneGraph
     {
         public ICamera Camera { get; private set; }
 
-        protected View()
+        protected View(uint width, uint height, float distance)
         {
-            Camera = PerspectiveCamera.Create();;
-            Camera.SetViewport(0, 0, (int)DisplaySettings.Instance.ScreenWidth, (int)DisplaySettings.Instance.ScreenHeight);
+            Camera = PerspectiveCamera.Create(width, height, distance);
+            Camera.SetViewport(0, 0, (int)width, (int)height);
             Camera.SetView(this);
         }
 
@@ -43,7 +43,7 @@ namespace Veldrid.SceneGraph
             }
             else
             {
-                newCamera.SetViewport(0, 0, (int)DisplaySettings.Instance.ScreenWidth, (int)DisplaySettings.Instance.ScreenHeight);
+                newCamera.SetViewport(0, 0, (int)DisplaySettings.Instance(this).ScreenWidth, (int)DisplaySettings.Instance(this).ScreenHeight);
             }
             
             newCamera.SetView(this);

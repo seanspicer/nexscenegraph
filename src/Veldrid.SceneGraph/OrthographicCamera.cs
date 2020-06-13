@@ -22,18 +22,14 @@ namespace Veldrid.SceneGraph
 {
     public class OrthographicCamera : Camera, IOrthographicCamera
     {
-        public new static IOrthographicCamera Create()
+        public static IOrthographicCamera Create(uint width, uint height, float distance)
         {
-            return new OrthographicCamera();
+            return new OrthographicCamera(width, height, distance);
         }
 
-        protected OrthographicCamera()
+        protected OrthographicCamera(uint width, uint height, float distance) : base(width, height, distance)
         {
-            var height = DisplaySettings.Instance.ScreenHeight;
-            var width = DisplaySettings.Instance.ScreenWidth;
-            var dist = DisplaySettings.Instance.ScreenDistance;
-            
-            SetProjectionMatrixAsOrthographic(width, height, dist, -dist);
+            SetProjectionMatrixAsOrthographic(width, height, distance, -distance);
         }
         
         public void SetProjectionMatrixAsOrthographicOffCenter(float left, float right, float bottom, float top, float zNear, float zFar)
@@ -64,13 +60,12 @@ namespace Veldrid.SceneGraph
             double newWidth = width;
             double newHeight = height;
 
-            var dist = DisplaySettings.Instance.ScreenDistance;
             
             // TODO -- THIS NEEDS TO BE MOVED, it shouldn't be necessary.
             if (System.Math.Abs(previousWidth) < 1e-6 && System.Math.Abs(previousHeight) < 1e-6)
             {
                 
-                SetProjectionMatrixAsOrthographic(width/(dist/10), height/(dist/10), dist/10, -dist/10);
+                SetProjectionMatrixAsOrthographic(width/(Distance/10), height/(Distance/10), Distance/10, -Distance/10);
                 
                 if((resizeMask & ResizeMask.ResizeViewport) != 0)
                 {

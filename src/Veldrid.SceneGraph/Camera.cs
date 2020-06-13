@@ -124,6 +124,10 @@ namespace Veldrid.SceneGraph
     
     public abstract class Camera : Transform, ICamera
     {
+        protected uint Width { get; set; }
+        protected uint Height { get; set; }
+        protected float Distance { get; set; }
+        
         public IView View { get; private set; }
         
         public void SetView(IView view)
@@ -155,8 +159,12 @@ namespace Veldrid.SceneGraph
 
         public IGraphicsDeviceOperation Renderer { get; private set; }
         
-        protected Camera()
+        protected Camera(uint width, uint height, float distance)
         {
+            Width = width;
+            Height = height;
+            Distance = distance;
+            
             ClearColor = RgbaFloat.Grey;
             Viewport = null;
             ProjectionMatrix = Matrix4x4.Identity;
