@@ -22,7 +22,7 @@ using Veldrid.SceneGraph.InputAdapter;
 
 namespace Veldrid.SceneGraph.Viewer
 {
-    public interface IView : IUiActionAdapter
+    public interface IView : IUiActionAdapter, Veldrid.SceneGraph.IView
     {
         INode SceneData { get; }
         ICameraManipulator CameraManipulator { get; }
@@ -134,12 +134,12 @@ namespace Veldrid.SceneGraph.Viewer
             }
         }
 
-        public static IView Create()
+        public static IView Create(uint width, uint height, float distance)
         {
-            return new View();
+            return new View(width, height, distance);
         }
         
-        protected View()
+        protected View(uint width, uint height, float distance) : base(width, height, distance)
         {
             _scene = new Scene();
             

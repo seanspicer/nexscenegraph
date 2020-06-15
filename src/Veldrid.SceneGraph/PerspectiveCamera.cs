@@ -27,19 +27,16 @@ namespace Veldrid.SceneGraph
         private float _zNear = 1.0f;
         private float _zFar = 100f;
         
-        public new static IPerspectiveCamera Create()
+        public static IPerspectiveCamera Create(uint width, uint height, float distance)
         {
-            return new PerspectiveCamera();
+            return new PerspectiveCamera(width, height, distance);
         }
 
-        protected PerspectiveCamera()
+        protected PerspectiveCamera(uint width, uint height, float distance) : base(width, height, distance)
         {
-            var height = DisplaySettings.Instance.ScreenHeight;
-            var width = DisplaySettings.Instance.ScreenWidth;
-            var dist = DisplaySettings.Instance.ScreenDistance;
             
             // TODO: This is tricky - need to fix when ViewAll implemented
-            VerticalFov = (float) System.Math.Atan2(height / 2.0f, dist) * 2.0f; 
+            VerticalFov = (float) System.Math.Atan2(height / 2.0f, distance) * 2.0f; 
 
             // TODO - fix this nasty cast
             SetProjectionMatrixAsPerspective(VerticalFov, width / height, _zNear, _zFar);
@@ -66,14 +63,12 @@ namespace Veldrid.SceneGraph
             double newWidth = width;
             double newHeight = height;
 
-            var dist = DisplaySettings.Instance.ScreenDistance;
-            
             // TODO -- THIS NEEDS TO BE MOVED, it shouldn't be necessary.
             if (System.Math.Abs(previousWidth) < 1e-6 && System.Math.Abs(previousHeight) < 1e-6)
             {
                 
                 // TODO: This is tricky - need to fix when ViewAll implemented
-                var vfov = (float) System.Math.Atan2(height / 2.0f, dist) * 2.0f;
+                var vfov = (float) System.Math.Atan2(height / 2.0f, Distance) * 2.0f;
             
                 var aspectRatio = (float)width / (float)height;
                 SetProjectionMatrixAsPerspective(vfov, aspectRatio, _zNear, _zFar);

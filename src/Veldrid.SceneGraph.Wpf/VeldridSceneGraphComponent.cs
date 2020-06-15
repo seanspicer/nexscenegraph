@@ -106,7 +106,6 @@ namespace Veldrid.SceneGraph.Wpf
         private DisposeCollectorResourceFactory _factory;
         private Stopwatch _stopwatch = null;
         private double _previousElapsed = 0;
-        private GraphicsBackend _preferredBackend = DisplaySettings.Instance.GraphicsBackend;
         private Veldrid.SceneGraph.Viewer.IView _view;
         private event Action<GraphicsDevice, ResourceFactory> GraphicsDeviceOperations;
         
@@ -157,12 +156,13 @@ namespace Veldrid.SceneGraph.Wpf
             _previousElapsed = _stopwatch.Elapsed.TotalSeconds;
             
             //_cl = _gd.ResourceFactory.CreateCommandList();
+
+            var view = Viewer.View.Create(width, height, 1000.0f);
             
-            DisplaySettings.Instance.SetScreenWidth(width);
-            DisplaySettings.Instance.SetScreenHeight(height);
-            DisplaySettings.Instance.SetScreenDistance(1000.0f);
+            DisplaySettings.Instance(view).SetScreenWidth(width);
+            DisplaySettings.Instance(view).SetScreenHeight(height);
+            DisplaySettings.Instance(view).SetScreenDistance(1000.0f);
             
-            var view = Viewer.View.Create();
             view.InputEvents = ViewerInputEvents;
             view.SetSceneData(_sceneData);
             view.SetCameraManipulator(_cameraManipulator);
@@ -431,8 +431,8 @@ namespace Veldrid.SceneGraph.Wpf
             uint width = (uint) (ActualWidth < 0 ? 0 : Math.Ceiling(ActualWidth * dpiScale));
             uint height = (uint) (ActualHeight < 0 ? 0 : Math.Ceiling(ActualHeight * dpiScale));
             _graphicsDevice.ResizeMainWindow(width, height);
-            DisplaySettings.Instance.SetScreenWidth(width);
-            DisplaySettings.Instance.SetScreenHeight(height);
+            DisplaySettings.Instance(View).SetScreenWidth(width);
+            DisplaySettings.Instance(View).SetScreenHeight(height);
         }
 
         protected virtual void Frame()

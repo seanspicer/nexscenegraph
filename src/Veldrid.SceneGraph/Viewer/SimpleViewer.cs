@@ -95,7 +95,7 @@ namespace Veldrid.SceneGraph.Viewer
         private bool _firstFrame = true;
         private Stopwatch _stopwatch = null;
         private double _previousElapsed = 0;
-        private GraphicsBackend _preferredBackend = DisplaySettings.Instance.GraphicsBackend;
+        private GraphicsBackend _preferredBackend;
 
         private SceneContext _sceneContext;
 
@@ -135,8 +135,10 @@ namespace Veldrid.SceneGraph.Viewer
         //
         // TODO: remove unsafe once Veldrid.SDL2 implements resize fix.
         //
-        protected unsafe SimpleViewer(string title, TextureSampleCount fsaaCount)
+        protected unsafe SimpleViewer(string title, TextureSampleCount fsaaCount) : base(960, 540, 1000.0f)
         {
+            _preferredBackend = DisplaySettings.Instance(this).GraphicsBackend;
+            
             //_logger = LogManager.GetLogger<SimpleViewer>();
             
             // Create Subjects
@@ -157,9 +159,9 @@ namespace Veldrid.SceneGraph.Viewer
             };
 
             _window = VeldridStartup.CreateWindow(ref wci);
-            DisplaySettings.Instance.SetScreenWidth(wci.WindowWidth);
-            DisplaySettings.Instance.SetScreenHeight(wci.WindowHeight);
-            DisplaySettings.Instance.SetScreenDistance(1000.0f);
+            DisplaySettings.Instance(this).SetScreenWidth((uint)wci.WindowWidth);
+            DisplaySettings.Instance(this).SetScreenHeight((uint)wci.WindowHeight);
+            DisplaySettings.Instance(this).SetScreenDistance(1000.0f);
 
             //
             // This is a "trick" to get continuous resize behavior
@@ -201,13 +203,19 @@ namespace Veldrid.SceneGraph.Viewer
 
         public void SetCameraOrthographic()
         {
-            var camera = OrthographicCamera.Create();
+            var camera = OrthographicCamera.Create(
+                DisplaySettings.Instance(this).ScreenWidth,
+                DisplaySettings.Instance(this).ScreenHeight,
+                DisplaySettings.Instance(this).ScreenDistance);
             SetCamera(camera);
         }
 
         public void SetCameraPerspective()
         {
-            var camera = PerspectiveCamera.Create();
+            var camera = PerspectiveCamera.Create(
+                DisplaySettings.Instance(this).ScreenWidth,
+                DisplaySettings.Instance(this).ScreenHeight,
+                DisplaySettings.Instance(this).ScreenDistance);
             SetCamera(camera);
         }
 
@@ -447,8 +455,8 @@ namespace Veldrid.SceneGraph.Viewer
             {
                 _windowResized = false;
                 _graphicsDevice.ResizeMainWindow((uint) _window.Width, (uint) _window.Height);
-                DisplaySettings.Instance.SetScreenWidth(_window.Width);
-                DisplaySettings.Instance.SetScreenHeight(_window.Height);
+                DisplaySettings.Instance(this).SetScreenWidth((uint)_window.Width);
+                DisplaySettings.Instance(this).SetScreenHeight((uint)_window.Height);
                 
                 Camera.Resize(
                     _window.Width, 

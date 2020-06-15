@@ -15,17 +15,18 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace Veldrid.SceneGraph
 {
     public interface IDisplaySettings
     {
-        float ScreenWidth { get; }
-        void SetScreenWidth(float width);
+        uint ScreenWidth { get; }
+        void SetScreenWidth(uint width);
         
-        float ScreenHeight { get; }
-        void SetScreenHeight(float height);
+        uint ScreenHeight { get; }
+        void SetScreenHeight(uint height);
         
         float ScreenDistance { get; }
         void SetScreenDistance(float distance);
@@ -38,19 +39,33 @@ namespace Veldrid.SceneGraph
     /// </summary>
     public class DisplaySettings : IDisplaySettings
     {
-        private static readonly Lazy<IDisplaySettings> lazy = new Lazy<IDisplaySettings>(() => new DisplaySettings());
+        //private static readonly Lazy<IDisplaySettings> lazy = new Lazy<IDisplaySettings>(() => new DisplaySettings());
 
-        public static IDisplaySettings Instance => lazy.Value;
+        public static IDisplaySettings Instance(IView view)
+        {
+            if(null == view) throw new ArgumentNullException("view cannot be null");
+            
+            if (_displaySettingsCache.TryGetValue(view, out var displaySettings))
+            {
+                return displaySettings;
+            }
+            
+            displaySettings = new DisplaySettings();
+            _displaySettingsCache.Add(view, displaySettings);
+            return displaySettings;
+        }
 
-        public float ScreenWidth { get; private set; }
-        public void SetScreenWidth(float width)
+        private static Dictionary<IView, DisplaySettings> _displaySettingsCache = new Dictionary<IView, DisplaySettings>();
+        
+        public uint ScreenWidth { get; private set; }
+        public void SetScreenWidth(uint width)
         {
             ScreenWidth = width;
         }
 
-        public float ScreenHeight { get; private set; }
+        public uint ScreenHeight { get; private set; }
 
-        public void SetScreenHeight(float height)
+        public void SetScreenHeight(uint height)
         {
             ScreenHeight = height;
         }
@@ -76,9 +91,9 @@ namespace Veldrid.SceneGraph
 
         private void SetDefaults()
         {
-            SetScreenWidth(0.325f);
-            SetScreenHeight(0.26f);
-            SetScreenDistance(0.5f);
+            //SetScreenWidth(0.325f);
+            //SetScreenHeight(0.26f);
+            //SetScreenDistance(0.5f);
             
             bool isMacOS = RuntimeInformation.OSDescription.Contains("Darwin");
             if (isMacOS)
