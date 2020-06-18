@@ -232,7 +232,8 @@ namespace Veldrid.SceneGraph.Wpf
             GraphicsDeviceResize += view.Camera.Renderer.HandleResize;
             
             _view = view;
-            
+            ClearColor = _clearColor;
+            FsaaCount = _fsaaCount;
             
             CameraManipulator?.ViewAll(View);
 
