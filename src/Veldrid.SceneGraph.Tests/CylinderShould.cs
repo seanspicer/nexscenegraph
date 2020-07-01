@@ -15,7 +15,8 @@ namespace Veldrid.SceneGraph.Tests
             var boundingSphere = cylinder.GetBound();
             
             Assert.That(boundingSphere.Center, Is.EqualTo(Vector3.Zero));
-            Assert.That(boundingSphere.Radius, Is.EqualTo(0.5).Within(1e-6));
+            var expectedRadius = System.Math.Sqrt(0.5*0.5 + 0.5*0.5 + 0.5*0.5);
+            Assert.That(boundingSphere.Radius, Is.EqualTo(expectedRadius).Within(1e-6));
         }
         
         private IGeode CreateCylinder()
