@@ -29,6 +29,8 @@ namespace Veldrid.SceneGraph.Util.Shape
         
         internal void Build(IGeometry<T> geometry, ITessellationHints hints, Vector3[] colors, ISphere sphere)
         {
+            Center = sphere.Center;
+            
             if (hints.NormalsType == NormalsType.PerFace)
             {
                 throw new ArgumentException("Per-Face Normals are not supported for spheres");

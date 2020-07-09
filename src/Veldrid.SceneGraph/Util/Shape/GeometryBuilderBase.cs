@@ -40,6 +40,8 @@ namespace Veldrid.SceneGraph.Util.Shape
         private List<ExtendedPrimitive> _primitives = new List<ExtendedPrimitive>();
         private ExtendedPrimitive _currentPrimitive;
             
+        protected Vector3 Center { get; set; } = Vector3.Zero;
+        
         protected void BeginQuadStrip()
         {
             _currentPrimitive = new QuadStrip();
@@ -66,7 +68,7 @@ namespace Veldrid.SceneGraph.Util.Shape
 
         protected void Vertex3f(Vector3 vtx)
         {
-            _currentPrimitive.Vertices.Add(vtx);
+            _currentPrimitive.Vertices.Add(vtx+Center);
         }
         protected void Vertex3f(float x, float y, float z)
         {

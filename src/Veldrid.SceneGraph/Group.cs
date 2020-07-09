@@ -30,6 +30,7 @@ namespace Veldrid.SceneGraph
         void ChildInserted(int index);
         void ChildRemoved(int index, int count);
         int GetNumChildren();
+        INode GetChild(int index);
     }
     
     public class Group : Node, IGroup
@@ -138,6 +139,11 @@ namespace Veldrid.SceneGraph
         public int GetNumChildren()
         {
             return _children.Count;
+        }
+
+        public INode GetChild(int index)
+        {
+            return _children[index].Item1;
         }
 
         public override void Traverse(INodeVisitor nv)
