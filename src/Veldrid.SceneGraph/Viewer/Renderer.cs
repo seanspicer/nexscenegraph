@@ -428,13 +428,16 @@ namespace Veldrid.SceneGraph.Viewer
             SwapBuffers(device);
             
             var postSwap = _stopWatch.ElapsedMilliseconds;
+
+            var logString = string.Format(
+                "UpdateUniforms = {0} ms, Cull = {1} ms, Record = {2}, Draw = {3} ms, Swap = {4} ms",
+                postUpdate,
+                postCull - postUpdate,
+                postRecord - postCull,
+                postDraw - postRecord,
+                postSwap - postDraw);
             
-            _logger?.LogTrace(string.Format("UpdateUniforms = {0} ms, Cull = {1} ms, Record = {2}, Draw = {3} ms, Swap = {4} ms",
-                postUpdate, 
-                postCull-postUpdate,
-                postRecord-postCull,
-                postDraw-postRecord,
-                postSwap-postDraw));
+            _logger?.LogTrace(logString);
         }
 
         public void HandleResize(GraphicsDevice device)
