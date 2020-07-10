@@ -45,18 +45,6 @@ namespace Gnomon
             }
         }
         
-
-        private ICameraManipulator _gnomonCameraManipulator;
-
-        public ICameraManipulator GnomonCameraManipulator
-        {
-            get => _gnomonCameraManipulator;
-            set
-            {
-                _gnomonCameraManipulator = value;
-                OnPropertyChanged("_gnomonCameraManipulator");
-            }
-        }
         internal SceneViewModel()
         {
             SceneRoot = Examples.Common.PathExampleScene.Build();
@@ -68,7 +56,21 @@ namespace Gnomon
             GnomonRoot.AddChild(gnomon);
             
             EventHandler = new ViewMatrixEventHandler(this);
-            GnomonCameraManipulator = TrackballManipulator.Create();
+        }
+        
+        public void ChangeCamera(IUiActionAdapter uiActionAdapter, ICamera camera)
+        {
+            var up = new Vector3(0.0f, 0.0f, 1.0f);
+            var t = SceneRoot.GetBound();
+            var angle = 90.0f * 0.01745329252f; // 90 degrees in radians
+            var eye = new Vector3(0, t.Radius+10.0f, 0);
+            var rotation = Matrix4x4.CreateRotationZ(angle);
+            eye = Vector3.Transform(eye, rotation);
+                            
+            if (!(CameraManipulator is StandardManipulator cameraManipulator)) return;
+            cameraManipulator.SetTransformation(eye, t.Center, up);
+
+            MainViewMatrix = cameraManipulator.InverseMatrix;
         }
     }
 }

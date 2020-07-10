@@ -48,7 +48,7 @@ namespace Veldrid.SceneGraph.InputAdapter
         
         private Matrix4x4 _viewMatrix = Matrix4x4.Identity;
 
-        protected override Matrix4x4 InverseMatrix =>
+        public override Matrix4x4 InverseMatrix =>
             Matrix4x4.CreateTranslation(-_center) *
             Matrix4x4.CreateFromQuaternion(Quaternion.Inverse(_rotation)) *
             Matrix4x4.CreateTranslation(new Vector3(0.0f, 0.0f, -_distance));

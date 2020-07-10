@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Numerics;
+using System.Windows;
 using Microsoft.Extensions.Logging;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
@@ -15,13 +16,21 @@ namespace Gnomon
     /// </summary>
     public partial class MainWindow
     {
+        private SceneViewModel _viewModel;
         private Matrix4x4 _gnomonStepBack = Matrix4x4.CreateTranslation(0, 0, -10.0f);
 
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new SceneViewModel();
+            _viewModel = new SceneViewModel();
+            DataContext = _viewModel;
         }
+
+        private void ChangeCameraButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            _viewModel.ChangeCamera(VSGElement.GetUiActionAdapter(), VSGElement.GetCamera());
+        }
+        
         private void window_Activated(object sender, EventArgs e)
         {
             var vm = DataContext as SceneViewModel;
