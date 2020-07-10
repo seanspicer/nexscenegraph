@@ -33,8 +33,7 @@ namespace Gnomon
         
         private void window_Activated(object sender, EventArgs e)
         {
-            var vm = DataContext as SceneViewModel;
-            vm.PropertyChanged += VmPropertyHandler;
+            _viewModel.PropertyChanged += VmPropertyHandler;
             
             BackOff();
         }
@@ -42,9 +41,8 @@ namespace Gnomon
         {
             if (e.PropertyName == "MainViewMatrix")
             {
-                var vm = DataContext as SceneViewModel;
                 Matrix4x4 matrix;
-                var ok = Matrix4x4.Decompose(vm.MainViewMatrix, out var scale, out var rotation, out var translation);
+                var ok = Matrix4x4.Decompose(_viewModel.MainViewMatrix, out var scale, out var rotation, out var translation);
                 if (ok)
                 {
                     matrix = Matrix4x4.CreateFromQuaternion(rotation);
