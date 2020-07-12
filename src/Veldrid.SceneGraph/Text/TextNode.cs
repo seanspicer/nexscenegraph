@@ -15,6 +15,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -318,10 +319,15 @@ namespace Veldrid.SceneGraph.Text
             
             var pSet = DrawElements<VertexPositionTexture>.Create(this, PrimitiveTopology.TriangleList, (uint)IndexData.Length, 1, 0, 0, 0);
             PrimitiveSets.Add(pSet);
-            
-            VertexLayout = new VertexLayoutDescription(
-                new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
-                new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2));
+
+            VertexLayouts = new List<VertexLayoutDescription>
+            {
+                new VertexLayoutDescription(
+                    new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate,
+                        VertexElementFormat.Float3),
+                    new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate,
+                        VertexElementFormat.Float2))
+            };
 
             PipelineState.ShaderSet = Texture2DShader.Instance.ShaderSet;
             

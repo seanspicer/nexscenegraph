@@ -79,6 +79,8 @@ layout(location = 0) in vec3 Position;
 layout(location = 1) in vec2 UV;
 layout(location = 2) in vec3 Color;
 layout(location = 3) in vec3 Normal;
+layout(location = 4) in vec3 InstancePosition;
+layout(location = 5) in vec3 InstanceScale;
 
 layout(location = 0) out vec3 fsin_normal;
 layout(location = 1) out vec3 fsin_eyeDir;
@@ -112,8 +114,10 @@ vec3 getEyePosition(mat4 projection) {
 
 void main()
 {
-    //vec4 LightPos = vec4(0,0,0,1);
-    vec4 v4Pos = vec4(Position, 1);
+    mat3 scalingMat = mat3(InstanceScale.x, 0, 0, 0, InstanceScale.y, 0, 0, 0, InstanceScale.z);
+    
+    vec3 transformedPos = (scalingMat * Position) + InstancePosition;
+    vec4 v4Pos = vec4(transformedPos, 1);
     
     gl_Position = field_Projection * field_View * (field_Model * v4Pos);
     

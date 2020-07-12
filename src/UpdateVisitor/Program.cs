@@ -153,9 +153,14 @@ namespace UpdateVisitor
 
             geometry.IndexData = cubeTriangleIndices.ToArray();
 
-            geometry.VertexLayout = new VertexLayoutDescription(
-                new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
-                new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4));
+            geometry.VertexLayouts = new List<VertexLayoutDescription>()
+            {
+                new VertexLayoutDescription(
+                    new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate,
+                        VertexElementFormat.Float3),
+                    new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate,
+                        VertexElementFormat.Float4))
+            };
 
             var pSet = DrawElements<VertexPositionColor>.Create(
                 geometry, 

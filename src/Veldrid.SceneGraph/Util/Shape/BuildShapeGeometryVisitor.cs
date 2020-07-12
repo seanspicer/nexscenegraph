@@ -43,17 +43,19 @@ namespace Veldrid.SceneGraph.Util.Shape
         private IGeometry<T> _geometry;
         private ITessellationHints _tessellationHints;
         private Vector3 [] _colors;
+        private uint _instanceCount;
         
-        internal IShapeVisitor Create(IGeometry<T> geometry, ITessellationHints tessellationHints, Vector3 [] colors)
+        internal IShapeVisitor Create(IGeometry<T> geometry, ITessellationHints tessellationHints, Vector3 [] colors, uint instanceCount)
         {
-            return new BuildShapeGeometryVisitor<T>(geometry, tessellationHints, colors);
+            return new BuildShapeGeometryVisitor<T>(geometry, tessellationHints, colors, instanceCount);
         }
 
-        internal BuildShapeGeometryVisitor(IGeometry<T> geometry, ITessellationHints tessellationHints, Vector3 [] colors)
+        internal BuildShapeGeometryVisitor(IGeometry<T> geometry, ITessellationHints tessellationHints, Vector3 [] colors, uint instanceCount)
         {
             _geometry = geometry;
             _tessellationHints = tessellationHints;
             _colors = colors;
+            _instanceCount = instanceCount;
         }
 
         void SetMatrix(Matrix4x4 m)
@@ -74,7 +76,7 @@ namespace Veldrid.SceneGraph.Util.Shape
         public void Apply(ISphere sphere)
         {
             var builder = new BuildSphereGeometry<T>(); 
-            builder.Build(_geometry, _tessellationHints, _colors, sphere);
+            builder.Build(_geometry, _tessellationHints, _colors, _instanceCount, sphere);
         }
 
         public void Apply(ICone cone)

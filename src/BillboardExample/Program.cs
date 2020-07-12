@@ -15,6 +15,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Examples.Common;
 using Veldrid;
@@ -83,9 +84,14 @@ namespace BillboardExample
             geometry.PrimitiveSets.Add(pSet);
             geometry.PrimitiveSets.Add(pSet);
 
-            geometry.VertexLayout = new VertexLayoutDescription(
-                new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
-                new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4));
+            geometry.VertexLayouts = new List<VertexLayoutDescription>
+            {
+                new VertexLayoutDescription(
+                    new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate,
+                        VertexElementFormat.Float3),
+                    new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate,
+                        VertexElementFormat.Float4))
+            };
                         
             var geode = Geode.Create();
             geode.AddDrawable(geometry);

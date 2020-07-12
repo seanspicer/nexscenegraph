@@ -244,8 +244,11 @@ namespace Veldrid.SceneGraph.Viewer
                     }
                     
                     var offsets = offsetsList.ToArray();
-                    
-                    _commandList.SetVertexBuffer(0, element.VertexBuffer);
+
+                    for (var vboIdx = 0; vboIdx < element.VertexBuffers.Count; ++vboIdx)
+                    {
+                        _commandList.SetVertexBuffer((uint)vboIdx, element.VertexBuffers[vboIdx]);
+                    }
                     
                     _commandList.SetIndexBuffer(element.IndexBuffer, IndexFormat.UInt32);
                     
@@ -314,7 +317,7 @@ namespace Veldrid.SceneGraph.Viewer
                 stateToUniformDict.Add(state, modelMatrixViewBuffer);
             }
 
-            DeviceBuffer boundVertexBuffer = null;
+            List<DeviceBuffer> boundVertexBufferList = null;
             DeviceBuffer boundIndexBuffer = null;
             
             // Now draw transparent elements, back to front
@@ -349,11 +352,15 @@ namespace Veldrid.SceneGraph.Viewer
                     
                     var renderGroupElement = element.Item2;
 
-                    if (boundVertexBuffer != renderGroupElement.VertexBuffer)
+                    if (boundVertexBufferList != renderGroupElement.VertexBuffers)
                     {
                         // Set vertex buffer
-                        _commandList.SetVertexBuffer(0, renderGroupElement.VertexBuffer);
-                        boundVertexBuffer = renderGroupElement.VertexBuffer;     
+                        for (var vboIdx = 0; vboIdx < renderGroupElement.VertexBuffers.Count; ++vboIdx)
+                        {
+                            _commandList.SetVertexBuffer((uint)vboIdx, renderGroupElement.VertexBuffers[vboIdx]);
+                        }
+                        
+                        boundVertexBufferList = renderGroupElement.VertexBuffers;     
                     }
 
                     if (boundIndexBuffer != renderGroupElement.IndexBuffer)

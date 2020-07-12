@@ -102,7 +102,10 @@ namespace TexturedCube
             geometry.VertexData = vertices;
             geometry.IndexData = indices;
 
-            geometry.VertexLayout = Position3TexCoord2.VertexLayoutDescription;
+            geometry.VertexLayouts = new List<VertexLayoutDescription>()
+            {
+                Position3TexCoord2.VertexLayoutDescription
+            };
             
             var pSet = DrawElements<Position3TexCoord2>.Create(
                 geometry, 

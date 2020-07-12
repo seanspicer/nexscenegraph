@@ -122,10 +122,17 @@ namespace MultiTexturedCube
             geometry.VertexData = vertices;
             geometry.IndexData = indices;
 
-            geometry.VertexLayout = new VertexLayoutDescription(
-                new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
-                new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
-                new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4));
+            geometry.VertexLayouts = new List<VertexLayoutDescription>
+            {
+                new VertexLayoutDescription(
+                    new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate,
+                        VertexElementFormat.Float3),
+                    new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate,
+                        VertexElementFormat.Float2),
+                    new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate,
+                        VertexElementFormat.Float4))
+
+            };
 
             var pSet = DrawElements<VertexPositionTexture>.Create(
                 geometry, 

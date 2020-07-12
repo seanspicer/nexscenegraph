@@ -24,12 +24,15 @@ namespace Veldrid.SceneGraph
         IShaderSet ShaderSet { get; set; }
         IReadOnlyList<ITexture2D> TextureList { get; }
         IReadOnlyList<IBindable> UniformList { get; }
+        IReadOnlyList<IVertexBuffer> VertexBufferList { get; }
         BlendStateDescription BlendStateDescription { get; set; }
         DepthStencilStateDescription DepthStencilState { get; set; }
         RasterizerStateDescription RasterizerStateDescription { get; set; }
         void AddTexture(ITexture2D texture);
         void AddUniform(IBindable uniform);
         void AddUniform(IDrawable drawable, IBindable uniform);
+        void AddVertexBuffer(IVertexBuffer vertexBuffer);
+
     }
     
     public class PipelineState : IPipelineState
@@ -41,6 +44,9 @@ namespace Veldrid.SceneGraph
 
         private readonly List<IBindable> _uniformList = new List<IBindable>();
         public IReadOnlyList<IBindable> UniformList => _uniformList;
+        
+        private readonly List<IVertexBuffer> _vertexBufferList = new List<IVertexBuffer>();
+        public IReadOnlyList<IVertexBuffer> VertexBufferList => _vertexBufferList;
 
         private readonly Dictionary<IDrawable, IBindable> _uniformDictionary = new Dictionary<IDrawable, IBindable>();
         public Dictionary<IDrawable, IBindable> UniformDictionary => _uniformDictionary;
@@ -76,6 +82,12 @@ namespace Veldrid.SceneGraph
         {
             _uniformDictionary.Add(drawable, uniform);
         }
+
+        public void AddVertexBuffer(IVertexBuffer vertexBuffer)
+        {
+            _vertexBufferList.Add(vertexBuffer);
+        }
+
         
     }
 }

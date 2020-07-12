@@ -3,6 +3,7 @@ using System.IO;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.PipelineStates;
@@ -36,61 +37,74 @@ namespace Examples.Common
             var root = Group.Create();
             
             var sphereHints = TessellationHints.Create();
-            sphereHints.SetDetailRatio(0.2f);
+            sphereHints.SetDetailRatio(0.3f);
             var sphereGeode = Geode.Create();
-            var sphereShape = Sphere.Create(Vector3.Zero, 0.5f);
+            var sphereShape = Sphere.Create(Vector3.Zero, 0.01f);
 
-            var INSTANCE_COUNT = 5000;
+            var INSTANCE_COUNT = 50000u;
             var instanceData = new InstanceData[INSTANCE_COUNT];
             for (var i = 0; i < INSTANCE_COUNT; ++i)
             {
-                var xPos = (float) random.NextDouble() * 100;
-                var yPos = (float) random.NextDouble() * 100;
+                var xPos = -50f+(float) random.NextDouble() * 100;
+                var yPos = -50f+(float) random.NextDouble() * 100;
 
-                instanceData[i] = new InstanceData(new Vector3(xPos, yPos, 0.0f), Vector3.One );
+                var scale = (float)(20f * random.NextDouble());
+                
+                instanceData[i] = new InstanceData(new Vector3(xPos, yPos, 0.0f), scale*Vector3.One );
+                //instanceData[i] = new InstanceData(Vector3.Zero, Vector3.One );
             }
 
-            var sphereUniform = Uniform<InstanceData>.Create("InstanceData",
-                BufferUsage.UniformBuffer | BufferUsage.Dynamic,
-                ShaderStages.Vertex | ShaderStages.Fragment);
-            sphereUniform.UniformData = instanceData;
+            var sphereInstanceData = VertexBuffer<InstanceData>.Create();
+            sphereInstanceData.VertexData = instanceData;
             
+            var vertexLayoutPerInstance = new VertexLayoutDescription(
+                new VertexElementDescription("InstancePosition", VertexElementSemantic.TextureCoordinate,
+                    VertexElementFormat.Float3),
+                new VertexElementDescription("InstanceScale", VertexElementSemantic.TextureCoordinate,
+                    VertexElementFormat.Float3));
+            vertexLayoutPerInstance.InstanceStepRate = 1;
+
             var sphereDrawable =
                 ShapeDrawable<Position3Texture2Color3Normal3>.Create(
                     sphereShape,
                     sphereHints,
-                    new Vector3[] {new Vector3(1.0f, 0.0f, 0.0f)});
+                    new Vector3[] {new Vector3(1.0f, 0.0f, 0.0f)},
+                    INSTANCE_COUNT);
 
-            //sphereGeode.AddDrawable(sphereDrawable);
-
+            sphereDrawable.VertexLayouts.Add(vertexLayoutPerInstance);
+            sphereDrawable.InstanceVertexBuffer = sphereInstanceData;
+            sphereDrawable.SetFixedBoundingBox(BoundingBox.Create(-50,-50,-10,50, 50, 10));
+            
+            
             var sphereMaterial = InstancedSphereMaterial.Create(
             PhongMaterialParameters.Create(
                 new Vector3(0.0f, 0.0f, 1.0f),
                 new Vector3(0.0f, 0.0f, 1.0f),
-                new Vector3(1.0f, 1.0f, 1.0f),
+                new Vector3(0.0f, 0.0f, 0.0f),
                 5f),
-                PhongPositionalLight.Create( new Vector4(0, 10, 0, 1),PhongLightParameters.Create(
-                new Vector3(0.1f, 0.1f, 0.1f),
+            PhongHeadlight.Create(PhongLightParameters.Create(
+                new Vector3(0.5f, 0.5f, 0.5f),
                 new Vector3(1.0f, 1.0f, 1.0f),
                 new Vector3(1.0f, 1.0f, 1.0f),
-                10000f,
-                2)),
+                1f,
+                0)),
             true);
 
             var pipelineState = sphereMaterial.CreatePipelineState();
-            pipelineState.AddUniform(sphereUniform);
+            //pipelineState.AddVertexBuffer(sphereInstanceData);
 
             sphereDrawable.PipelineState = pipelineState;
+            root.AddChild(sphereDrawable);
             
-            for (var i = 0; i < 10; ++i)
-            {
-                var xPos = (float) random.NextDouble() * 100;
-                var yPos = (float) random.NextDouble() * 100;
-
-                var xform = MatrixTransform.Create(Matrix4x4.CreateTranslation(xPos, yPos, 0.0f));
-                xform.AddChild(sphereDrawable);
-                root.AddChild(xform);
-            }
+            // for (var i = 0; i < 10; ++i)
+            // {
+            //     var xPos = (float) random.NextDouble() * 100;
+            //     var yPos = (float) random.NextDouble() * 100;
+            //
+            //     var xform = MatrixTransform.Create(Matrix4x4.CreateTranslation(xPos, yPos, 0.0f));
+            //     xform.AddChild(sphereDrawable);
+            //     root.AddChild(xform);
+            // }
 
             return root;
         }

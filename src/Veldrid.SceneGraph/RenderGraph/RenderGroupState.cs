@@ -52,22 +52,22 @@ namespace Veldrid.SceneGraph.RenderGraph
     {
         private IPipelineState PipelineState;
         private PrimitiveTopology PrimitiveTopology;
-        private VertexLayoutDescription VertexLayout;
+        private List<VertexLayoutDescription> VertexLayouts;
 
         public List<RenderGroupElement> Elements { get; } = new List<RenderGroupElement>();
 
         private Dictionary<Tuple<GraphicsDevice, ResourceFactory>, RenderInfo> RenderInfoCache;
 
-        public static IRenderGroupState Create(IPipelineState pso, PrimitiveTopology pt, VertexLayoutDescription vertexLayout)
+        public static IRenderGroupState Create(IPipelineState pso, PrimitiveTopology pt, List<VertexLayoutDescription> vertexLayouts)
         {
-            return new RenderGroupState(pso, pt, vertexLayout);
+            return new RenderGroupState(pso, pt, vertexLayouts);
         }
         
-        protected RenderGroupState(IPipelineState pso, PrimitiveTopology pt, VertexLayoutDescription vertexLayout)
+        protected RenderGroupState(IPipelineState pso, PrimitiveTopology pt, List<VertexLayoutDescription> vertexLayouts)
         {
             PipelineState = pso;
             PrimitiveTopology = pt;
-            VertexLayout = vertexLayout;
+            VertexLayouts = vertexLayouts;
             RenderInfoCache = new Dictionary<Tuple<GraphicsDevice, ResourceFactory>, RenderInfo>();
         }
 
@@ -142,6 +142,13 @@ namespace Veldrid.SceneGraph.RenderGraph
                 }
             }
 
+            foreach (var vertexBuffer in PipelineState.VertexBufferList)
+            {
+                vertexBuffer.ConfigureDeviceBuffers(graphicsDevice, resourceFactory);
+                
+                
+            }
+
             ri.ResourceLayout = resourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(resourceLayoutElementDescriptionList.ToArray()));
 
@@ -162,7 +169,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                 (Shader vs, Shader fs) = GetShaders(graphicsDevice, framebuffer, PipelineState.ShaderSet);
                 
                 pd.ShaderSet = new ShaderSetDescription(
-                    vertexLayouts: new VertexLayoutDescription[] {VertexLayout},
+                    vertexLayouts: VertexLayouts.ToArray(),
                     shaders: new[] { vs, fs });
             }
 
