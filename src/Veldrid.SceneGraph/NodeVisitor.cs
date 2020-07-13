@@ -16,9 +16,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
-using Newtonsoft.Json.Bson;
-using Veldrid.SceneGraph.Text;
 
 namespace Veldrid.SceneGraph
 {

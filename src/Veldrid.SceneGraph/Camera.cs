@@ -15,8 +15,6 @@
 //
 
 using System;
-using System.ComponentModel.Design;
-using System.Data;
 using System.Numerics;
 using Veldrid.SceneGraph.RenderGraph;
 using Veldrid.SceneGraph.Util;
