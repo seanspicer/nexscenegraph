@@ -25,13 +25,15 @@ namespace Veldrid.SceneGraph
         string Name { get; set; }
         Type VertexType { get; }
         IBoundingBox InitialBoundingBox { get; set; }
-        VertexLayoutDescription VertexLayout { get; set; }
+        List<VertexLayoutDescription> VertexLayouts { get; set; }
         List<IPrimitiveSet> PrimitiveSets { get; }
         void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory);
-        DeviceBuffer GetVertexBufferForDevice(GraphicsDevice device);
+        List<DeviceBuffer> GetVertexBufferForDevice(GraphicsDevice device);
         DeviceBuffer GetIndexBufferForDevice(GraphicsDevice device);
         IBoundingBox GetBoundingBox();
         bool ComputeMatrix(ref Matrix4x4 computedMatrix, IState state);
+        void SetFixedBoundingBox(IBoundingBox boundingBox);
+
 
     }
     
@@ -52,7 +54,13 @@ namespace Veldrid.SceneGraph
                 DirtyBound();
             }
         }
-        
+
+        private IBoundingBox _fixedBoundingBox = null;
+        public void SetFixedBoundingBox(IBoundingBox boundingBox)
+        {
+            _fixedBoundingBox = boundingBox;
+        }
+
         public override void Accept(INodeVisitor nv)
         {
             if (nv.ValidNodeMask(this))
@@ -63,7 +71,7 @@ namespace Veldrid.SceneGraph
             };
         }
         
-        public VertexLayoutDescription VertexLayout { get; set; }
+        public List<VertexLayoutDescription> VertexLayouts { get; set; }
         
         public List<IPrimitiveSet> PrimitiveSets { get; } = new List<IPrimitiveSet>();
         
@@ -99,6 +107,11 @@ namespace Veldrid.SceneGraph
         
         public IBoundingBox GetBoundingBox()
         {
+            if (null != _fixedBoundingBox)
+            {
+                return _fixedBoundingBox;
+            }
+            
             if (_boundingSphereComputed) return _boundingBox;
             
             _boundingBox = _initialBoundingBox;
@@ -128,10 +141,9 @@ namespace Veldrid.SceneGraph
 
         protected abstract IBoundingBox ComputeBoundingBox();
 
-        public abstract DeviceBuffer GetVertexBufferForDevice(GraphicsDevice device);
+        public abstract List<DeviceBuffer> GetVertexBufferForDevice(GraphicsDevice device);
 
         public abstract DeviceBuffer GetIndexBufferForDevice(GraphicsDevice device);
-
 
     }
 }

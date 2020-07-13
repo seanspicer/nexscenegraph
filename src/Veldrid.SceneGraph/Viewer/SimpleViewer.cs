@@ -123,9 +123,9 @@ namespace Veldrid.SceneGraph.Viewer
         //
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        public static IViewer Create(string title, TextureSampleCount fsaaCount=TextureSampleCount.Count1)
+        public static IViewer Create(string title, TextureSampleCount fsaaCount=TextureSampleCount.Count1, GraphicsBackend? preferredBackend = null)
         {
-            return new SimpleViewer(title, fsaaCount);
+            return new SimpleViewer(title, fsaaCount, preferredBackend);
         }
         
         /// <summary>
@@ -135,9 +135,14 @@ namespace Veldrid.SceneGraph.Viewer
         //
         // TODO: remove unsafe once Veldrid.SDL2 implements resize fix.
         //
-        protected unsafe SimpleViewer(string title, TextureSampleCount fsaaCount) : base(960, 540, 1000.0f)
+        protected unsafe SimpleViewer(string title, TextureSampleCount fsaaCount, GraphicsBackend? preferredBackend)
+            : base(960, 540, 1000.0f)
         {
             _preferredBackend = DisplaySettings.Instance(this).GraphicsBackend;
+            if (preferredBackend.HasValue)
+            {
+                _preferredBackend = preferredBackend.Value;
+            }
             
             //_logger = LogManager.GetLogger<SimpleViewer>();
             
@@ -247,10 +252,10 @@ namespace Veldrid.SceneGraph.Viewer
         //     AddInputEventHandler(handler);
         // }
         
-        public void Run()
-        {
-            Run(null);
-        }
+        // public void Run()
+        // {
+        //     Run(null);
+        // }
 
         /// <summary>
         /// Run the viewer
@@ -259,13 +264,8 @@ namespace Veldrid.SceneGraph.Viewer
         //
         // TODO: This runs continuously, probably should have a mode that runs one-frame-at-a-time.
         // 
-        public void Run(GraphicsBackend? preferredBackend = null)
+        public void Run()
         {
-            if (preferredBackend.HasValue)
-            {
-                _preferredBackend = preferredBackend.Value;
-            }
-
             _windowTitle = _windowTitle + " (" + _preferredBackend + ") ";
 
             while (_window.Exists)

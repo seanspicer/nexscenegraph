@@ -54,7 +54,8 @@ namespace Veldrid.SceneGraph.Util.Shape
             geometry.VertexData = vertexDataList.ToArray();
             geometry.IndexData = indexDataList.ToArray();
             
-            geometry.VertexLayout = VertexLayoutHelpers.GetLayoutDescription(typeof(T));
+            geometry.VertexLayouts = new List<VertexLayoutDescription>()
+                {VertexLayoutHelpers.GetLayoutDescription(typeof(T))};
             
             var pSet = DrawElements<T>.Create(
                 geometry, 
@@ -109,8 +110,9 @@ namespace Veldrid.SceneGraph.Util.Shape
             
             geometry.VertexData = vertexArray;
             geometry.IndexData = indexArray;
-            
-            geometry.VertexLayout = VertexLayoutHelpers.GetLayoutDescription(typeof(T));
+
+            geometry.VertexLayouts = new List<VertexLayoutDescription>()
+                {VertexLayoutHelpers.GetLayoutDescription(typeof(T))};
             
             var pSet = DrawElements<T>.Create(
                 geometry, 

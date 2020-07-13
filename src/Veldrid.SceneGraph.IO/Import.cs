@@ -128,11 +128,11 @@ namespace Veldrid.SceneGraph.IO
             geometry.VertexData = vertices.ToArray();
             geometry.IndexData = indices.ToArray();
 
-            geometry.VertexLayout = new VertexLayoutDescription(
+            geometry.VertexLayouts = new List<VertexLayoutDescription> {new VertexLayoutDescription(
                 new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
                 new VertexElementDescription("UV", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
                 new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
-                new VertexElementDescription("Normal", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3));
+                new VertexElementDescription("Normal", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3))};
             
             var pSet = DrawElements<VertexPositionTextureColorNormal>.Create(
                 geometry, 

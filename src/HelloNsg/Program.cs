@@ -15,6 +15,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using Examples.Common;
@@ -75,10 +76,15 @@ namespace HelloNsg
             
             uint[] quadIndices = { 0, 1, 2, 3 };
             geometry.IndexData = quadIndices;
-            
-            geometry.VertexLayout = new VertexLayoutDescription(
-                new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
-                new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4));
+
+            geometry.VertexLayouts = new List<VertexLayoutDescription>
+            {
+                new VertexLayoutDescription(
+                    new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate,
+                        VertexElementFormat.Float2),
+                    new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate,
+                        VertexElementFormat.Float4))
+            };
 
             var pSet = DrawElements<VertexPositionColor>.Create(
                 geometry, 

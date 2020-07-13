@@ -106,7 +106,9 @@ namespace Examples.Common
 
                 geometry.IndexData = indicies;
 
-                geometry.VertexLayout = Position3Color3.VertexLayoutDescription;
+                geometry.VertexLayouts = new List<VertexLayoutDescription>() {
+                    Position3Color3.VertexLayoutDescription
+                };
                 
                 var pSet = DrawElements<Position3Color3>.Create(
                     geometry, 

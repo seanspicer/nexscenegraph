@@ -45,7 +45,6 @@ namespace Veldrid.SceneGraph.Viewer
         void ViewAll();
         
         void Run();
-        void Run(GraphicsBackend? preferredBackend);
         void SetCameraOrthographic();
         void SetCameraPerspective();
     }

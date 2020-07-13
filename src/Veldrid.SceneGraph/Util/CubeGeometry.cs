@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Veldrid.SceneGraph.VertexTypes;
 
@@ -75,7 +76,8 @@ namespace Veldrid.SceneGraph.Util
             geometry.VertexData = vertices;
             geometry.IndexData = indices;
 
-            geometry.VertexLayout = Position3Texture2Color3Normal3.VertexLayoutDescription;
+            geometry.VertexLayouts = new List<VertexLayoutDescription>()
+                {Position3Texture2Color3Normal3.VertexLayoutDescription};
 
             var pSet = DrawElements<Position3Texture2Color3Normal3>.Create(
                 geometry, 

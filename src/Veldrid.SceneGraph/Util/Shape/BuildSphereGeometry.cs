@@ -26,9 +26,12 @@ namespace Veldrid.SceneGraph.Util.Shape
     {
         const uint MIN_NUM_ROWS = 3;
         const uint MIN_NUM_SEGMENTS = 5;
+
+        private uint _instanceCount = 1;
         
-        internal void Build(IGeometry<T> geometry, ITessellationHints hints, Vector3[] colors, ISphere sphere)
+        internal void Build(IGeometry<T> geometry, ITessellationHints hints, Vector3[] colors, uint instanceCount, ISphere sphere)
         {
+            _instanceCount = instanceCount;
             Center = sphere.Center;
             
             if (hints.NormalsType == NormalsType.PerFace)
@@ -194,13 +197,14 @@ namespace Veldrid.SceneGraph.Util.Shape
             geometry.VertexData = vertexArray;
             geometry.IndexData = indexArray;
 
-            geometry.VertexLayout = VertexLayoutHelpers.GetLayoutDescription(typeof(T));
+            geometry.VertexLayouts = new List<VertexLayoutDescription>()
+                {VertexLayoutHelpers.GetLayoutDescription(typeof(T))};
             
             var pSet = DrawElements<T>.Create(
                 geometry, 
                 PrimitiveTopology.TriangleList, 
                 (uint)geometry.IndexData.Length, 
-                1, 
+                (uint)_instanceCount, 
                 0, 
                 0, 
                 0);

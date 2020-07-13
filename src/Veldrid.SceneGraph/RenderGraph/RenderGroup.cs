@@ -16,7 +16,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Numerics;
 
@@ -26,7 +25,7 @@ namespace Veldrid.SceneGraph.RenderGraph
     {
         public List<IPrimitiveSet> PrimitiveSets;
         public Matrix4x4 ModelViewMatrix;
-        public DeviceBuffer VertexBuffer;
+        public List<DeviceBuffer> VertexBuffers;
         public DeviceBuffer IndexBuffer;
     }
     
@@ -35,7 +34,7 @@ namespace Veldrid.SceneGraph.RenderGraph
         bool HasDrawableElements();
         void Reset();
         IEnumerable<IRenderGroupState> GetStateList();
-        IRenderGroupState GetOrCreateState(GraphicsDevice device, IPipelineState pso, PrimitiveTopology pt, VertexLayoutDescription vl);
+        IRenderGroupState GetOrCreateState(GraphicsDevice device, IPipelineState pso, PrimitiveTopology pt, List<VertexLayoutDescription> vl);
     }
     
     public class RenderGroup : IRenderGroup
@@ -45,7 +44,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             return RenderGroupStateCache.Count > 0;
         }
         
-        private Dictionary<Tuple<IPipelineState, PrimitiveTopology, VertexLayoutDescription>, List<IRenderGroupState>> RenderGroupStateCache;
+        private Dictionary<Tuple<IPipelineState, PrimitiveTopology, List<VertexLayoutDescription>>, List<IRenderGroupState>> RenderGroupStateCache;
 
         public static IRenderGroup Create()
         {
@@ -54,7 +53,7 @@ namespace Veldrid.SceneGraph.RenderGraph
         
         protected RenderGroup()
         {
-            RenderGroupStateCache = new Dictionary<Tuple<IPipelineState, PrimitiveTopology, VertexLayoutDescription>, List<IRenderGroupState>>();
+            RenderGroupStateCache = new Dictionary<Tuple<IPipelineState, PrimitiveTopology, List<VertexLayoutDescription>>, List<IRenderGroupState>>();
         }
 
         public void Reset()
@@ -81,7 +80,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             }
         }
         
-        public IRenderGroupState GetOrCreateState(GraphicsDevice device, IPipelineState pso, PrimitiveTopology pt, VertexLayoutDescription vl)
+        public IRenderGroupState GetOrCreateState(GraphicsDevice device, IPipelineState pso, PrimitiveTopology pt, List<VertexLayoutDescription> vertexLayouts)
         {
             var modelOffset = 64u;
             if (device.UniformBufferMinOffsetAlignment > 64)
@@ -91,7 +90,7 @@ namespace Veldrid.SceneGraph.RenderGraph
 
             var maxAllowedDrawables = 65536u / modelOffset;
             
-            var key = new Tuple<IPipelineState, PrimitiveTopology, VertexLayoutDescription>(pso, pt, vl);
+            var key = new Tuple<IPipelineState, PrimitiveTopology, List<VertexLayoutDescription>>(pso, pt, vertexLayouts);
             if (RenderGroupStateCache.TryGetValue(key, out var renderGroupStateList))
             {
                 // Check to see if this state list can accept any more drawables, if not, allocate a new one
@@ -103,11 +102,11 @@ namespace Veldrid.SceneGraph.RenderGraph
                     }
                 }
                 
-                renderGroupStateList.Add(RenderGroupState.Create(pso, pt, vl));
+                renderGroupStateList.Add(RenderGroupState.Create(pso, pt, vertexLayouts));
                 return renderGroupStateList.Last();
             }
 
-            renderGroupStateList = new List<IRenderGroupState> {RenderGroupState.Create(pso, pt, vl)}; 
+            renderGroupStateList = new List<IRenderGroupState> {RenderGroupState.Create(pso, pt, vertexLayouts)}; 
             RenderGroupStateCache.Add(key, renderGroupStateList);
 
             return renderGroupStateList.Last();

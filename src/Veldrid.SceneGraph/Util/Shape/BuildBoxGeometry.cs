@@ -210,7 +210,8 @@ namespace Veldrid.SceneGraph.Util.Shape
 
             geometry.IndexData = indices;
 
-            geometry.VertexLayout = VertexLayoutHelpers.GetLayoutDescription(typeof(T));
+            geometry.VertexLayouts = new List<VertexLayoutDescription>()
+                {VertexLayoutHelpers.GetLayoutDescription(typeof(T))};
             
             var pSet = DrawElements<T>.Create(
                 geometry, 

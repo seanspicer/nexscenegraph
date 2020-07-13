@@ -368,11 +368,11 @@ namespace Veldrid.SceneGraph.RenderGraph
                     IRenderGroupState renderGroupState = null;
                     if (drawablePso.BlendStateDescription.AttachmentStates.Contains(BlendAttachmentDescription.AlphaBlend))
                     {
-                        renderGroupState = TransparentRenderGroup.GetOrCreateState(GraphicsDevice, drawablePso, pset.PrimitiveTopology, drawable.VertexLayout);
+                        renderGroupState = TransparentRenderGroup.GetOrCreateState(GraphicsDevice, drawablePso, pset.PrimitiveTopology, drawable.VertexLayouts);
                     }
                     else
                     {
-                        renderGroupState = OpaqueRenderGroup.GetOrCreateState(GraphicsDevice, drawablePso, pset.PrimitiveTopology, drawable.VertexLayout);
+                        renderGroupState = OpaqueRenderGroup.GetOrCreateState(GraphicsDevice, drawablePso, pset.PrimitiveTopology, drawable.VertexLayouts);
                     }
 
                     if (false == renderElementCache.TryGetValue(renderGroupState, out var renderElement))
@@ -380,7 +380,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                         renderElement = new RenderGroupElement()
                         {
                             ModelViewMatrix = billboardMatrix.PostMultiply(modelView),
-                            VertexBuffer = drawable.GetVertexBufferForDevice(GraphicsDevice),
+                            VertexBuffers = drawable.GetVertexBufferForDevice(GraphicsDevice),
                             IndexBuffer = drawable.GetIndexBufferForDevice(GraphicsDevice),
                             PrimitiveSets = new List<IPrimitiveSet>()
                         };
@@ -465,11 +465,11 @@ namespace Veldrid.SceneGraph.RenderGraph
                 IRenderGroupState renderGroupState = null;
                 if (pso.BlendStateDescription.AttachmentStates.Contains(BlendAttachmentDescription.AlphaBlend))
                 {
-                    renderGroupState = TransparentRenderGroup.GetOrCreateState(GraphicsDevice, pso, pset.PrimitiveTopology, drawable.VertexLayout);
+                    renderGroupState = TransparentRenderGroup.GetOrCreateState(GraphicsDevice, pso, pset.PrimitiveTopology, drawable.VertexLayouts);
                 }
                 else
                 {
-                    renderGroupState = OpaqueRenderGroup.GetOrCreateState(GraphicsDevice, pso, pset.PrimitiveTopology, drawable.VertexLayout);
+                    renderGroupState = OpaqueRenderGroup.GetOrCreateState(GraphicsDevice, pso, pset.PrimitiveTopology, drawable.VertexLayouts);
                 }
 
                 if (false == renderElementCache.TryGetValue(renderGroupState, out var renderElement))
@@ -483,7 +483,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                     renderElement = new RenderGroupElement()
                     {
                         ModelViewMatrix = modMatrix.PostMultiply(GetModelViewMatrix()),
-                        VertexBuffer = drawable.GetVertexBufferForDevice(GraphicsDevice),
+                        VertexBuffers = drawable.GetVertexBufferForDevice(GraphicsDevice),
                         IndexBuffer = drawable.GetIndexBufferForDevice(GraphicsDevice),
                         PrimitiveSets = new List<IPrimitiveSet>()
                     };

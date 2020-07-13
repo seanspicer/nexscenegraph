@@ -110,14 +110,14 @@ namespace Veldrid.SceneGraph.PipelineStates
             return new PhongMaterial(p, light0, overrideColor);
         }
 
-        internal PhongMaterial(IPhongMaterialParameters p, PhongLight light0, bool overrideColor)
+        protected PhongMaterial(IPhongMaterialParameters p, PhongLight light0, bool overrideColor)
         {
             _material = p;
             _light0 = light0;
             _overrideColor = overrideColor;
         }
 
-        public IPipelineState CreatePipelineState()
+        public virtual IPipelineState CreatePipelineState()
         {
             var pso = PipelineState.Create();
 
@@ -135,7 +135,7 @@ namespace Veldrid.SceneGraph.PipelineStates
             return pso;
         }
 
-        private IBindable CreateLightSourceUniform()
+        protected IBindable CreateLightSourceUniform()
         {
             var lightSourceUniform = Uniform<LightSource>.Create(
                 "LightSource", 
@@ -159,7 +159,7 @@ namespace Veldrid.SceneGraph.PipelineStates
             return lightSourceUniform;
         }
         
-        private IBindable CreateMaterialUniform()
+        protected IBindable CreateMaterialUniform()
         {
             var materialDescriptionUniform = Uniform<Material>.Create(
                 "MaterialDescription", 
@@ -183,7 +183,7 @@ namespace Veldrid.SceneGraph.PipelineStates
             return materialDescriptionUniform;
         }
         
-        public static byte[] ReadEmbeddedAssetBytes(string name)
+        protected byte[] ReadEmbeddedAssetBytes(string name)
         {
             var asm = Assembly.GetCallingAssembly();
             

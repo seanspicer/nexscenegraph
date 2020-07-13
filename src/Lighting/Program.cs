@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Examples.Common;

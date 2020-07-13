@@ -26,17 +26,21 @@ namespace Veldrid.SceneGraph
     {
         T[] VertexData { get; set; }
         uint[] IndexData { get; set; }
+
+        IVertexBuffer InstanceVertexBuffer { get; set; }
     }
     
     public class Geometry<T> : Drawable, IGeometry<T> where T : struct, IPrimitiveElement
     {
         public T[] VertexData { get; set; }
         private int SizeOfVertexData => Marshal.SizeOf(default(T));
-        
+
+        public IVertexBuffer InstanceVertexBuffer { get; set; }
+
         public uint[] IndexData { get; set; }
         
-        private Dictionary<GraphicsDevice, DeviceBuffer> _vertexBufferCache 
-            = new Dictionary<GraphicsDevice, DeviceBuffer>();
+        private Dictionary<GraphicsDevice, List<DeviceBuffer>> _vertexBufferCache 
+            = new Dictionary<GraphicsDevice, List<DeviceBuffer>>();
         
         private Dictionary<GraphicsDevice, DeviceBuffer> _indexBufferCache 
             = new Dictionary<GraphicsDevice, DeviceBuffer>();
@@ -54,19 +58,29 @@ namespace Veldrid.SceneGraph
         {
             if (_vertexBufferCache.ContainsKey(device) && _indexBufferCache.ContainsKey(device)) return;
             
+            var vertexBuffers = new List<DeviceBuffer>();
+            
             var vtxBufferDesc =
                 new BufferDescription((uint) (VertexData.Length * SizeOfVertexData), BufferUsage.VertexBuffer);
             var vbo = factory.CreateBuffer(vtxBufferDesc);
             device.UpdateBuffer(vbo, 0, VertexData);
 
+            vertexBuffers.Add(vbo);
             
+            if (null != InstanceVertexBuffer)
+            {
+                InstanceVertexBuffer.ConfigureDeviceBuffers(device, factory);
+                var ivbo = InstanceVertexBuffer.GetVertexBufferForDevice(device);
+                vertexBuffers.Add(ivbo);
+            }
+            
+            _vertexBufferCache.Add(device, vertexBuffers);
             
             var idxBufferDesc =
                 new BufferDescription((uint) (IndexData.Length * sizeof(uint)), BufferUsage.IndexBuffer);
             var ibo = factory.CreateBuffer(idxBufferDesc);
             device.UpdateBuffer(ibo, 0, IndexData);
-
-            _vertexBufferCache.Add(device, vbo);
+            
             _indexBufferCache.Add(device, ibo);
         }
 
@@ -95,7 +109,7 @@ namespace Veldrid.SceneGraph
             return bb;
         }
 
-        public override DeviceBuffer GetVertexBufferForDevice(GraphicsDevice device)
+        public override List<DeviceBuffer> GetVertexBufferForDevice(GraphicsDevice device)
         {
             if (_vertexBufferCache.ContainsKey(device))
             {

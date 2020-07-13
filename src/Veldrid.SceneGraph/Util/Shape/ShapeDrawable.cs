@@ -31,19 +31,22 @@ namespace Veldrid.SceneGraph.Util.Shape
         private IShape _shape;
         private Vector3 [] _colors;
         private ITessellationHints _hints;
+        private uint _instanceCount;
         
-        public static IShapeDrawable<T> Create(IShape shape, ITessellationHints hints)
+        public static IShapeDrawable<T> Create(IShape shape, ITessellationHints hints, uint instanceCount=1)
         {
-            return new ShapeDrawable<T>(shape, hints);
+            return new ShapeDrawable<T>(shape, hints, instanceCount);
         }
         
-        public static IShapeDrawable<T> Create(IShape shape, ITessellationHints hints, Vector3 [] colors)
+        public static IShapeDrawable<T> Create(IShape shape, ITessellationHints hints, Vector3 [] colors, uint instanceCount=1)
         {
-            return new ShapeDrawable<T>(shape, hints, colors);
+            return new ShapeDrawable<T>(shape, hints, colors, instanceCount);
         }
         
-        protected ShapeDrawable(IShape shape, ITessellationHints hints)
+        protected ShapeDrawable(IShape shape, ITessellationHints hints, uint instanceCount)
         {
+            SetInstanceCount(instanceCount);
+            
             if (hints.ColorsType == ColorsType.ColorOverall)
             {
                 SetColors(new [] {Vector3.One} );
@@ -86,8 +89,9 @@ namespace Veldrid.SceneGraph.Util.Shape
             Build();
         }
         
-        protected ShapeDrawable(IShape shape, ITessellationHints hints, Vector3 [] colors)
+        protected ShapeDrawable(IShape shape, ITessellationHints hints, Vector3 [] colors, uint instanceCount)
         {
+            SetInstanceCount(instanceCount);
             SetColors(colors);
             SetShape(shape);
             SetTessellationHints(hints);
@@ -108,10 +112,15 @@ namespace Veldrid.SceneGraph.Util.Shape
         {
             _hints = hints;
         }
+
+        private void SetInstanceCount(uint instanceCount)
+        {
+            _instanceCount = instanceCount;
+        }
         
         private void Build()
         {
-            var shapeGeometryVisitor = new BuildShapeGeometryVisitor<T>(this, _hints, _colors);
+            var shapeGeometryVisitor = new BuildShapeGeometryVisitor<T>(this, _hints, _colors, _instanceCount);
             _shape.Accept(shapeGeometryVisitor);
         }
     }

@@ -18,6 +18,10 @@
 
     <ItemGroup>
       <EmbeddedResource Include="Assets\Models\chinesedragon.dae" />
+      <None Remove="Assets\Shaders\LargeSphereCount-fragment.glsl" />
+      <EmbeddedResource Include="Assets\Shaders\LargeSphereCount-fragment.glsl" />
+      <None Remove="Assets\Shaders\LargeSphereCount-vertex.glsl" />
+      <EmbeddedResource Include="Assets\Shaders\LargeSphereCount-vertex.glsl" />
     </ItemGroup>
 
 </Project>

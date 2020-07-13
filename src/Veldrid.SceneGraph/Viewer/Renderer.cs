@@ -16,7 +16,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
@@ -244,8 +243,11 @@ namespace Veldrid.SceneGraph.Viewer
                     }
                     
                     var offsets = offsetsList.ToArray();
-                    
-                    _commandList.SetVertexBuffer(0, element.VertexBuffer);
+
+                    for (var vboIdx = 0; vboIdx < element.VertexBuffers.Count; ++vboIdx)
+                    {
+                        _commandList.SetVertexBuffer((uint)vboIdx, element.VertexBuffers[vboIdx]);
+                    }
                     
                     _commandList.SetIndexBuffer(element.IndexBuffer, IndexFormat.UInt32);
                     
@@ -314,7 +316,7 @@ namespace Veldrid.SceneGraph.Viewer
                 stateToUniformDict.Add(state, modelMatrixViewBuffer);
             }
 
-            DeviceBuffer boundVertexBuffer = null;
+            List<DeviceBuffer> boundVertexBufferList = null;
             DeviceBuffer boundIndexBuffer = null;
             
             // Now draw transparent elements, back to front
@@ -349,11 +351,15 @@ namespace Veldrid.SceneGraph.Viewer
                     
                     var renderGroupElement = element.Item2;
 
-                    if (boundVertexBuffer != renderGroupElement.VertexBuffer)
+                    if (boundVertexBufferList != renderGroupElement.VertexBuffers)
                     {
                         // Set vertex buffer
-                        _commandList.SetVertexBuffer(0, renderGroupElement.VertexBuffer);
-                        boundVertexBuffer = renderGroupElement.VertexBuffer;     
+                        for (var vboIdx = 0; vboIdx < renderGroupElement.VertexBuffers.Count; ++vboIdx)
+                        {
+                            _commandList.SetVertexBuffer((uint)vboIdx, renderGroupElement.VertexBuffers[vboIdx]);
+                        }
+                        
+                        boundVertexBufferList = renderGroupElement.VertexBuffers;     
                     }
 
                     if (boundIndexBuffer != renderGroupElement.IndexBuffer)
@@ -428,13 +434,16 @@ namespace Veldrid.SceneGraph.Viewer
             SwapBuffers(device);
             
             var postSwap = _stopWatch.ElapsedMilliseconds;
+
+            var logString = string.Format(
+                "UpdateUniforms = {0} ms, Cull = {1} ms, Record = {2}, Draw = {3} ms, Swap = {4} ms",
+                postUpdate,
+                postCull - postUpdate,
+                postRecord - postCull,
+                postDraw - postRecord,
+                postSwap - postDraw);
             
-            _logger?.LogTrace(string.Format("UpdateUniforms = {0} ms, Cull = {1} ms, Record = {2}, Draw = {3} ms, Swap = {4} ms",
-                postUpdate, 
-                postCull-postUpdate,
-                postRecord-postCull,
-                postDraw-postRecord,
-                postSwap-postDraw));
+            _logger?.LogTrace(logString);
         }
 
         public void HandleResize(GraphicsDevice device)
