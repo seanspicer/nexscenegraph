@@ -23,6 +23,8 @@ namespace Veldrid.SceneGraph
     {
         void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory);
         DeviceBuffer GetVertexBufferForDevice(GraphicsDevice device);
+        void UpdateDeviceBuffers(GraphicsDevice device);
+        void SetDirty();
     }
     
     public interface IVertexBuffer<T> : IVertexBuffer where T : struct
@@ -32,6 +34,13 @@ namespace Veldrid.SceneGraph
     
     public class VertexBuffer<T> : IVertexBuffer<T> where T : struct
     {
+        private bool _dirtyFlag;
+
+        public void SetDirty()
+        {
+            _dirtyFlag = true;
+        }
+        
         public static IVertexBuffer<T> Create()
         {
             return new VertexBuffer<T>();
@@ -52,14 +61,24 @@ namespace Veldrid.SceneGraph
         
         public void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory)
         {
-            if (_vertexBufferCache.ContainsKey(device)) return;
-            
-            var vtxBufferDesc =
-                new BufferDescription((uint) (VertexData.Length * SizeOfVertexData), BufferUsage.VertexBuffer);
-            var vbo = factory.CreateBuffer(vtxBufferDesc);
-            device.UpdateBuffer(vbo, 0, VertexData);
-            
-            _vertexBufferCache.Add(device, vbo);
+            if (false == _vertexBufferCache.TryGetValue(device, out var vbo))
+            {
+                var vtxBufferDesc =
+                    new BufferDescription((uint) (VertexData.Length * SizeOfVertexData), BufferUsage.VertexBuffer);
+                
+                vbo = factory.CreateBuffer(vtxBufferDesc);
+                
+                device.UpdateBuffer(vbo, 0, VertexData);
+                
+                _vertexBufferCache.Add(device, vbo);
+                
+            }
+            else
+            {
+                UpdateDeviceBuffers(device);
+            }
+
+            _dirtyFlag = false;
         }
         
         public DeviceBuffer GetVertexBufferForDevice(GraphicsDevice device)
@@ -71,6 +90,16 @@ namespace Veldrid.SceneGraph
             else
             {
                 throw new Exception("No vertex buffer for device");
+            }
+        }
+
+        public void UpdateDeviceBuffers(GraphicsDevice device)
+        {
+            if (false == _dirtyFlag) return;
+            
+            if (_vertexBufferCache.TryGetValue(device, out var vbo))
+            {
+                device.UpdateBuffer(vbo, 0, VertexData);
             }
         }
     }

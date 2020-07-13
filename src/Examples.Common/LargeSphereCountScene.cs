@@ -47,10 +47,11 @@ namespace Examples.Common
             {
                 var xPos = -50f+(float) random.NextDouble() * 100;
                 var yPos = -50f+(float) random.NextDouble() * 100;
-
+                var zPos = -50f + (float) random.NextDouble() * 100;
+                
                 var scale = (float)(20f * random.NextDouble());
                 
-                instanceData[i] = new InstanceData(new Vector3(xPos, yPos, 0.0f), scale*Vector3.One );
+                instanceData[i] = new InstanceData(new Vector3(xPos, yPos, zPos), scale*Vector3.One );
                 //instanceData[i] = new InstanceData(Vector3.Zero, Vector3.One );
             }
 

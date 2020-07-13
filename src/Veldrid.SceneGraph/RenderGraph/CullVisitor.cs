@@ -480,6 +480,8 @@ namespace Veldrid.SceneGraph.RenderGraph
                         modMatrix = matrix;
                     } 
                     
+                    drawable.UpdateDeviceBuffers(GraphicsDevice);
+                    
                     renderElement = new RenderGroupElement()
                     {
                         ModelViewMatrix = modMatrix.PostMultiply(GetModelViewMatrix()),

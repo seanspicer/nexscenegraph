@@ -132,5 +132,13 @@ namespace Veldrid.SceneGraph
                 throw new Exception("No index buffer for device");
             }
         }
+
+        public override void UpdateDeviceBuffers(GraphicsDevice device)
+        {
+            if (null != InstanceVertexBuffer)
+            {
+                InstanceVertexBuffer.UpdateDeviceBuffers(device);
+            }
+        }
     }
 }
