@@ -105,23 +105,24 @@ namespace Examples.Common
             var cubeGeode = Geode.Create();
             var cubeShape = Box.Create(Vector3.Zero, 0.2f*Vector3.One);
 
-            var INSTANCE_BOUNDS = 5;
-            var INSTANCE_COUNT = 5u;
+            var INSTANCE_BOUNDS = 5.0;
+            var INSTANCE_COUNT = 20.0;
             var INSTANCE_SPACING = 2*INSTANCE_BOUNDS / INSTANCE_COUNT;
-            var instanceData = new UpdatingInstancesExampleScene.InstanceData[INSTANCE_COUNT*INSTANCE_COUNT*INSTANCE_COUNT];
+            
+            var instanceData = new UpdatingInstancesExampleScene.InstanceData[(int)(INSTANCE_COUNT*INSTANCE_COUNT*INSTANCE_COUNT)];
             for (var i = 0; i < INSTANCE_COUNT; ++i)
             {
                 for (var j = 0; j < INSTANCE_COUNT; ++j)
                 {
                     for (var k = 0; k < INSTANCE_COUNT; ++k)
                     {
-                        var xPos = -INSTANCE_BOUNDS + (float) i*INSTANCE_SPACING;
-                        var yPos = -INSTANCE_BOUNDS + (float) j*INSTANCE_SPACING;
-                        var zPos = -INSTANCE_BOUNDS + (float) k*INSTANCE_SPACING;
+                        var xPos = (float) (-INSTANCE_BOUNDS + (float) i*INSTANCE_SPACING);
+                        var yPos = (float) (-INSTANCE_BOUNDS + (float) j*INSTANCE_SPACING);
+                        var zPos = (float) (-INSTANCE_BOUNDS + (float) k*INSTANCE_SPACING);
                 
                         var scale = 1;
                 
-                        instanceData[i*INSTANCE_COUNT*INSTANCE_COUNT + j*INSTANCE_COUNT + k] = new UpdatingInstancesExampleScene.InstanceData(new Vector3(xPos, yPos, zPos), scale*Vector3.One );
+                        instanceData[i*(int)(INSTANCE_COUNT*INSTANCE_COUNT) + j*(int)(INSTANCE_COUNT) + k] = new UpdatingInstancesExampleScene.InstanceData(new Vector3(xPos, yPos, zPos), scale*Vector3.One );
                     }
                 }
             }
@@ -144,11 +145,17 @@ namespace Examples.Common
                     cubeShape,
                     shapeHints,
                     new Vector3[] {new Vector3(1.0f, 0.0f, 0.0f)},
-                    INSTANCE_COUNT*INSTANCE_COUNT*INSTANCE_COUNT);
+                    (uint)(INSTANCE_COUNT*INSTANCE_COUNT*INSTANCE_COUNT));
 
             cubeDrawable.VertexLayouts.Add(vertexLayoutPerInstance);
             cubeDrawable.InstanceVertexBuffer = cubeInstanceData;
-            cubeDrawable.SetFixedBoundingBox(BoundingBox.Create(-INSTANCE_BOUNDS,-INSTANCE_BOUNDS,-INSTANCE_BOUNDS,INSTANCE_BOUNDS, INSTANCE_BOUNDS, INSTANCE_BOUNDS));
+            cubeDrawable.SetFixedBoundingBox(BoundingBox.Create(
+                (float)-INSTANCE_BOUNDS,
+                (float)-INSTANCE_BOUNDS,
+                (float)-INSTANCE_BOUNDS,
+                (float)INSTANCE_BOUNDS, 
+                (float)INSTANCE_BOUNDS, 
+                (float)INSTANCE_BOUNDS));
             cubeDrawable.SetUpdateCallback(new UpdateCallback(cubeInstanceData));
             
             var cubeMaterial = InstancedSphereMaterial.Create(
