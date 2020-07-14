@@ -33,7 +33,7 @@ namespace Veldrid.SceneGraph
         IBoundingBox GetBoundingBox();
         bool ComputeMatrix(ref Matrix4x4 computedMatrix, IState state);
         void SetFixedBoundingBox(IBoundingBox boundingBox);
-
+        public void UpdateDeviceBuffers(GraphicsDevice device);
 
     }
     
@@ -145,5 +145,6 @@ namespace Veldrid.SceneGraph
 
         public abstract DeviceBuffer GetIndexBufferForDevice(GraphicsDevice device);
 
+        public abstract void UpdateDeviceBuffers(GraphicsDevice device);
     }
 }

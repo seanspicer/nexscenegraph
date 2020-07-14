@@ -70,7 +70,8 @@ namespace Veldrid.SceneGraph.Util.Shape
 
         public void Apply(IBox box)
         {
-            BuildBoxGeometry<T>.Build(_geometry, _tessellationHints, _colors, box);
+            var builder = new BuildBoxGeometry<T>();
+            builder.Build(_geometry, _tessellationHints, _colors, _instanceCount, box);
         }
         
         public void Apply(ISphere sphere)

@@ -21,10 +21,14 @@ using Veldrid.SceneGraph.VertexTypes;
 
 namespace Veldrid.SceneGraph.Util.Shape
 {
-    internal static class BuildBoxGeometry<T> where T : struct, ISettablePrimitiveElement
+    internal class BuildBoxGeometry<T> : GeometryBuilderBase<T> where T : struct, ISettablePrimitiveElement
     {
-        internal static void Build(IGeometry<T> geometry, ITessellationHints hints, Vector3 [] colors, IBox box)
+        private uint _instanceCount = 1;
+        
+        internal void Build(IGeometry<T> geometry, ITessellationHints hints, Vector3 [] colors, uint instanceCount, IBox box)
         {
+            _instanceCount = instanceCount;
+            
             var dx = box.HalfLengths.X;
             var dy = box.HalfLengths.Y;
             var dz = box.HalfLengths.Z;
@@ -217,7 +221,7 @@ namespace Veldrid.SceneGraph.Util.Shape
                 geometry, 
                 PrimitiveTopology.TriangleList, 
                 (uint)geometry.IndexData.Length, 
-                1, 
+                (uint)_instanceCount, 
                 0, 
                 0, 
                 0);
