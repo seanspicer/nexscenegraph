@@ -81,6 +81,7 @@ layout(location = 2) in vec3 Color;
 layout(location = 3) in vec3 Normal;
 layout(location = 4) in vec3 InstancePosition;
 layout(location = 5) in vec3 InstanceScale;
+layout(location = 6) in float InstanceVisibility;
 
 layout(location = 0) out vec3 fsin_normal;
 layout(location = 1) out vec3 fsin_eyeDir;
@@ -89,6 +90,7 @@ layout(location = 3) out vec3 fsin_AmbientColor;
 layout(location = 4) out vec3 fsin_DiffuseColor;
 layout(location = 5) out vec3 fsin_SpecularColor;
 layout(location = 6) out vec3 fsin_Constants;
+layout(location = 7) out float fsin_VisibilityFlag;
 
 //layout(location = 4) out LightData fsin_lightData; 
 
@@ -114,6 +116,7 @@ vec3 getEyePosition(mat4 projection) {
 
 void main()
 {
+
     mat3 scalingMat = mat3(InstanceScale.x, 0, 0, 0, InstanceScale.y, 0, 0, 0, InstanceScale.z);
     
     vec3 transformedPos = (scalingMat * Position) + InstancePosition;
@@ -142,4 +145,5 @@ void main()
     fsin_SpecularColor = materialDesc.SpecularColor;
     
     fsin_Constants = vec3(lightSource.LightPower, materialDesc.Shininess, lightSource.AttenuationConstant);
+    fsin_VisibilityFlag = InstanceVisibility;
 }

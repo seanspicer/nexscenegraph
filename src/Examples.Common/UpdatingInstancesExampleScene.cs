@@ -32,11 +32,13 @@ namespace Examples.Common
 
             public Vector3 Position;
             public Vector3 Scale;
+            public float Visibility;
             
             public InstanceData(Vector3 position, Vector3 scale)
             {
                 Position = position;
                 Scale = scale;
+                Visibility = 1.0f;
             }
         }
         
@@ -46,28 +48,51 @@ namespace Examples.Common
             private IVertexBuffer<UpdatingInstancesExampleScene.InstanceData> _vb;
 
             private Random _random;
+
+            private DateTime _lastTime;
+
+            private int _idx;
             
             internal UpdateCallback(IVertexBuffer<UpdatingInstancesExampleScene.InstanceData> vb)
             {
                 _vb = vb;
                 _random = new Random();
+                _lastTime = DateTime.Now;
+                _idx = 0;
             }
             
             public bool Run(IObject obj, IObject data)
             {
-                var cnt = _vb.VertexData.Length;
-                for (var i = 0; i < cnt; ++i)
+                var curTime = DateTime.Now;
+
+                if ((curTime - _lastTime).TotalMilliseconds > 6)
                 {
-                    _vb.VertexData[i].Scale = (float) _random.NextDouble() * Vector3.One;
+                    if (_idx >= _vb.VertexData.Length)
+                    {
+                        _idx = 0;
+                    }
+                    
+                    if (_vb.VertexData[_idx].Scale.X > 0.5)
+                    {
+                        _vb.VertexData[_idx].Scale = 0.3f * Vector3.One;
+                    }
+                    else if (_vb.VertexData[_idx].Visibility > 0.5)
+                    {
+                        _vb.VertexData[_idx].Visibility = 0.0f;
+                    }
+                    else
+                    {
+                        _vb.VertexData[_idx].Scale = 1.0f * Vector3.One;
+                        _vb.VertexData[_idx].Visibility = 1.0f;
+                    }
+
+                    _idx++;
+
+                    _vb.SetDirty();
                 }
-                
-                _vb.SetDirty();
-                
                 return true;
             }
         }
-        
-        
         
         public static IGroup Build()
         {
@@ -108,7 +133,10 @@ namespace Examples.Common
                 new VertexElementDescription("InstancePosition", VertexElementSemantic.TextureCoordinate,
                     VertexElementFormat.Float3),
                 new VertexElementDescription("InstanceScale", VertexElementSemantic.TextureCoordinate,
-                    VertexElementFormat.Float3));
+                    VertexElementFormat.Float3),
+                new VertexElementDescription("InstanceVisible", VertexElementSemantic.TextureCoordinate,
+                    VertexElementFormat.Float1)
+                );
             vertexLayoutPerInstance.InstanceStepRate = 1;
 
             var cubeDrawable =

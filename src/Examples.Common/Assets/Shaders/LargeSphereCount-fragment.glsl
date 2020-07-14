@@ -35,6 +35,7 @@ layout(location = 3) in vec3 fsin_AmbientColor;
 layout(location = 4) in vec3 fsin_DiffuseColor;
 layout(location = 5) in vec3 fsin_SpecularColor;
 layout(location = 6) in vec3 fsin_Constants;
+layout(location = 7) in float fsin_VisibilityFlag;
 
 //layout(location = 4) flat in LightData fsin_lightData; 
 
@@ -42,6 +43,8 @@ layout(location = 0) out vec4 fsout_color;
 
 void main()
 {
+    if(fsin_VisibilityFlag < 0.5) discard;
+
     // Inputs
     vec3 n = normalize(fsin_normal);
     vec3 l = normalize(fsin_lightVec);
