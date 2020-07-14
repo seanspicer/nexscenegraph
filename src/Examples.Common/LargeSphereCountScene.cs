@@ -21,11 +21,13 @@ namespace Examples.Common
 
             public Vector3 Position;
             public Vector3 Scale;
+            public float Visibility;
             
             public InstanceData(Vector3 position, Vector3 scale)
             {
                 Position = position;
                 Scale = scale;
+                Visibility = 1.0f;
             }
         }
         
@@ -62,7 +64,10 @@ namespace Examples.Common
                 new VertexElementDescription("InstancePosition", VertexElementSemantic.TextureCoordinate,
                     VertexElementFormat.Float3),
                 new VertexElementDescription("InstanceScale", VertexElementSemantic.TextureCoordinate,
-                    VertexElementFormat.Float3));
+                    VertexElementFormat.Float3),
+                new VertexElementDescription("InstanceVisible", VertexElementSemantic.TextureCoordinate,
+                    VertexElementFormat.Float1)
+            );
             vertexLayoutPerInstance.InstanceStepRate = 1;
 
             var sphereDrawable =
