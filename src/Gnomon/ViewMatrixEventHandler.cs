@@ -12,6 +12,8 @@
 // and may not be used in any way not expressly authorized by the Company.
 //
 
+using System.Numerics;
+using Veldrid;
 using Veldrid.SceneGraph.InputAdapter;
 
 namespace Gnomon
@@ -28,6 +30,7 @@ namespace Gnomon
 
         public override void HandleInput(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter)
         {
+            base.HandleInput(snapshot, uiActionAdapter);
             _viewModel.MainViewMatrix = snapshot.ViewMatrix;
         }
     }

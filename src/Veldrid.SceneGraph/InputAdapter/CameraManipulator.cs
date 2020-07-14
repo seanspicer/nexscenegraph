@@ -45,7 +45,7 @@ namespace Veldrid.SceneGraph.InputAdapter
     
     public abstract class CameraManipulator : InputEventHandler, ICameraManipulator
     {
-        protected abstract Matrix4x4 InverseMatrix { get; }
+        public abstract Matrix4x4 InverseMatrix { get; }
         
         protected abstract float ZoomScale { get; }
         
