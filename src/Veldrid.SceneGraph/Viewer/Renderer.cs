@@ -76,8 +76,6 @@ namespace Veldrid.SceneGraph.Viewer
                 _modelViewMatrixObjectSizeInBytes = alignment;
             }
             
-            _modelViewMatrixBuffer = new Matrix4x4[64];
-            
             _cullVisitor.GraphicsDevice = device;
             _cullVisitor.ResourceFactory = factory;
             
