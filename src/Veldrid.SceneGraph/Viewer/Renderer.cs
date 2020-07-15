@@ -235,14 +235,6 @@ namespace Veldrid.SceneGraph.Viewer
                 for(var i=0; i<nDrawables; ++i)
                 {
                     var element = state.Elements[i];
-                    var offsetsList = new List<uint>();
-
-                    foreach (var stride in ri.UniformStrides)
-                    {
-                        offsetsList.Add((uint)i*stride);
-                    }
-                    
-                    var offsets = offsetsList.ToArray();
 
                     for (var vboIdx = 0; vboIdx < element.VertexBuffers.Count; ++vboIdx)
                     {
@@ -253,7 +245,7 @@ namespace Veldrid.SceneGraph.Viewer
                     
                     _commandList.SetGraphicsResourceSet(0, _resourceSet);
 
-                    _commandList.SetGraphicsResourceSet(1, ri.ResourceSet, offsets);
+                    _commandList.SetGraphicsResourceSet(1, ri.ResourceSet, ri.OffsetArrayList[i]);
            
                     foreach (var primitiveSet in element.PrimitiveSets)
                     {

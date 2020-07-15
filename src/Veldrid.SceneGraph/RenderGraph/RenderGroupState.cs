@@ -32,11 +32,11 @@ namespace Veldrid.SceneGraph.RenderGraph
         public uint ModelViewMatrixObjSizeInBytes;
         public uint HostBufferStride;
         public Matrix4x4[] ModelViewMatrixBuffer;
-        public List<uint> UniformStrides;
-
+        public List<uint[]> OffsetArrayList;
+        
         public RenderInfo()
         {
-            UniformStrides = new List<uint>();
+            OffsetArrayList = new List<uint[]>();
         }
     }
     
@@ -113,7 +113,8 @@ namespace Veldrid.SceneGraph.RenderGraph
             GraphicsPipelineDescription pd = new GraphicsPipelineDescription();
             pd.PrimitiveTopology = PrimitiveTopology;
             
-            ri.UniformStrides.Add(modelViewMatrixObjSizeInBytes);
+            var UniformStrides = new List<uint>();
+            UniformStrides.Add(modelViewMatrixObjSizeInBytes);
             
             ri.ModelViewBuffer =
                 resourceFactory.CreateBuffer(new BufferDescription(modelViewMatrixObjSizeInBytes*nDrawables, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
@@ -123,6 +124,8 @@ namespace Veldrid.SceneGraph.RenderGraph
 
             //bindableResourceList.Add(ri.ModelViewBuffer);
             bindableResourceList.Add(new DeviceBufferRange(ri.ModelViewBuffer, 0, modelViewMatrixObjSizeInBytes));
+            
+            
             
             // Process Attached Textures
             foreach (var tex2d in PipelineState.TextureList)
@@ -146,6 +149,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                 bindableResourceList.Add(graphicsDevice.Aniso4xSampler);
             }
 
+            
             foreach (var uniform in PipelineState.UniformList)
             {
                 uniform.ConfigureDeviceBuffers(graphicsDevice, resourceFactory);
@@ -156,7 +160,7 @@ namespace Veldrid.SceneGraph.RenderGraph
 
                 if (uniform.ResourceLayoutElementDescription.Options == ResourceLayoutElementOptions.DynamicBinding)
                 {
-                    ri.UniformStrides.Add(uniform.DeviceBufferRange.SizeInBytes);
+                    UniformStrides.Add(uniform.DeviceBufferRange.SizeInBytes);
                 }
             }
 
@@ -177,6 +181,21 @@ namespace Veldrid.SceneGraph.RenderGraph
                 )
             );
 
+            for (var i = 0; i < nDrawables; ++i)
+            {
+                var element = Elements[i];
+                var offsetsList = new List<uint>();
+
+                foreach (var stride in UniformStrides)
+                {
+                    offsetsList.Add((uint)i*stride);
+                }
+                    
+                var offsets = offsetsList.ToArray();
+                ri.OffsetArrayList.Add(offsets);
+            }
+            
+            
             pd.BlendState = PipelineState.BlendStateDescription;
             pd.DepthStencilState = PipelineState.DepthStencilState;
             pd.RasterizerState = PipelineState.RasterizerStateDescription;
