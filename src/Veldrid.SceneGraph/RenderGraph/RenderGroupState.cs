@@ -29,6 +29,9 @@ namespace Veldrid.SceneGraph.RenderGraph
         public ResourceLayout ResourceLayout;
         public ResourceSet ResourceSet;
         public DeviceBuffer ModelViewBuffer;
+        public uint ModelViewMatrixObjSizeInBytes;
+        public uint HostBufferStride;
+        public Matrix4x4[] ModelViewMatrixBuffer;
         public List<uint> UniformStrides;
 
         public RenderInfo()
@@ -73,27 +76,42 @@ namespace Veldrid.SceneGraph.RenderGraph
 
         public RenderInfo GetPipelineAndResources(GraphicsDevice graphicsDevice, ResourceFactory resourceFactory, ResourceLayout vpLayout, Framebuffer framebuffer)
         {
+            var alignment = graphicsDevice.UniformBufferMinOffsetAlignment;
+            var hostBufferStride = 1u;
+            var modelViewMatrixObjSizeInBytes = 64u;
+            if (alignment > 64u)
+            {
+                hostBufferStride = alignment / 64u;
+                modelViewMatrixObjSizeInBytes = alignment;
+            }
+            
+            var nDrawables = (uint)Elements.Count;
+            
             // TODO Cache this by device, factory
             var key = new Tuple<GraphicsDevice, ResourceFactory>(graphicsDevice, resourceFactory);
-            if (RenderInfoCache.TryGetValue(key, out var ri)) return ri;
+            if (RenderInfoCache.TryGetValue(key, out var ri))
+            {
+                if (ri.ModelViewBuffer.SizeInBytes == nDrawables * modelViewMatrixObjSizeInBytes)
+                {
+                    return ri;
+                }
+                // Number of drawables has changed!
+                else
+                {
+                    RenderInfoCache.Remove(key);
+                }
+            }
 
             ri = new RenderInfo();
+            ri.HostBufferStride = hostBufferStride;
+            ri.ModelViewMatrixObjSizeInBytes = modelViewMatrixObjSizeInBytes;
+            ri.ModelViewMatrixBuffer = new Matrix4x4[nDrawables*hostBufferStride];
             
             var resourceLayoutElementDescriptionList = new List<ResourceLayoutElementDescription> { };
             var bindableResourceList = new List<BindableResource>();
 
             GraphicsPipelineDescription pd = new GraphicsPipelineDescription();
             pd.PrimitiveTopology = PrimitiveTopology;
-            
-            var nDrawables = (uint)Elements.Count;
-
-            var alignment = graphicsDevice.UniformBufferMinOffsetAlignment;
-            
-            var modelViewMatrixObjSizeInBytes = 64u;
-            if (alignment > 64u)
-            {
-                modelViewMatrixObjSizeInBytes = alignment;
-            }
             
             ri.UniformStrides.Add(modelViewMatrixObjSizeInBytes);
             
