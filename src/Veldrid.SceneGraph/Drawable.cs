@@ -32,9 +32,7 @@ namespace Veldrid.SceneGraph
         DeviceBuffer GetIndexBufferForDevice(GraphicsDevice device);
         IBoundingBox GetBoundingBox();
         bool ComputeMatrix(ref Matrix4x4 computedMatrix, IState state);
-        void SetFixedBoundingBox(IBoundingBox boundingBox);
         public void UpdateDeviceBuffers(GraphicsDevice device);
-
     }
     
     public abstract class Drawable : Node, IDrawable
@@ -107,11 +105,6 @@ namespace Veldrid.SceneGraph
         
         public IBoundingBox GetBoundingBox()
         {
-            if (null != _fixedBoundingBox)
-            {
-                return _fixedBoundingBox;
-            }
-            
             if (_boundingSphereComputed) return _boundingBox;
             
             _boundingBox = _initialBoundingBox;

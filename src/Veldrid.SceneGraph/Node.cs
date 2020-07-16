@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Veldrid.SceneGraph.RenderGraph;
 using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Viewer;
@@ -59,7 +60,7 @@ namespace Veldrid.SceneGraph
         string NameString { get; set; }
         int NumParents { get; }
         bool CullingActive { get; set; }
-        int NumChildrenWithCullingDisabled { get; set; }
+        uint NumChildrenWithCullingDisabled { get; set; }
         bool IsCullingActive { get; }
         IPipelineState PipelineState { get; set; }
         bool HasPipelineState { get; }
@@ -114,8 +115,80 @@ namespace Veldrid.SceneGraph
         
         public int NumParents => _parents.Count;
 
-        public bool CullingActive { get; set; } = true;
-        public int NumChildrenWithCullingDisabled { get; set; } = 0;
+        private bool _cullingActive = true;
+
+        public bool CullingActive
+        {
+            get => _cullingActive;
+            set
+            {
+                if (_cullingActive == value) return;
+                
+                // culling active has been changed, will need to update
+                // both _cullActive and possibly the parents numChildrenWithCullingDisabled
+                // if culling disabled changes.
+
+                // update the parents _numChildrenWithCullingDisabled
+                // note, if _numChildrenWithCullingDisabled!=0 then the
+                // parents won't be affected by any app callback change,
+                // so no need to inform them.
+                if (_numChildrenWithCullingDisabled==0 && _parents.Any())
+                {
+                    var delta = 0u;
+                    if (!_cullingActive) --delta;
+                    if (!value) ++delta;
+                    if (delta!=0)
+                    {
+                        // the number of callbacks has changed, need to pass this
+                        // on to parents so they know whether app traversal is
+                        // required on this subgraph.
+                        foreach (var parent in _parents)
+                        {
+                            parent.NumChildrenWithCullingDisabled += delta;
+                        }
+                    }
+                }
+                
+                _cullingActive = value;
+            }
+        }
+
+        private uint _numChildrenWithCullingDisabled = 0;
+
+        public uint NumChildrenWithCullingDisabled
+        {
+            get => _numChildrenWithCullingDisabled;
+            set
+            {
+                // if no changes just return.
+                if (_numChildrenWithCullingDisabled==value) return;
+
+                // note, if _cullingActive is false then the
+                // parents won't be affected by any changes to
+                // _numChildrenWithCullingDisabled so no need to inform them.
+                if (_cullingActive && _parents.Any())
+                {
+
+                    // need to pass on changes to parents.
+                    uint delta = 0;
+                    if (_numChildrenWithCullingDisabled>0) --delta;
+                    if (value>0) ++delta;
+                    if (delta!=0)
+                    {
+                        // the number of callbacks has changed, need to pass this
+                        // on to parents so they know whether app traversal is
+                        // required on this subgraph.
+                        foreach (var parent in _parents)
+                        {
+                            parent.NumChildrenWithCullingDisabled += delta;
+                        }
+                    }
+                }
+
+                // finally update this objects value.
+                _numChildrenWithCullingDisabled=value;
+            }
+        }
 
         public bool IsCullingActive => NumChildrenWithCullingDisabled == 0 && CullingActive && GetBound().Valid();
            

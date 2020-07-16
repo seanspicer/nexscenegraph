@@ -79,8 +79,8 @@ namespace Examples.Common
 
             sphereDrawable.VertexLayouts.Add(vertexLayoutPerInstance);
             sphereDrawable.InstanceVertexBuffer = sphereInstanceData;
-            sphereDrawable.SetFixedBoundingBox(BoundingBox.Create(-50,-50,-10,50, 50, 10));
-            
+            sphereDrawable.InitialBoundingBox = BoundingBox.Create(-50,-50,-10,50, 50, 10);
+            sphereDrawable.CullingActive = false;
             
             var sphereMaterial = InstancedSphereMaterial.Create(
             PhongMaterialParameters.Create(

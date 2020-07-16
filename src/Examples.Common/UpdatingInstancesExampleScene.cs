@@ -149,14 +149,15 @@ namespace Examples.Common
 
             cubeDrawable.VertexLayouts.Add(vertexLayoutPerInstance);
             cubeDrawable.InstanceVertexBuffer = cubeInstanceData;
-            cubeDrawable.SetFixedBoundingBox(BoundingBox.Create(
+            cubeDrawable.InitialBoundingBox = BoundingBox.Create(
                 (float)-INSTANCE_BOUNDS,
                 (float)-INSTANCE_BOUNDS,
                 (float)-INSTANCE_BOUNDS,
                 (float)INSTANCE_BOUNDS, 
                 (float)INSTANCE_BOUNDS, 
-                (float)INSTANCE_BOUNDS));
+                (float)INSTANCE_BOUNDS);
             cubeDrawable.SetUpdateCallback(new UpdateCallback(cubeInstanceData));
+            cubeDrawable.CullingActive = false;
             
             var cubeMaterial = InstancedSphereMaterial.Create(
             PhongMaterialParameters.Create(

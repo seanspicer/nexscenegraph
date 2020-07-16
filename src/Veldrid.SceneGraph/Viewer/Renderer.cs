@@ -54,8 +54,6 @@ namespace Veldrid.SceneGraph.Viewer
         private ILogger _logger;
 
         private uint _hostBufferStride = 1u;
-        private uint _modelViewMatrixObjectSizeInBytes = 64u;
-        private Matrix4x4[] _modelViewMatrixBuffer;
         
         public Renderer(ICamera camera)
         {
@@ -69,11 +67,9 @@ namespace Veldrid.SceneGraph.Viewer
         private void Initialize(GraphicsDevice device, ResourceFactory factory)
         {
             var alignment = device.UniformBufferMinOffsetAlignment;
-            var modelViewMatrixObjSizeInBytes = 64u;
             if (alignment > 64u)
             {
                 _hostBufferStride = alignment / 64u;
-                _modelViewMatrixObjectSizeInBytes = alignment;
             }
             
             _cullVisitor.GraphicsDevice = device;

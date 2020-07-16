@@ -211,7 +211,10 @@ namespace Veldrid.SceneGraph.RenderGraph
         public override void Apply(IGeode geode)
         {
             var bb = geode.GetBoundingBox();
-            if (IsCulled(bb, ModelMatrixStack.Peek())) return;
+            if (geode.IsCullingActive && IsCulled(bb, ModelMatrixStack.Peek()))
+            {
+                return;
+            }
             
             var needsPop = false;
             if (geode.HasPipelineState)
@@ -309,7 +312,7 @@ namespace Veldrid.SceneGraph.RenderGraph
         public override void Apply(IBillboard billboard)
         {
             var bb = billboard.GetBoundingBox();
-            if (IsCulled(bb, ModelMatrixStack.Peek())) return;
+            if (billboard.IsCullingActive && IsCulled(bb, ModelMatrixStack.Peek())) return;
             
             IPipelineState pso = null;
 
@@ -403,8 +406,7 @@ namespace Veldrid.SceneGraph.RenderGraph
         public override void Apply(IDrawable drawable)
         {
             var bb = drawable.GetBoundingBox();
-            if (IsCulled(bb, ModelMatrixStack.Peek())) return;
-
+            
             // Check custom cull callback
             var callback = drawable.GetCullCallback();
             if (null != callback)
@@ -417,6 +419,11 @@ namespace Veldrid.SceneGraph.RenderGraph
                 {
                     callback.Run(drawable, this);
                 }
+            }
+
+            if (drawable.IsCullingActive && IsCulled(bb, ModelMatrixStack.Peek()))
+            {
+                return;
             }
             
             IPipelineState pso = null;
@@ -457,7 +464,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             
             foreach (var pset in drawable.PrimitiveSets)
             {
-                if (IsCulled(pset.GetBoundingBox(), ModelMatrixStack.Peek())) continue;
+                if (drawable.IsCullingActive && IsCulled(pset.GetBoundingBox(), ModelMatrixStack.Peek())) continue;
                 
                 //            
                 // Sort into appropriate render group
