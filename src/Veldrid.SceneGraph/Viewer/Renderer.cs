@@ -269,16 +269,21 @@ namespace Veldrid.SceneGraph.Viewer
             drawOrderMap.Capacity = _cullVisitor.RenderElementCount;
             var transparentRenderGroupStates = _cullVisitor.TransparentRenderGroup.GetStateList();
             
+            var stateToUniformDict = new Dictionary<IRenderGroupState, Matrix4x4[]>();
+            
             foreach (var state in transparentRenderGroupStates)
             {
                 var nDrawables = (uint)state.Elements.Count;
-                var renderInfo = state.GetPipelineAndResources(device, factory, _resourceLayout, framebuffer);
+                var modelMatrixViewBuffer = new Matrix4x4[nDrawables*hostBuffStride];
+                
+                //var renderInfo = state.GetPipelineAndResources(device, factory, _resourceLayout, framebuffer);
 
                 // Iterate over all elements in this state
                 for(var j=0; j<nDrawables; ++j)
                 {
                     var renderElement = state.Elements[j];
-                    renderInfo.ModelViewMatrixBuffer[j*hostBuffStride] = state.Elements[j].ModelViewMatrix;
+                    modelMatrixViewBuffer[j*hostBuffStride] = state.Elements[j].ModelViewMatrix;
+                    //renderInfo.ModelViewMatrixBuffer[j*hostBuffStride] = state.Elements[j].ModelViewMatrix;
                     
                     // Iterate over all primitive sets in this state
                     foreach (var pset in renderElement.PrimitiveSets)
@@ -299,6 +304,7 @@ namespace Veldrid.SceneGraph.Viewer
                         renderList.Add(Tuple.Create(state, renderElement, pset, (uint)j));
                     }
                 }
+                stateToUniformDict.Add(state, modelMatrixViewBuffer);
             }
 
             List<DeviceBuffer> boundVertexBufferList = null;
@@ -321,7 +327,7 @@ namespace Veldrid.SceneGraph.Viewer
                         // Set this state's pipeline
                         _commandList.SetPipeline(ri.Pipeline);
 
-                        _commandList.UpdateBuffer(ri.ModelViewBuffer, 0, ri.ModelViewMatrixBuffer);
+                        _commandList.UpdateBuffer(ri.ModelViewBuffer, 0, stateToUniformDict[state]);
                         
                         // Set the resources
                         _commandList.SetGraphicsResourceSet(0, _resourceSet);
