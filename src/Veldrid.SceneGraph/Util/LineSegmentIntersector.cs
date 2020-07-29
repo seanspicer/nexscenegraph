@@ -119,7 +119,7 @@ namespace Veldrid.SceneGraph.Util
         public override void Intersect(IIntersectionVisitor iv, IDrawable drawable)
         {
             var bb = drawable.GetBoundingBox();
-            if (!drawable.IsCullingActive && Intersects(BoundingSphere.Create(drawable.GetBoundingBox())))
+            if (drawable.IsCullingActive && Intersects(BoundingSphere.Create(drawable.GetBoundingBox())))
             {
                 var intersection = new Intersection(Start, bb.Center, drawable, iv.NodePath.Copy());
                 InsertIntersection(intersection);
