@@ -39,7 +39,7 @@ namespace Veldrid.SceneGraph
             VerticalFov = (float) System.Math.Atan2(height / 2.0f, distance) * 2.0f; 
 
             // TODO - fix this nasty cast
-            SetProjectionMatrixAsPerspective(VerticalFov, width / height, _zNear, _zFar);
+            SetProjectionMatrixAsPerspective(VerticalFov, (float)width / height, _zNear, _zFar);
         }
         
         public void SetProjectionMatrixAsPerspective(float vfov, float aspectRatio, float zNear, float zFar)
