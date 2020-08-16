@@ -14,11 +14,8 @@ namespace Veldrid.SceneGraph.Util.Shape
     {
         private Vector3[] _pathLocations;
         private Matrix4x4 _staticTransform;
-        
-        public Vector3[] PathLocations
-        {
-            get { return _pathLocations.Select(x => StaticTransform.PreMultiply(x)).ToArray(); }
-        }
+
+        public Vector3[] PathLocations => _pathLocations;
 
         public Matrix4x4 StaticTransform => _staticTransform;
 
@@ -40,8 +37,9 @@ namespace Veldrid.SceneGraph.Util.Shape
         
         internal Path(Vector3[] pathLocations, Matrix4x4 staticTransform)
         {
-            _pathLocations = pathLocations;
             _staticTransform = staticTransform;
+            _pathLocations = pathLocations.Select(x => _staticTransform.PreMultiply(x)).ToArray();
+            
         }
         
         public void Accept(IShapeVisitor shapeVisitor)
