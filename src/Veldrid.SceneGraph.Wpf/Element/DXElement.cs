@@ -362,7 +362,7 @@ namespace Veldrid.SceneGraph.Wpf.Element
         private Stopwatch m_renderTimer;
         #endregion
 
-        private void ReleaseUnmanagedResources()
+        protected virtual void ReleaseUnmanagedResources()
         {
             m_surface?.Dispose();
             m_surface = null;
