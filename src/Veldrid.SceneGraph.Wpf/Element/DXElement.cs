@@ -34,10 +34,22 @@ namespace Veldrid.SceneGraph.Wpf.Element
                     Render();
             };
             IsVisibleChanged += delegate { UpdateReallyLoopRendering(); };
+            
+            
         }
 
         #endregion
 
+        #region Finalizer
+
+        ~DXElement()
+        {
+            // This must be disposed, otherwise the finalizer will crash
+            m_surface.Dispose();
+        }
+        
+        #endregion
+        
         #region Dependency Property
 
         /// <summary>
