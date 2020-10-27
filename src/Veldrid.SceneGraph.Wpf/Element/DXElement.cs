@@ -14,7 +14,7 @@ namespace Veldrid.SceneGraph.Wpf.Element
     /// It does no Direct3D work, which is delegated to
     /// the <see cref="IDirect3D"/> <see cref="Renderer"/> object.
     /// </summary>
-    public class DXElement : UserControl, INotifyPropertyChanged
+    public class DXElement : UserControl, INotifyPropertyChanged, IDisposable
     {
         #region Init
 
@@ -44,8 +44,7 @@ namespace Veldrid.SceneGraph.Wpf.Element
 
         ~DXElement()
         {
-            // This must be disposed, otherwise the finalizer will crash
-            m_surface.Dispose();
+            Dispose(false);
         }
         
         #endregion
@@ -362,5 +361,25 @@ namespace Veldrid.SceneGraph.Wpf.Element
         private DXImageSource m_surface;
         private Stopwatch m_renderTimer;
         #endregion
+
+        private void ReleaseUnmanagedResources()
+        {
+            m_surface?.Dispose();
+            m_surface = null;
+        }
+
+        private void Dispose(bool disposing)
+        {
+            ReleaseUnmanagedResources();
+            if (disposing)
+            {
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
     }
 }
