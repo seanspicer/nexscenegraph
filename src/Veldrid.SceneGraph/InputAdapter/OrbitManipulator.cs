@@ -125,6 +125,21 @@ namespace Veldrid.SceneGraph.InputAdapter
             return true;
         }
 
+        public override void ZoomOnTarget(IInputStateSnapshot snapshot)
+        {
+            var center = new Vector2(snapshot.WindowWidth / 2.0f, snapshot.WindowHeight / 2.0f);
+            
+            var xNorm = 2.0f*(center.X / snapshot.WindowWidth)-1.0f;
+            var yNorm = -2.0f*(center.Y / snapshot.WindowHeight)+1.0f;
+                
+            var xNormLast = 2.0f*(snapshot.MousePosition.X / snapshot.WindowWidth)-1.0f;
+            var yNormLast = -2.0f*(snapshot.MousePosition.Y / snapshot.WindowHeight)+1.0f;
+            
+            PanModel(snapshot, xNorm, yNorm, xNormLast, yNormLast);
+            ZoomModel(-0.4f, true);
+
+        }
+
         protected virtual void RotateTrackball(float px0, float py0, float px1, float py1, float scale)
         {
             Trackball( out var axis, out var angle, px0 + (px1-px0)*scale, py0 + (py1-py0)*scale, px0, py0 );
