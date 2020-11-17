@@ -80,7 +80,7 @@ namespace Veldrid.SceneGraph.Wpf
             set
             {
                 _fsaaCount = value;
-                if (null != _graphicsDevice)
+                if (null != _graphicsDevice && null != _view)
                 {
                     _sceneContext.SetMainSceneSampleCount(
                         _fsaaCount, 

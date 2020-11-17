@@ -14,6 +14,9 @@ namespace WpfDemo
         {
             base.OnStartup(e);
             DisableWPFTabletSupport();
+            
+            var mw = new MainWindow();
+            mw.Show();
         }
         
         public static void DisableWPFTabletSupport()
