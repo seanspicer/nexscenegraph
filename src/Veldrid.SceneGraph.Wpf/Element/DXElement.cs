@@ -180,6 +180,8 @@ namespace Veldrid.SceneGraph.Wpf.Element
         /// </summary>
         private void UpdateReallyLoopRendering()
         {
+            // Check to make sure surface is not null.
+            
             var newValue =
                 !IsInDesignMode
                 && IsLoopRendering

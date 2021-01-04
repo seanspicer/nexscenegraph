@@ -2,17 +2,12 @@
 
     <PropertyGroup>
         <LangVersion>8</LangVersion>
-        <TargetFramework>net48</TargetFramework>
+        <TargetFrameworks>net48;netcoreapp3.1</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Veldrid.SceneGraph.Wpf\Veldrid.SceneGraph.Wpf.csproj" />
         <ProjectReference Include="..\Veldrid.SceneGraph\Veldrid.SceneGraph.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Reference Include="PresentationCore" />
-      <Reference Include="PresentationFramework" />
     </ItemGroup>
     
 </Project>
