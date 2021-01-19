@@ -4,6 +4,7 @@
 //
 
 using System.CodeDom.Compiler;
+using System.Numerics;
 using NUnit.Framework;
 using Veldrid.SceneGraph.Math.IsoSurface;
 
@@ -47,6 +48,8 @@ namespace Veldrid.SceneGraph.Tests
     
     public class CornerVoxelVolume : VoxelVolume
     {
+        
+        
         public CornerVoxelVolume() : base()
         {
             for (var z = 0; z < 2; ++z)
@@ -58,12 +61,12 @@ namespace Veldrid.SceneGraph.Tests
                         XValues[x, y, z] = x;
                         YValues[x, y, z] = y;
                         ZValues[x, y, z] = z;
-                        Values[x, y, z] = 0.0;
+                        Values[x, y, z] = 0;
                     }
                 }
             }
 
-            Values[0, 0, 0] = 1.0;
+            Values[0, 0, 0] = -1.0;
             Values[1, 1, 1] = 1.0;
         }
     }

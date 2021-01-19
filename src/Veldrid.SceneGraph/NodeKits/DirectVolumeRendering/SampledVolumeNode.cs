@@ -32,20 +32,34 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         private void CreateSlices(IVoxelVolume voxelVolume)
         {
             var isoSurfaceGenerator = new MarchingCubesIsoSurfaceGenerator();
-            var isoSurface = isoSurfaceGenerator.CreateIsoSurface(voxelVolume, 0.5);
 
-            var geometry = Geometry<Position3Color3>.Create();
+            List<IIsoSurface> isoSurfaces = new List<IIsoSurface>();
+            for (var i = 0; i < 40; ++i)
+            {
+                var isoSurface = isoSurfaceGenerator.CreateIsoSurface(voxelVolume, 0.25*i);
+                isoSurfaces.Add(isoSurface);
+            }
             
+
             List<Position3Color3> sliceVertices = new List<Position3Color3>();
             List<uint> indices = new List<uint>();
             var idx = 0u;
-            foreach (var vtx in isoSurface.IsoSurfaceVertices)
+            foreach (var isoSurface in isoSurfaces)
             {
-                sliceVertices.Add(new Position3Color3(new Vector3((float)vtx.X, (float)vtx.Y, (float)vtx.Z), Vector3.UnitX));
-                indices.Add(idx++);
+                foreach (var vtx in isoSurface.IsoSurfaceVertices)
+                {
+                    sliceVertices.Add(new Position3Color3(new Vector3((float)vtx.X, (float)vtx.Y, (float)vtx.Z), Vector3.UnitX));
+                    indices.Add(idx++);
+                }
             }
+
+
+            if (0 == sliceVertices.Count) return;
+            
+            var geometry = Geometry<Position3Color3>.Create();
             
             geometry.VertexData = sliceVertices.ToArray();
+            
             geometry.IndexData = indices.ToArray();
 
             geometry.VertexLayouts = new List<VertexLayoutDescription>()

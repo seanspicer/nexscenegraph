@@ -1,4 +1,5 @@
-﻿using Veldrid.SceneGraph;
+﻿using System.Numerics;
+using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.Math.IsoSurface;
 using Veldrid.SceneGraph.NodeKits.DirectVolumeRendering;
 
@@ -22,6 +23,8 @@ namespace Examples.Common
     
     public class CornerVoxelVolume : VoxelVolume
     {
+        private Vector3 _eyePoint = new Vector3(2, 2, 2);
+        
         public CornerVoxelVolume() : base()
         {
             for (var z = 0; z < 2; ++z)
@@ -33,13 +36,15 @@ namespace Examples.Common
                         XValues[x, y, z] = 2*x-1;
                         YValues[x, y, z] = 2*y-1;
                         ZValues[x, y, z] = 2*z-1;
-                        Values[x, y, z] = 0.0;
+                        var dist = (new Vector3(2*x-1, 2*y-1, 2*z-1) - _eyePoint).Length();
+
+                        Values[x, y, z] = dist;
                     }
                 }
             }
-
-            Values[0, 0, 0] = 1.0;
-            Values[1, 1, 1] = 1.0;
+            //
+            // Values[0, 0, 0] = 1.0;
+            // Values[1, 1, 1] = 1.0;
         }
     }
     
