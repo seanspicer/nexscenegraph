@@ -87,13 +87,13 @@ namespace Veldrid.SceneGraph.InputAdapter
                     ref bottom, ref top,
                     ref zNear, ref zFar);
             
-                var vertical2 = Math.Abs(right - left) / zNear / 2f;
-                var horizontal2 = Math.Abs(top - bottom) / zNear / 2f;
+                var vertical2 =  System.Math.Abs(right - left) / zNear / 2f;
+                var horizontal2 =  System.Math.Abs(top - bottom) / zNear / 2f;
                 var dim = horizontal2 < vertical2 ? horizontal2 : vertical2;
-                var viewAngle = Math.Atan2(dim,1f);
+                var viewAngle =  System.Math.Atan2(dim,1f);
 
                 var inverseMatrix = InverseMatrix;
-                var radius = -inverseMatrix.M43 * (float) Math.Sin(viewAngle);
+                var radius = -inverseMatrix.M43 * (float)  System.Math.Sin(viewAngle);
                 
                 var aspectRatio = camera.Viewport.AspectRatio;
 
@@ -144,7 +144,7 @@ namespace Veldrid.SceneGraph.InputAdapter
             System.Diagnostics.Debug.WriteLine($"    boundingSphere.Center= {boundingSphere.Center}");
             System.Diagnostics.Debug.WriteLine($"    boundingSphere.Radius= {boundingSphere.Radius}");
                 
-            var radius = Math.Max(boundingSphere.Radius, 1e-6);
+            var radius =  System.Math.Max(boundingSphere.Radius, 1e-6);
                 
             var dist = 3.5f * radius;
 
@@ -170,11 +170,11 @@ namespace Veldrid.SceneGraph.InputAdapter
                         throw new Exception("Unknown Camera type detected");
                 }
                 
-                var vertical2 = Math.Abs(right - left) / zNear / 2f;
-                var horizontal2 = Math.Abs(top - bottom) / zNear / 2f;
+                var vertical2 =  System.Math.Abs(right - left) / zNear / 2f;
+                var horizontal2 =  System.Math.Abs(top - bottom) / zNear / 2f;
                 var dim = horizontal2 < vertical2 ? horizontal2 : vertical2;
-                var viewAngle = Math.Atan2(dim,1f);
-                dist = radius / Math.Sin(viewAngle);
+                var viewAngle =  System.Math.Atan2(dim,1f);
+                dist = radius /  System.Math.Sin(viewAngle);
             }
                 
             SetHomePosition(boundingSphere.Center - (float)dist*Vector3.UnitY,

@@ -259,7 +259,7 @@ namespace Veldrid.SceneGraph
 
             double det = a * a11 + b * a12 + c * a13 + d * a14;
 
-            if (Math.Abs(det) < double.Epsilon)
+            if ( System.Math.Abs(det) < double.Epsilon)
             {
                 result = new Matrix4x4d(double.NaN, double.NaN, double.NaN, double.NaN,
                                        double.NaN, double.NaN, double.NaN, double.NaN,
@@ -428,9 +428,9 @@ namespace Veldrid.SceneGraph
                         uint cc;
                         double fAbsX, fAbsY, fAbsZ;
 
-                        fAbsX = (double)Math.Abs(pVectorBasis[a]->X);
-                        fAbsY = (double)Math.Abs(pVectorBasis[a]->Y);
-                        fAbsZ = (double)Math.Abs(pVectorBasis[a]->Z);
+                        fAbsX = (double) System.Math.Abs(pVectorBasis[a]->X);
+                        fAbsY = (double) System.Math.Abs(pVectorBasis[a]->Y);
+                        fAbsZ = (double) System.Math.Abs(pVectorBasis[a]->Z);
 
                         #region Ranking
                         if (fAbsX < fAbsY)

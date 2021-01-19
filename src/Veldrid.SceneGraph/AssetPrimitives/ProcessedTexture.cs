@@ -106,7 +106,7 @@ namespace Veldrid.SceneGraph.AssetPrimitives
                 ret /= 2;
             }
 
-            return Math.Max(1, ret);
+            return  System.Math.Max(1, ret);
         }
     }
 

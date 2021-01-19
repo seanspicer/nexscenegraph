@@ -85,7 +85,7 @@ namespace Veldrid.SceneGraph.Util.Shape
                 shape[i] = new Vector2((float)(r*System.Math.Sin(theta)), (float)(r*System.Math.Cos(theta)));
             }
 
-            var extrusion = Math.ExtrudeShape(shape, path.PathLocations);
+            var extrusion =  Util.Math.ExtrudeShape(shape, path.PathLocations);
 
             // Build from quad strips
             for (var j = 0; j < nSegments-1; ++j)

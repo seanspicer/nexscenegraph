@@ -56,7 +56,7 @@ namespace Veldrid.SceneGraph.Wpf.Element
         /// </summary>
         public static float DEG2RAD(this float degrees)
         {
-            return degrees * (float)Math.PI / 180.0f;
+            return degrees * (float) System.Math.PI / 180.0f;
         }
 
         /// <summary>

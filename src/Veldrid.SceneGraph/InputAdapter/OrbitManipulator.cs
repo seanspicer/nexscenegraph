@@ -149,19 +149,19 @@ namespace Veldrid.SceneGraph.InputAdapter
             // Avoid problems with out-of-control values.
             if (t > 1.0) t = 1.0;
             if (t < -1.0) t = -1.0;
-            angle = (float) Math.Asin(t);
+            angle = (float)  System.Math.Asin(t);
         }
 
         private float ProjectToSphere(float r, float x, float y)
         {
             double z;
 
-            var d = Math.Sqrt(x*x + y*y);
+            var d =  System.Math.Sqrt(x*x + y*y);
             
             /* Inside sphere */
             if (d < r * 0.70710678118654752440)
             {
-                z = Math.Sqrt(r*r - d*d);
+                z =  System.Math.Sqrt(r*r - d*d);
             } 
             
             /* On hyperbola */
@@ -320,7 +320,7 @@ namespace Veldrid.SceneGraph.InputAdapter
 
                         // Compute the length to move the camera by examining
                         // the tangent to the bounding sphere
-                        var moveLen = radius + aspectRadius / (Math.Tan(perspectiveCamera.VerticalFov / 2.0));
+                        var moveLen = radius + aspectRadius / ( System.Math.Tan(perspectiveCamera.VerticalFov / 2.0));
 
                         // Compute the new camera position
                         var moveDirection = normDirection * (float) moveLen;
@@ -329,7 +329,7 @@ namespace Veldrid.SceneGraph.InputAdapter
                         // Compute the near and far plane locations
                         const double epsilon = 0.001;
                         var distToMid = (cameraPos - center).Length();
-                        var zNear = (float) Math.Max(distToMid * epsilon, distToMid - radius * slack);
+                        var zNear = (float)  System.Math.Max(distToMid * epsilon, distToMid - radius * slack);
                         var zFar = distToMid + radius * slack;
 
                         _center = center;
@@ -348,11 +348,11 @@ namespace Veldrid.SceneGraph.InputAdapter
                         var zNear = winScale * radius;
                         var zFar = -winScale * radius;
                         
-                        var vertical2 = Math.Abs(width) / zNear / 2f;
-                        var horizontal2 = Math.Abs(height) / zNear / 2f;
+                        var vertical2 =  System.Math.Abs(width) / zNear / 2f;
+                        var horizontal2 =  System.Math.Abs(height) / zNear / 2f;
                         var dim = horizontal2 < vertical2 ? horizontal2 : vertical2;
-                        var viewAngle = Math.Atan2(dim,1f);
-                        var dist = (float) (radius / Math.Sin(viewAngle));
+                        var viewAngle =  System.Math.Atan2(dim,1f);
+                        var dist = (float) (radius /  System.Math.Sin(viewAngle));
                         
                         orthoCamera.SetProjectionMatrixAsOrthographic(width, height, zNear, zFar);
 

@@ -73,20 +73,20 @@ namespace Veldrid.SceneGraph.AssetProcessor
                     br.BaseStream.Seek(header.BytesOfKeyValueData, SeekOrigin.Current); // Skip over header data.
                 }
 
-                uint numberOfMipmapLevels = Math.Max(1, header.NumberOfMipmapLevels);
-                uint numberOfArrayElements = Math.Max(1, header.NumberOfArrayElements);
-                uint numberOfFaces = Math.Max(1, header.NumberOfFaces);
+                uint numberOfMipmapLevels =  System.Math.Max(1, header.NumberOfMipmapLevels);
+                uint numberOfArrayElements =  System.Math.Max(1, header.NumberOfArrayElements);
+                uint numberOfFaces =  System.Math.Max(1, header.NumberOfFaces);
 
-                uint baseWidth = Math.Max(1, header.PixelWidth);
-                uint baseHeight = Math.Max(1, header.PixelHeight);
-                uint baseDepth = Math.Max(1, header.PixelDepth);
+                uint baseWidth =  System.Math.Max(1, header.PixelWidth);
+                uint baseHeight =  System.Math.Max(1, header.PixelHeight);
+                uint baseDepth =  System.Math.Max(1, header.PixelDepth);
 
                 KtxMipmapLevel[] images = new KtxMipmapLevel[numberOfMipmapLevels];
                 for (int mip = 0; mip < numberOfMipmapLevels; mip++)
                 {
-                    uint mipWidth = Math.Max(1, baseWidth / (uint)(Math.Pow(2, mip)));
-                    uint mipHeight = Math.Max(1, baseHeight / (uint)(Math.Pow(2, mip)));
-                    uint mipDepth = Math.Max(1, baseDepth / (uint)(Math.Pow(2, mip)));
+                    uint mipWidth =  System.Math.Max(1, baseWidth / (uint)( System.Math.Pow(2, mip)));
+                    uint mipHeight =  System.Math.Max(1, baseHeight / (uint)( System.Math.Pow(2, mip)));
+                    uint mipDepth =  System.Math.Max(1, baseDepth / (uint)( System.Math.Pow(2, mip)));
 
                     uint imageSize = br.ReadUInt32();
                     uint arrayElementSize = imageSize / numberOfArrayElements;
@@ -210,8 +210,8 @@ namespace Veldrid.SceneGraph.AssetProcessor
             uint height = ktxTex2D.Header.PixelHeight;
             if (height == 0) height = width;
 
-            uint arrayLayers = Math.Max(1, ktxTex2D.Header.NumberOfArrayElements);
-            uint mipLevels = Math.Max(1, ktxTex2D.Header.NumberOfMipmapLevels);
+            uint arrayLayers =  System.Math.Max(1, ktxTex2D.Header.NumberOfArrayElements);
+            uint mipLevels =  System.Math.Max(1, ktxTex2D.Header.NumberOfMipmapLevels);
 
             Texture ret = factory.CreateTexture(TextureDescription.Texture2D(
                 width, height, mipLevels, arrayLayers,
@@ -285,7 +285,7 @@ namespace Veldrid.SceneGraph.AssetProcessor
         public readonly uint GlBaseInternalFormat;
         public readonly uint PixelWidth;
         private readonly uint _pixelHeight;
-        public uint PixelHeight => Math.Max(1, _pixelHeight);
+        public uint PixelHeight =>  System.Math.Max(1, _pixelHeight);
         public readonly uint PixelDepth;
         public readonly uint NumberOfArrayElements;
         public readonly uint NumberOfFaces;

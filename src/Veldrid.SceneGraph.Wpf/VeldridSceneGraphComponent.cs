@@ -139,8 +139,8 @@ namespace Veldrid.SceneGraph.Wpf
             SwapchainSource source = GetSwapchainSource();
             
             double dpiScale = GetDpiScale();
-            uint width = (uint)(ActualWidth < 0 ? 0 : Math.Ceiling(ActualWidth * dpiScale));
-            uint height = (uint)(ActualHeight < 0 ? 0 : Math.Ceiling(ActualHeight * dpiScale));
+            uint width = (uint)(ActualWidth < 0 ? 0 :  System.Math.Ceiling(ActualWidth * dpiScale));
+            uint height = (uint)(ActualHeight < 0 ? 0 :  System.Math.Ceiling(ActualHeight * dpiScale));
 
             SwapchainDescription swapchainDesc = new SwapchainDescription(
                 source,
@@ -248,8 +248,8 @@ namespace Veldrid.SceneGraph.Wpf
         private void ProcessEvents()
         {
             double dpiScale = GetDpiScale();
-            int width =  (ActualWidth < 0 ? 0 : (int)Math.Ceiling(ActualWidth * dpiScale));
-            int height = (ActualHeight < 0 ? 0 : (int)Math.Ceiling(ActualHeight * dpiScale));
+            int width =  (ActualWidth < 0 ? 0 : (int) System.Math.Ceiling(ActualWidth * dpiScale));
+            int height = (ActualHeight < 0 ? 0 : (int) System.Math.Ceiling(ActualHeight * dpiScale));
 
             var inputStateSnap = InputStateSnapshot.Create(_inputState, width, height, _view.Camera.ProjectionMatrix, _view.Camera.ViewMatrix);
             _viewerInputEvents.OnNext(inputStateSnap);
@@ -428,8 +428,8 @@ namespace Veldrid.SceneGraph.Wpf
         private void ResizeSwapchain()
         {
             double dpiScale = GetDpiScale();
-            uint width = (uint) (ActualWidth < 0 ? 0 : Math.Ceiling(ActualWidth * dpiScale));
-            uint height = (uint) (ActualHeight < 0 ? 0 : Math.Ceiling(ActualHeight * dpiScale));
+            uint width = (uint) (ActualWidth < 0 ? 0 :  System.Math.Ceiling(ActualWidth * dpiScale));
+            uint height = (uint) (ActualHeight < 0 ? 0 :  System.Math.Ceiling(ActualHeight * dpiScale));
             _graphicsDevice.ResizeMainWindow(width, height);
             DisplaySettings.Instance(View).SetScreenWidth(width);
             DisplaySettings.Instance(View).SetScreenHeight(height);

@@ -82,9 +82,9 @@ namespace Veldrid.SceneGraph.InputAdapter
         {
             if (null == MousePosition || null == LastMousePosition) return false;
             
-            if (Math.Abs(MousePosition.Value.X - LastMousePosition.Value.X) > 1e-2) return true;
+            if ( System.Math.Abs(MousePosition.Value.X - LastMousePosition.Value.X) > 1e-2) return true;
             
-            else if (Math.Abs(MousePosition.Value.Y - LastMousePosition.Value.Y) > 1e-2) return true;
+            else if ( System.Math.Abs(MousePosition.Value.Y - LastMousePosition.Value.Y) > 1e-2) return true;
 
             return false;
 

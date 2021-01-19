@@ -252,8 +252,8 @@ namespace Veldrid.SceneGraph.Wpf
             if (args.RenderSize.Width == 0 || args.RenderSize.Height == 0) return;
             
             double dpiScale = 1.0;  // TODO: Check this is okay
-            uint width = (uint)(args.RenderSize.Width < 0 ? 0 : Math.Ceiling(args.RenderSize.Width * dpiScale));
-            uint height = (uint)(args.RenderSize.Height < 0 ? 0 : Math.Ceiling(args.RenderSize.Height * dpiScale));
+            uint width = (uint)(args.RenderSize.Width < 0 ? 0 :  System.Math.Ceiling(args.RenderSize.Width * dpiScale));
+            uint height = (uint)(args.RenderSize.Height < 0 ? 0 :  System.Math.Ceiling(args.RenderSize.Height * dpiScale));
             
             //_graphicsDevice.ResizeMainWindow((uint) width, (uint) height);
             

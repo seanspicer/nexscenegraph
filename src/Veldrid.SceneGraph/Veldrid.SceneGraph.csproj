@@ -44,6 +44,9 @@
     <None Remove="Assets\Shaders\FullScreenQuadShader-fragment.glsl" />
     <EmbeddedResource Include="Assets\Shaders\FullScreenQuadShader-fragment.glsl" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Math" />
+  </ItemGroup>
   <Target Name="IncludeGeneratedShaderEmbeddedResource" AfterTargets="AssignTargetPaths" Condition="'$(ShaderContentIncludePath)' != ''">
     <ItemGroup>
       <EmbeddedResource Include="@(GeneratedShader)">

@@ -365,9 +365,9 @@ namespace Veldrid.SceneGraph.Text
             _charWidth = size.Width;
             _charAspectRatio = _charWidth / _charHeight;
             
-            //var texSize = (int)NextPowerOfTwo((uint) Math.Round(rawSize));
-            _textWidth = (int)((size.Width + (padding * 2)));//(int)NextPowerOfTwo((uint) Math.Round(size.Width));
-            _textHeight = (int)((size.Height + (padding * 2)));//(int)NextPowerOfTwo((uint) Math.Round(size.Height));
+            //var texSize = (int)NextPowerOfTwo((uint)  System.Math.Round(rawSize));
+            _textWidth = (int)((size.Width + (padding * 2)));//(int)NextPowerOfTwo((uint)  System.Math.Round(size.Width));
+            _textHeight = (int)((size.Height + (padding * 2)));//(int)NextPowerOfTwo((uint)  System.Math.Round(size.Height));
 
             _textAspectRatio = (double)_textWidth / (double)_textHeight;
         }
@@ -384,7 +384,7 @@ namespace Veldrid.SceneGraph.Text
                 var size = TextMeasurer.Measure(Text, new RendererOptions(Font));
 
                 //find out how much we need to scale the text to allow for alignment
-                var scalingFactor = Math.Min(targetWidth/img.Width, targetHeight/img.Height);
+                var scalingFactor =  System.Math.Min(targetWidth/img.Width, targetHeight/img.Height);
 
                 //create a new font 
                 var scaledFont = new Font(Font, scalingFactor * Font.Size);

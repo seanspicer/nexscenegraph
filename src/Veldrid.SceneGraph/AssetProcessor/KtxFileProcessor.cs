@@ -31,8 +31,8 @@ namespace Veldrid.SceneGraph.AssetProcessor
             //uint height = ktx.Header.PixelHeight;
             //if (height == 0) height = width;
 
-            //uint arrayLayers = Math.Max(1, ktx.Header.NumberOfArrayElements);
-            //uint mipLevels = Math.Max(1, ktx.Header.NumberOfMipmapLevels);
+            //uint arrayLayers =  System.Math.Max(1, ktx.Header.NumberOfArrayElements);
+            //uint mipLevels =  System.Math.Max(1, ktx.Header.NumberOfMipmapLevels);
 
             //// Copy texture data into single array
             //List<byte> bytes = new List<byte>();

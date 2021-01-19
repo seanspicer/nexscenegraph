@@ -139,7 +139,7 @@ namespace Veldrid.SceneGraph
             bsphere.Radius = sqrlen_xdash;
             if (bsphere.Radius<sqrlen_ydash) bsphere.Radius = sqrlen_ydash;
             if (bsphere.Radius<sqrlen_zdash) bsphere.Radius = sqrlen_zdash;
-            bsphere.Radius = (float)Math.Sqrt(bsphere.Radius);
+            bsphere.Radius = (float) System.Math.Sqrt(bsphere.Radius);
 
             return bsphere;
             
