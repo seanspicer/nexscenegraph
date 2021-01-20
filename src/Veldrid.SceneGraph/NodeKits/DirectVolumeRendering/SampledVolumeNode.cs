@@ -173,6 +173,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             
             geometry.VertexData = sliceVertices.ToArray();
             geometry.IndexData = indices.ToArray();
+            
         }
     }
 

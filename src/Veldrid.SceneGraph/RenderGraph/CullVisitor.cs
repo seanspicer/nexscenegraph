@@ -413,7 +413,10 @@ namespace Veldrid.SceneGraph.RenderGraph
             {
                 if (callback is IDrawableCullCallback dcb)
                 {
-                    if (dcb.Cull(this, drawable)) return;
+                    if (dcb.Cull(this, drawable))
+                    {
+                        return;
+                    }
                 }
                 else
                 {

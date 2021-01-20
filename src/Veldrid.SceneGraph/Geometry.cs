@@ -32,12 +32,31 @@ namespace Veldrid.SceneGraph
     
     public class Geometry<T> : Drawable, IGeometry<T> where T : struct, IPrimitiveElement
     {
-        public T[] VertexData { get; set; }
+        private T[] _vertexData;
+
+        public T[] VertexData
+        {
+            get => _vertexData;
+            set
+            {
+                _vertexBufferCache.Clear();
+                _vertexData = value;
+            }
+        }
         private int SizeOfVertexData => Marshal.SizeOf(default(T));
 
         public IVertexBuffer InstanceVertexBuffer { get; set; }
 
-        public uint[] IndexData { get; set; }
+        private uint[] _indexData;
+        public uint[] IndexData
+        {
+            get => _indexData;
+            set
+            {
+                _indexBufferCache.Clear();
+                _indexData = value;
+            }
+        }
         
         private Dictionary<GraphicsDevice, List<DeviceBuffer>> _vertexBufferCache 
             = new Dictionary<GraphicsDevice, List<DeviceBuffer>>();
@@ -56,7 +75,10 @@ namespace Veldrid.SceneGraph
 
         public override void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory)
         {
-            if (_vertexBufferCache.ContainsKey(device) && _indexBufferCache.ContainsKey(device)) return;
+            if (_vertexBufferCache.ContainsKey(device) && _indexBufferCache.ContainsKey(device))
+            {
+                return;
+            }
             
             var vertexBuffers = new List<DeviceBuffer>();
             
@@ -73,15 +95,18 @@ namespace Veldrid.SceneGraph
                 var ivbo = InstanceVertexBuffer.GetVertexBufferForDevice(device);
                 vertexBuffers.Add(ivbo);
             }
-            
+
+
             _vertexBufferCache.Add(device, vertexBuffers);
+              
             
             var idxBufferDesc =
                 new BufferDescription((uint) (IndexData.Length * sizeof(uint)), BufferUsage.IndexBuffer);
             var ibo = factory.CreateBuffer(idxBufferDesc);
             device.UpdateBuffer(ibo, 0, IndexData);
-            
+
             _indexBufferCache.Add(device, ibo);
+            
         }
 
 
