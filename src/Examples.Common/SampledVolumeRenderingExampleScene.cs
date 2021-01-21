@@ -7,38 +7,41 @@ namespace Examples.Common
 {
     public class VoxelVolume : IVoxelVolume
     {
+        protected int XDim = 4;
+        protected int YDim = 2;
+        protected int ZDim = 2;
+        
         public double[,,] Values { get; }
         public double[,,] XValues { get; }
         public double[,,] YValues { get; }
         public double[,,] ZValues { get; }
 
+        
+        
         public VoxelVolume()
         {
-            Values = new double[2, 2, 2];
-            XValues = new double[2, 2, 2];
-            YValues = new double[2, 2, 2];
-            ZValues = new double[2, 2, 2];
+            Values = new double[XDim, YDim, ZDim];
+            XValues = new double[XDim, YDim, ZDim];
+            YValues = new double[XDim, YDim, ZDim];
+            ZValues = new double[XDim, YDim, ZDim];
         }
     }
     
     public class CornerVoxelVolume : VoxelVolume
     {
-        private Vector3 _eyePoint = new Vector3(2, 2, 2);
         
         public CornerVoxelVolume() : base()
         {
-            for (var z = 0; z < 2; ++z)
+            for (var z = 0; z < ZDim; ++z)
             {
-                for (var y = 0; y < 2; ++y)
+                for (var y = 0; y < YDim; ++y)
                 {
-                    for (var x = 0; x < 2; ++x)
+                    for (var x = 0; x < XDim; ++x)
                     {
-                        XValues[x, y, z] = 2*x-1;
-                        YValues[x, y, z] = 2*y-1;
-                        ZValues[x, y, z] = 2*z-1;
-                        var dist = (new Vector3(2*x-1, 2*y-1, 2*z-1) - _eyePoint).Length();
-
-                        Values[x, y, z] = dist;
+                        XValues[x, y, z] = x;
+                        YValues[x, y, z] = y;
+                        ZValues[x, y, z] = z;
+                        Values[x, y, z] = 0;
                     }
                 }
             }

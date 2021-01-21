@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Reactive;
@@ -87,8 +87,12 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
                 {
                     for (var x = 0; x < 2; ++x)
                     {
-                        var dist = System.Math.Abs((new Vector3((float) _source.XValues[x, y, z],
-                            (float) _source.YValues[x, y, z], (float) _source.ZValues[x, y, z]) - eyePoint).Length());
+                        var pos = new Vector3(
+                            (float) XValues[x, y, z],
+                            (float) YValues[x, y, z],
+                            (float) ZValues[x, y, z]);
+                        
+                        var dist = System.Math.Abs((pos - eyePoint).Length());
 
                         if (dist < MinDist) MinDist = dist;
                         if (dist > MaxDist) MaxDist = dist;
@@ -117,7 +121,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         {
             if (drawable is Geometry<Position3Color4> geometry)
             {
-                _samplingVolume.UpdateDistances(-cv.GetEyeLocal());
+                _samplingVolume.UpdateDistances(cv.GetEyeLocal());
                 Sample(geometry);
                 return false;
             }
