@@ -43,6 +43,10 @@
     <EmbeddedResource Include="Assets\Shaders\FullScreenQuadShader-vertex.glsl" />
     <None Remove="Assets\Shaders\FullScreenQuadShader-fragment.glsl" />
     <EmbeddedResource Include="Assets\Shaders\FullScreenQuadShader-fragment.glsl" />
+    <None Remove="Assets\Shaders\Position3TexCoord3Color4-vertex.glsl" />
+    <EmbeddedResource Include="Assets\Shaders\Position3TexCoord3Color4-vertex.glsl" />
+    <None Remove="Assets\Shaders\Position3TexCoord3Color4-fragment.glsl" />
+    <EmbeddedResource Include="Assets\Shaders\Position3TexCoord3Color4-fragment.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Math" />

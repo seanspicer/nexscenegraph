@@ -195,7 +195,7 @@ namespace Veldrid.SceneGraph.Util.Shape
                     vtx.SetPosition(vertices[face.VertexIndices[i]]);
                     vtx.SetNormal(normals[face.NormalIndices[i]]);
                     vtx.SetColor3(colors[face.ColorIndices[i]]);
-                    vtx.SetTexCoord(texcoords[face.TexCoordIndices[i]]);
+                    vtx.SetTexCoord2(texcoords[face.TexCoordIndices[i]]);
                     vertexDataList.Add(vtx);
                 }
             }

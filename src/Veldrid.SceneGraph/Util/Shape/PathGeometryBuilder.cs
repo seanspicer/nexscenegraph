@@ -44,7 +44,7 @@ namespace Veldrid.SceneGraph.Util.Shape
                 var vtx = new T();
                 vtx.SetPosition(path.PathLocations[i]);
                 vtx.SetNormal(Vector3.UnitX);
-                vtx.SetTexCoord(Vector2.Zero);
+                vtx.SetTexCoord2(Vector2.Zero);
                 vtx.SetColor3(colors[0]);
                 vertexDataList.Add(vtx);
                 

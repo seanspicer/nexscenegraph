@@ -134,7 +134,7 @@ namespace Veldrid.SceneGraph.Util.Shape
                     var vtx = new T();
                     vtx.SetPosition(strip.Vertices[idx]);
                     vtx.SetNormal(strip.Normals[idx]);
-                    vtx.SetTexCoord(strip.TexCoords[idx]);
+                    vtx.SetTexCoord2(strip.TexCoords[idx]);
                     vtx.SetColor3(colors[0]);
                     vertexDataList.Add(vtx);
                 }

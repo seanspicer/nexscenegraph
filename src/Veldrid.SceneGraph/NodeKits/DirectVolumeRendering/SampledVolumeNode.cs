@@ -119,7 +119,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         
         public bool Cull(ICullVisitor cv, IDrawable drawable)
         {
-            if (drawable is Geometry<Position3Color4> geometry)
+            if (drawable is Geometry<Position3TexCoord3Color4> geometry)
             {
                 _samplingVolume.UpdateDistances(cv.GetEyeLocal());
                 Sample(geometry);
@@ -128,7 +128,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             return true;
         }
 
-        private void Sample(Geometry<Position3Color4> geometry)
+        private void Sample(Geometry<Position3TexCoord3Color4> geometry)
         {
             var sampleRate = 10;
             var sampleStep = (_samplingVolume.MaxDist - _samplingVolume.MinDist) / sampleRate;
@@ -141,7 +141,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
                 isoSurfaces.Add(isoSurface);
             }
             
-            List<Position3Color4> sliceVertices = new List<Position3Color4>();
+            List<Position3TexCoord3Color4> sliceVertices = new List<Position3TexCoord3Color4>();
             List<uint> indices = new List<uint>();
             var idx = 0u;
             
@@ -152,7 +152,8 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
                 foreach (var vtx in isoSurface.IsoSurfaceVertices)
                 {
-                    sliceVertices.Add(new Position3Color4(new Vector3((float) vtx.X, (float) vtx.Y, (float) vtx.Z),
+                    sliceVertices.Add(new Position3TexCoord3Color4(new Vector3((float) vtx.X, (float) vtx.Y, (float) vtx.Z),
+                        Vector3.Zero, 
                         new Vector4(0.0f, 0.0f, 1.0f, 0.5f)));
                     indices.Add(idx++);
                     ++idxcount;
@@ -160,7 +161,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
                 if (0 != isoSurface.IsoSurfaceVertices.Count)
                 {
-                    var pSet = DrawElements<Position3Color4>.Create(
+                    var pSet = DrawElements<Position3TexCoord3Color4>.Create(
                         geometry,
                         PrimitiveTopology.TriangleList,
                         idxcount,
@@ -206,14 +207,14 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
         private void CreateSlices(IVoxelVolume voxelVolume)
         {
-            var geometry = Geometry<Position3Color4>.Create();
+            var geometry = Geometry<Position3TexCoord3Color4>.Create();
 
             geometry.VertexLayouts = new List<VertexLayoutDescription>()
             {
-                Position3Color4.VertexLayoutDescription
+                Position3TexCoord3Color4.VertexLayoutDescription
             };
             
-            geometry.PipelineState.ShaderSet = Vertex3Color4Shader.Instance.ShaderSet;
+            geometry.PipelineState.ShaderSet = Position3TexCoord3Color4Shader.Instance.ShaderSet;
             geometry.PipelineState.BlendStateDescription = BlendStateDescription.SingleAlphaBlend;
             geometry.PipelineState.RasterizerStateDescription = RasterizerStateDescription.CullNone;
             geometry.SetCullCallback(new SamplingCullCallback(this));

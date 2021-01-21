@@ -16,15 +16,18 @@ using System.Numerics;
 
 namespace Veldrid.SceneGraph.VertexTypes
 {
-    public struct Position3Color4 : ISettablePrimitiveElement
+    public struct Position3TexCoord3Color4 : ISettablePrimitiveElement
     {
+
         public Vector3 Position;
+        public Vector3 TexCoord;
         public Vector4 Color;
-        
-        public Position3Color4(Vector3 position, Vector4 color)
+
+        public Position3TexCoord3Color4(Vector3 position, Vector3 texCoord, Vector4 color)
         {
             Position = position;
-            Color    = color;
+            TexCoord = texCoord;
+            Color = color;
         }
 
         public Vector3 VertexPosition
@@ -32,14 +35,16 @@ namespace Veldrid.SceneGraph.VertexTypes
             get => Position;
             set => Position = value;
         }
-
+        
         public static VertexLayoutDescription VertexLayoutDescription =>
             
             new VertexLayoutDescription(
                 new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate,
                     VertexElementFormat.Float3),
-                new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate,
-                    VertexElementFormat.Float4));
+            new VertexElementDescription("TexCoord", VertexElementSemantic.TextureCoordinate,
+                    VertexElementFormat.Float3),
+            new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate,
+                VertexElementFormat.Float4));
 
         public VertexLayoutDescription GetVertexLayoutDescription()
         {
@@ -49,7 +54,7 @@ namespace Veldrid.SceneGraph.VertexTypes
         public bool HasPosition => true;
         public bool HasNormal => false;
         public bool HasTexCoord2 => false;
-        public bool HasTexCoord3 => false;
+        public bool HasTexCoord3 => true;
         public bool HasColor3 => false;
         public bool HasColor4 => true;
         public void SetPosition(Vector3 position)
@@ -69,9 +74,9 @@ namespace Veldrid.SceneGraph.VertexTypes
         
         public void SetTexCoord3(Vector3 texCoord)
         {
-            throw new System.NotImplementedException();
+            TexCoord = texCoord;
         }
-        
+
         public void SetColor3(Vector3 color)
         {
             throw new System.NotImplementedException();
@@ -82,4 +87,5 @@ namespace Veldrid.SceneGraph.VertexTypes
             Color = color;
         }
     }
+
 }
