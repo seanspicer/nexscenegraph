@@ -22,6 +22,10 @@
       <EmbeddedResource Include="Assets\Shaders\LargeSphereCount-fragment.glsl" />
       <None Remove="Assets\Shaders\LargeSphereCount-vertex.glsl" />
       <EmbeddedResource Include="Assets\Shaders\LargeSphereCount-vertex.glsl" />
+      <None Remove="Assets\Shaders\ProceduralVolumeShader-fragment.glsl" />
+      <EmbeddedResource Include="Assets\Shaders\ProceduralVolumeShader-fragment.glsl" />
+      <None Remove="Assets\Shaders\ProceduralVolumeShader-vertex.glsl" />
+      <EmbeddedResource Include="Assets\Shaders\ProceduralVolumeShader-vertex.glsl" />
     </ItemGroup>
 
 </Project>

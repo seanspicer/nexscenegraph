@@ -5,6 +5,7 @@ using System.Reactive;
 using System.Xml.Schema;
 using Veldrid.SceneGraph.Math.IsoSurface;
 using Veldrid.SceneGraph.RenderGraph;
+using Veldrid.SceneGraph.Shaders;
 using Veldrid.SceneGraph.Shaders.Standard;
 using Veldrid.SceneGraph.VertexTypes;
 
@@ -21,6 +22,15 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         public double[,,] XValues { get; }
         public double[,,] YValues { get; }
         public double[,,] ZValues { get; }
+
+        public double XMin => XValues[0, 0, 0];
+        public double XMax => XValues[1, 1, 1];
+        
+        public double YMin => YValues[0, 0, 0];
+        public double YMax => YValues[1, 1, 1];
+        
+        public double ZMin => ZValues[0, 0, 0];
+        public double ZMax => ZValues[1, 1, 1];
 
         private IVoxelVolume _source;
         
@@ -43,7 +53,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             XValues[0, 0, 0] = _source.XValues[0, 0, 0];
             YValues[0, 0, 0] = _source.YValues[0, 0, 0];
             ZValues[0, 0, 0] = _source.ZValues[0, 0, 0];
-            
+
             XValues[1, 0, 0] = _source.XValues[xdim, 0, 0];
             YValues[1, 0, 0] = _source.YValues[xdim, 0, 0];
             ZValues[1, 0, 0] = _source.ZValues[xdim, 0, 0];
@@ -76,6 +86,15 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             
         }
 
+        public Vector3 TexGen(Vector3 point)
+        {
+            return new Vector3(
+                (float)((point.X - XMin) / (XMax - XMin)),
+                (float)((point.Y - YMin) / (YMax - YMin)),
+                (float)((point.Z - ZMin) / (ZMax - ZMin))
+                );
+        }
+        
         public void UpdateDistances(Vector3 eyePoint)
         {
             MinDist = double.MaxValue;
@@ -110,6 +129,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         private SampledVolumeNode _svn;
         private IIsoSurfaceGenerator _isoSurfaceGenerator;
         private SamplingVolume _samplingVolume;
+
         public SamplingCullCallback(SampledVolumeNode svn)
         {
             _svn = svn;
@@ -130,7 +150,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
         private void Sample(Geometry<Position3TexCoord3Color4> geometry)
         {
-            var sampleRate = 10;
+            var sampleRate = 200;
             var sampleStep = (_samplingVolume.MaxDist - _samplingVolume.MinDist) / sampleRate;
             geometry.PrimitiveSets.Clear();
 
@@ -152,9 +172,11 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
                 foreach (var vtx in isoSurface.IsoSurfaceVertices)
                 {
-                    sliceVertices.Add(new Position3TexCoord3Color4(new Vector3((float) vtx.X, (float) vtx.Y, (float) vtx.Z),
-                        Vector3.Zero, 
-                        new Vector4(0.0f, 0.0f, 1.0f, 0.5f)));
+                    var pos = new Vector3((float) vtx.X, (float) vtx.Y, (float) vtx.Z);
+                    var texCoord = _samplingVolume.TexGen(pos);
+                    var color = new Vector4(0.0f, 0.0f, 1.0f, 0.5f);
+                    
+                    sliceVertices.Add(new Position3TexCoord3Color4(pos, texCoord, color));
                     indices.Add(idx++);
                     ++idxcount;
                 }
@@ -187,14 +209,17 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         private IVoxelVolume _voxelVolume;
         public IVoxelVolume VoxelVolume => _voxelVolume;
 
-        public static ISampledVolumeNode Create(IVoxelVolume voxelVolume)
+        private IShaderSet _customShaderSet;
+
+        public static ISampledVolumeNode Create(IVoxelVolume voxelVolume, IShaderSet shaderSet = null)
         {
-            return new SampledVolumeNode(voxelVolume);
+            return new SampledVolumeNode(voxelVolume, shaderSet);
         }
 
-        protected SampledVolumeNode(IVoxelVolume voxelVolume)
+        protected SampledVolumeNode(IVoxelVolume voxelVolume, IShaderSet shaderSet=null)
         {
             _voxelVolume = voxelVolume;
+            _customShaderSet = shaderSet;
             
             CreateCube(voxelVolume);
             CreateSlices(voxelVolume);
@@ -214,7 +239,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
                 Position3TexCoord3Color4.VertexLayoutDescription
             };
             
-            geometry.PipelineState.ShaderSet = Position3TexCoord3Color4Shader.Instance.ShaderSet;
+            geometry.PipelineState.ShaderSet = _customShaderSet ?? Position3TexCoord3Color4Shader.Instance.ShaderSet;
             geometry.PipelineState.BlendStateDescription = BlendStateDescription.SingleAlphaBlend;
             geometry.PipelineState.RasterizerStateDescription = RasterizerStateDescription.CullNone;
             geometry.SetCullCallback(new SamplingCullCallback(this));

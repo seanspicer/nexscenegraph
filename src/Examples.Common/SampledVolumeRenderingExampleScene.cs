@@ -1,13 +1,17 @@
 ﻿using System.Numerics;
+using System.Reflection;
+using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.Math.IsoSurface;
 using Veldrid.SceneGraph.NodeKits.DirectVolumeRendering;
+using Veldrid.SceneGraph.Shaders;
+using Veldrid.SceneGraph.Util;
 
 namespace Examples.Common
 {
     public class VoxelVolume : IVoxelVolume
     {
-        protected int XDim = 4;
+        protected int XDim = 2;
         protected int YDim = 2;
         protected int ZDim = 2;
         
@@ -56,8 +60,21 @@ namespace Examples.Common
         public static IGroup Build()
         {
             var root = Group.Create();
-            root.AddChild(SampledVolumeNode.Create(new CornerVoxelVolume()));
+            root.AddChild(SampledVolumeNode.Create(new CornerVoxelVolume(), CreateShaderSet()));
             return root;
+        }
+
+        public static IShaderSet CreateShaderSet()
+        {
+            var asm = Assembly.GetCallingAssembly();
+            
+            var vtxShader =
+                new ShaderDescription(ShaderStages.Vertex, ShaderTools.ReadEmbeddedAssetBytes(@"Examples.Common.Assets.Shaders.ProceduralVolumeShader-vertex.glsl", asm), "main");
+            
+            var frgShader =
+                new ShaderDescription(ShaderStages.Fragment, ShaderTools.ReadEmbeddedAssetBytes(@"Examples.Common.Assets.Shaders.ProceduralVolumeShader-fragment.glsl",asm), "main");
+
+            return ShaderSet.Create("ProceduralVolumeShader", vtxShader, frgShader);
         }
     }
 }

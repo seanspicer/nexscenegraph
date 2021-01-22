@@ -8,6 +8,7 @@ namespace DirectVolumeRendering.Wpf
     {
         public DirectVolumeRenderingViewModel() : base()
         {
+            ClearColor = RgbaFloat.Black;
             SceneRoot = Examples.Common.SampledVolumeRenderingExampleScene.Build();
             CameraManipulator = TrackballManipulator.Create();
             FsaaCount = TextureSampleCount.Count8; // 8x FSAA
