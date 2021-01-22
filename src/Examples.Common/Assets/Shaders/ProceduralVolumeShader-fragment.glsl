@@ -20,11 +20,13 @@ vec4 CalculateColor(FragmentInput input_)
     double d2 = abs(length(input_.TexCoord - p2));
     double d3 = abs(length(input_.TexCoord - p3));
     
-    double alpha = 0.0;
+    double alpha = 1.0;
+    vec4 color = vec4(input_.Color[0], input_.Color[1], input_.Color[2], 0.1);
     
     if(d1 < 0.3 || d2 < 0.3 || d3 < 0.3) {
     
-        alpha = 0.02;
+        //alpha = 0.01;
+        color = vec4(1.0, 0.0, 0.0, alpha);
     
         //double a1 = 0.2*(0.3-d1);
         //double a2 = 0.2*(0.3-d2);
@@ -38,9 +40,9 @@ vec4 CalculateColor(FragmentInput input_)
         //alpha = 0.95;//-(d1/0.2);
     }
     
+    //vec4 color = vec4(input_.TexCoord[0], input_.TexCoord[1], input_.TexCoord[2], alpha);
 
-
-    return vec4(input_.TexCoord[0],input_.TexCoord[1],input_.TexCoord[2], alpha); //input_.Color;
+    return color; //input_.Color;
 }
 
 layout(location = 0) in vec4 fsin_0;

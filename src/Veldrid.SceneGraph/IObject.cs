@@ -18,6 +18,6 @@ namespace Veldrid.SceneGraph
 {
     public interface IObject
     {
-        
+        public object UserData { get; set; }
     }
 }

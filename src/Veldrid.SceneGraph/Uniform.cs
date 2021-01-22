@@ -12,7 +12,7 @@ namespace Veldrid.SceneGraph
         string Name { get; }
     }
     
-    public class Uniform<T> : IUniform<T> where T : struct
+    public class Uniform<T> : Object, IUniform<T> where T : struct
     {
         public T[] UniformData { get; set; }
         

@@ -288,17 +288,27 @@ namespace Veldrid.SceneGraph.Viewer
                     // Iterate over all primitive sets in this state
                     foreach (var pset in renderElement.PrimitiveSets)
                     {
-                        var ctr = pset.GetBoundingBox().Center;
-
+                        float sortDist = 0.0f;
+                        
                         // Compute distance eye point 
                         var modelView = renderElement.ModelViewMatrix;
-                        var ctr_w = Vector3.Transform(ctr, modelView);
-                        var dist = Vector3.Distance(ctr_w, Vector3.Zero);
+                        if(Matrix4x4.Invert(modelView, out var modelViewInvese))
+                        {
+                            var eyeLocal = Vector3.Transform(Vector3.Zero, modelViewInvese);
+                            sortDist = pset.GetEyePointDistance(eyeLocal);
+                        }
+                        else
+                        {
+                            var ctr = pset.GetBoundingBox().Center;
+                            var ctrW = Vector3.Transform(ctr, modelView);
+                            sortDist = Vector3.Distance(ctrW, Vector3.Zero);
+                        }
+                        
 
-                        if (!drawOrderMap.TryGetValue(dist, out var renderList))
+                        if (!drawOrderMap.TryGetValue(sortDist, out var renderList))
                         {
                             renderList = new List<Tuple<IRenderGroupState, RenderGroupElement, IPrimitiveSet, uint>>();
-                            drawOrderMap.Add(dist, renderList);
+                            drawOrderMap.Add(sortDist, renderList);
                         }
 
                         renderList.Add(Tuple.Create(state, renderElement, pset, (uint)j));

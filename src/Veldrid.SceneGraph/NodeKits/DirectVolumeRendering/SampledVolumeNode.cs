@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Reactive;
 using System.Xml.Schema;
+using SharpDX.Direct3D11;
 using Veldrid.SceneGraph.Math.IsoSurface;
 using Veldrid.SceneGraph.RenderGraph;
 using Veldrid.SceneGraph.Shaders;
@@ -16,6 +17,97 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         
     }
 
+    internal class Edge : IComparable<Edge>
+    {
+        public IVertex3D V1;
+        public IVertex3D V2;
+
+        public Edge(IVertex3D v1, IVertex3D v2)
+        {
+            V1 = v1;
+            V2 = v2;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return this.Equals(obj as Edge);
+        }
+
+        public override int GetHashCode()
+        {
+            return 1;
+        }
+
+        public bool Equals(Edge other)
+        {
+            // If parameter is null, return false.
+            if (Object.ReferenceEquals(other, null))
+            {
+                return false;
+            }
+            if (Object.ReferenceEquals(this, other))
+            {
+                return true;
+            }
+            if (this.GetType() != other.GetType())
+            {
+                return false;
+            }
+            
+            var tol = 1e-6;
+
+            if (System.Math.Abs(V1.X - other.V1.X) < tol &&
+                System.Math.Abs(V1.Y - other.V1.Y) < tol &&
+                System.Math.Abs(V1.Z - other.V1.Z) < tol &&
+                System.Math.Abs(V2.X - other.V2.X) < tol &&
+                System.Math.Abs(V2.Y - other.V2.Y) < tol &&
+                System.Math.Abs(V2.Z - other.V2.Z) < tol)
+            {
+                return true;
+            }
+            
+            if (System.Math.Abs(V1.X - other.V2.X) < tol &&
+                System.Math.Abs(V1.Y - other.V2.Y) < tol &&
+                System.Math.Abs(V1.Z - other.V2.Z) < tol &&
+                System.Math.Abs(V2.X - other.V1.X) < tol &&
+                System.Math.Abs(V2.Y - other.V1.Y) < tol &&
+                System.Math.Abs(V2.Z - other.V1.Z) < tol)
+            {
+                return true;
+            }
+
+            return false;
+        }
+        
+        public int CompareTo(Edge other)
+        {
+            return this.Equals(other) ? 0 : 1;
+        }
+        
+        public static bool operator ==(Edge lhs, Edge rhs)
+        {
+            // Check for null on left side.
+            if (Object.ReferenceEquals(lhs, null))
+            {
+                if (Object.ReferenceEquals(rhs, null))
+                {
+                    // null == null = true.
+                    return true;
+                }
+
+                // Only the left side is null.
+                return false;
+            }
+            // Equals handles case of null on right side.
+            return lhs.Equals(rhs);
+        }
+
+        public static bool operator !=(Edge lhs, Edge rhs)
+        {
+            return !(lhs == rhs);
+        }
+    }
+    
     class SamplingVolume : IVoxelVolume
     {
         public double[,,] Values { get; }
@@ -129,56 +221,152 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         private SampledVolumeNode _svn;
         private IIsoSurfaceGenerator _isoSurfaceGenerator;
         private SamplingVolume _samplingVolume;
+        private bool _samplingPlanesDirty = true;
+        private bool _outlinesDirty = true;
+        private List<IIsoSurface> _isoSurfaces;
 
+        private Vector3 _eyeLocal { get; set; }
+        
         public SamplingCullCallback(SampledVolumeNode svn)
         {
             _svn = svn;
             _samplingVolume = new SamplingVolume(_svn.VoxelVolume);
             _isoSurfaceGenerator = new MarchingCubesIsoSurfaceGenerator();
+            _isoSurfaces = new List<IIsoSurface>();
         }
         
         public bool Cull(ICullVisitor cv, IDrawable drawable)
         {
-            if (drawable is Geometry<Position3TexCoord3Color4> geometry)
+            var eyeLocal = cv.GetEyeLocal();
+            if (System.Math.Abs(eyeLocal.X - _eyeLocal.X) < 1e-5 &&
+                System.Math.Abs(eyeLocal.Y - _eyeLocal.Y) < 1e-5 &&
+                System.Math.Abs(eyeLocal.Z - _eyeLocal.Z) < 1e-5)
             {
-                _samplingVolume.UpdateDistances(cv.GetEyeLocal());
-                Sample(geometry);
+            }
+            else
+            {
+                _samplingPlanesDirty = true;
+                _outlinesDirty = true;
+                _eyeLocal = cv.GetEyeLocal();
+                _samplingVolume.UpdateDistances(_eyeLocal);
+                BuildIsoSurfaces();
+            }
+            
+            if (drawable is Geometry<Position3TexCoord3Color4> samplePlaneGeometry)
+            {
+                if (_samplingPlanesDirty)
+                {
+                    UpdateSamplingPlanes(samplePlaneGeometry);
+                    _samplingPlanesDirty = false;
+                }
+                
+                return false;
+            }
+
+            if (drawable is Geometry<Position3Color3> outlineGeometry)
+            {
+                if (_outlinesDirty)
+                {
+                    UpdateOutlines(outlineGeometry);
+                    _outlinesDirty = false;
+                }
+                
                 return false;
             }
             return true;
         }
 
-        private void Sample(Geometry<Position3TexCoord3Color4> geometry)
+        private void BuildIsoSurfaces()
         {
-            var sampleRate = 200;
+            var sampleRate = 20;
             var sampleStep = (_samplingVolume.MaxDist - _samplingVolume.MinDist) / sampleRate;
-            geometry.PrimitiveSets.Clear();
-
-            List<IIsoSurface> isoSurfaces = new List<IIsoSurface>();
+            
+            _isoSurfaces.Clear();
             for (var i = _samplingVolume.MinDist; i <= _samplingVolume.MaxDist; i += sampleStep)
             {
                 var isoSurface = _isoSurfaceGenerator.CreateIsoSurface(_samplingVolume, i);
-                isoSurfaces.Add(isoSurface);
+                _isoSurfaces.Add(isoSurface);
             }
-            
+        }
+
+        private void UpdateSamplingPlanes(Geometry<Position3TexCoord3Color4> geometry)
+        {
+
+            geometry.PrimitiveSets.Clear();
             List<Position3TexCoord3Color4> sliceVertices = new List<Position3TexCoord3Color4>();
             List<uint> indices = new List<uint>();
             var idx = 0u;
             
-            foreach (var isoSurface in isoSurfaces)
+            var surfNo = 0f;
+            
+            foreach (var isoSurface in _isoSurfaces)
             {
                 var startidx = idx;
                 var idxcount = 0u;
 
-                foreach (var vtx in isoSurface.IsoSurfaceVertices)
+                // foreach (var vtx in isoSurface.IsoSurfaceVertices)
+                // {
+                //     var pos = new Vector3((float) vtx.X, (float) vtx.Y, (float) vtx.Z);
+                //     var texCoord = _samplingVolume.TexGen(pos);
+                //     var color = new Vector4(0.0f, 0.0f, surfNo/5f, 1.0f);
+                //     
+                //     sliceVertices.Add(new Position3TexCoord3Color4(pos, texCoord, color));
+                //     indices.Add(idx++);
+                //     ++idxcount;
+                // }
+                
+                var nTris = isoSurface.IsoSurfaceVertices.Count / 3;
+                
+                var currentVertex = isoSurface.IsoSurfaceVertices.First;
+                for (var i = 0; i < nTris; ++i)
                 {
-                    var pos = new Vector3((float) vtx.X, (float) vtx.Y, (float) vtx.Z);
-                    var texCoord = _samplingVolume.TexGen(pos);
-                    var color = new Vector4(0.0f, 0.0f, 1.0f, 0.5f);
+                    var v1 = currentVertex.Value;
+                    currentVertex = currentVertex.Next ??
+                                    throw new Exception("Invalid number of vertices in isosurface");
+                    var v2 = currentVertex.Value;
+                    currentVertex = currentVertex.Next ??
+                                    throw new Exception("Invalid number of vertices in isosurface");
+                    var v3 = currentVertex.Value;
+
+                    if (i < nTris - 1)
+                    {
+                        currentVertex = currentVertex.Next ??
+                                        throw new Exception("Invalid number of vertices in isosurface");
+                    }
                     
-                    sliceVertices.Add(new Position3TexCoord3Color4(pos, texCoord, color));
+                    var color = new Vector4(0.0f, 0.0f, 1.0f, 1.0f);
+                    
+                    var p1 = new Vector3((float) v1.X, (float) v1.Y, (float) v1.Z);
+                    var p2 = new Vector3((float) v2.X, (float) v2.Y, (float) v2.Z);
+                    var p3 = new Vector3((float) v3.X, (float) v3.Y, (float) v3.Z);
+                    
+                    var texCoord1 = _samplingVolume.TexGen(p1);
                     indices.Add(idx++);
                     ++idxcount;
+                    
+                    var texCoord2 = _samplingVolume.TexGen(p2);
+                    indices.Add(idx++);
+                    ++idxcount;
+                    
+                    var texCoord3 = _samplingVolume.TexGen(p3);
+                    indices.Add(idx++);
+                    ++idxcount;
+                    
+                    var c1 = p2 - p1;
+                    var c2 = p3 - p2;
+                    var cx = Vector3.Cross(c1, c2);
+                    if (Vector3.Dot(cx, _eyeLocal) > 0)
+                    {
+                        sliceVertices.Add(new Position3TexCoord3Color4(p1, texCoord1, color));
+                        sliceVertices.Add(new Position3TexCoord3Color4(p2, texCoord2, color));
+                        sliceVertices.Add(new Position3TexCoord3Color4(p3, texCoord3, color));
+                    }
+                    else
+                    {
+                        sliceVertices.Add(new Position3TexCoord3Color4(p1, texCoord1, color));
+                        sliceVertices.Add(new Position3TexCoord3Color4(p3, texCoord3, color));
+                        sliceVertices.Add(new Position3TexCoord3Color4(p2, texCoord2, color));
+                    }
                 }
 
                 if (0 != isoSurface.IsoSurfaceVertices.Count)
@@ -193,6 +381,99 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
                         0);
 
                     geometry.PrimitiveSets.Add(pSet);
+                    
+                }
+
+                surfNo = surfNo + 1;
+            }
+
+            if (0 == sliceVertices.Count) return;
+            
+            geometry.VertexData = sliceVertices.ToArray();
+            geometry.IndexData = indices.ToArray();
+        }
+        
+        private void UpdateOutlines(Geometry<Position3Color3> geometry)
+        {
+
+            geometry.PrimitiveSets.Clear();
+            List<Position3Color3> sliceVertices = new List<Position3Color3>();
+            List<uint> indices = new List<uint>();
+            var idx = 0u;
+            
+            foreach (var isoSurface in _isoSurfaces)
+            {
+                var startidx = idx;
+                var idxcount = 0u;
+
+                var nTris = isoSurface.IsoSurfaceVertices.Count / 3;
+
+                var edgeSet = new HashSet<Edge>();
+                
+                var currentVertex = isoSurface.IsoSurfaceVertices.First;
+                for (var i = 0; i < nTris; ++i)
+                {
+                    var v1 = currentVertex.Value;
+                    currentVertex = currentVertex.Next ?? throw new Exception("Invalid number of vertices in isosurface");
+                    var v2 = currentVertex.Value;
+                    currentVertex = currentVertex.Next ?? throw new Exception("Invalid number of vertices in isosurface");
+                    var v3 = currentVertex.Value;
+
+                    if (i < nTris - 1)
+                    {
+                        currentVertex = currentVertex.Next ?? throw new Exception("Invalid number of vertices in isosurface");
+                    }
+
+                    var e1 = new Edge(v1, v2);
+                    if (false == edgeSet.Add(e1))
+                    {
+                        edgeSet.Remove(e1);
+                    }
+                    
+                    var e2 = new Edge(v2, v3);
+                    if (false == edgeSet.Add(e2))
+                    {
+                        edgeSet.Remove(e2);
+                    }
+                    
+                    var e3 = new Edge(v1, v3);
+                    if (false == edgeSet.Add(e3))
+                    {
+                        edgeSet.Remove(e3);
+                    }
+                    
+                    
+                }
+                
+                foreach (var edge in edgeSet)
+                {
+                    var pos = new Vector3((float) edge.V1.X, (float) edge.V1.Y, (float) edge.V1.Z);
+                    var color = new Vector3(0.0f, 0.0f, 1.0f);
+                    sliceVertices.Add(new Position3Color3(pos, color));
+                    indices.Add(idx++);
+                    ++idxcount;
+                    
+                    pos = new Vector3((float) edge.V2.X, (float) edge.V2.Y, (float) edge.V2.Z);
+                    color = new Vector3(0.0f, 1.0f, 0.0f);
+                    sliceVertices.Add(new Position3Color3(pos, color));
+                    
+                    indices.Add(idx++);
+                    ++idxcount;
+                }
+
+                if (0 != isoSurface.IsoSurfaceVertices.Count)
+                {
+                    var pSet = DrawElements<Position3Color3>.Create(
+                        geometry,
+                        PrimitiveTopology.LineList,
+                        idxcount,
+                        1,
+                        startidx,
+                        0,
+                        0);
+
+                    geometry.PrimitiveSets.Add(pSet);
+                    
                 }
             }
 
@@ -200,10 +481,10 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             
             geometry.VertexData = sliceVertices.ToArray();
             geometry.IndexData = indices.ToArray();
-            
         }
+    
     }
-
+    
     public class SampledVolumeNode : Geode, ISampledVolumeNode
     {
         private IVoxelVolume _voxelVolume;
@@ -232,8 +513,10 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
         private void CreateSlices(IVoxelVolume voxelVolume)
         {
+            var samplingCullCallback = new SamplingCullCallback(this);
+            
             var geometry = Geometry<Position3TexCoord3Color4>.Create();
-
+            
             geometry.VertexLayouts = new List<VertexLayoutDescription>()
             {
                 Position3TexCoord3Color4.VertexLayoutDescription
@@ -241,9 +524,28 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             
             geometry.PipelineState.ShaderSet = _customShaderSet ?? Position3TexCoord3Color4Shader.Instance.ShaderSet;
             geometry.PipelineState.BlendStateDescription = BlendStateDescription.SingleAlphaBlend;
-            geometry.PipelineState.RasterizerStateDescription = RasterizerStateDescription.CullNone;
-            geometry.SetCullCallback(new SamplingCullCallback(this));
+            geometry.PipelineState.RasterizerStateDescription = new RasterizerStateDescription
+            {
+                CullMode = FaceCullMode.Back,
+                FillMode = PolygonFillMode.Solid,
+                DepthClipEnabled = false,
+                FrontFace = FrontFace.CounterClockwise
+            };
+            geometry.SetCullCallback(samplingCullCallback);
             AddDrawable(geometry);
+            
+            var sliceOutlineGeometry = Geometry<Position3Color3>.Create();
+
+            sliceOutlineGeometry.VertexLayouts = new List<VertexLayoutDescription>()
+            {
+                Position3Color3.VertexLayoutDescription
+            };
+            
+            sliceOutlineGeometry.PipelineState.ShaderSet = Position3Color3Shader.Instance.ShaderSet;
+            sliceOutlineGeometry.PipelineState.RasterizerStateDescription = RasterizerStateDescription.CullNone;
+            sliceOutlineGeometry.SetCullCallback(samplingCullCallback);
+            
+            AddDrawable(sliceOutlineGeometry);
         }
         
         private void CreateCube(IVoxelVolume vv)

@@ -116,7 +116,7 @@ namespace Veldrid.SceneGraph
         public int NumParents => _parents.Count;
 
         private bool _cullingActive = true;
-
+        
         public bool CullingActive
         {
             get => _cullingActive;

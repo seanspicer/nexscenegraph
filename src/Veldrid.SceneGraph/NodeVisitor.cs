@@ -104,7 +104,7 @@ namespace Veldrid.SceneGraph
     /// <summary>
     /// Base class for all visitors
     /// </summary>
-    public class NodeVisitor : INodeVisitor
+    public class NodeVisitor : Object, INodeVisitor
     {
         
         public enum TraversalModeType
