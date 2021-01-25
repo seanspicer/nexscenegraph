@@ -24,14 +24,10 @@ namespace Veldrid.SceneGraph.Manipulators
 {
     public interface IScale1DDragger : IDragger
     {
-        Color Color { get; }
-        Color PickColor { get; }
     }
     
-    public class Scale1DDragger : Dragger, IScale1DDragger 
+    public class Scale1DDragger : Base1DDragger, IScale1DDragger 
     {
-        protected ILineProjector LineProjector { get; set; }
-
         public new static IScale1DDragger Create()
         {
             return new Scale1DDragger(Matrix4x4.Identity);
@@ -39,11 +35,7 @@ namespace Veldrid.SceneGraph.Manipulators
         
         protected Scale1DDragger(Matrix4x4 matrix) : base(matrix)
         {
-            LineProjector = Veldrid.SceneGraph.Manipulators.LineProjector.Create(
-                LineSegment.Create(new Vector3(-0.5f, 0.0f, 0.0f), new Vector3(0.5f, 0.0f, 0.0f)));
-            
-            Color = Color.Green;
-            PickColor = Color.Magenta;
+
         }
 
         public override void SetupDefaultGeometry()
@@ -124,8 +116,7 @@ namespace Veldrid.SceneGraph.Manipulators
             }
         }
 
-        public Color Color { get; protected set; }
-        public Color PickColor { get; protected set; }
+
 
     }
 }

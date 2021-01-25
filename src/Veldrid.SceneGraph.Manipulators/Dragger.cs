@@ -14,6 +14,7 @@
 
 using System;
 using System.Numerics;
+using System.Drawing;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.PipelineStates;
 
@@ -24,10 +25,16 @@ namespace Veldrid.SceneGraph.Manipulators
         void SetupDefaultGeometry();
         bool Handle(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter);
         bool Handle(IPointerInfo pointerInfo, IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter);
+        
+        Color Color { get; }
+        Color PickColor { get; }
     }
     
     public class Dragger : MatrixTransform, IDragger
     {
+        public Color Color { get; protected set; }
+        public Color PickColor { get; protected set; }
+        
         protected bool HandleEvents { get; set; }
         protected bool DraggerActive { get; set; }
         
