@@ -25,6 +25,11 @@ namespace Veldrid.SceneGraph.Util.Shape
             return new Box(center, halfLengths, Quaternion.Identity);
         }
 
+        public static IBox Create(Vector3 center, float halfLength)
+        {
+            return new Box(center, new Vector3(halfLength, halfLength, halfLength), Quaternion.Identity);
+        }
+        
         public static IBox CreateUnitBox()
         {
             return Box.Create(new Vector3(0f, 0f, 0f), new Vector3(0.5f, 0.5f, 0.5f));

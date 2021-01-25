@@ -12,16 +12,21 @@
 // and may not be used in any way not expressly authorized by the Company.
 //
 
+using System;
 using System.Numerics;
+using Veldrid.SceneGraph.InputAdapter;
+using Veldrid.SceneGraph.PipelineStates;
 
 namespace Veldrid.SceneGraph.Manipulators
 {
     public interface IDragger : IMatrixTransform
     {
-        
+        void SetupDefaultGeometry();
+        bool Handle(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter);
+        bool Handle(IPointerInfo pointerInfo, IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter);
     }
     
-    public class Dragger : MatrixTransform
+    public class Dragger : MatrixTransform, IDragger
     {
         protected bool HandleEvents { get; set; }
         protected bool DraggerActive { get; set; }
@@ -39,5 +44,48 @@ namespace Veldrid.SceneGraph.Manipulators
         {
             
         }
+
+        public virtual bool Handle(IPointerInfo pointerInfo, IInputStateSnapshot snapshot,
+            IUiActionAdapter uiActionAdapter)
+        {
+            return false;
+        }
+
+        public virtual bool Handle(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter)
+        {
+            throw new NotImplementedException();
+        }
+        
+        public virtual void SetupDefaultGeometry() {}
+        
+        protected IPhongMaterial NormalMaterial =>
+            PhongMaterial.Create(
+                PhongMaterialParameters.Create(
+                    new Vector3(0.0f, 1.0f, 0.0f),
+                    new Vector3(0.0f, 1.0f, 0.0f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    5f),
+                PhongHeadlight.Create(PhongLightParameters.Create(
+                    new Vector3(0.1f, 0.1f, 0.1f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    1f,
+                    0)),
+                true);
+        
+        protected IPhongMaterial PickMaterial =>
+            PhongMaterial.Create(
+                PhongMaterialParameters.Create(
+                    new Vector3(1.0f, 1.0f, 0.0f),
+                    new Vector3(1.0f, 1.0f, 0.0f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    5f),
+                PhongHeadlight.Create(PhongLightParameters.Create(
+                    new Vector3(0.1f, 0.1f, 0.1f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    new Vector3(1.0f, 1.0f, 1.0f),
+                    1f,
+                    0)),
+                true);
     }
 }

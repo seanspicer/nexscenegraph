@@ -12,25 +12,33 @@
 // and may not be used in any way not expressly authorized by the Company.
 //
 
-using System.Collections.Generic;
 using System.Numerics;
-using Veldrid.SceneGraph.Util;
 
 namespace Veldrid.SceneGraph.Manipulators
 {
-    public interface IPointerInfo
+    public interface ILineProjector : IProjector
     {
+        ILineSegment LineSegment { get; }
+        
+        Vector3 LineStart { get; }
+        Vector3 LineEnd { get; }
         
     }
     
-    public class PointerInfo : IPointerInfo
+    public class LineProjector : Projector, ILineProjector
     {
-        protected Vector3 NearPoint { get; set; }
-        protected Vector3 FarPoint { get; set; }
-        protected Vector3 EyeDir { get; set; }
-        protected Matrix4x4 Mvpw { get; set; }
-        protected Matrix4x4 InverseMvpw { get; set; }
-        
-        public IReadOnlyList<LineSegmentIntersector.Intersection> HitList { get; set; }
+        public ILineSegment LineSegment { get; protected set; }
+        public Vector3 LineStart => LineSegment.Start;
+        public Vector3 LineEnd => LineSegment.End;
+
+        public static ILineProjector Create(ILineSegment lineSegment)
+        {
+            return new LineProjector(lineSegment);
+        }
+
+        protected LineProjector(ILineSegment lineSegment)
+        {
+            LineSegment = lineSegment;
+        }
     }
 }

@@ -41,14 +41,14 @@ namespace Veldrid.SceneGraph.Util.Shape
 
             var vertices = new Vector3[8]
             {
-                new Vector3(-dx, +dy, -dz),   // T1, L1, Bk2 
-                new Vector3(+dx, +dy, -dz),   // T2, R2, Bk1
-                new Vector3(+dx, +dy, +dz),   // T3, R1, F2
-                new Vector3(-dx, +dy, +dz),   // T4, L2, F1
-                new Vector3(-dx, -dy, -dz),   // B4, L4, Bk3
-                new Vector3(+dx, -dy, -dz),   // B3, R3, Bk4
-                new Vector3(+dx, -dy, +dz),   // B2, R4, F3
-                new Vector3(-dx, -dy, +dz),   // B1, L3, F4
+                new Vector3(-dx, +dy, -dz)+box.Center,   // T1, L1, Bk2 
+                new Vector3(+dx, +dy, -dz)+box.Center,   // T2, R2, Bk1
+                new Vector3(+dx, +dy, +dz)+box.Center,   // T3, R1, F2
+                new Vector3(-dx, +dy, +dz)+box.Center,   // T4, L2, F1
+                new Vector3(-dx, -dy, -dz)+box.Center,   // B4, L4, Bk3
+                new Vector3(+dx, -dy, -dz)+box.Center,   // B3, R3, Bk4
+                new Vector3(+dx, -dy, +dz)+box.Center,   // B2, R4, F3
+                new Vector3(-dx, -dy, +dz)+box.Center,   // B1, L3, F4
             };
 
             Vector3[] normals;

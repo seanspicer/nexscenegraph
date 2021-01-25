@@ -6,6 +6,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Veldrid.SceneGraph.IO\Veldrid.SceneGraph.IO.csproj" />
+      <ProjectReference Include="..\Veldrid.SceneGraph.Manipulators\Veldrid.SceneGraph.Manipulators.csproj" />
       <ProjectReference Include="..\Veldrid.SceneGraph\Veldrid.SceneGraph.csproj" />
     </ItemGroup>
 
