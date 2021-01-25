@@ -21,12 +21,12 @@ vec4 CalculateColor(FragmentInput input_)
     float d3 = abs(length(input_.TexCoord - p3));
     
     float alpha = 1.0;
-    vec4 color = vec4(input_.Color[0], input_.Color[1], input_.Color[2], 0.1);
+    vec4 color = vec4(input_.Color[0], input_.Color[1], input_.Color[2], 0.001);
     
     if(d1 < 0.3 || d2 < 0.3 || d3 < 0.3) {
     
         //alpha = 0.01;
-        color = vec4(1.0, 0.0, 0.0, alpha);
+        color = vec4(0.5, 0.0, 0.0, alpha);
     
         //double a1 = 0.2*(0.3-d1);
         //double a2 = 0.2*(0.3-d2);
@@ -37,6 +37,7 @@ vec4 CalculateColor(FragmentInput input_)
     
     if(d1 < 0.25 || d2 < 0.25 || d3 < 0.25) {
     
+        color = vec4(1, 0.0, 0.0, alpha);
         //alpha = 0.95;//-(d1/0.2);
     }
     

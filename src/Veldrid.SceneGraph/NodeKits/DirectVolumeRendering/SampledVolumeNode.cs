@@ -278,7 +278,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
         private void BuildIsoSurfaces()
         {
-            var sampleRate = 20;
+            var sampleRate = 200;
             var sampleStep = (_samplingVolume.MaxDist - _samplingVolume.MinDist) / sampleRate;
             
             _isoSurfaces.Clear();
@@ -545,7 +545,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             sliceOutlineGeometry.PipelineState.RasterizerStateDescription = RasterizerStateDescription.CullNone;
             sliceOutlineGeometry.SetCullCallback(samplingCullCallback);
             
-            AddDrawable(sliceOutlineGeometry);
+            //AddDrawable(sliceOutlineGeometry);
         }
         
         private void CreateCube(IVoxelVolume vv)
