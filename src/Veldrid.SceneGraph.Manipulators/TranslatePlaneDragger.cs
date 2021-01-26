@@ -17,6 +17,11 @@ namespace Veldrid.SceneGraph.Manipulators
         public Translate1DDragger Translate1DDragger { get; protected set; }
         public Translate2DDragger Translate2DDragger { get; protected set; }
         protected bool UsingTranslate1DDragger { get; set; }
+
+        public new static ITranslatePlaneDragger Create()
+        {
+            return new TranslatePlaneDragger(Matrix4x4.Identity);
+        }
         
         protected TranslatePlaneDragger(Matrix4x4 matrix) : base(matrix)
         {
@@ -29,7 +34,7 @@ namespace Veldrid.SceneGraph.Manipulators
 
         public void SetColor(Color color)
         {
-            throw new System.NotImplementedException();
+            
         }
     }
 }

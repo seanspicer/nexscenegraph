@@ -21,6 +21,11 @@ namespace Veldrid.SceneGraph.Manipulators
         Vector2 BottomLeftHandlePosition { get; set; }
         Vector2 TopRightHandlePosition { get; set; }
         Vector2 BottomRightHandlePosition { get; set; }
+        
+        INode TopLeftHandleNode     { get; set; }
+        INode BottomLeftHandleNode  { get; set; }
+        INode TopRightHandleNode    { get; set; }
+        INode BottomRightHandleNode { get; set; }
     }
     
     public class Scale2DDragger : Base2DDragger, IScale2DDragger
@@ -30,19 +35,22 @@ namespace Veldrid.SceneGraph.Manipulators
         public Vector2 TopRightHandlePosition { get; set; }
         public Vector2 BottomRightHandlePosition { get; set; }
 
-        protected INode TopLeftHandleNode     { get; set; }
-        protected INode BottomLeftHandleNode  { get; set; }
-        protected INode TopRightHandleNode    { get; set; }
-        protected INode BottomRightHandleNode { get; set; }
+        public INode TopLeftHandleNode     { get; set; }
+        public INode BottomLeftHandleNode  { get; set; }
+        public INode TopRightHandleNode    { get; set; }
+        public INode BottomRightHandleNode { get; set; }
         
+        public IScale2DDragger.ScaleMode ScaleMode { get; set; }
         
-        public new static IScale2DDragger Create()
+        public new static IScale2DDragger Create(IScale2DDragger.ScaleMode scaleMode = IScale2DDragger.ScaleMode.ScaleWithOriginAsPivot)
         {
-            return new Scale2DDragger(Matrix4x4.Identity);
+            return new Scale2DDragger(scaleMode, Matrix4x4.Identity);
         }
         
-        protected Scale2DDragger(Matrix4x4 matrix) : base(matrix)
+        protected Scale2DDragger(IScale2DDragger.ScaleMode scaleMode, Matrix4x4 matrix) : base(matrix)
         {
+            ScaleMode = scaleMode;
+            
             TopLeftHandlePosition     = new Vector2(-0.5f,  0.5f);
             BottomLeftHandlePosition  = new Vector2(-0.5f, -0.5f);
             BottomRightHandlePosition = new Vector2( 0.5f, -0.5f);

@@ -7,16 +7,26 @@ namespace Veldrid.SceneGraph.Manipulators
     {
         ILineSegment LineSegment { get; }
         
-        Vector3 LineStart { get; }
-        Vector3 LineEnd { get; }
+        Vector3 LineStart { get; set; }
+        Vector3 LineEnd { get; set; }
         
     }
     
     public class LineProjector : Projector, ILineProjector
     {
         public ILineSegment LineSegment { get; protected set; }
-        public Vector3 LineStart => LineSegment.Start;
-        public Vector3 LineEnd => LineSegment.End;
+
+        public Vector3 LineStart
+        {
+            get => LineSegment.Start;
+            set => LineSegment.Start = value;
+        }
+
+        public Vector3 LineEnd
+        {
+            get => LineSegment.End;
+            set => LineSegment.End = value;
+        }
 
         public static ILineProjector Create(ILineSegment lineSegment)
         {

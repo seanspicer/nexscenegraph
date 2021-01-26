@@ -6,14 +6,14 @@ namespace Veldrid.SceneGraph
 {
     public interface ILineSegment
     {
-        public Vector3 Start { get; }
-        public Vector3 End { get; }
+        public Vector3 Start { get; set; }
+        public Vector3 End { get; set; }
     }
     
     public class LineSegment : ILineSegment
     {
-        public Vector3 Start { get; protected set; }
-        public Vector3 End { get; protected set; }
+        public Vector3 Start { get; set; }
+        public Vector3 End { get; set; }
         
         public static ILineSegment Create(Vector3 start, Vector3 end)
         {

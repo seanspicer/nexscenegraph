@@ -11,18 +11,47 @@ namespace Veldrid.SceneGraph.Manipulators
 {
     public interface IScale1DDragger : IDragger
     {
+        enum ScaleMode
+        {
+            ScaleWithOriginAsPivot,
+            ScaleWithOppositeHandleAsPivot
+        }
+        
+        float LeftHandlePosition { get; set; }
+        float RightHandlePosition { get; set; }
+        
+        INode LeftHandleNode     { get; set; }
+        INode RightHandleNode  { get; set; }
+        
     }
     
     public class Scale1DDragger : Base1DDragger, IScale1DDragger 
     {
-        public new static IScale1DDragger Create()
+        public float LeftHandlePosition
         {
-            return new Scale1DDragger(Matrix4x4.Identity);
+            get => LineProjector.LineStart.X;
+            set => LineProjector.LineStart = new Vector3(value, 0.0f, 0.0f);
+        }
+
+        public float RightHandlePosition
+        {
+            get => LineProjector.LineEnd.X;
+            set => LineProjector.LineEnd = new Vector3(value, 0.0f, 0.0f);
         }
         
-        protected Scale1DDragger(Matrix4x4 matrix) : base(matrix)
+        public INode LeftHandleNode     { get; set; }
+        public INode RightHandleNode  { get; set; }
+        
+        public IScale1DDragger.ScaleMode ScaleMode { get; set; }
+        
+        public new static IScale1DDragger Create(IScale1DDragger.ScaleMode scaleMode = IScale1DDragger.ScaleMode.ScaleWithOriginAsPivot)
         {
-
+            return new Scale1DDragger(scaleMode, Matrix4x4.Identity);
+        }
+        
+        protected Scale1DDragger(IScale1DDragger.ScaleMode scaleMode, Matrix4x4 matrix) : base(matrix)
+        {
+            ScaleMode = scaleMode;
         }
 
         public override void SetupDefaultGeometry()
@@ -84,6 +113,8 @@ namespace Veldrid.SceneGraph.Manipulators
                 geode.PipelineState.RasterizerStateDescription 
                     = new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
                 AddChild(geode);
+                LeftHandleNode = geode;
+
             }
             
             // Create a right box
@@ -100,6 +131,7 @@ namespace Veldrid.SceneGraph.Manipulators
                     = new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
                 
                 AddChild(geode);
+                RightHandleNode = geode;
             }
         }
 
