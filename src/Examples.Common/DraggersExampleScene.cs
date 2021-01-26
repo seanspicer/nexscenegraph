@@ -1,16 +1,4 @@
-//
-// This file is part of IMAGEFrac (R) and related technologies.
-//
-// Copyright (c) 2017-2020 Reveal Energy Services.  All Rights Reserved.
-//
-// LEGAL NOTICE:
-// IMAGEFrac contains trade secrets and otherwise confidential information
-// owned by Reveal Energy Services. Access to and use of this information is 
-// strictly limited and controlled by the Company. This file may not be copied,
-// distributed, or otherwise disclosed outside of the Company's facilities 
-// except under appropriate precautions to maintain the confidentiality hereof, 
-// and may not be used in any way not expressly authorized by the Company.
-//
+
 
 using System.Numerics;
 using Veldrid.SceneGraph;
@@ -39,9 +27,15 @@ namespace Examples.Common
             
             var scale2DDragger = Scale2DDragger.Create();
             scale2DDragger.SetupDefaultGeometry();
-            var scale2DDraggerXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(1f, 1.0f, 0.0f));
+            var scale2DDraggerXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(1f, -1.0f, 0.0f));
             scale2DDraggerXForm.AddChild(scale2DDragger);
             root.AddChild(scale2DDraggerXForm);
+            
+            var translate2DDragger = Translate2DDragger.Create();
+            translate2DDragger.SetupDefaultGeometry();
+            var translate2DDraggerXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(1f, 1.0f, 0.0f));
+            translate2DDraggerXForm.AddChild(translate2DDragger);
+            root.AddChild(translate2DDraggerXForm);
             
             return root;
         }

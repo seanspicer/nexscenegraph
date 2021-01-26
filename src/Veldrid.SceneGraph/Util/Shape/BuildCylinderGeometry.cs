@@ -11,6 +11,8 @@ namespace Veldrid.SceneGraph.Util.Shape
     {
         internal void Build(IGeometry<T> geometry, ITessellationHints hints, Vector3[] colors, ICylinder cylinder)
         {
+            Matrix = Matrix4x4.CreateFromQuaternion(cylinder.Rotation)*Matrix4x4.CreateTranslation(cylinder.Center);
+            
             const uint MIN_NUM_ROWS = 3;
             const uint MIN_NUM_SEGMENTS = 5;
             

@@ -12,6 +12,9 @@ namespace Veldrid.SceneGraph.Util.Shape
     {
         internal void Build(IGeometry<T> geometry, ITessellationHints hints, Vector3[] colors, ICone cone)
         {
+            var mat = Matrix4x4.CreateFromQuaternion(cone.Rotation)*Matrix4x4.CreateTranslation(cone.Center);
+            Matrix = mat;
+            
             const uint MIN_NUM_ROWS = 3;
             const uint MIN_NUM_SEGMENTS = 5;
             
@@ -61,7 +64,7 @@ namespace Veldrid.SceneGraph.Util.Shape
             var hDelta = (cone.Height)/(float)numRows;
             var rDelta = cone.Radius/(float)numRows;
 
-            var topz=cone.Center.Z + cone.Height/2.0f;
+            var topz=cone.Height/2.0f;
             var topr=0.0f;
             var topv=1.0f;
             var basez = topz-hDelta;
@@ -113,7 +116,7 @@ namespace Veldrid.SceneGraph.Util.Shape
 
                     angle = (float) System.Math.PI*2.0f;
                     texCoord = 1.0f;
-                    basez = cone.Center.Z-cone.Height/2.0f;
+                    basez = -cone.Height/2.0f;
 
                     Normal3f(0.0f,0.0f,-1.0f);
                     TexCoord2f(0.5f,0.5f);

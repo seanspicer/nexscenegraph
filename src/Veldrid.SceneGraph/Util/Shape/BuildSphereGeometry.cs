@@ -32,7 +32,8 @@ namespace Veldrid.SceneGraph.Util.Shape
         internal void Build(IGeometry<T> geometry, ITessellationHints hints, Vector3[] colors, uint instanceCount, ISphere sphere)
         {
             _instanceCount = instanceCount;
-            Center = sphere.Center;
+            
+            Matrix = Matrix4x4.CreateTranslation(sphere.Center.X, sphere.Center.Y, sphere.Center.Z);
             
             if (hints.NormalsType == NormalsType.PerFace)
             {

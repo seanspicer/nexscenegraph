@@ -1,20 +1,9 @@
-//
-// This file is part of IMAGEFrac (R) and related technologies.
-//
-// Copyright (c) 2017-2020 Reveal Energy Services.  All Rights Reserved.
-//
-// LEGAL NOTICE:
-// IMAGEFrac contains trade secrets and otherwise confidential information
-// owned by Reveal Energy Services. Access to and use of this information is 
-// strictly limited and controlled by the Company. This file may not be copied,
-// distributed, or otherwise disclosed outside of the Company's facilities 
-// except under appropriate precautions to maintain the confidentiality hereof, 
-// and may not be used in any way not expressly authorized by the Company.
-//
+
 
 using System.Collections.Generic;
 using System.Numerics;
 using Veldrid.SceneGraph.Shaders.Standard;
+using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Util.Shape;
 using Veldrid.SceneGraph.VertexTypes;
 
@@ -86,9 +75,11 @@ namespace Veldrid.SceneGraph.Manipulators
             // Create a left Cone
             {
                 var geode = Geode.Create();
+                var cone = Cone.Create(LineProjector.LineStart, 0.025f * lineLength, 0.1f * lineLength);
+                cone.Rotation = QuaternionExtensions.MakeRotate(lineDir, Vector3.UnitZ);
                 
                 geode.AddDrawable(ShapeDrawable<Position3Texture2Color3Normal3>.Create(
-                    Cone.Create(LineProjector.LineStart, 0.025f*lineLength, 0.1f*lineLength),
+                    cone,
                     hints,
                     new [] {new Vector3(0.0f, 1.0f, 0.0f)}));
 
@@ -101,9 +92,11 @@ namespace Veldrid.SceneGraph.Manipulators
             // Create a right Cone
             {
                 var geode = Geode.Create();
+                var cone = Cone.Create(LineProjector.LineEnd, 0.025f * lineLength, 0.1f * lineLength);
+                cone.Rotation = QuaternionExtensions.MakeRotate(Vector3.UnitZ, lineDir);
                 
                 geode.AddDrawable(ShapeDrawable<Position3Texture2Color3Normal3>.Create(
-                    Cone.Create(LineProjector.LineEnd, 0.025f*lineLength, 0.1f*lineLength),
+                    cone,
                     hints,
                     new [] {new Vector3(0.0f, 1.0f, 0.0f)}));
 

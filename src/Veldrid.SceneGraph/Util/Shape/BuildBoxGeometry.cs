@@ -27,6 +27,8 @@ namespace Veldrid.SceneGraph.Util.Shape
         
         internal void Build(IGeometry<T> geometry, ITessellationHints hints, Vector3 [] colors, uint instanceCount, IBox box)
         {
+            Matrix = Matrix4x4.CreateFromQuaternion(box.Rotation)*Matrix4x4.CreateTranslation(box.Center);
+            
             _instanceCount = instanceCount;
             
             var dx = box.HalfLengths.X;
@@ -41,14 +43,14 @@ namespace Veldrid.SceneGraph.Util.Shape
 
             var vertices = new Vector3[8]
             {
-                new Vector3(-dx, +dy, -dz)+box.Center,   // T1, L1, Bk2 
-                new Vector3(+dx, +dy, -dz)+box.Center,   // T2, R2, Bk1
-                new Vector3(+dx, +dy, +dz)+box.Center,   // T3, R1, F2
-                new Vector3(-dx, +dy, +dz)+box.Center,   // T4, L2, F1
-                new Vector3(-dx, -dy, -dz)+box.Center,   // B4, L4, Bk3
-                new Vector3(+dx, -dy, -dz)+box.Center,   // B3, R3, Bk4
-                new Vector3(+dx, -dy, +dz)+box.Center,   // B2, R4, F3
-                new Vector3(-dx, -dy, +dz)+box.Center,   // B1, L3, F4
+                new Vector3(-dx, +dy, -dz),   // T1, L1, Bk2 
+                new Vector3(+dx, +dy, -dz),   // T2, R2, Bk1
+                new Vector3(+dx, +dy, +dz),   // T3, R1, F2
+                new Vector3(-dx, +dy, +dz),   // T4, L2, F1
+                new Vector3(-dx, -dy, -dz),   // B4, L4, Bk3
+                new Vector3(+dx, -dy, -dz),   // B3, R3, Bk4
+                new Vector3(+dx, -dy, +dz),   // B2, R4, F3
+                new Vector3(-dx, -dy, +dz),   // B1, L3, F4
             };
 
             Vector3[] normals;
@@ -192,8 +194,8 @@ namespace Veldrid.SceneGraph.Util.Shape
                 for (var i = 0; i < face.VertexIndices.Count; ++i)
                 {
                     var vtx = new T();
-                    vtx.SetPosition(vertices[face.VertexIndices[i]]);
-                    vtx.SetNormal(normals[face.NormalIndices[i]]);
+                    vtx.SetPosition(Vector3.Transform(vertices[face.VertexIndices[i]], Matrix));
+                    vtx.SetNormal(Vector3.Normalize(Vector3.Transform(normals[face.NormalIndices[i]], Inverse)));
                     vtx.SetColor3(colors[face.ColorIndices[i]]);
                     vtx.SetTexCoord2(texcoords[face.TexCoordIndices[i]]);
                     vertexDataList.Add(vtx);

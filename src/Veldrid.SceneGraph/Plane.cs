@@ -27,6 +27,7 @@ namespace Veldrid.SceneGraph
         float Nz { get; }
         float D { get; }
           
+        Vector3 Normal { get; }
         
         void Transform(Matrix4x4 matrix);
         float Distance(Vector3 v);
@@ -53,6 +54,8 @@ namespace Veldrid.SceneGraph
         public float Ny => _internalPlane.Normal.Y;
         public float Nz => _internalPlane.Normal.Z;
         public float D => _internalPlane.D;
+
+        public Vector3 Normal => new Vector3(Nx, Ny, Nz);
         
         public static IPlane Create(float nX, float nY, float nZ, float D)
         {

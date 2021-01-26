@@ -6,14 +6,12 @@ namespace Veldrid.SceneGraph.Util.Shape
 {
     public interface ICone : IShape
     {
-        Vector3 Center { get; }
         float Radius { get; }
         float Height { get; }
     }
     
-    public class Cone : ICone
+    public class Cone : Shape, ICone
     {
-        public Vector3 Center { get; }
         
         public float Radius { get; }
         
@@ -36,7 +34,7 @@ namespace Veldrid.SceneGraph.Util.Shape
             Height = height;
         }
         
-        public void Accept(IShapeVisitor shapeVisitor)
+        public override void Accept(IShapeVisitor shapeVisitor)
         {
             shapeVisitor.Apply(this);
         }

@@ -10,7 +10,7 @@ namespace Veldrid.SceneGraph.Util.Shape
         Matrix4x4 StaticTransform { get; }
     }
     
-    public class Path : IPath
+    public class Path : Shape, IPath
     {
         private Vector3[] _pathLocations;
         private Matrix4x4 _staticTransform;
@@ -42,7 +42,7 @@ namespace Veldrid.SceneGraph.Util.Shape
             
         }
         
-        public void Accept(IShapeVisitor shapeVisitor)
+        public override void Accept(IShapeVisitor shapeVisitor)
         {
             shapeVisitor.Apply(this);
         }

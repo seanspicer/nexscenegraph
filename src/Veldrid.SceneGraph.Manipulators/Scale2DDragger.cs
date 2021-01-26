@@ -1,16 +1,4 @@
-//
-// This file is part of IMAGEFrac (R) and related technologies.
-//
-// Copyright (c) 2017-2020 Reveal Energy Services.  All Rights Reserved.
-//
-// LEGAL NOTICE:
-// IMAGEFrac contains trade secrets and otherwise confidential information
-// owned by Reveal Energy Services. Access to and use of this information is 
-// strictly limited and controlled by the Company. This file may not be copied,
-// distributed, or otherwise disclosed outside of the Company's facilities 
-// except under appropriate precautions to maintain the confidentiality hereof, 
-// and may not be used in any way not expressly authorized by the Company.
-//
+
 
 using System.Collections.Generic;
 using System.Drawing;
@@ -33,22 +21,14 @@ namespace Veldrid.SceneGraph.Manipulators
         Vector2 BottomLeftHandlePosition { get; set; }
         Vector2 TopRightHandlePosition { get; set; }
         Vector2 BottomRightHandlePosition { get; set; }
-        
-        Color Color { get; set;}
-        
-        Color PickColor { get; set;}
     }
     
-    public class Scale2DDragger : Dragger, IScale2DDragger
+    public class Scale2DDragger : Base2DDragger, IScale2DDragger
     {
-        protected IPlaneProjector PlaneProjector { get; set; }
-        
         public Vector2 TopLeftHandlePosition { get; set; }
         public Vector2 BottomLeftHandlePosition { get; set; }
         public Vector2 TopRightHandlePosition { get; set; }
         public Vector2 BottomRightHandlePosition { get; set; }
-        public Color Color { get; set; }
-        public Color PickColor { get; set; }
 
         protected INode TopLeftHandleNode     { get; set; }
         protected INode BottomLeftHandleNode  { get; set; }
@@ -56,16 +36,13 @@ namespace Veldrid.SceneGraph.Manipulators
         protected INode BottomRightHandleNode { get; set; }
         
         
-        public static IScale2DDragger Create()
+        public new static IScale2DDragger Create()
         {
             return new Scale2DDragger(Matrix4x4.Identity);
         }
         
         protected Scale2DDragger(Matrix4x4 matrix) : base(matrix)
         {
-            PlaneProjector = Veldrid.SceneGraph.Manipulators.PlaneProjector.Create(
-                Plane.Create(0.0f, 1.0f, 0.0f, 0.0f));
-
             TopLeftHandlePosition     = new Vector2(-0.5f,  0.5f);
             BottomLeftHandlePosition  = new Vector2(-0.5f, -0.5f);
             BottomRightHandlePosition = new Vector2( 0.5f, -0.5f);

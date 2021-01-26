@@ -6,15 +6,12 @@ namespace Veldrid.SceneGraph.Util.Shape
 {
     public interface ICylinder : IShape
     {
-        Vector3 Center { get; }
         float Radius { get; }
         float Height { get; }
     }
 
-    public class Cylinder : ICylinder
+    public class Cylinder : Shape, ICylinder
     {
-        public Vector3 Center { get; }
-
         public float Radius { get; }
 
         public float Height { get; }
@@ -36,7 +33,7 @@ namespace Veldrid.SceneGraph.Util.Shape
             Height = height;
         }
 
-        public void Accept(IShapeVisitor shapeVisitor)
+        public override void Accept(IShapeVisitor shapeVisitor)
         {
             shapeVisitor.Apply(this);
         }
