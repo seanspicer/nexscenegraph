@@ -50,6 +50,15 @@ namespace Veldrid.SceneGraph.Util
                 (mat.M21*v.X + mat.M22*v.Y + mat.M23*v.Z + mat.M24)*d,
                 (mat.M31*v.X + mat.M32*v.Y + mat.M33*v.Z + mat.M34)*d) ;
         }
+        
+        public static Matrix4x4 PreMultiplyScale(this Matrix4x4 mat, Vector3 v)
+        {
+            mat.M11 *= v.X; mat.M12 *= v.X; mat.M13 *= v.X; mat.M14 *= v.X;
+            mat.M21 *= v.Y; mat.M22 *= v.Y; mat.M23 *= v.Y; mat.M24 *= v.Y;
+            mat.M31 *= v.Z; mat.M32 *= v.Z; mat.M33 *= v.Z; mat.M34 *= v.Z;
+
+            return mat;
+        }
 
         public static Matrix4x4 PostMultiplyScale(this Matrix4x4 mat, Vector3 v)
         {
@@ -58,6 +67,38 @@ namespace Veldrid.SceneGraph.Util
             mat.M13 *= v.Z; mat.M23 *= v.Z; mat.M33 *= v.Z; mat.M43 *= v.Z;
 
             return mat;
+        }
+
+        public static Matrix4x4 PreMultiplyTranslate(this Matrix4x4 mat, Vector3 v)
+        {
+            var tol = 1e-6;
+            Matrix4x4 result = mat;
+            
+            if (System.Math.Abs(v.X) > tol)
+            {
+                result.M41 = mat.M41 + (v.X * mat.M11);
+                result.M42 = mat.M42 + (v.X * mat.M12);
+                result.M43 = mat.M43 + (v.X * mat.M13);
+                result.M44 = mat.M44 + (v.X * mat.M14);
+            }
+
+            if (System.Math.Abs(v.Y) > tol)
+            {
+                result.M41 = mat.M41 + (v.Y * mat.M21);
+                result.M42 = mat.M42 + (v.Y * mat.M22);
+                result.M43 = mat.M43 + (v.Y * mat.M23);
+                result.M44 = mat.M44 + (v.Y * mat.M24);
+            }
+
+            if (System.Math.Abs(v.Z) > tol)
+            {
+                result.M41 = mat.M41 + (v.Z * mat.M31);
+                result.M42 = mat.M42 + (v.Z * mat.M32);
+                result.M43 = mat.M43 + (v.Z * mat.M33);
+                result.M44 = mat.M44 + (v.Z * mat.M34);
+            }
+            
+            return result;
         }
         
         public static Matrix4x4 PostMultiplyTranslate(this Matrix4x4 mat, Vector3 v)

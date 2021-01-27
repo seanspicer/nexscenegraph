@@ -1,5 +1,7 @@
 
+using System;
 using System.Numerics;
+using Veldrid.SceneGraph.RenderGraph;
 using Veldrid.SceneGraph.Util;
 
 namespace Veldrid.SceneGraph
@@ -159,9 +161,180 @@ namespace Veldrid.SceneGraph
 
         }
 
-        protected Matrix4x4 ComputeMatrix(NodeVisitor visitor)
+        protected Matrix4x4 ComputeMatrix(INodeVisitor visitor)
         {
-            return Matrix4x4.Identity;
+            Quaternion rotation = Rotation;
+            Vector3 scale = Scale;
+            
+            
+            
+            // Do a bunch of stuff...
+            if(visitor is ICullVisitor cullVisitor)
+            {
+                var eyePoint = cullVisitor.GetEyeLocal();
+                var localUp = cullVisitor.GetUpLocal();
+
+                if (AutoScaleToScreen)
+                {
+                    var size = 1.0f / cullVisitor.PixelSize(Position, 0.48f);
+                    if (AutoScaleTransitionWidthRatio > 0)
+                    {
+                        if (MinimumScale > 0.0)
+                        {
+                            var j = MinimumScale;
+                            var i = (MaximumScale<float.MaxValue) ?
+                                MinimumScale+(MaximumScale-MinimumScale)*AutoScaleTransitionWidthRatio :
+                                MinimumScale*(1.0+AutoScaleTransitionWidthRatio);
+                            var c = 1.0/(4.0*(i-j));
+                            var b = 1.0 - 2.0*c*i;
+                            var a = j + b*b / (4.0*c);
+                            var k = -b / (2.0*c);
+
+                            if (size < k)
+                            {
+                                size = MinimumScale;
+                            }
+                            else if (size < i)
+                            {
+                                size = (float)(a + b*size + c*(size*size));
+                            }
+                        }
+                        if (MaximumScale<float.MaxValue)
+                        {
+                            var n = MaximumScale;
+                            var m = (MinimumScale>0.0) ?
+                                MaximumScale+(MinimumScale-MaximumScale)*AutoScaleTransitionWidthRatio :
+                                MaximumScale*(1.0-AutoScaleTransitionWidthRatio);
+                            var c = 1.0 / (4.0*(m-n));
+                            var b = 1.0 - 2.0*c*m;
+                            var a = n + b*b/(4.0*c);
+                            var p = -b / (2.0*c);
+
+                            if (size > p)
+                            {
+                                size = MaximumScale;
+                            }
+                            else if (size > m)
+                            {
+                                size = (float)(a + b*size + c*(size*size));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (MinimumScale>0.0 && size<MinimumScale)
+                        {
+                            size = MinimumScale;
+                        }
+
+                        if (MaximumScale<float.MaxValue && size>MaximumScale)
+                        {
+                            size = MaximumScale;
+                        }
+                    }
+
+                    Scale = new Vector3(size, size, size);
+                }
+
+                if (AutoRotateMode == IAutoTransform.AutoRotateModeType.RotateToScreen)
+                {
+                    if (Matrix4x4.Decompose(cullVisitor.GetModelViewMatrix(), 
+                        out var dScale, 
+                        out var dRotation,
+                        out var dTranslation))
+                    {
+                        rotation = Quaternion.Inverse(dRotation);
+                    }
+                }
+
+                else if (AutoRotateMode == IAutoTransform.AutoRotateModeType.RotateToCamera)
+                {
+                    Vector3 posToEye = Position - eyePoint;
+                    var lookAt = Matrix4x4.CreateLookAt(Vector3.Zero, posToEye, localUp);
+                    if (Matrix4x4.Invert(lookAt, out var lookAtInverse))
+                    {
+                        rotation = Quaternion.CreateFromRotationMatrix(lookAtInverse);
+                    }
+                }
+                
+                else if (AutoRotateMode == IAutoTransform.AutoRotateModeType.RotateToAxis)
+                {
+                    var rMatrix = Matrix4x4.Identity;
+                    var eyeVector = eyePoint - Position;
+                    switch (CachedMode)
+                    {
+                        case (int) AxisAligned.AxialRotZAxis:
+                            {
+                                eyeVector.Z = 0.0f;
+                                var evLength = eyeVector.Length();
+                                if (evLength > 0.0f)
+                                {
+                                    var inv = 1.0f/evLength;
+                                    var s = eyeVector.X*inv;
+                                    var c = -eyeVector.Y*inv;
+                                    rMatrix.M11 = c;
+                                    rMatrix.M21 = -s;
+                                    rMatrix.M12 = s;
+                                    rMatrix.M22 = c;
+                                }
+                            } 
+                            break;
+                        case (int) AxisAligned.AxialRotYAxis:
+                            {
+                                eyeVector.Y = 0.0f;
+                                var evLength = eyeVector.Length();
+                                if (evLength > 0.0f)
+                                {
+                                    var inv = 1.0f/evLength;
+                                    var s = eyeVector.Z*inv;
+                                    var c = -eyeVector.X*inv;
+                                    rMatrix.M11 = c;
+                                    rMatrix.M31 = s;
+                                    rMatrix.M13 = -s;
+                                    rMatrix.M33 = c;
+                                }
+                            } 
+                            break;
+                        case (int) AxisAligned.AxialRotXAxis:
+                            {
+                                eyeVector.X = 0.0f;
+                                var evLength = eyeVector.Length();
+                                if (evLength > 0.0f)
+                                {
+                                    var inv = 1.0f/evLength;
+                                    var s = eyeVector.Z*inv;
+                                    var c = -eyeVector.Y*inv;
+                                    rMatrix.M22 = c;
+                                    rMatrix.M32 = -s;
+                                    rMatrix.M23 = s;
+                                    rMatrix.M33 = c;
+                                }
+                            } break;
+                        case (int) IAutoTransform.AutoRotateModeType.RotateToAxis:
+                            {
+                                var evSide = Vector3.Dot(eyeVector, Side);
+                                var evNormal = Vector3.Dot(eyeVector, Normal);
+                                var angle = (float) System.Math.Atan2(evSide, evNormal);
+                                rMatrix = Matrix4x4.CreateFromAxisAngle(Axis, angle);
+                            }
+                            break;
+                        
+                    }
+
+                    rotation = Quaternion.CreateFromRotationMatrix(rMatrix);
+                }
+            }
+            
+            Rotation = rotation;
+            Scale = scale;
+
+            Matrix4x4 matrix = Matrix4x4.CreateFromQuaternion(rotation);
+            matrix = matrix.PostMultiplyTranslate(Position);
+            matrix = matrix.PreMultiplyScale(Scale);
+            matrix = matrix.PreMultiplyTranslate(-1 * PivotPoint);
+
+            return matrix;
+            
         }
         
         protected void UpdateCache()

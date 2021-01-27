@@ -54,6 +54,8 @@ namespace Veldrid.SceneGraph.RenderGraph
         Matrix4x4 GetModelViewProjectionInverseMatrix();
         Matrix4x4 GetProjectionMatrix();
         Vector3 GetEyeLocal();
+        Vector3 GetUpLocal();
+        float PixelSize(Vector3 v, float radius);
 
         IMutableCullVisitor ToMutable();
     }
@@ -79,6 +81,7 @@ namespace Veldrid.SceneGraph.RenderGraph
 
         private Matrix4x4 ViewMatrix => GetCurrentCamera().ViewMatrix;
         private Matrix4x4 ProjectionMatrix => GetCurrentCamera().ProjectionMatrix;
+        private IViewport Viewport => GetCurrentCamera().Viewport;
 
         private ICamera _camera;
         
@@ -170,6 +173,12 @@ namespace Veldrid.SceneGraph.RenderGraph
             var eyeWorld = Vector3.Zero;
             var modelViewInverse = GetModelViewInverseMatrix();
             return Vector3.Transform(eyeWorld, modelViewInverse);
+        }
+
+        public Vector3 GetUpLocal()
+        {
+            var matrix = GetModelViewMatrix();
+            return new Vector3(matrix.M12, matrix.M22, matrix.M32);
         }
         
         private bool IsCulled(IBoundingBox bb, Matrix4x4 modelMatrix)
@@ -528,6 +537,49 @@ namespace Veldrid.SceneGraph.RenderGraph
             {
                 Traverse(node);
             }
+        }
+
+        Vector4 ComputePixelSizeVector(IViewport viewport, Matrix4x4 projectionMatrix, Matrix4x4 modelMatrix)
+        {
+            // pre adjust P00,P20,P23,P33 by multiplying them by the viewport window matrix.
+            // here we do it in short hand with the knowledge of how the window matrix is formed
+            // note P23,P33 are multiplied by an implicit 1 which would come from the window matrix.
+            // Robert Osfield, June 2002.
+
+            // scaling for horizontal pixels
+            var P00 = projectionMatrix.M11*viewport.Width*0.5f;
+            var P20_00 = projectionMatrix.M31*viewport.Width*0.5f + projectionMatrix.M34*viewport.Width*0.5f;
+            var scale_00 = new Vector3(
+                modelMatrix.M11*P00 + modelMatrix.M13*P20_00, 
+                modelMatrix.M21*P00 + modelMatrix.M23*P20_00, 
+                modelMatrix.M31*P00 + modelMatrix.M33*P20_00);
+
+            // scaling for vertical pixels
+            var P10 = projectionMatrix.M33*viewport.Height*0.5f;
+            var P20_10 = projectionMatrix.M32*viewport.Height*0.5f + projectionMatrix.M34*viewport.Height*0.5f;
+            var scale_10 = new Vector3(
+                modelMatrix.M12*P10 + modelMatrix.M13*P20_10, 
+                modelMatrix.M22*P10 + modelMatrix.M23*P20_10, 
+                modelMatrix.M32*P10 + modelMatrix.M33*P20_10);
+
+            var P23 = projectionMatrix.M34;
+            var P33 = projectionMatrix.M44;
+            var pixelSizeVector = new Vector4(
+                modelMatrix.M13*P23, 
+                modelMatrix.M23*P23, 
+                modelMatrix.M33*P23, 
+                modelMatrix.M43*P23 + modelMatrix.M44*P33);
+
+            var scaleRatio  = 0.7071067811f/(float) System.Math.Sqrt(scale_00.LengthSquared()+scale_10.LengthSquared());
+            pixelSizeVector *= scaleRatio;
+
+            return pixelSizeVector;
+        }
+
+        public float PixelSize(Vector3 v, float radius)
+        {
+            var pixelSizeVector = ComputePixelSizeVector(Viewport, ProjectionMatrix, ModelMatrixStack.Peek());
+            return radius / Vector4.Dot(new Vector4(v.X, v.Y, v.Z, 1.0f), pixelSizeVector);
         }
     }
 
