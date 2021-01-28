@@ -106,6 +106,7 @@ namespace Veldrid.SceneGraph.Manipulators
             geometry.PrimitiveSets.Add(pSet);
 
             geometry.PipelineState.ShaderSet = Position3Color3Shader.Instance.ShaderSet;
+            geometry.PipelineState.RasterizerStateDescription = RasterizerStateDescription.CullNone;
 
             var geode = Geode.Create();
             geode.NameString = "Dragger Handle";
