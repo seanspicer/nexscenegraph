@@ -109,7 +109,7 @@ namespace Veldrid.SceneGraph
         public float AutoScaleTransitionWidthRatio { get; set; } = 0.25f;
 
         public float MinimumScale { get; set; } = 0.0f;
-        public float MaximumScale { get; set; } = float.MinValue;
+        public float MaximumScale { get; set; } = float.MaxValue;
 
         public float AutoUpdateEyeMovementTolerance { get; set; } = 0.0f;
 
@@ -176,7 +176,7 @@ namespace Veldrid.SceneGraph
 
                 if (AutoScaleToScreen)
                 {
-                    var size = 1.0f / cullVisitor.PixelSize(Position, 0.48f);
+                    var size = 10.0f / cullVisitor.PixelSize(Position, 0.48f);
                     if (AutoScaleTransitionWidthRatio > 0)
                     {
                         if (MinimumScale > 0.0)
@@ -233,7 +233,7 @@ namespace Veldrid.SceneGraph
                         }
                     }
 
-                    Scale = new Vector3(size, size, size);
+                    scale = new Vector3(size, size, size);
                 }
 
                 if (AutoRotateMode == IAutoTransform.AutoRotateModeType.RotateToScreen)

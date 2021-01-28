@@ -39,7 +39,7 @@ namespace Veldrid.SceneGraph.Manipulators
 
             VerticalEdgeScaleDragger = 
                 Scale1DDragger.Create(IScale1DDragger.ScaleMode.ScaleWithOppositeHandleAsPivot);
-            AddChild(HorizontalEdgeScaleDragger);
+            AddChild(VerticalEdgeScaleDragger);
 
             TranslateDragger = TranslatePlaneDragger.Create();
             TranslateDragger.SetColor(System.Drawing.Color.Gray);
@@ -117,12 +117,14 @@ namespace Veldrid.SceneGraph.Manipulators
         protected INode CreateHandleScene(Vector3 pos, INode handleNode, float handleScaleFactor)
         {
             
-            var autoTransform = Group.Create();  // TODO: Implement AutoTransform
+            var autoTransform = AutoTransform.Create();
+            autoTransform.Position = pos;
+            autoTransform.PivotPoint = pos * handleScaleFactor;
+            autoTransform.AutoScaleToScreen = true;
             autoTransform.AddChild(handleNode);
-
-            //var antiSquish = AntiSquish.Create();
-            // TODO add AntiSquish Pivot.
-            //antiSquish.AddChild(autoTransform);
+            
+            var antiSquish = AntiSquish.Create(pos); // Use Pos as pivot
+            antiSquish.AddChild(autoTransform);
 
             return autoTransform;
         }
@@ -225,7 +227,7 @@ namespace Veldrid.SceneGraph.Manipulators
                 vertEdgeScaleDragger.RightHandleNode = handleScene;
             }
 
-            var rotation = QuaternionExtensions.MakeRotate(Vector3.UnitZ, Vector3.UnitX);
+            var rotation = QuaternionExtensions.MakeRotate(Vector3.UnitX, Vector3.UnitZ);
             vertEdgeScaleDragger.Matrix = Matrix4x4.CreateFromQuaternion(rotation);
         }
 

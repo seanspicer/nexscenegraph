@@ -541,6 +541,8 @@ namespace Veldrid.SceneGraph.RenderGraph
 
         Vector4 ComputePixelSizeVector(IViewport viewport, Matrix4x4 projectionMatrix, Matrix4x4 modelMatrix)
         {
+            //var pixel = new Vector3(1.0f, 1.0f, 0.0f);
+            
             // pre adjust P00,P20,P23,P33 by multiplying them by the viewport window matrix.
             // here we do it in short hand with the knowledge of how the window matrix is formed
             // note P23,P33 are multiplied by an implicit 1 which would come from the window matrix.
@@ -555,7 +557,7 @@ namespace Veldrid.SceneGraph.RenderGraph
                 modelMatrix.M31*P00 + modelMatrix.M33*P20_00);
 
             // scaling for vertical pixels
-            var P10 = projectionMatrix.M33*viewport.Height*0.5f;
+            var P10 = projectionMatrix.M22*viewport.Height*0.5f;
             var P20_10 = projectionMatrix.M32*viewport.Height*0.5f + projectionMatrix.M34*viewport.Height*0.5f;
             var scale_10 = new Vector3(
                 modelMatrix.M12*P10 + modelMatrix.M13*P20_10, 
@@ -578,8 +580,9 @@ namespace Veldrid.SceneGraph.RenderGraph
 
         public float PixelSize(Vector3 v, float radius)
         {
-            var pixelSizeVector = ComputePixelSizeVector(Viewport, ProjectionMatrix, ModelMatrixStack.Peek());
-            return radius / Vector4.Dot(new Vector4(v.X, v.Y, v.Z, 1.0f), pixelSizeVector);
+            var pixelSizeVector = ComputePixelSizeVector(Viewport, ProjectionMatrix, GetModelViewMatrix());
+            var denom = Vector4.Dot(new Vector4(v.X, v.Y, v.Z, 1.0f), pixelSizeVector);
+            return radius / System.Math.Abs(denom);
         }
     }
 
