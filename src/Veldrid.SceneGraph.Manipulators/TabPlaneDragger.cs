@@ -236,21 +236,21 @@ namespace Veldrid.SceneGraph.Manipulators
         {
             // Create a polygon
             {
-                var vertexArray = new Position3Color3[4];
+                var vertexArray = new Position3Color4[4];
                 vertexArray[0] =
-                    new Position3Color3(new Vector3(cornerScaleDragger.TopLeftHandlePosition.X, 0.0f, cornerScaleDragger.TopLeftHandlePosition.Y),
-                        Vector3.One);
+                    new Position3Color4(new Vector3(cornerScaleDragger.TopLeftHandlePosition.X, 0.0f, cornerScaleDragger.TopLeftHandlePosition.Y),
+                        new Vector4(1.0f, 0.0f, 0.0f, 0.0f));
                 vertexArray[1] =
-                    new Position3Color3(new Vector3(cornerScaleDragger.BottomLeftHandlePosition.X, 0.0f, cornerScaleDragger.BottomLeftHandlePosition.Y),
-                        Vector3.One);
+                    new Position3Color4(new Vector3(cornerScaleDragger.BottomLeftHandlePosition.X, 0.0f, cornerScaleDragger.BottomLeftHandlePosition.Y),
+                        Vector4.Zero);
                 vertexArray[2] =
-                    new Position3Color3(new Vector3(cornerScaleDragger.BottomRightHandlePosition.X, 0.0f, cornerScaleDragger.BottomRightHandlePosition.Y),
-                        Vector3.One);
+                    new Position3Color4(new Vector3(cornerScaleDragger.BottomRightHandlePosition.X, 0.0f, cornerScaleDragger.BottomRightHandlePosition.Y),
+                        Vector4.Zero);
                 vertexArray[3] =
-                    new Position3Color3(new Vector3(cornerScaleDragger.TopRightHandlePosition.X, 0.0f, cornerScaleDragger.TopRightHandlePosition.Y),
-                        Vector3.One);
+                    new Position3Color4(new Vector3(cornerScaleDragger.TopRightHandlePosition.X, 0.0f, cornerScaleDragger.TopRightHandlePosition.Y),
+                        Vector4.Zero);
                 
-                var geometry = Geometry<Position3Color3>.Create();
+                var geometry = Geometry<Position3Color4>.Create();
             
                 var indexArray = new uint[6];
                 indexArray[0] = 0;
@@ -264,10 +264,10 @@ namespace Veldrid.SceneGraph.Manipulators
                 geometry.VertexData = vertexArray;
                 geometry.VertexLayouts = new List<VertexLayoutDescription>()
                 {
-                    Position3Color3.VertexLayoutDescription
+                    Position3Color4.VertexLayoutDescription
                 };
 
-                var pSet = DrawElements<Position3Color3>.Create(
+                var pSet = DrawElements<Position3Color4>.Create(
                     geometry,
                     PrimitiveTopology.TriangleList,
                     6,
@@ -278,12 +278,69 @@ namespace Veldrid.SceneGraph.Manipulators
             
                 geometry.PrimitiveSets.Add(pSet);
 
-                geometry.PipelineState.ShaderSet = Position3Color3Shader.Instance.ShaderSet;
+                geometry.PipelineState.ShaderSet = Vertex3Color4Shader.Instance.ShaderSet;
                 geometry.PipelineState.RasterizerStateDescription = new RasterizerStateDescription(FaceCullMode.None,
-                    PolygonFillMode.Wireframe, FrontFace.Clockwise, true, false);
+                    PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
+                geometry.PipelineState.BlendStateDescription = BlendStateDescription.SingleAlphaBlend;
+                
                 
                 var geode = Geode.Create();
                 geode.NameString = "Dragger Dragger Translate Plane";
+                geode.AddDrawable(geometry);
+
+                translate2DDragger.AddChild(geode);
+            }
+            
+            // Create an outline
+            {
+                var vertexArray = new Position3Color4[4];
+                vertexArray[0] =
+                    new Position3Color4(new Vector3(cornerScaleDragger.TopLeftHandlePosition.X, 0.0f, cornerScaleDragger.TopLeftHandlePosition.Y),
+                        Vector4.One);
+                vertexArray[1] =
+                    new Position3Color4(new Vector3(cornerScaleDragger.BottomLeftHandlePosition.X, 0.0f, cornerScaleDragger.BottomLeftHandlePosition.Y),
+                        Vector4.One);
+                vertexArray[2] =
+                    new Position3Color4(new Vector3(cornerScaleDragger.BottomRightHandlePosition.X, 0.0f, cornerScaleDragger.BottomRightHandlePosition.Y),
+                        Vector4.One);
+                vertexArray[3] =
+                    new Position3Color4(new Vector3(cornerScaleDragger.TopRightHandlePosition.X, 0.0f, cornerScaleDragger.TopRightHandlePosition.Y),
+                        Vector4.One);
+                
+                var geometry = Geometry<Position3Color4>.Create();
+            
+                var indexArray = new uint[5];
+                indexArray[0] = 0;
+                indexArray[1] = 1;
+                indexArray[2] = 2;
+                indexArray[3] = 3;
+                indexArray[4] = 0;
+            
+                geometry.IndexData = indexArray;
+                geometry.VertexData = vertexArray;
+                geometry.VertexLayouts = new List<VertexLayoutDescription>()
+                {
+                    Position3Color4.VertexLayoutDescription
+                };
+
+                var pSet = DrawElements<Position3Color4>.Create(
+                    geometry,
+                    PrimitiveTopology.LineStrip,
+                    5,
+                    1,
+                    0,
+                    0,
+                    0);
+            
+                geometry.PrimitiveSets.Add(pSet);
+
+                geometry.PipelineState.ShaderSet = Vertex3Color4Shader.Instance.ShaderSet;
+                geometry.PipelineState.RasterizerStateDescription = new RasterizerStateDescription(FaceCullMode.None,
+                    PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
+                
+                
+                var geode = Geode.Create();
+                geode.NameString = "Dragger Dragger Translate Plane outline";
                 geode.AddDrawable(geometry);
 
                 translate2DDragger.AddChild(geode);
