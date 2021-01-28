@@ -42,7 +42,7 @@ namespace Veldrid.SceneGraph.Manipulators
         
         public IScale2DDragger.ScaleMode ScaleMode { get; set; }
         
-        public new static IScale2DDragger Create(IScale2DDragger.ScaleMode scaleMode = IScale2DDragger.ScaleMode.ScaleWithOriginAsPivot)
+        public static IScale2DDragger Create(IScale2DDragger.ScaleMode scaleMode = IScale2DDragger.ScaleMode.ScaleWithOriginAsPivot)
         {
             return new Scale2DDragger(scaleMode, Matrix4x4.Identity);
         }

@@ -23,7 +23,7 @@ namespace Veldrid.SceneGraph.Manipulators
 
         protected float HandleScaleFactor { get; set; } = 1.0f;
         
-        public static ITabPlaneDragger Create()
+        public new static ITabPlaneDragger Create()
         {
             return new TabPlaneDragger(Matrix4x4.Identity);
         }

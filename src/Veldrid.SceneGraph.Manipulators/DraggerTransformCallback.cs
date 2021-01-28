@@ -1,6 +1,7 @@
 
 
 using System.Numerics;
+using Veldrid.SceneGraph.Manipulators.Commands;
 
 namespace Veldrid.SceneGraph.Manipulators
 {
@@ -16,10 +17,19 @@ namespace Veldrid.SceneGraph.Manipulators
             HandleRotate3D            = 1<<5,
             HandleAll                 = 0x8ffffff
         }
+        
     }
     
     public class DraggerTransformCallback : DraggerCallback, IDraggerTransformCallback
     {
+        protected Matrix4x4 Transform { get; set; }
+        protected Matrix4x4 StartMotionMatrix { get; set; }
+        
+        protected Matrix4x4 LocalToWorld { get; set; }
+        protected Matrix4x4 WorldToLocal { get; set; }
+        
+        protected uint HandleCommandMask { get; set; }
+        
         public IDraggerTransformCallback Create(MatrixTransform transform,
             IDraggerTransformCallback.HandleCommandMask handleCommandMask =
                 IDraggerTransformCallback.HandleCommandMask.HandleAll)
@@ -33,5 +43,11 @@ namespace Veldrid.SceneGraph.Manipulators
         {
             
         }
+
+        public override bool Receive(IMotionCommand command)
+        {
+            return base.Receive(command);
+        }
+        
     }
 }

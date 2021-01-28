@@ -16,7 +16,7 @@ namespace Veldrid.SceneGraph.Manipulators
     
     public class Translate1DDragger : Base1DDragger, ITranslate1DDragger
     {
-        public static ITranslate1DDragger Create()
+        public new static ITranslate1DDragger Create()
         {
             return new Translate1DDragger(Matrix4x4.Identity);
         }
