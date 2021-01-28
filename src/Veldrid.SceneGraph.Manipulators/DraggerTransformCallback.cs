@@ -1,36 +1,42 @@
 
 
+using System;
+using System.Linq;
 using System.Numerics;
 using Veldrid.SceneGraph.Manipulators.Commands;
+using Veldrid.SceneGraph.Util;
+using Vulkan;
 
 namespace Veldrid.SceneGraph.Manipulators
 {
     public interface IDraggerTransformCallback : IDraggerCallback
     {
+        [Flags]
         enum HandleCommandMask
         {
-            HandleTranslateInLine     = 1<<0,
-            HandleTranslateInPlane    = 1<<1,
-            HandleScaled1D            = 1<<2,
-            HandleScaled2D            = 1<<3,
-            HandleScaledUniform       = 1<<4,
-            HandleRotate3D            = 1<<5,
-            HandleAll                 = 0x8ffffff
+            HandleNone = 0,
+            HandleTranslateInLine = 1 << 0,
+            HandleTranslateInPlane = 1 << 1,
+            HandleScaled1D = 1 << 2,
+            HandleScaled2D = 1 << 3,
+            HandleScaledUniform = 1 << 4,
+            HandleRotate3D = 1 << 5,
+            HandleAll = 0x8ffffff
         }
-        
+
     }
-    
+
     public class DraggerTransformCallback : DraggerCallback, IDraggerTransformCallback
     {
-        protected Matrix4x4 Transform { get; set; }
+        protected MatrixTransform Transform { get; set; }
         protected Matrix4x4 StartMotionMatrix { get; set; }
         
         protected Matrix4x4 LocalToWorld { get; set; }
         protected Matrix4x4 WorldToLocal { get; set; }
         
-        protected uint HandleCommandMask { get; set; }
+        protected IDraggerTransformCallback.HandleCommandMask HandleCommandMask { get; set; }
         
-        public IDraggerTransformCallback Create(MatrixTransform transform,
+        public static IDraggerTransformCallback Create(MatrixTransform transform,
             IDraggerTransformCallback.HandleCommandMask handleCommandMask =
                 IDraggerTransformCallback.HandleCommandMask.HandleAll)
         {
@@ -41,12 +47,104 @@ namespace Veldrid.SceneGraph.Manipulators
             IDraggerTransformCallback.HandleCommandMask handleCommandMask =
                 IDraggerTransformCallback.HandleCommandMask.HandleAll)
         {
-            
+            Transform = transform;
+            HandleCommandMask = handleCommandMask;
         }
 
+        private NodePath ComputeNodePathToRoot(INode node)
+        {
+            var result = new NodePath();
+            
+            var nodePaths = node.GetParentalNodePaths();
+            if (!nodePaths.Any()) return result;
+            
+            result = nodePaths.First();
+            if (nodePaths.Count > 1)
+            {
+                // TODO: Log this as degenerate case.
+            }
+
+            return result;
+        }
+        
         public override bool Receive(IMotionCommand command)
         {
-            return base.Receive(command);
+            if (null == Transform) return false;
+
+            switch (command.Stage)
+            {
+                case IMotionCommand.MotionStage.Start:
+                {
+                    // Save the current matrix
+                    StartMotionMatrix = Transform.Matrix;
+                    
+                    // Get the LocalToWorld and WorldToLocal matrix for this node. 
+                    var nodePathToRoot = ComputeNodePathToRoot(Transform);
+                    LocalToWorld = Veldrid.SceneGraph.Transform.ComputeLocalToWorld(nodePathToRoot);
+                    if (Matrix4x4.Invert(LocalToWorld, out var worldToLocal))
+                    {
+                        WorldToLocal = worldToLocal;
+                    }
+
+                    return true;
+                }
+                case IMotionCommand.MotionStage.Move:
+                {
+                    // Transform the command's motion matrix in to a local motion matrix.
+                    var localMotionMatrix = LocalToWorld
+                        .PostMultiply(command.GetWorldToLocal())
+                        .PostMultiply(command.GetMotionMatrix())
+                        .PostMultiply(command.GetLocalToWorld())
+                        .PostMultiply(WorldToLocal);
+                    
+                    // Transform by the local motion matrix
+                    Transform.Matrix = localMotionMatrix.PostMultiply(StartMotionMatrix);
+
+                    return true;
+                }
+                case IMotionCommand.MotionStage.Finish:
+                {
+                    return true;
+                }
+                case IMotionCommand.MotionStage.None:
+                {
+                    return false;
+                }
+                default:
+                {
+                    return false;
+                }
+            }
+        }
+        
+        public override bool Receive(ITranslateInLineCommand command)
+        {
+            return FlagsHelper.IsSet(HandleCommandMask, IDraggerTransformCallback.HandleCommandMask.HandleTranslateInLine) && Receive(command as IMotionCommand);
+        }
+
+        public override bool Receive(ITranslateInPlaneCommand command)
+        {
+            return FlagsHelper.IsSet(HandleCommandMask, IDraggerTransformCallback.HandleCommandMask.HandleTranslateInPlane) && Receive(command as IMotionCommand);
+        }
+
+        public override bool Receive(IScale1DCommand command)
+        {
+            return FlagsHelper.IsSet(HandleCommandMask, IDraggerTransformCallback.HandleCommandMask.HandleScaled1D) && Receive(command as IMotionCommand);
+        }
+
+        public override bool Receive(IScale2DCommand command)
+        {
+            return FlagsHelper.IsSet(HandleCommandMask, IDraggerTransformCallback.HandleCommandMask.HandleScaled2D) && Receive(command as IMotionCommand);
+        }
+
+        public override bool Receive(IScaleUniformCommand command)
+        {
+            return FlagsHelper.IsSet(HandleCommandMask, IDraggerTransformCallback.HandleCommandMask.HandleScaledUniform) && Receive(command as IMotionCommand);
+        }
+
+        public override bool Receive(IRotate3DCommand command)
+        {
+            return FlagsHelper.IsSet(HandleCommandMask, IDraggerTransformCallback.HandleCommandMask.HandleRotate3D) && Receive(command as IMotionCommand);
         }
         
     }

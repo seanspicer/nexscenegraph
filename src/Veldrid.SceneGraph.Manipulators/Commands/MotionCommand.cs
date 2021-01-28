@@ -25,6 +25,8 @@ namespace Veldrid.SceneGraph.Manipulators.Commands
         Matrix4x4 GetLocalToWorld();
         Matrix4x4 GetWorldToLocal();
 
+        Matrix4x4 GetMotionMatrix();
+        
         void SetLocalToWorldAndWorldToLocal(Matrix4x4 localToWorld, Matrix4x4 worldToLocal);
         
         void Accept(IConstraint constraint);
