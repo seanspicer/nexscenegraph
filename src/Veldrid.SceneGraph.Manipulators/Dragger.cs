@@ -4,10 +4,12 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Drawing;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Manipulators.Commands;
 using Veldrid.SceneGraph.PipelineStates;
+using Veldrid.SceneGraph.Util;
 
 namespace Veldrid.SceneGraph.Manipulators
 {
@@ -160,7 +162,7 @@ namespace Veldrid.SceneGraph.Manipulators
             base.Traverse(nodeVisitor);
         }
         
-        public virtual bool Handle(IPointerInfo pointerInfo, IUiEventAdapter eventAdapter,
+        public virtual bool Handle(IUiEventAdapter eventAdapter,
             IUiActionAdapter actionAdapter)
         {
             if (eventAdapter.Handled) return false;
@@ -221,10 +223,49 @@ namespace Veldrid.SceneGraph.Manipulators
                     {
                         case IUiEventAdapter.EventTypeValue.Push:
                         {
+                            var intersections = new SortedMultiSet<ILineSegmentIntersector.IIntersection>();
+                            
                             PointerInfo.Reset();
-                            if (view.ComputeIntersections(eventAdapter, out var intersections, IntersectionNodeMask))
+                            if (view.ComputeIntersections(eventAdapter, ref intersections, IntersectionNodeMask))
                             {
-                                
+                                foreach (var intersection in intersections)
+                                {
+                                    PointerInfo.HitList.Add(new Tuple<NodePath, Vector3>(intersection.NodePath,
+                                        intersection.IntersectionPoint));
+                                }
+
+                                foreach (var node in PointerInfo.HitList.First().Item1)
+                                {
+                                    if (node is IDragger dragger)
+                                    {
+                                        if (dragger == this)
+                                        {
+                                            var rootCamera = view.Camera;
+                                            var nodePath = PointerInfo.HitList.First().Item1;
+                                            foreach (var rnode in nodePath.Reverse())
+                                            {
+                                                if (rnode is Camera camera)
+                                                {
+                                                    if (camera.ReferenceFrame !=
+                                                        ReferenceFrameType.Relative || camera.NumParents == 0)
+                                                    {
+                                                        rootCamera = camera;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            
+                                            PointerInfo.SetCamera(rootCamera);
+                                            PointerInfo.SetMousePosition(eventAdapter.X, eventAdapter.Y);
+
+                                            if (dragger.Handle(PointerInfo, eventAdapter, actionAdapter))
+                                            {
+                                                dragger.DraggerActive = true;
+                                                handled = true;
+                                            }
+                                        }
+                                    }
+                                }
                             }
 
                             break;
@@ -232,6 +273,15 @@ namespace Veldrid.SceneGraph.Manipulators
                         case IUiEventAdapter.EventTypeValue.Drag:
                         case IUiEventAdapter.EventTypeValue.Release:
                         {
+                            if (DraggerActive)
+                            {
+                                PointerInfo.SetMousePosition(eventAdapter.X, eventAdapter.Y);
+
+                                if (Handle(PointerInfo, eventAdapter, actionAdapter))
+                                {
+                                    handled = true;
+                                }
+                            }
                             break;
                         }
                         default:
@@ -241,18 +291,20 @@ namespace Veldrid.SceneGraph.Manipulators
                     if (DraggerActive && eventAdapter.EventType == IUiEventAdapter.EventTypeValue.Release)
                     {
                         DraggerActive = false;
-                        
+                        PointerInfo.Reset();
                     }
                 }
-                
+
+                return handled;
             }
 
             return false;
         }
 
-        public virtual bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter uiActionAdapter)
+        public virtual bool Handle(IPointerInfo pointerInfo, IUiEventAdapter eventAdapter,
+            IUiActionAdapter actionAdapter)
         {
-            throw new NotImplementedException();
+            return false;
         }
         
         public virtual void SetupDefaultGeometry() {}

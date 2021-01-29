@@ -33,12 +33,12 @@ namespace Veldrid.SceneGraph.InputAdapter
             YMax = yMax;
         }
 
-        float GetXNormalized()
+        public float GetXNormalized()
         {
             return (X - XMin) / (XMax - XMin) * 2.0f - 1.0f;
         }
 
-        float GetYNormalize()
+        public float GetYNormalized()
         {
             return (Y - YMin) / (YMax - YMin) * 2.0f - 1.0f;
         }

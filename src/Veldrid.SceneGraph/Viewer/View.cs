@@ -15,6 +15,7 @@
 //
 
 using System;
+using System.Linq;
 using System.Numerics;
 using System.Reactive.Subjects;
 using System.Xml.Serialization;
@@ -40,7 +41,7 @@ namespace Veldrid.SceneGraph.Viewer
 
         bool ComputeIntersections(
             IUiEventAdapter eventAdapter,
-            out SortedMultiSet<LineSegmentIntersector.Intersection> intersections, 
+            ref SortedMultiSet<ILineSegmentIntersector.IIntersection> intersections, 
             uint traversalMask);
     }
     
@@ -184,11 +185,50 @@ namespace Veldrid.SceneGraph.Viewer
 
         public bool ComputeIntersections(
             IUiEventAdapter eventAdapter,
-            out SortedMultiSet<LineSegmentIntersector.Intersection> intersections,
+            ref SortedMultiSet<ILineSegmentIntersector.IIntersection> intersections,
             uint traversalMask)
         {
+            if (eventAdapter.PointerDataList.Count > 0)
+            {
+                var pd = eventAdapter.PointerDataList.Last();
+                if (pd.Object is ICamera camera)
+                {
+                    return ComputeIntersections(camera,
+                        IIntersector.CoordinateFrameMode.Projection,
+                        pd.GetXNormalized(),
+                        pd.GetYNormalized(),
+                        ref intersections, traversalMask);
+                }
+            }
             intersections = null;
             return false;
+        }
+
+        public bool ComputeIntersections(
+            ICamera camera, 
+            IIntersector.CoordinateFrameMode cf, 
+            float x, 
+            float y,
+            ref SortedMultiSet<ILineSegmentIntersector.IIntersection> intersections,
+            uint traversalMask)
+        {
+            if (null == camera) return false;
+
+            var picker = LineSegmentIntersector.Create(cf, x, y);
+            var intersectionVisitor = IntersectionVisitor.Create(picker);
+            intersectionVisitor.TraversalMask = traversalMask;
+            
+            camera.Accept(intersectionVisitor);
+            
+            if(picker.Intersections.Any())
+            {
+                intersections = picker.Intersections;
+                return true;
+            }
+            
+            intersections.Clear();
+            return false;
+            
         }
     }
 }

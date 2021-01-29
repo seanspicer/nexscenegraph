@@ -1,4 +1,5 @@
 
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using Veldrid.SceneGraph.Util;
@@ -7,7 +8,13 @@ namespace Veldrid.SceneGraph.Manipulators
 {
     public interface IPointerInfo
     {
+        IList<Tuple<NodePath, Vector3>> HitList { get; }
+        
         void Reset();
+
+        void SetCamera(ICamera camera);
+
+        void SetMousePosition(float pixelX, float pixelY);
     }
     
     public class PointerInfo : IPointerInfo
@@ -18,8 +25,8 @@ namespace Veldrid.SceneGraph.Manipulators
         protected Matrix4x4 Mvpw { get; set; }
         protected Matrix4x4 InverseMvpw { get; set; }
 
-        private List<LineSegmentIntersector.Intersection> _hitList = new List<LineSegmentIntersector.Intersection>();
-        public IReadOnlyList<LineSegmentIntersector.Intersection> HitList => _hitList;
+        //private List<Tuple<NodePath, Vector3>> _hitList = new List<Tuple<NodePath, Vector3>>();
+        public IList<Tuple<NodePath, Vector3>> HitList { get; set; }= new List<Tuple<NodePath, Vector3>>();//HitList => _hitList;
 
         public static IPointerInfo Create()
         {
@@ -33,11 +40,11 @@ namespace Veldrid.SceneGraph.Manipulators
         
         public void Reset()
         {
-            _hitList.Clear();
+            HitList.Clear();
             SetCamera(null);
         }
 
-        private void SetCamera(ICamera camera)
+        public void SetCamera(ICamera camera)
         {
             if (null != camera)
             {
@@ -61,6 +68,19 @@ namespace Veldrid.SceneGraph.Manipulators
                 InverseMvpw = Matrix4x4.Identity;
                 EyeDir = Vector3.UnitZ;
             }
+        }
+
+        public void SetMousePosition(float pixelX, float pixelY)
+        {
+            ProjectWindowXyIntoObject(new Vector2(pixelX, pixelY));
+        }
+
+        protected bool ProjectWindowXyIntoObject(Vector2 windowCoord)
+        {
+            NearPoint = InverseMvpw.PreMultiply(new Vector3(windowCoord.X, windowCoord.Y, 0.0f));
+            FarPoint = InverseMvpw.PreMultiply(new Vector3(windowCoord.X, windowCoord.Y, 1.0f));
+
+            return true;
         }
     }
 }

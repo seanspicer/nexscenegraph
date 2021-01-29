@@ -301,6 +301,9 @@ namespace Veldrid.SceneGraph.InputAdapter
         
         PointerData GetPointerData(IObject obj);
         void AddPointerData(PointerData pd);
+        
+        float X { get; set; }
+        float Y { get; set; }
     }
     
     public class UiEventAdapter : Event, IUiEventAdapter
@@ -314,6 +317,10 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         public PointerDataList PointerDataList { get; set; } = new PointerDataList();
 
+        public float X { get; set; } = 0.0f;
+
+        public float Y { get; set; } = 0.0f;
+        
         public PointerData GetPointerData(IObject obj)
         {
             return PointerDataList.FirstOrDefault(x => x.Object == obj);
@@ -324,11 +331,8 @@ namespace Veldrid.SceneGraph.InputAdapter
             PointerDataList.Add(pd);
         }
 
-
         public static IUiEventAdapter Create()
         {
-            
-            
             return new UiEventAdapter();
         }
 

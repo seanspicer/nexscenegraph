@@ -20,9 +20,28 @@ using System.Numerics;
 
 namespace Veldrid.SceneGraph.Util
 {
+    
+    public interface ILineSegmentIntersector : IIntersector
+    {
+        public interface IIntersection
+        {
+            float StartToIntersectionDist { get; }
+            
+            Vector3 IntersectionPoint { get; }
+
+            NodePath NodePath { get; }
+            
+            IDrawable Drawable { get; }
+
+        }
+        
+        SortedMultiSet<IIntersection> Intersections { get; }
+        
+    }
+    
     public class LineSegmentIntersector : Intersector, ILineSegmentIntersector
     {
-        public class Intersection : IComparable<Intersection>
+        public class Intersection : IComparable<ILineSegmentIntersector.IIntersection>, ILineSegmentIntersector.IIntersection
         {
             public Vector3 _start;
             
@@ -30,7 +49,7 @@ namespace Veldrid.SceneGraph.Util
             
             public IDrawable Drawable { get; private set; }
             
-            public NodePath NodePath { get; set; }
+            public NodePath NodePath { get; private set; }
             
             public float StartToIntersectionDist { get; private set; }
 
@@ -43,7 +62,7 @@ namespace Veldrid.SceneGraph.Util
                 StartToIntersectionDist = Vector3.Distance(start, intersectionPoint);
             }
 
-            public int CompareTo(Intersection rhs)
+            public int CompareTo(ILineSegmentIntersector.IIntersection rhs)
             {
                 var d1 = StartToIntersectionDist;
                 var d2 = rhs.StartToIntersectionDist;
@@ -52,7 +71,7 @@ namespace Veldrid.SceneGraph.Util
                 {
                     return -1;
                 }
-                else if (d1 == d2)
+                else if (System.Math.Abs(d1 - d2) < 1e-6)
                 {
                     return 0;
                 }
@@ -65,16 +84,26 @@ namespace Veldrid.SceneGraph.Util
             }
         }
 
-        public SortedMultiSet<Intersection> Intersections { get; }= new SortedMultiSet<Intersection>();
+        public SortedMultiSet<ILineSegmentIntersector.IIntersection> Intersections { get; } = new SortedMultiSet<ILineSegmentIntersector.IIntersection>();
         
         protected Vector3 Start { get; set; }
         protected Vector3 End { get; set; }
 
         protected LineSegmentIntersector Parent { get; set; } = null;
 
+        /** Construct a LineSegmentIntersector that runs between the specified start and end points in MODEL coordinates. */
         public static ILineSegmentIntersector Create(Vector3 start, Vector3 end)
         {
             return new LineSegmentIntersector(start, end);
+        }
+        
+        /** Convenience constructor for supporting picking in WINDOW, or PROJECTION coordinates
+          * In WINDOW coordinates creates a start value of (x,y,0) and end value of (x,y,1).
+          * In PROJECTION coordinates (clip space cube) creates a start value of (x,y,-1) and end value of (x,y,1).
+          * In VIEW and MODEL coordinates creates a start value of (x,y,0) and end value of (x,y,1).*/
+        public static ILineSegmentIntersector Create(IIntersector.CoordinateFrameMode cf, double x, double y)
+        {
+            return new LineSegmentIntersector(cf, x, y);
         }
         
         /// <summary>
@@ -88,8 +117,44 @@ namespace Veldrid.SceneGraph.Util
             Start = start;
             End = end;
         }
+
+        protected LineSegmentIntersector(
+            IIntersector.CoordinateFrameMode cf,
+            Vector3 start,
+            Vector3 end,
+            LineSegmentIntersector parent = null,
+            IIntersector.IntersectionLimitModes intersectionLimit = IIntersector.IntersectionLimitModes.NoLimit) :
+            base(cf, intersectionLimit)
+        {
+            Parent = parent;
+            Start = start;
+            End = end;
+        }
+
+        protected LineSegmentIntersector(IIntersector.CoordinateFrameMode cf, double x, double y) 
+        : base(cf)
+        {
+            Parent = null;
+            switch (cf)
+            {
+                case IIntersector.CoordinateFrameMode.Projection:
+                {
+                    Start = new Vector3((float)x, (float)y, -1.0f);
+                    End = new Vector3((float)x, (float)y, 1.0f);
+                    break;
+                }
+                case IIntersector.CoordinateFrameMode.Window:
+                case IIntersector.CoordinateFrameMode.Model:
+                case IIntersector.CoordinateFrameMode.View: 
+                {
+                    Start = new Vector3((float)x, (float)y, -1.0f);
+                    End = new Vector3((float)x, (float)y, 1.0f);
+                    break;
+                }
+            }
+        }
         
-        public override Intersector Clone(IIntersectionVisitor iv)
+        public override IIntersector Clone(IIntersectionVisitor iv)
         {
             Matrix4x4 matrix;
             Matrix4x4.Invert(iv.GetModelMatrix(), out matrix);
@@ -104,7 +169,7 @@ namespace Veldrid.SceneGraph.Util
             return lsi;
         }
 
-        private void InsertIntersection(Intersection intersection)
+        public void InsertIntersection(Intersection intersection)
         {
             if (null == Parent)
             {
@@ -161,7 +226,7 @@ namespace Veldrid.SceneGraph.Util
 
             if (r1>=1.0 && r2>=1.0) return false;
 
-            if (IntersectionLimit == IntersectionLimitModes.LimitNearest && 0 != Intersections.Count())
+            if (IntersectionLimit == IIntersector.IntersectionLimitModes.LimitNearest && 0 != Intersections.Count())
             {
                 if (startToCenter.Length() > Intersections.First().StartToIntersectionDist) return false;
                 
