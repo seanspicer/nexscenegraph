@@ -24,11 +24,13 @@ namespace Veldrid.SceneGraph.Manipulators
             HandleAll = 0x8ffffff
         }
 
+        IMatrixTransform Transform { get; }
+        
     }
 
     public class DraggerTransformCallback : DraggerCallback, IDraggerTransformCallback
     {
-        protected MatrixTransform Transform { get; set; }
+        public IMatrixTransform Transform { get; protected set; }
         protected Matrix4x4 StartMotionMatrix { get; set; }
         
         protected Matrix4x4 LocalToWorld { get; set; }
@@ -36,14 +38,14 @@ namespace Veldrid.SceneGraph.Manipulators
         
         protected IDraggerTransformCallback.HandleCommandMask HandleCommandMask { get; set; }
         
-        public static IDraggerTransformCallback Create(MatrixTransform transform,
+        public static IDraggerTransformCallback Create(IMatrixTransform transform,
             IDraggerTransformCallback.HandleCommandMask handleCommandMask =
                 IDraggerTransformCallback.HandleCommandMask.HandleAll)
         {
             return new DraggerTransformCallback(transform, handleCommandMask);
         }
 
-        protected DraggerTransformCallback(MatrixTransform transform,
+        protected DraggerTransformCallback(IMatrixTransform transform,
             IDraggerTransformCallback.HandleCommandMask handleCommandMask =
                 IDraggerTransformCallback.HandleCommandMask.HandleAll)
         {

@@ -17,8 +17,8 @@ namespace Veldrid.SceneGraph.Manipulators
         bool Handle(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter);
         bool Handle(IPointerInfo pointerInfo, IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter);
         
-        List<Constraint> Constraints { get; }
-        List<DraggerCallback> DraggerCallbacks { get; }
+        HashSet<IConstraint> Constraints { get; }
+        HashSet<IDraggerCallback> DraggerCallbacks { get; }
         
         Color Color { get; }
         Color PickColor { get; }
@@ -36,6 +36,14 @@ namespace Veldrid.SceneGraph.Manipulators
 
         bool Receive(IMotionCommand command);
         void Dispatch(IMotionCommand command);
+
+        void AddTransformUpdating(IMatrixTransform transform,
+            IDraggerTransformCallback.HandleCommandMask handleCommandMask =
+                IDraggerTransformCallback.HandleCommandMask.HandleAll);
+
+        void RemoveTransformUpdating(IMatrixTransform transform);
+
+        void Traverse(INodeVisitor nodeVisitor);
     }
     
     public abstract class Dragger : MatrixTransform, IDragger
@@ -74,9 +82,9 @@ namespace Veldrid.SceneGraph.Manipulators
         public bool ActivationPermittedByMouseButtonMask { get; set; } = false;
         public bool ActivationPermittedByKeyEvent { get; set; } = false;
 
-        public List<Constraint> Constraints { get; } = new List<Constraint>();
+        public HashSet<IConstraint> Constraints { get; } = new HashSet<IConstraint>();
 
-        public List<DraggerCallback> DraggerCallbacks { get; } = new List<DraggerCallback>();
+        public HashSet<IDraggerCallback> DraggerCallbacks { get; } = new HashSet<IDraggerCallback>();
 
         public IDragger ParentDragger { get; set; } = null;
 
@@ -102,6 +110,43 @@ namespace Veldrid.SceneGraph.Manipulators
 
             var volume = Vector3.Dot(Vector3.Cross(xAxis, yAxis), zAxis);
             return volume < 0.0f;
+        }
+
+        public void AddTransformUpdating(IMatrixTransform transform,
+            IDraggerTransformCallback.HandleCommandMask handleCommandMask =
+                IDraggerTransformCallback.HandleCommandMask.HandleAll)
+        {
+            DraggerCallbacks.Add(DraggerTransformCallback.Create(transform, handleCommandMask));
+        }
+
+        public void RemoveTransformUpdating(IMatrixTransform transform)
+        {
+            DraggerCallbacks.RemoveWhere(x =>
+            {
+                if (!(x is IDraggerTransformCallback dtc)) return false;
+                
+                if (dtc.Transform == transform)
+                {
+                    return true;
+                }
+
+                return false;
+            });
+        }
+
+        public override void Traverse(INodeVisitor nodeVisitor)
+        {
+            if (HandleEvents && nodeVisitor.Type == NodeVisitor.VisitorType.EventVisitor)
+            {
+                if (nodeVisitor is IEventVisitor eventVisitor) // TODO Implement me.
+                {
+                    
+                }
+
+                return;
+            }
+            
+            base.Traverse(nodeVisitor);
         }
         
         public virtual bool Handle(IPointerInfo pointerInfo, IInputStateSnapshot snapshot,

@@ -120,6 +120,7 @@ namespace Veldrid.SceneGraph
         {
             NodeVisitor,
             UpdateVisitor,
+            EventVisitor,
             IntersectionVisitor,
             CullVisitor,
             AssembleVisitor,
