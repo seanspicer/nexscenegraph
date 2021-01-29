@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Drawing;
 using System.Globalization;
+using System.Reflection;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Manipulators.Commands;
 using Veldrid.SceneGraph.PipelineStates;
@@ -14,8 +15,8 @@ namespace Veldrid.SceneGraph.Manipulators
     {
         void SetupDefaultGeometry();
         bool HandleEvents { get; set; }
-        bool Handle(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter);
-        bool Handle(IPointerInfo pointerInfo, IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter);
+        bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter uiActionAdapter);
+        bool Handle(IPointerInfo pointerInfo, IUiEventAdapter eventAdapter, IUiActionAdapter uiActionAdapter);
         
         HashSet<IConstraint> Constraints { get; }
         HashSet<IDraggerCallback> DraggerCallbacks { get; }
@@ -23,10 +24,9 @@ namespace Veldrid.SceneGraph.Manipulators
         Color Color { get; }
         Color PickColor { get; }
         
-        uint ActivationModKeyMask { get; set; }
-        
-        uint ActivationMouseButtonMask { get; set; }
-        int  ActivationKeyEvent { get; set; }
+        IUiEventAdapter.ModKeyMaskType ActivationModKeyMask { get; set; }
+        IUiEventAdapter.MouseButtonMaskType ActivationMouseButtonMask { get; set; }
+        IUiEventAdapter.KeySymbol  ActivationKeyEvent { get; set; }
         bool ActivationPermittedByModKeyMask { get; set; }
         bool ActivationPermittedByMouseButtonMask { get; set; }
         bool ActivationPermittedByKeyEvent { get; set; }
@@ -43,7 +43,6 @@ namespace Veldrid.SceneGraph.Manipulators
 
         void RemoveTransformUpdating(IMatrixTransform transform);
 
-        void Traverse(INodeVisitor nodeVisitor);
     }
     
     public abstract class Dragger : MatrixTransform, IDragger
@@ -75,9 +74,11 @@ namespace Veldrid.SceneGraph.Manipulators
 
         public bool DraggerActive { get; set; } = false;
 
-        public uint ActivationModKeyMask { get; set; } = 0;
-        public uint ActivationMouseButtonMask { get; set; } = 0;
-        public int ActivationKeyEvent { get; set; } = 0;
+        protected IPointerInfo PointerInfo { get; set; } = Veldrid.SceneGraph.Manipulators.PointerInfo.Create();
+        
+        public IUiEventAdapter.ModKeyMaskType ActivationModKeyMask { get; set; } = 0;
+        public IUiEventAdapter.MouseButtonMaskType ActivationMouseButtonMask { get; set; } = 0;
+        public IUiEventAdapter.KeySymbol ActivationKeyEvent { get; set; } = 0;
         public bool ActivationPermittedByModKeyMask { get; set; } = false;
         public bool ActivationPermittedByMouseButtonMask { get; set; } = false;
         public bool ActivationPermittedByKeyEvent { get; set; } = false;
@@ -134,13 +135,23 @@ namespace Veldrid.SceneGraph.Manipulators
             });
         }
 
+        // Allow this node (and its children) to handle events in traversal
         public override void Traverse(INodeVisitor nodeVisitor)
         {
             if (HandleEvents && nodeVisitor.Type == NodeVisitor.VisitorType.EventVisitor)
             {
-                if (nodeVisitor is IEventVisitor eventVisitor) // TODO Implement me.
+                if (nodeVisitor is IEventVisitor eventVisitor) 
                 {
-                    
+                    foreach (var evt in eventVisitor.Events)
+                    {
+                        if (evt is IUiEventAdapter eventAdapter)
+                        {
+                            if (Handle(eventAdapter, eventVisitor.ActionAdapter))
+                            {
+                                eventAdapter.Handled = true;
+                            }
+                        }
+                    }
                 }
 
                 return;
@@ -149,13 +160,97 @@ namespace Veldrid.SceneGraph.Manipulators
             base.Traverse(nodeVisitor);
         }
         
-        public virtual bool Handle(IPointerInfo pointerInfo, IInputStateSnapshot snapshot,
-            IUiActionAdapter uiActionAdapter)
+        public virtual bool Handle(IPointerInfo pointerInfo, IUiEventAdapter eventAdapter,
+            IUiActionAdapter actionAdapter)
         {
+            if (eventAdapter.Handled) return false;
+
+            if (actionAdapter is Veldrid.SceneGraph.Viewer.IView view)
+            {
+                var handled = false;
+                var activationPermitted = true;
+
+                if (ActivationModKeyMask != 0 || ActivationMouseButtonMask != 0 || ActivationKeyEvent != 0)
+                {
+                    ActivationPermittedByModKeyMask = (ActivationModKeyMask != 0) && 
+                                                      ((eventAdapter.ModKeyMask & 
+                                                        ActivationModKeyMask) != 0);
+                    
+                    ActivationPermittedByMouseButtonMask = (ActivationMouseButtonMask != 0) &&
+                                                           ((eventAdapter.MouseButtonMask &
+                                                             ActivationMouseButtonMask) != 0);
+
+                }
+
+                if (ActivationKeyEvent != 0)
+                {
+                    switch (eventAdapter.EventType)
+                    {
+                        case IUiEventAdapter.EventTypeValue.KeyDown:
+                        {
+                            if (eventAdapter.Key == ActivationKeyEvent)
+                            {
+                                ActivationPermittedByKeyEvent = true;
+                            }
+
+                            break;
+                        }
+                        case IUiEventAdapter.EventTypeValue.KeyUp:
+                        {
+                            if (eventAdapter.Key == ActivationKeyEvent)
+                            {
+                                ActivationPermittedByKeyEvent = false;
+                            }
+
+                            break;
+                        }
+                        default:
+                        {
+                            break;
+                        }
+                    }
+
+                    activationPermitted = ActivationPermittedByModKeyMask || 
+                                          ActivationPermittedByMouseButtonMask ||
+                                          ActivationPermittedByKeyEvent;
+                }
+
+                if (activationPermitted || DraggerActive)
+                {
+                    switch (eventAdapter.EventType)
+                    {
+                        case IUiEventAdapter.EventTypeValue.Push:
+                        {
+                            PointerInfo.Reset();
+                            if (view.ComputeIntersections(eventAdapter, out var intersections, IntersectionNodeMask))
+                            {
+                                
+                            }
+
+                            break;
+                        }
+                        case IUiEventAdapter.EventTypeValue.Drag:
+                        case IUiEventAdapter.EventTypeValue.Release:
+                        {
+                            break;
+                        }
+                        default:
+                            break;
+                    }
+
+                    if (DraggerActive && eventAdapter.EventType == IUiEventAdapter.EventTypeValue.Release)
+                    {
+                        DraggerActive = false;
+                        
+                    }
+                }
+                
+            }
+
             return false;
         }
 
-        public virtual bool Handle(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter)
+        public virtual bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter uiActionAdapter)
         {
             throw new NotImplementedException();
         }
@@ -164,13 +259,36 @@ namespace Veldrid.SceneGraph.Manipulators
 
         public bool Receive(IMotionCommand command)
         {
-            return true;
+            return null != _selfUpdater && _selfUpdater.Receive(command);
         }
 
         public void Dispatch(IMotionCommand command)
         {
-            throw new NotImplementedException();
+            // Apply any constraints
+            foreach (var constraint in Constraints)
+            {
+                command.Accept(constraint);
+            }
+            
+            // Apply any constraints of the parent dragger
+            if (this != ParentDragger)
+            {
+                foreach (var constraint in ParentDragger.Constraints)
+                {
+                    command.Accept(constraint);
+                }
+            }
+            
+            // Move self
+            ParentDragger.Receive(command);
+            
+            // Pass along movement to any callbacks
+            foreach (var callback in DraggerCallbacks)
+            {
+                command.Accept(callback);
+            }
         }
+        
 
         protected IPhongMaterial NormalMaterial =>
             PhongMaterial.Create(

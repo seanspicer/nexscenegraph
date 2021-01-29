@@ -19,6 +19,7 @@ using System.Numerics;
 using System.Reactive.Subjects;
 using System.Xml.Serialization;
 using Veldrid.SceneGraph.InputAdapter;
+using Veldrid.SceneGraph.Util;
 
 namespace Veldrid.SceneGraph.Viewer
 {
@@ -36,6 +37,11 @@ namespace Veldrid.SceneGraph.Viewer
         void SetSceneData(INode node);
         
         void SetCameraManipulator(ICameraManipulator manipulator, bool resetPosition=true);
+
+        bool ComputeIntersections(
+            IUiEventAdapter eventAdapter,
+            out SortedMultiSet<LineSegmentIntersector.Intersection> intersections, 
+            uint traversalMask);
     }
     
     public class View : Veldrid.SceneGraph.View, IView
@@ -175,6 +181,14 @@ namespace Veldrid.SceneGraph.Viewer
         {
             //throw new NotImplementedException();
         }
-        
+
+        public bool ComputeIntersections(
+            IUiEventAdapter eventAdapter,
+            out SortedMultiSet<LineSegmentIntersector.Intersection> intersections,
+            uint traversalMask)
+        {
+            intersections = null;
+            return false;
+        }
     }
 }

@@ -12,6 +12,8 @@
 // and may not be used in any way not expressly authorized by the Company.
 //
 
+using System.Collections.Generic;
+
 namespace Veldrid.SceneGraph.InputAdapter
 {
     public interface IEventVisitor : INodeVisitor
@@ -19,11 +21,10 @@ namespace Veldrid.SceneGraph.InputAdapter
         
         bool EventHandled { get; set; }
         IUiActionAdapter ActionAdapter { get; set; }
-        
         void AddEvent(IEvent evt);
         void RemoveEvent(IEvent evt);
-
         void Reset();
+        public IList<IEvent> Events { get; }
     }
     
     public class EventVisitor : NodeVisitor, IEventVisitor
@@ -32,7 +33,8 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         public bool EventHandled { get; set; } = false;
 
-        protected EventQueue.EventList Events { get; set; } = new EventQueue.EventList();
+        private EventQueue.EventList _events = new EventQueue.EventList();
+        public IList<IEvent> Events => _events;
 
         public static IEventVisitor Create()
         {

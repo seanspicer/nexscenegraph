@@ -278,7 +278,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
         private void BuildIsoSurfaces()
         {
-            var sampleRate = 200;
+            var sampleRate = 100;
             var sampleStep = (_samplingVolume.MaxDist - _samplingVolume.MinDist) / sampleRate;
             
             _isoSurfaces.Clear();
