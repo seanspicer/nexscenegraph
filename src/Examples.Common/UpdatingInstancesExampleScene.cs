@@ -31,7 +31,7 @@ namespace Examples.Common
         }
         
         
-        internal class UpdateCallback : INodeCallback
+        internal class UpdateCallback : NodeCallback, INodeCallback
         {
             private IVertexBuffer<UpdatingInstancesExampleScene.InstanceData> _vb;
 

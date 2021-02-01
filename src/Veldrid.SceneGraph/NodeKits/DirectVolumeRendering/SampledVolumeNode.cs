@@ -216,7 +216,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         }
     }
     
-    class SamplingCullCallback : Callback, IDrawableCullCallback
+    class SamplingCullCallback : DrawableCullCallback, IDrawableCullCallback
     {
         private SampledVolumeNode _svn;
         private IIsoSurfaceGenerator _isoSurfaceGenerator;
@@ -235,45 +235,51 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             _isoSurfaces = new List<IIsoSurface>();
         }
         
-        public bool Cull(ICullVisitor cv, IDrawable drawable)
+        public override bool Cull(INodeVisitor nodeVisitorv, IDrawable drawable)
         {
-            var eyeLocal = cv.GetEyeLocal();
-            if (System.Math.Abs(eyeLocal.X - _eyeLocal.X) < 1e-5 &&
-                System.Math.Abs(eyeLocal.Y - _eyeLocal.Y) < 1e-5 &&
-                System.Math.Abs(eyeLocal.Z - _eyeLocal.Z) < 1e-5)
+            if (nodeVisitorv is ICullVisitor cv)
             {
-            }
-            else
-            {
-                _samplingPlanesDirty = true;
-                _outlinesDirty = true;
-                _eyeLocal = cv.GetEyeLocal();
-                _samplingVolume.UpdateDistances(_eyeLocal);
-                BuildIsoSurfaces();
-            }
-            
-            if (drawable is Geometry<Position3TexCoord3Color4> samplePlaneGeometry)
-            {
-                if (_samplingPlanesDirty)
+                var eyeLocal = cv.GetEyeLocal();
+                if (System.Math.Abs(eyeLocal.X - _eyeLocal.X) < 1e-5 &&
+                    System.Math.Abs(eyeLocal.Y - _eyeLocal.Y) < 1e-5 &&
+                    System.Math.Abs(eyeLocal.Z - _eyeLocal.Z) < 1e-5)
                 {
-                    UpdateSamplingPlanes(samplePlaneGeometry);
-                    _samplingPlanesDirty = false;
                 }
+                else
+                {
+                    _samplingPlanesDirty = true;
+                    _outlinesDirty = true;
+                    _eyeLocal = cv.GetEyeLocal();
+                    _samplingVolume.UpdateDistances(_eyeLocal);
+                    BuildIsoSurfaces();
+                }
+            
+                if (drawable is Geometry<Position3TexCoord3Color4> samplePlaneGeometry)
+                {
+                    if (_samplingPlanesDirty)
+                    {
+                        UpdateSamplingPlanes(samplePlaneGeometry);
+                        _samplingPlanesDirty = false;
+                    }
                 
-                return false;
+                    return false;
+                }
+
+                if (drawable is Geometry<Position3Color3> outlineGeometry)
+                {
+                    if (_outlinesDirty)
+                    {
+                        UpdateOutlines(outlineGeometry);
+                        _outlinesDirty = false;
+                    }
+                
+                    return false;
+                }
+                return true;
             }
 
-            if (drawable is Geometry<Position3Color3> outlineGeometry)
-            {
-                if (_outlinesDirty)
-                {
-                    UpdateOutlines(outlineGeometry);
-                    _outlinesDirty = false;
-                }
-                
-                return false;
-            }
             return true;
+
         }
 
         private void BuildIsoSurfaces()

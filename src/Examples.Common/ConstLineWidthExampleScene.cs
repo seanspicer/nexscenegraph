@@ -35,7 +35,7 @@ namespace Examples.Common
             return root;
         }
 
-        class PlaneCullCalback : Callback, IDrawableCullCallback
+        class PlaneCullCalback : DrawableCullCallback, IDrawableCullCallback
         {
             private Vector3 _normal;
 
