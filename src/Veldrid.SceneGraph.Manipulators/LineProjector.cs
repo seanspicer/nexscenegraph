@@ -37,5 +37,10 @@ namespace Veldrid.SceneGraph.Manipulators
         {
             LineSegment = lineSegment;
         }
+
+        public override bool Project(IPointerInfo pi, out Vector3 projectedPoint)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

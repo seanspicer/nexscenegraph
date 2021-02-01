@@ -53,21 +53,7 @@ namespace Veldrid.SceneGraph.Manipulators
             HandleCommandMask = handleCommandMask;
         }
 
-        private NodePath ComputeNodePathToRoot(INode node)
-        {
-            var result = new NodePath();
-            
-            var nodePaths = node.GetParentalNodePaths();
-            if (!nodePaths.Any()) return result;
-            
-            result = nodePaths.First();
-            if (nodePaths.Count > 1)
-            {
-                // TODO: Log this as degenerate case.
-            }
 
-            return result;
-        }
         
         public override bool Receive(IMotionCommand command)
         {
@@ -81,7 +67,7 @@ namespace Veldrid.SceneGraph.Manipulators
                     StartMotionMatrix = Transform.Matrix;
                     
                     // Get the LocalToWorld and WorldToLocal matrix for this node. 
-                    var nodePathToRoot = ComputeNodePathToRoot(Transform);
+                    var nodePathToRoot = Util.ComputeNodePathToRoot(Transform);
                     LocalToWorld = Veldrid.SceneGraph.Transform.ComputeLocalToWorld(nodePathToRoot);
                     if (Matrix4x4.Invert(LocalToWorld, out var worldToLocal))
                     {

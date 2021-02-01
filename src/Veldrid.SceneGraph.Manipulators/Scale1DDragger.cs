@@ -1,7 +1,12 @@
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Net.Http.Headers;
 using System.Numerics;
+using SharpDX.Direct3D11;
+using Veldrid.SceneGraph.InputAdapter;
+using Veldrid.SceneGraph.Manipulators.Commands;
 using Veldrid.SceneGraph.PipelineStates;
 using Veldrid.SceneGraph.Shaders.Standard;
 using Veldrid.SceneGraph.Util.Shape;
@@ -16,6 +21,8 @@ namespace Veldrid.SceneGraph.Manipulators
             ScaleWithOriginAsPivot,
             ScaleWithOppositeHandleAsPivot
         }
+        
+        float MinScale { get; set; }
         
         float LeftHandlePosition { get; set; }
         float RightHandlePosition { get; set; }
@@ -38,11 +45,17 @@ namespace Veldrid.SceneGraph.Manipulators
             get => LineProjector.LineEnd.X;
             set => LineProjector.LineEnd = new Vector3(value, 0.0f, 0.0f);
         }
+
+        public float MinScale { get; set; } = 0.001f;
         
         public INode LeftHandleNode     { get; set; }
         public INode RightHandleNode  { get; set; }
         
         public IScale1DDragger.ScaleMode ScaleMode { get; set; }
+        
+        protected double ScaleCenter { get; set; }
+        
+        protected Vector3 StartProjectedPoint { get; set; }
         
         public static IScale1DDragger Create(IScale1DDragger.ScaleMode scaleMode = IScale1DDragger.ScaleMode.ScaleWithOriginAsPivot)
         {
@@ -135,7 +148,113 @@ namespace Veldrid.SceneGraph.Manipulators
             }
         }
 
+        public override bool Handle(IPointerInfo pointerInfo, IUiEventAdapter eventAdapter, IUiActionAdapter actionAdapter)
+        {
+            if (pointerInfo.Contains(this)) return false;
 
+            switch (eventAdapter.EventType)
+            {
+                // Pick Start
+                case IUiEventAdapter.EventTypeValue.Push:
+                {
+                    // Get the local to world matrix for this node and set it for the projector
+                    var nodePathToRoot = Util.ComputeNodePathToRoot(this);
+                    var localToWorld = ComputeLocalToWorld(nodePathToRoot);
+                    LineProjector.LocalToWorld = localToWorld;
 
+                    if (LineProjector.Project(pointerInfo, out var startProjectedPoint))
+                    {
+                        StartProjectedPoint = startProjectedPoint;
+                        ScaleCenter = 0.0;
+                        if (ScaleMode == IScale1DDragger.ScaleMode.ScaleWithOppositeHandleAsPivot)
+                        {
+                            if (pointerInfo.Contains(LeftHandleNode))
+                            {
+                                ScaleCenter = LineProjector.LineEnd.X;
+                            }
+                            else if (pointerInfo.Contains(RightHandleNode))
+                            {
+                                ScaleCenter = LineProjector.LineStart.X;
+                            }
+                        }
+                        
+                        // Create the motion command
+                        var cmd = Scale1DCommand.Create();
+                        cmd.Stage = IMotionCommand.MotionStage.Start;
+                        cmd.SetLocalToWorldAndWorldToLocal(LineProjector.LocalToWorld, LineProjector.WorldToLocal);
+                        
+                        Dispatch(cmd);
+                        
+                        // TODO -- Set material color
+                        
+                        actionAdapter.RequestRedraw();
+                    }
+
+                    return true;
+                }
+                // Pick Move
+                case IUiEventAdapter.EventTypeValue.Drag:
+                {
+                    if (LineProjector.Project(pointerInfo, out var projectedPoint))
+                    {
+                        // Create the motion command
+                        var cmd = Scale1DCommand.Create();
+                        
+                        // Calculate scale
+                        var scale = ComputeScale(StartProjectedPoint, projectedPoint, ScaleCenter);
+                        if (scale < MinScale) scale = MinScale;
+                        
+                        // Step the reference point to the line start or end depending on which is closer
+                        var referencePoint = StartProjectedPoint.X;
+                        if (System.Math.Abs(LineProjector.LineStart.X - referencePoint) <
+                            System.Math.Abs(LineProjector.LineEnd.X) - referencePoint)
+                        {
+                            referencePoint = LineProjector.LineStart.X;
+                        }
+                        else
+                        {
+                            referencePoint = LineProjector.LineEnd.X;
+                        }
+
+                        cmd.Stage = IMotionCommand.MotionStage.Move;
+                        cmd.SetLocalToWorldAndWorldToLocal(LineProjector.LocalToWorld, LineProjector.WorldToLocal);
+                        cmd.Scale = scale;
+                        cmd.ScaleCenter = ScaleCenter;
+                        cmd.ReferencePoint = referencePoint;
+                        cmd.MinScale = MinScale;
+                        
+                        Dispatch(cmd);
+                        
+                        actionAdapter.RequestRedraw();
+                        
+                    }
+                    return true;
+                }
+                case IUiEventAdapter.EventTypeValue.Release:
+                {
+                    // Create the motion command
+                    var cmd = Scale1DCommand.Create();
+                    cmd.Stage = IMotionCommand.MotionStage.Finish;
+                    cmd.SetLocalToWorldAndWorldToLocal(LineProjector.LocalToWorld, LineProjector.WorldToLocal);
+                    
+                    Dispatch(cmd);
+                    
+                    // TODO: Reset Color
+                    
+                    actionAdapter.RequestRedraw();
+
+                    return true;
+                }
+                default:
+                    return false;
+            }
+        }
+        
+        internal static double ComputeScale(Vector3 startProjectedPoint, Vector3 projectedPoint, double scaleCenter)
+        {
+            var denom = startProjectedPoint.X - scaleCenter;
+            var scale = (0 == denom) ? (projectedPoint.X - scaleCenter)/denom : 1.0;
+            return scale;
+        }
     }
 }

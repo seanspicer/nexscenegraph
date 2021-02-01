@@ -89,15 +89,21 @@ namespace Veldrid.SceneGraph.Manipulators
 
         public HashSet<IDraggerCallback> DraggerCallbacks { get; } = new HashSet<IDraggerCallback>();
 
-        public IDragger ParentDragger { get; set; } = null;
+        private IDragger _parentDragger = null;
 
-        public uint IntersectionNodeMask { get; set; } = 0xffffffff;
+        public virtual IDragger ParentDragger
+        {
+            get => _parentDragger;
+            set => _parentDragger = value;
+        }
+
+        public virtual uint IntersectionNodeMask { get; set; } = 0xffffffff;
         
         private IDraggerCallback _selfUpdater;
         
         protected Dragger(Matrix4x4 matrix) : base(matrix)
         {
-            ParentDragger = this;
+            _parentDragger = this;
             _selfUpdater = DraggerTransformCallback.Create(this);
         }
 

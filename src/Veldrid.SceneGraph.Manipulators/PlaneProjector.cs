@@ -25,7 +25,8 @@ namespace Veldrid.SceneGraph.Manipulators
             Plane = plane;
         }
 
-        public override (bool, Vector3) Project(IPointerInfo pi)
+
+        public override bool Project(IPointerInfo pi, out Vector3 projectedPoint)
         {
             throw new NotImplementedException();
         }

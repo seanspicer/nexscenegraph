@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using Veldrid.SceneGraph.Util;
 
@@ -15,6 +16,8 @@ namespace Veldrid.SceneGraph.Manipulators
         void SetCamera(ICamera camera);
 
         void SetMousePosition(float pixelX, float pixelY);
+
+        bool Contains(INode node);
     }
     
     public class PointerInfo : IPointerInfo
@@ -75,6 +78,16 @@ namespace Veldrid.SceneGraph.Manipulators
             ProjectWindowXyIntoObject(new Vector2(pixelX, pixelY));
         }
 
+        public bool Contains(INode node)
+        {
+            if (null != node && HitList.Any())
+            {
+                return HitList.Any(hit => hit.Item1.Any(hitNode => node == hitNode));
+            }
+
+            return false;
+        }
+
         protected bool ProjectWindowXyIntoObject(Vector2 windowCoord)
         {
             NearPoint = InverseMvpw.PreMultiply(new Vector3(windowCoord.X, windowCoord.Y, 0.0f));
@@ -82,5 +95,8 @@ namespace Veldrid.SceneGraph.Manipulators
 
             return true;
         }
+        
+        
+        
     }
 }
