@@ -20,7 +20,7 @@ using System.Numerics;
 
 namespace Veldrid.SceneGraph.InputAdapter
 {
-    public interface ICameraManipulator : IInputEventHandler
+    public interface ICameraManipulator : IUiEventHandler
     {
         void SetNode(INode node);
 
@@ -43,7 +43,7 @@ namespace Veldrid.SceneGraph.InputAdapter
         void Home(IUiActionAdapter aa);
     }
     
-    public abstract class CameraManipulator : InputEventHandler, ICameraManipulator
+    public abstract class CameraManipulator : UiEventHandler, ICameraManipulator
     {
         public abstract Matrix4x4 InverseMatrix { get; }
         

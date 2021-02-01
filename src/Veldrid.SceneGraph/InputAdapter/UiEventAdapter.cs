@@ -304,6 +304,14 @@ namespace Veldrid.SceneGraph.InputAdapter
         
         float X { get; set; }
         float Y { get; set; }
+
+        float XMax { get; set; }
+        float XMin { get; set; }
+        float YMax { get; set; }
+        float YMin { get; set; }
+        
+        float XNormalized { get; }
+        float YNormalized { get; }
     }
     
     public class UiEventAdapter : Event, IUiEventAdapter
@@ -320,7 +328,21 @@ namespace Veldrid.SceneGraph.InputAdapter
         public float X { get; set; } = 0.0f;
 
         public float Y { get; set; } = 0.0f;
-        
+        public float XMax { get; set; } = 1.0f;
+        public float XMin { get; set; } = -1.0f;
+        public float YMax { get; set; } = 1.0f;
+        public float YMin { get; set; } = -1.0f;
+
+        public float XNormalized =>
+            PointerDataList.Count > 0
+                ? PointerDataList.Last().GetXNormalized()
+                : 2.0f * (X - XMin) / (XMax - XMin) - 1.0f;
+
+        public float YNormalized =>
+            PointerDataList.Count > 0
+                ? PointerDataList.Last().GetYNormalized()
+                : 2.0f * (Y - YMin) / (YMax - YMin) - 1.0f;
+
         public PointerData GetPointerData(IObject obj)
         {
             return PointerDataList.FirstOrDefault(x => x.Object == obj);
