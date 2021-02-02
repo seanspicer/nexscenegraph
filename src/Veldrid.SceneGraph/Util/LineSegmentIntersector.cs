@@ -23,7 +23,7 @@ namespace Veldrid.SceneGraph.Util
     
     public interface ILineSegmentIntersector : IIntersector
     {
-        public interface IIntersection
+        public interface IIntersection : IComparable<IIntersection>
         {
             float StartToIntersectionDist { get; }
             
@@ -35,9 +35,6 @@ namespace Veldrid.SceneGraph.Util
             IDrawable Drawable { get; }
 
             Matrix4x4 Matrix { get; }
-            
-            
-
         }
         
         SortedMultiSet<IIntersection> Intersections { get; }

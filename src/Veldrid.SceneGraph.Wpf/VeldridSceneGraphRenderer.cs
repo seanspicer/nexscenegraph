@@ -20,7 +20,7 @@ namespace Veldrid.SceneGraph.Wpf
     public class VeldridSceneGraphRenderer : BaseRenderer
     {
         private ISubject<IEndFrameEvent> _endFrameEvents;
-        private ISubject<IInputStateSnapshot> _viewerInputEvents;
+        private ISubject<IUiEventAdapter> _viewerInputEvents;
 
         private ISubject<float> _frameInfoSubject;
         public IObservable<float> FrameInfo => _frameInfoSubject;
@@ -56,9 +56,9 @@ namespace Veldrid.SceneGraph.Wpf
             }
         }
 
-        private IInputEventHandler _eventHandler;
+        private IUiEventHandler _eventHandler;
 
-        public IInputEventHandler EventHandler
+        public IUiEventHandler EventHandler
         {
             get => _eventHandler;
             set
@@ -117,7 +117,7 @@ namespace Veldrid.SceneGraph.Wpf
         }
         
         public IObservable<IEndFrameEvent> EndFrameEvents => _endFrameEvents;
-        public IObservable<IInputStateSnapshot> ViewerInputEvents => _viewerInputEvents;
+        public IObservable<IUiEventAdapter> ViewerInputEvents => _viewerInputEvents;
         
         private WpfInputStateSnapshot _inputState;
         
@@ -180,7 +180,7 @@ namespace Veldrid.SceneGraph.Wpf
                 return;
             
             // Create Subjects
-            _viewerInputEvents = new Subject<IInputStateSnapshot>();
+            _viewerInputEvents = new Subject<IUiEventAdapter>();
             _endFrameEvents = new Subject<IEndFrameEvent>();
             _inputState = new WpfInputStateSnapshot();
             
@@ -241,9 +241,9 @@ namespace Veldrid.SceneGraph.Wpf
         }
         
 
-        public void HandleInput(IInputStateSnapshot inputSnapshot)
+        public void HandleInput(IUiEventAdapter eventAdapter)
         {
-            _viewerInputEvents.OnNext(inputSnapshot);
+            _viewerInputEvents.OnNext(eventAdapter);
         }
 
         protected override void ResetCore(DrawEventArgs args)

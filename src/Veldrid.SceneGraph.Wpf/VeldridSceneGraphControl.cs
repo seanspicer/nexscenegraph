@@ -16,13 +16,14 @@ namespace Veldrid.SceneGraph.Wpf
     {
         private ISubject<IGroup> _sceneDataSubject;
         private ISubject<ICameraManipulator> _cameraManipulatorSubject;
-        private ISubject<IInputEventHandler> _eventHandlerSubject;
+        private ISubject<IUiEventHandler> _eventHandlerSubject;
         private ISubject<RgbaFloat> _clearColorSubject;
         private ISubject<TextureSampleCount> _fsaaCountSubject;
 
         private VeldridSceneGraphRenderer _vsgRenderer;
         
         private WpfInputStateSnapshot _inputState;
+        private InputSnapshotAdapter _inputSnapshotAdapter = new InputSnapshotAdapter();
         private ModifierKeys _modifierKeys = ModifierKeys.None;
 
         private string _frameInfo = string.Empty;
@@ -37,12 +38,12 @@ namespace Veldrid.SceneGraph.Wpf
         }
         
         private bool ShouldHandleKeyEvents { get; set; }
-        
+
         public VeldridSceneGraphControl()
         {
             _sceneDataSubject = new ReplaySubject<IGroup>();
             _cameraManipulatorSubject = new ReplaySubject<ICameraManipulator>();
-            _eventHandlerSubject = new ReplaySubject<IInputEventHandler>();
+            _eventHandlerSubject = new ReplaySubject<IUiEventHandler>();
             _clearColorSubject = new ReplaySubject<RgbaFloat>();
             _fsaaCountSubject = new ReplaySubject<TextureSampleCount>();
             _inputState = new WpfInputStateSnapshot();
@@ -281,8 +282,15 @@ namespace Veldrid.SceneGraph.Wpf
             int width =  (ActualWidth < 0 ? 0 : (int) System.Math.Ceiling(ActualWidth));
             int height = (ActualHeight < 0 ? 0 : (int) System.Math.Ceiling(ActualHeight));
 
-            var inputStateSnap = InputStateSnapshot.Create(_inputState, width, height, _vsgRenderer.View.Camera.ProjectionMatrix, _vsgRenderer.View.Camera.ViewMatrix);
-            _vsgRenderer.HandleInput(inputStateSnap);
+            //var inputStateSnap = InputStateSnapshot.Create(_inputState, width, height, _vsgRenderer.View.Camera.ProjectionMatrix, _vsgRenderer.View.Camera.ViewMatrix);
+            
+            var eventList = _inputSnapshotAdapter.Adapt(_inputState, width, height);
+            foreach (var evt in eventList)
+            {
+                _vsgRenderer.HandleInput(evt);
+            }
+            
+            
             _inputState.MouseEventList.Clear();
             _inputState.KeyEventList.Clear();
             _inputState.WheelDelta = 0;
@@ -351,12 +359,12 @@ namespace Veldrid.SceneGraph.Wpf
         
         #region EventHandlerProperty
         public static readonly DependencyProperty EventHandlerProperty = 
-            DependencyProperty.Register("EventHandler", typeof(IInputEventHandler), typeof(VeldridSceneGraphControl), 
+            DependencyProperty.Register("EventHandler", typeof(IUiEventHandler), typeof(VeldridSceneGraphControl), 
                 new PropertyMetadata(null, new PropertyChangedCallback(OnEventHandlerChanged)));  
 
-        public IInputEventHandler EventHandler 
+        public IUiEventHandler EventHandler 
         {
-            get => (IInputEventHandler) GetValue(EventHandlerProperty);
+            get => (IUiEventHandler) GetValue(EventHandlerProperty);
             set => SetValue(EventHandlerProperty, value);
         }
         
@@ -366,7 +374,7 @@ namespace Veldrid.SceneGraph.Wpf
         } 
         
         private void SetEventHandler(DependencyPropertyChangedEventArgs e) {  
-            _eventHandlerSubject.OnNext((IInputEventHandler) e.NewValue); 
+            _eventHandlerSubject.OnNext((IUiEventHandler) e.NewValue); 
         }
         #endregion
         

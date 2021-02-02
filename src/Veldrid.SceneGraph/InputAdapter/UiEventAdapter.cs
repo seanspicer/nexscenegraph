@@ -71,6 +71,7 @@ namespace Veldrid.SceneGraph.InputAdapter
         [Flags]
         enum KeySymbol
         {
+            Unknown            = 0,
             KeySpace           = 0x20,
             Key0               = '0',
             Key1               = '1',
@@ -157,9 +158,9 @@ namespace Veldrid.SceneGraph.InputAdapter
             KeyRight           = 0xFF53,        /* Move right, right arrow */
             KeyDown            = 0xFF54,        /* Move down, down arrow */
             KeyPrior           = 0xFF55,        /* Prior, previous */
-            KeyPageUp         = 0xFF55,
+            KeyPageUp          = 0xFF55,
             KeyNext            = 0xFF56,        /* Next */
-            KeyPageDown       = 0xFF56,
+            KeyPageDown        = 0xFF56,
             KeyEnd             = 0xFF57,        /* EOL */
             KeyBegin           = 0xFF58,        /* BOL */
 
@@ -364,7 +365,7 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         protected UiEventAdapter()
         {
-            
+            Time = DateTime.Now;
         }
     }
 }

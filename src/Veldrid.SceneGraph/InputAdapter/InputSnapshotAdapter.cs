@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Security.Cryptography.X509Certificates;
 using Veldrid.SceneGraph.Util;
 using Vulkan.Xlib;
 
@@ -10,14 +11,37 @@ namespace Veldrid.SceneGraph.InputAdapter
     public class InputSnapshotAdapter
     {
         private HashSet<Key> _currentlyPressedKeys = new HashSet<Key>();
-        private HashSet<Key> _newKeysThisFrame = new HashSet<Key>();
+        private HashSet<Key> _pushedKeysThisFrame = new HashSet<Key>();
+        private HashSet<Key> _releasedKeysThisFrame = new HashSet<Key>();
 
         private HashSet<MouseButton> _currentlyPressedMouseButtons = new HashSet<MouseButton>();
         private HashSet<MouseButton> _pushedMouseButtonsThisFrame = new HashSet<MouseButton>();
         private HashSet<MouseButton> _releasedMouseButtonsThisFrame = new HashSet<MouseButton>();
+
+        private IUiEventAdapter.ModKeyMaskType ModKeyMask { get; set; }
         
         public System.Nullable<Vector2> MousePosition = null;
         public System.Nullable<Vector2> LastMousePosition = null;
+
+        private Dictionary<Key, IUiEventAdapter.KeySymbol> KeyMap { get; } =
+            new Dictionary<Key, IUiEventAdapter.KeySymbol>();
+
+        public InputSnapshotAdapter()
+        {
+            BuildKeyMap();
+            ModKeyMask = 0;
+        }
+
+        // For unit testing
+        public IUiEventAdapter.KeySymbol MapKey(Key key)
+        {
+            if (KeyMap.TryGetValue(key, out var result))
+            {
+                return result;
+            }
+
+            return IUiEventAdapter.KeySymbol.Unknown;
+        }
         
         public IReadOnlyList<IUiEventAdapter> Adapt(InputSnapshot snapshot, float width, float height)
         {
@@ -45,7 +69,8 @@ namespace Veldrid.SceneGraph.InputAdapter
                             break;
                     }
                 }
-
+                
+                adaptedEvent.ModKeyMask = ModKeyMask;
                 adaptedEvent.X = snapshot.MousePosition.X;
                 adaptedEvent.Y = snapshot.MousePosition.Y;
                 adaptedEvent.XMin = 0;
@@ -57,7 +82,7 @@ namespace Veldrid.SceneGraph.InputAdapter
             }
 
             // Handle released mouse buttons
-            if(IsMouseButtonReleased())
+            else if(IsMouseButtonReleased())
             {
                 var adaptedEvent = UiEventAdapter.Create();
                 adaptedEvent.EventType = IUiEventAdapter.EventTypeValue.Release;
@@ -76,7 +101,8 @@ namespace Veldrid.SceneGraph.InputAdapter
                             break;
                     }
                 }
-
+                
+                adaptedEvent.ModKeyMask = ModKeyMask;
                 adaptedEvent.X = snapshot.MousePosition.X;
                 adaptedEvent.Y = snapshot.MousePosition.Y;
                 adaptedEvent.XMin = 0;
@@ -88,7 +114,7 @@ namespace Veldrid.SceneGraph.InputAdapter
             }
 
             // Handle mouse button drag
-            if(IsMouseMove())
+            else if(IsMouseMove())
             {
                 var adaptedEvent = UiEventAdapter.Create();
                 adaptedEvent.EventType = IUiEventAdapter.EventTypeValue.Drag;
@@ -108,14 +134,77 @@ namespace Veldrid.SceneGraph.InputAdapter
                     }
                 }
 
+                adaptedEvent.ModKeyMask = ModKeyMask;
                 adaptedEvent.X = snapshot.MousePosition.X;
                 adaptedEvent.Y = snapshot.MousePosition.Y;
                 adaptedEvent.XMin = 0;
                 adaptedEvent.XMax = width;
                 adaptedEvent.YMin = 0;
                 adaptedEvent.YMax = height;
-                adaptedEvent.Time = DateTime.Now;  // Not sure this is really correct.
                 adaptedEvents.Add(adaptedEvent);
+            }
+            
+            if(snapshot.WheelDelta != 0)
+            {
+                var adaptedEvent = UiEventAdapter.Create();
+                adaptedEvent.EventType = IUiEventAdapter.EventTypeValue.Scroll;
+                adaptedEvent.ModKeyMask = ModKeyMask;
+                if (snapshot.WheelDelta > 0)
+                {
+                    adaptedEvent.ScrollingMotion = IUiEventAdapter.ScrollingMotionType.ScrollUp;
+                }
+                else
+                {
+                    adaptedEvent.ScrollingMotion = IUiEventAdapter.ScrollingMotionType.ScrollDown;
+                }
+                adaptedEvent.X = snapshot.MousePosition.X;
+                adaptedEvent.Y = snapshot.MousePosition.Y;
+                adaptedEvent.XMin = 0;
+                adaptedEvent.XMax = width;
+                adaptedEvent.YMin = 0;
+                adaptedEvent.YMax = height;
+                adaptedEvents.Add(adaptedEvent);
+            }
+
+            if (IsKeyPressed())
+            {
+                foreach (var key in _pushedKeysThisFrame)
+                {
+                    if(KeyMap.TryGetValue(key, out var keyVal))
+                    {
+                        var adaptedEvent = UiEventAdapter.Create();
+                        adaptedEvent.EventType = IUiEventAdapter.EventTypeValue.KeyDown;
+                        adaptedEvent.ModKeyMask = ModKeyMask;
+                        adaptedEvent.Key = keyVal;
+                        adaptedEvent.X = snapshot.MousePosition.X;
+                        adaptedEvent.Y = snapshot.MousePosition.Y;
+                        adaptedEvent.XMin = 0;
+                        adaptedEvent.XMax = width;
+                        adaptedEvent.YMin = 0;
+                        adaptedEvent.YMax = height;
+                        adaptedEvents.Add(adaptedEvent);
+                    }
+                }
+            }
+            if (IsKeyReleased())
+            {
+                foreach (var key in _pushedKeysThisFrame)
+                {
+                    if(KeyMap.TryGetValue(key, out var keyVal))
+                    {
+                        var adaptedEvent = UiEventAdapter.Create();
+                        adaptedEvent.EventType = IUiEventAdapter.EventTypeValue.KeyUp;
+                        adaptedEvent.ModKeyMask = ModKeyMask;
+                        adaptedEvent.Key = keyVal;
+                        adaptedEvent.X = snapshot.MousePosition.X;
+                        adaptedEvent.Y = snapshot.MousePosition.Y;
+                        adaptedEvent.XMin = 0;
+                        adaptedEvent.XMax = width;
+                        adaptedEvent.YMin = 0;
+                        adaptedEvent.YMax = height;
+                        adaptedEvents.Add(adaptedEvent);
+                    }
+                }
             }
             
             return adaptedEvents;
@@ -123,7 +212,9 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         private void UpdateState(InputSnapshot snapshot)
         {
-            _newKeysThisFrame.Clear();
+            _pushedKeysThisFrame.Clear();
+            _releasedKeysThisFrame.Clear();
+            
             _pushedMouseButtonsThisFrame.Clear();
             _releasedMouseButtonsThisFrame.Clear();
 
@@ -175,14 +266,59 @@ namespace Veldrid.SceneGraph.InputAdapter
         private void KeyUp(Key key)
         {
             _currentlyPressedKeys.Remove(key);
-            _newKeysThisFrame.Remove(key);
+            _pushedKeysThisFrame.Remove(key);
+            _releasedKeysThisFrame.Add(key);
+            
+            switch (key)
+            {
+                case Key.ShiftLeft:
+                    ModKeyMask &= ~IUiEventAdapter.ModKeyMaskType.ModKeyLeftShift;
+                    break;
+                case Key.ShiftRight:
+                    ModKeyMask &= ~IUiEventAdapter.ModKeyMaskType.ModKeyRightShift;
+                    break;
+                case Key.ControlLeft:
+                    ModKeyMask &= ~IUiEventAdapter.ModKeyMaskType.ModKeyLeftCtl;
+                    break;
+                case Key.ControlRight:
+                    ModKeyMask &= ~IUiEventAdapter.ModKeyMaskType.ModKeyRightCtl;
+                    break;
+                case Key.AltLeft:
+                    ModKeyMask &= ~IUiEventAdapter.ModKeyMaskType.ModKeyLeftAlt;
+                    break;
+                case Key.AltRight:
+                    ModKeyMask &= ~IUiEventAdapter.ModKeyMaskType.ModKeyRightAlt;
+                    break;
+            }
         }
 
         private void KeyDown(Key key)
         {
             if (_currentlyPressedKeys.Add(key))
             {
-                _newKeysThisFrame.Add(key);
+                _pushedKeysThisFrame.Add(key);
+            }
+
+            switch (key)
+            {
+                case Key.ShiftLeft:
+                    ModKeyMask |= IUiEventAdapter.ModKeyMaskType.ModKeyLeftShift;
+                    break;
+                case Key.ShiftRight:
+                    ModKeyMask |= IUiEventAdapter.ModKeyMaskType.ModKeyRightShift;
+                    break;
+                case Key.ControlLeft:
+                    ModKeyMask |= IUiEventAdapter.ModKeyMaskType.ModKeyLeftCtl;
+                    break;
+                case Key.ControlRight:
+                    ModKeyMask |= IUiEventAdapter.ModKeyMaskType.ModKeyRightCtl;
+                    break;
+                case Key.AltLeft:
+                    ModKeyMask |= IUiEventAdapter.ModKeyMaskType.ModKeyLeftAlt;
+                    break;
+                case Key.AltRight:
+                    ModKeyMask |= IUiEventAdapter.ModKeyMaskType.ModKeyRightAlt;
+                    break;
             }
         }
         
@@ -193,9 +329,19 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         public bool GetKeyDown(Key key)
         {
-            return _newKeysThisFrame.Contains(key);
+            return _pushedKeysThisFrame.Contains(key);
         }
 
+        public bool IsKeyPressed()
+        {
+            return _pushedKeysThisFrame.Count > 0;
+        }
+
+        public bool IsKeyReleased()
+        {
+            return _releasedKeysThisFrame.Count > 0;
+        }
+        
         public bool GetMouseButton(MouseButton button)
         {
             return _currentlyPressedMouseButtons.Contains(button);
@@ -231,6 +377,37 @@ namespace Veldrid.SceneGraph.InputAdapter
 
             return false;
 
+        }
+        
+        private void BuildKeyMap()
+        {
+            KeyMap.Add(Key.Unknown, IUiEventAdapter.KeySymbol.Unknown);
+            KeyMap.Add(Key.ShiftLeft, IUiEventAdapter.KeySymbol.KeyShiftL);
+            KeyMap.Add(Key.ShiftRight, IUiEventAdapter.KeySymbol.KeyShiftR);
+            KeyMap.Add(Key.ControlLeft, IUiEventAdapter.KeySymbol.KeyControlL);
+            KeyMap.Add(Key.ControlRight, IUiEventAdapter.KeySymbol.KeyControlR);
+            KeyMap.Add(Key.AltLeft, IUiEventAdapter.KeySymbol.KeyAltL);
+            KeyMap.Add(Key.AltRight, IUiEventAdapter.KeySymbol.KeyAltR);
+            KeyMap.Add(Key.Menu, IUiEventAdapter.KeySymbol.KeyMenu);
+            KeyMap.Add(Key.Space, IUiEventAdapter.KeySymbol.KeySpace);
+            
+            // Add Function Keys
+            for (var i = 0; i < 35; ++i)
+            {
+                KeyMap.Add(Key.F1 + i, IUiEventAdapter.KeySymbol.KeyF1 + i);
+            }
+
+            // Add Letter Keys
+            for (var i = 0; i < 26; ++i)
+            {
+                KeyMap.Add(Key.A + i, IUiEventAdapter.KeySymbol.KeyA + i);
+            }
+            
+            // Add Number Keys
+            for (var i = 0; i < 10; ++i)
+            {
+                KeyMap.Add(Key.Number0 + i, IUiEventAdapter.KeySymbol.Key0 + i);
+            }
         }
     }
 }

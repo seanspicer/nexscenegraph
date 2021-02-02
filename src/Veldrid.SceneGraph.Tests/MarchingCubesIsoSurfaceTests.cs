@@ -212,7 +212,7 @@ namespace Veldrid.SceneGraph.Tests
             var isoSurfaceGenerator = new MarchingCubesIsoSurfaceGenerator();
             var isoSurface = isoSurfaceGenerator.CreateIsoSurface(voxelVolume, isoValue);
 
-            Assert.That(6, Is.EqualTo(isoSurface.IsoSurfaceVertices.Count));
+            Assert.That(3, Is.EqualTo(isoSurface.IsoSurfaceVertices.Count));
         }
     }
 }

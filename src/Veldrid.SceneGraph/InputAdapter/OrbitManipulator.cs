@@ -118,10 +118,16 @@ namespace Veldrid.SceneGraph.InputAdapter
             return true;
         }
 
-        protected override bool PerformMovementRightMouseButton(double eventTimeDelta, float dx, float dy)
+        protected override bool PerformMovementMiddleMouseButton(double eventTimeDelta, float dx, float dy)
         {
             float scale = -0.3f * _distance * GetThrowScale( eventTimeDelta );
             PanModel( dx*scale, dy*scale );
+            return true;
+        }
+        
+        protected override bool PerformMovementRightMouseButton(double eventTimeDelta, float dx, float dy)
+        {
+            ZoomModel(dy * GetThrowScale(eventTimeDelta), true);
             return true;
         }
 

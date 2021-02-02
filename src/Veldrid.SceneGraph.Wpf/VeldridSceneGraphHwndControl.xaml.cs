@@ -17,13 +17,13 @@ namespace Veldrid.SceneGraph.Wpf
 
         private ISubject<IGroup> _sceneDataSubject;
         private ISubject<ICameraManipulator> _cameraManipulatorSubject;
-        private ISubject<IInputEventHandler> _eventHandlerSubject;
+        private ISubject<IUiEventHandler> _eventHandlerSubject;
         
         public VeldridSceneGraphHwndControl()
         {
             _sceneDataSubject = new ReplaySubject<IGroup>();
             _cameraManipulatorSubject = new ReplaySubject<ICameraManipulator>();
-            _eventHandlerSubject = new ReplaySubject<IInputEventHandler>();
+            _eventHandlerSubject = new ReplaySubject<IUiEventHandler>();
             InitializeComponent();
         }
         
@@ -90,12 +90,12 @@ namespace Veldrid.SceneGraph.Wpf
         
         #region EventHandlerProperty
         public static readonly DependencyProperty eventHandlerProperty = 
-            DependencyProperty.Register("EventHandler", typeof(IInputEventHandler), typeof(VeldridSceneGraphHwndControl), 
+            DependencyProperty.Register("EventHandler", typeof(IUiEventHandler), typeof(VeldridSceneGraphHwndControl), 
                 new PropertyMetadata(null, new PropertyChangedCallback(OnEventHandlerChanged)));  
 
-        public IInputEventHandler EventHandler 
+        public IUiEventHandler EventHandler 
         {
-            get => (IInputEventHandler) GetValue(eventHandlerProperty);
+            get => (IUiEventHandler) GetValue(eventHandlerProperty);
             set => SetValue(eventHandlerProperty, value);
         }
         
@@ -105,7 +105,7 @@ namespace Veldrid.SceneGraph.Wpf
         } 
         
         private void SetEventHandler(DependencyPropertyChangedEventArgs e) {  
-            _eventHandlerSubject.OnNext((IInputEventHandler) e.NewValue); 
+            _eventHandlerSubject.OnNext((IUiEventHandler) e.NewValue); 
         }
         #endregion
     }
