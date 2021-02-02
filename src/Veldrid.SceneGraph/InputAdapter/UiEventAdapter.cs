@@ -297,6 +297,18 @@ namespace Veldrid.SceneGraph.InputAdapter
         
         KeySymbol Key { get; set; }
         
+        enum ScrollingMotionType
+        {
+            ScrollNone,
+            ScrollLeft,
+            ScrollRight,
+            ScrollUp,
+            ScrollDown,
+            Scroll2D
+        };
+        
+        ScrollingMotionType ScrollingMotion { get; set; }
+        
         PointerDataList PointerDataList { get; set; }
         
         PointerData GetPointerData(IObject obj);
@@ -323,6 +335,8 @@ namespace Veldrid.SceneGraph.InputAdapter
         
         public IUiEventAdapter.MouseButtonMaskType MouseButtonMask { get; set; }
 
+        public IUiEventAdapter.ScrollingMotionType ScrollingMotion { get; set; }
+        
         public PointerDataList PointerDataList { get; set; } = new PointerDataList();
 
         public float X { get; set; } = 0.0f;

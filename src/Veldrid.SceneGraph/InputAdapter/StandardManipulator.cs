@@ -1,7 +1,9 @@
 using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Numerics;
 using System.Threading;
+using Veldrid.SceneGraph.Util;
 
 namespace Veldrid.SceneGraph.InputAdapter
 {
@@ -37,7 +39,11 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         protected bool _thrown = false;
         public bool AllowThrow { get; protected set; } = true;
+        public bool VerticalAxisFixed { get; protected set; } = true;
 
+        protected float MouseCenterX { get; set; }
+        protected float MouseCenterY { get; set; }
+        
         protected IUiEventAdapter EventAdapterT0 { get; set; } = null;
         protected IUiEventAdapter EventAdapterT1 { get; set; } = null;
         
@@ -104,6 +110,16 @@ namespace Veldrid.SceneGraph.InputAdapter
             return (len > dt * velocity);
         }
 
+        protected bool IsAnimating()
+        {
+            return null != AnimationData && AnimationData.IsAnimating;
+        }
+
+        protected double GetAnimationTime()
+        {
+            return AnimationData?.AnimationTime ?? 0.0f;
+        }
+        
         protected void AddMouseEvent(IUiEventAdapter eventAdapter)
         {
             EventAdapterT1 = EventAdapterT0;
@@ -423,6 +439,146 @@ namespace Veldrid.SceneGraph.InputAdapter
 
             aa.RequestRedraw(); 
             aa.RequestContinuousUpdate( false );
+            
+        }
+
+        protected float GetThrowScale(double eventTimeDelta)
+        {
+            if (_thrown)
+            {
+                if (eventTimeDelta == 0.0f)
+                {
+                    return 0.0f;
+                }
+
+                return (float)(DeltaFrameTime / eventTimeDelta);
+            }
+
+            return 1.0f;
+        }
+
+        protected abstract (Vector3, Vector3, Vector3) GetTransformation();
+
+        protected bool SetCenterByMousePointerIntersection(IUiEventAdapter eventAdapter,
+            IUiActionAdapter actionAdapter)
+        {
+            if (actionAdapter is Veldrid.SceneGraph.Viewer.IView view)
+            {
+                var camera = view.Camera;
+                if (null == camera)
+                {
+                    return false;
+                }
+
+                var x = (eventAdapter.X - eventAdapter.XMin) / (eventAdapter.XMax - eventAdapter.XMin);
+                var y = (eventAdapter.Y - eventAdapter.YMin) / (eventAdapter.YMax - eventAdapter.YMin);
+
+                var cf = IIntersector.CoordinateFrameMode.Projection;
+                var vp = camera.Viewport;
+                if (null != vp)
+                {
+                    cf = IIntersector.CoordinateFrameMode.Window;
+                    x *= vp.Width;
+                    y *= vp.Height;
+                }
+
+                var picker = LineSegmentIntersector.Create(cf, x, y);
+                var iv = IntersectionVisitor.Create(picker);
+                camera.Accept(iv);
+
+                if (!picker.Intersections.Any())
+                {
+                    return false;
+                }
+
+                var (eye, center, up) = GetTransformation();
+                var newCenter = picker.Intersections.First().WorldIntersectionPoint;
+
+                if (VerticalAxisFixed)
+                {
+                    var coordinateFrame = GetCoordinateFrame(newCenter);
+                    var localUp = GetUpVector(coordinateFrame);
+
+                    up = FixVerticalAxis(newCenter - eye, up, localUp);
+                }
+                
+                SetTransformation(eye, newCenter, up);
+
+                CenterMousePointer(eventAdapter, actionAdapter);
+
+                return true;
+            }
+
+            return false;
+        }
+
+        protected void CenterMousePointer(IUiEventAdapter eventAdapter, IUiActionAdapter actionAdapter)
+        {
+            MouseCenterX = (eventAdapter.XMax + eventAdapter.XMin) / 2.0f;
+            MouseCenterY = (eventAdapter.YMax = eventAdapter.YMin) / 2.0f;
+            actionAdapter.RequestWarpPointer(MouseCenterX, MouseCenterY);
+        }
+
+        protected bool StartAnimationByMousePointerIntersection(IUiEventAdapter eventAdapter,
+            IUiActionAdapter actionAdapter)
+        {
+            return false;
+        }
+
+        protected Quaternion FixVerticalAxis(Vector3 eye, Quaternion rotation, bool disallowFlipOver)
+        {
+            var coordinateFrame = GetCoordinateFrame(eye);
+            var localUp = GetUpVector(coordinateFrame);
+            
+            return FixVerticalAxis(rotation, localUp, disallowFlipOver);
+        }
+        
+        protected Quaternion FixVerticalAxis(Quaternion rotation, Vector3 localUp, bool disallowFlipOver)
+        {
+            var cameraUp = rotation.RotateVector(Vector3.UnitY);
+            var cameraRight = rotation.RotateVector(Vector3.UnitX);
+            var cameraForward = rotation.RotateVector(-Vector3.UnitZ);
+
+            var newCameraRight1 = Vector3.Cross(cameraForward, localUp);
+            var newCameraRight2 = Vector3.Cross(cameraUp, localUp);
+            var newCameraRight = (newCameraRight1.LengthSquared() > newCameraRight2.LengthSquared())
+                ? newCameraRight1
+                : newCameraRight2;
+
+            if (Vector3.Dot(newCameraRight, cameraRight) < 0.0f)
+            {
+                newCameraRight = -newCameraRight;
+            }
+
+            var rotationVerticalAxisCorrection = QuaternionExtensions.MakeRotate(cameraRight, newCameraRight);
+
+            rotation *= rotationVerticalAxisCorrection;
+
+            if (disallowFlipOver)
+            {
+                var newCameraUp = Vector3.Cross(newCameraRight, cameraForward);
+                if (Vector3.Dot(newCameraUp, localUp) < 0)
+                {
+                    rotation = new Quaternion(Vector3.UnitZ, (float)System.Math.PI);
+                }
+            }
+
+            return rotation;
+        }
+
+        protected Vector3 FixVerticalAxis(Vector3 forward, Vector3 up, Vector3 localUp)
+        {
+            var right1 = Vector3.Cross(forward, localUp);
+            var right2 = Vector3.Cross(up, localUp);
+            var right = (right1.LengthSquared() > right2.LengthSquared()) ? right1 : right2;
+
+            var updatedUp = Vector3.Cross(right, forward);
+            if (updatedUp.Length() >= 0.0f)
+            {
+                return updatedUp;
+            }
+            
+            return up;
             
         }
     }

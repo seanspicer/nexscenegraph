@@ -16,6 +16,8 @@
 
 using System;
 using System.Numerics;
+using Veldrid.SceneGraph.Util;
+
 //using Common.Logging;
 
 namespace Veldrid.SceneGraph.InputAdapter
@@ -41,7 +43,14 @@ namespace Veldrid.SceneGraph.InputAdapter
         bool GetAutoComputeHomePosition();
 
         void Home(IUiActionAdapter aa);
+        
+        public interface ICoordinateFrameCallback
+        {
+            Matrix4x4 GetCoordinateFrame(Vector3 position);
+        }
     }
+    
+    
     
     public abstract class CameraManipulator : UiEventHandler, ICameraManipulator
     {
@@ -54,6 +63,8 @@ namespace Veldrid.SceneGraph.InputAdapter
         protected Vector3 _homeEye;
         protected Vector3 _homeCenter;
         protected Vector3 _homeUp;
+
+        public ICameraManipulator.ICoordinateFrameCallback CoordinateFrameCallback { get; set; } = null;
         
         protected CameraManipulator()
         {
@@ -74,6 +85,16 @@ namespace Veldrid.SceneGraph.InputAdapter
         }
         
         public abstract void ViewAll(IUiActionAdapter aa, float slack=20);
+
+        public Matrix4x4 GetCoordinateFrame(Vector3 position)
+        {
+            return CoordinateFrameCallback?.GetCoordinateFrame(position) ?? Matrix4x4.Identity;
+        }
+
+        public Vector3 GetUpVector(Matrix4x4 coordinateFrame)
+        {
+            return new Vector3(coordinateFrame.M31, coordinateFrame.M32, coordinateFrame.M33);
+        }
         
         // Update a camera
         public virtual void UpdateCamera(ICamera camera)

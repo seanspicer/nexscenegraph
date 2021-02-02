@@ -86,7 +86,7 @@ namespace Veldrid.SceneGraph.Viewer
 
         private string _windowTitle = string.Empty;
 
-        private ISubject<IInputStateSnapshot> _viewerInputEvents;
+        private ISubject<IUiEventAdapter> _viewerInputEvents;
         
         private GraphicsDevice _graphicsDevice;
         private DisposeCollectorResourceFactory _factory;
@@ -147,9 +147,9 @@ namespace Veldrid.SceneGraph.Viewer
             //_logger = LogManager.GetLogger<SimpleViewer>();
             
             // Create Subjects
-            _viewerInputEvents = new Subject<IInputStateSnapshot>();
+            _viewerInputEvents = new Subject<IUiEventAdapter>();
             
-            InputEvents = new Subject<IInputStateSnapshot>();
+            InputEvents = new Subject<IUiEventAdapter>();
             
             _updateVisitor = UpdateVisitor.Create();
             _windowTitle = title;

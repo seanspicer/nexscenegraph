@@ -5,6 +5,16 @@ namespace Veldrid.SceneGraph.Util
 {
     public static class QuaternionExtensions
     {
+        public static Vector3 RotateVector(this Quaternion q, Vector3 v)
+        {
+            var qvec = new Vector3(q.X, q.Y, q.Z);
+            var uv = Vector3.Cross(qvec, v);
+            var uuv = Vector3.Cross(qvec, uv);
+            uv *= (2.0f * q.W);
+            uuv *= 2.0f;
+            return v + uv + uuv;
+        }
+        
         /** Make a rotation Quat which will rotate vec1 to vec2
             This routine uses only fast geometric transforms, without costly acos/sin computations.
             It's exact, fast, and with less degenerate cases than the acos/sin method.

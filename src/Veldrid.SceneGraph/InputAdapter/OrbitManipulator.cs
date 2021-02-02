@@ -25,7 +25,6 @@ namespace Veldrid.SceneGraph.InputAdapter
 {
     public class OrbitManipulator : StandardManipulator
     {
-        protected bool VerticalAxisFixed { get; set; } = true;
         protected float MinimumDistance { get; set; } = 0.05f;
         protected float WheelZoomFactor { get; set; } = 0.01f;
 
@@ -89,8 +88,16 @@ namespace Veldrid.SceneGraph.InputAdapter
             }
 
         }
+
+        protected override (Vector3, Vector3, Vector3) GetTransformation()
+        {
+            var eye = _center + _rotation.RotateVector(_distance * Vector3.UnitZ);
+            var up = _rotation.RotateVector(Vector3.UnitY);
+
+            return (eye, _center, up);
+        }
         
-        protected override bool PerformMovementLeftMouseButton(float dx, float dy, IInputStateSnapshot snapshot)
+        protected override bool PerformMovementLeftMouseButton(double eventTimeDelta, float dx, float dy)
         {
             // rotate camera
             if (VerticalAxisFixed)
@@ -99,29 +106,22 @@ namespace Veldrid.SceneGraph.InputAdapter
                 throw new NotImplementedException();
             }
             else
-
             {
-                var xNorm = 2.0f*(InputStateTracker.MousePosition.Value.X / InputStateTracker.FrameSnapshot.WindowWidth)-1.0f;
-                var yNorm = -2.0f*(InputStateTracker.MousePosition.Value.Y / InputStateTracker.FrameSnapshot.WindowHeight)+1.0f;
-                
-                var xNormLast = 2.0f*(InputStateTracker.LastMousePosition.Value.X / InputStateTracker.FrameSnapshot.WindowWidth)-1.0f;
-                var yNormLast = -2.0f*(InputStateTracker.LastMousePosition.Value.Y / InputStateTracker.FrameSnapshot.WindowHeight)+1.0f;
-
-                RotateTrackball(xNorm, yNorm, xNormLast, yNormLast, 1.0f);
+                RotateTrackball(
+                    EventAdapterT0.XNormalized, 
+                    EventAdapterT0.YNormalized, 
+                    EventAdapterT1.XNormalized, 
+                    EventAdapterT1.YNormalized, 
+                    GetThrowScale(eventTimeDelta));
             }
                 
             return true;
         }
 
-        protected override bool PerformMovementRightMouseButton(float dx, float dy, IInputStateSnapshot snapshot)
+        protected override bool PerformMovementRightMouseButton(double eventTimeDelta, float dx, float dy)
         {
-            var xNorm = 2.0f*(InputStateTracker.MousePosition.Value.X / InputStateTracker.FrameSnapshot.WindowWidth)-1.0f;
-            var yNorm = -2.0f*(InputStateTracker.MousePosition.Value.Y / InputStateTracker.FrameSnapshot.WindowHeight)+1.0f;
-                
-            var xNormLast = 2.0f*(InputStateTracker.LastMousePosition.Value.X / InputStateTracker.FrameSnapshot.WindowWidth)-1.0f;
-            var yNormLast = -2.0f*(InputStateTracker.LastMousePosition.Value.Y / InputStateTracker.FrameSnapshot.WindowHeight)+1.0f;
-            
-            PanModel(snapshot, xNorm, yNorm, xNormLast, yNormLast);
+            float scale = -0.3f * _distance * GetThrowScale( eventTimeDelta );
+            PanModel( dx*scale, dy*scale );
             return true;
         }
 
@@ -173,33 +173,84 @@ namespace Veldrid.SceneGraph.InputAdapter
             return (float)z;
         }
         
-        protected override void HandleWheelDelta(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter)
+        protected override bool HandleWheelDelta(IUiEventAdapter eventAdapter, IUiActionAdapter actionAdapter)
         {
-            ZoomModel(WheelZoomFactor *InputStateTracker.FrameSnapshot.WheelDelta, true);
-            uiActionAdapter.RequestRedraw();
+            var sm = eventAdapter.ScrollingMotion;
+
+            if ((_flags & UserInteractionFlags.SetCenterOnForwardWheelMovement) != 0)
+            {
+                if (((sm == IUiEventAdapter.ScrollingMotionType.ScrollDown && WheelZoomFactor > 0)) ||
+                    ((sm == IUiEventAdapter.ScrollingMotionType.ScrollUp && WheelZoomFactor < 0)))
+                {
+                    if (GetAnimationTime() <= 0)
+                    {
+                        SetCenterByMousePointerIntersection(eventAdapter, actionAdapter);
+                    }
+                    else
+                    {
+                        if (!IsAnimating())
+                        {
+                            StartAnimationByMousePointerIntersection(eventAdapter, actionAdapter);
+                        }
+                    }
+                }
+            }
+
+            switch (sm)
+            {
+                case IUiEventAdapter.ScrollingMotionType.ScrollUp:
+                {
+                    ZoomModel(WheelZoomFactor, true);
+                    actionAdapter.RequestRedraw();
+                    actionAdapter.RequestContinuousUpdate(IsAnimating() || _thrown);
+                    return true;
+                }
+                case IUiEventAdapter.ScrollingMotionType.ScrollDown:
+                {
+                    ZoomModel(-WheelZoomFactor, true);
+                    actionAdapter.RequestRedraw();
+                    actionAdapter.RequestContinuousUpdate(IsAnimating() || _thrown);
+                    return true;
+                }
+                
+                default:
+                    return false;
+            }
+            
+            // TODO Implement me.
+            //ZoomModel(WheelZoomFactor *InputStateTracker.FrameSnapshot.WheelDelta, true);
+            //actionAdapter.RequestRedraw();
+            //return false;
         }
         
-        void PanModel(IInputStateSnapshot snapshot, float p1x, float p1y, float p2x, float p2y)
+        void PanModel(float p1x, float p1y, float p2x, float p2y)
         {
-            //throw new NotImplementedException();
-            var startNear = new Vector3(p1x, p1y, 0);
-            
-            var startFar = new Vector3(p1x, p1y, 1);
-            var endFar = new Vector3(p2x, p2y, 1);
+            // //throw new NotImplementedException();
+            // var startNear = new Vector3(p1x, p1y, 0);
+            //
+            // var startFar = new Vector3(p1x, p1y, 1);
+            // var endFar = new Vector3(p2x, p2y, 1);
+            //
+            // var worldStartNear = NormalizedScreenToWorld(startNear, snapshot.ProjectionMatrix, snapshot.ViewMatrix);
+            // var worldStartFar = NormalizedScreenToWorld(startFar, snapshot.ProjectionMatrix, snapshot.ViewMatrix);
+            //
+            // var worldEndFar = NormalizedScreenToWorld(endFar, snapshot.ProjectionMatrix, snapshot.ViewMatrix);
+            //
+            // var lenFar = (worldEndFar - worldStartFar).Length();
+            //
+            // var motionDir = Vector3.Normalize(worldEndFar - worldStartFar);
+            // var d = (worldStartFar - worldStartNear).Length();
+            //
+            // var motionLen = lenFar * _distance / d;
+            //
+            // _center += motionLen*motionDir;
+        }
 
-            var worldStartNear = NormalizedScreenToWorld(startNear, snapshot.ProjectionMatrix, snapshot.ViewMatrix);
-            var worldStartFar = NormalizedScreenToWorld(startFar, snapshot.ProjectionMatrix, snapshot.ViewMatrix);
-
-            var worldEndFar = NormalizedScreenToWorld(endFar, snapshot.ProjectionMatrix, snapshot.ViewMatrix);
-            
-            var lenFar = (worldEndFar - worldStartFar).Length();
-            
-            var motionDir = Vector3.Normalize(worldEndFar - worldStartFar);
-            var d = (worldStartFar - worldStartNear).Length();
-
-            var motionLen = lenFar * _distance / d;
-            
-            _center += motionLen*motionDir;
+        void PanModel(float dx, float dy, float dz = 0.0f)
+        {
+            var rotationMatrix = Matrix4x4.CreateFromQuaternion(_rotation);
+            var dv = new Vector3(dx, dy, dz);
+            _center += rotationMatrix.PreMultiply(dv);
         }
         
         public Vector3 NormalizedScreenToWorld(Vector3 screenCoords, Matrix4x4 projectionMatrix, Matrix4x4 viewMatrix)
@@ -258,24 +309,17 @@ namespace Veldrid.SceneGraph.InputAdapter
             }
         }
         
-        public override void HandleInput(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter)
+        protected override bool HandleKeyDown(IUiEventAdapter eventAdapter, IUiActionAdapter actionAdapter)
         {
-            base.HandleInput(snapshot, uiActionAdapter);
-            
-            foreach (var keyEvent in snapshot.KeyEvents)
+
+            if (eventAdapter.Key == IUiEventAdapter.KeySymbol.KeyV)
             {
-                if (keyEvent.Down)
-                {
-                    switch (keyEvent.Key)
-                    {
-                        case Key.V:
-                            ViewAll(uiActionAdapter);
-                            uiActionAdapter.RequestRedraw();
-                            break;
-                    }
-                    
-                }
+                ViewAll(actionAdapter);
+                actionAdapter.RequestRedraw();
+                return true;
             }
+
+            return base.HandleKeyDown(eventAdapter, actionAdapter);
         }
 
         public override void ViewAll(IUiActionAdapter aa, float slack = 20)

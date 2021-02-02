@@ -28,10 +28,15 @@ namespace Veldrid.SceneGraph.Util
             float StartToIntersectionDist { get; }
             
             Vector3 IntersectionPoint { get; }
+            Vector3 WorldIntersectionPoint { get; }
 
             NodePath NodePath { get; }
             
             IDrawable Drawable { get; }
+
+            Matrix4x4 Matrix { get; }
+            
+            
 
         }
         
@@ -49,6 +54,9 @@ namespace Veldrid.SceneGraph.Util
             
             public IDrawable Drawable { get; private set; }
             
+            public Matrix4x4 Matrix { get; set; } = Matrix4x4.Identity;
+            public Vector3 WorldIntersectionPoint => Matrix.PreMultiply(IntersectionPoint);
+
             public NodePath NodePath { get; private set; }
             
             public float StartToIntersectionDist { get; private set; }

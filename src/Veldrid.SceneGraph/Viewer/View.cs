@@ -29,11 +29,11 @@ namespace Veldrid.SceneGraph.Viewer
         INode SceneData { get; }
         ICameraManipulator CameraManipulator { get; }
         ICamera Camera { get; }
-        IObservable<IInputStateSnapshot> InputEvents { get; set; }
+        IObservable<IUiEventAdapter> InputEvents { get; set; }
 
         SceneContext SceneContext { get; set; }
         
-        void AddInputEventHandler(IInputEventHandler handler);
+        void AddInputEventHandler(IUiEventHandler handler);
 
         void SetSceneData(INode node);
         
@@ -61,7 +61,7 @@ namespace Veldrid.SceneGraph.Viewer
             set => Renderer.SceneContext = value;
         }
         
-        public IObservable<IInputStateSnapshot> InputEvents { get; set; }
+        public IObservable<IUiEventAdapter> InputEvents { get; set; }
 
         private ICameraManipulator _cameraManipulator = null;
         public ICameraManipulator CameraManipulator
@@ -166,11 +166,11 @@ namespace Veldrid.SceneGraph.Viewer
             return Renderer;
         }
         
-        public void AddInputEventHandler(IInputEventHandler handler)
+        public void AddInputEventHandler(IUiEventHandler handler)
         {
             InputEvents.Subscribe(x =>
             {
-                handler.HandleInput(x, this);
+                handler.Handle(x, this);
             });
         }
 
@@ -180,7 +180,10 @@ namespace Veldrid.SceneGraph.Viewer
 
         public void RequestContinuousUpdate(bool flag)
         {
-            //throw new NotImplementedException();
+        }
+
+        public void RequestWarpPointer(float x, float y)
+        {
         }
 
         public bool ComputeIntersections(
