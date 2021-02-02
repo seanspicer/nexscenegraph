@@ -7,16 +7,27 @@ namespace Veldrid.SceneGraph.InputAdapter
 {
     public interface IEventQueue
     {
-        IList<IEvent> Events { get; set; }
+        IList<IEvent> Events { get; }
     }
     
     public class EventQueue : IEventQueue
     {
-        
+
         public class EventList : List<IEvent>
         {
         }
-        
-        public IList<IEvent> Events { get; set; }
+
+        private EventList _events = new EventList();
+        public IList<IEvent> Events => _events;
+
+        public static IEventQueue Create()
+        {
+            return new EventQueue();
+        }
+
+        protected EventQueue()
+        {
+            
+        }
     }
 }

@@ -36,6 +36,7 @@ namespace Veldrid.SceneGraph.InputAdapter
         
         [Flags]
         enum MouseButtonMaskType {
+            None               = 0,
             LeftMouseButton    = 1<<0,
             MiddleMouseButton  = 1<<1,
             RightMouseButton   = 1<<2
@@ -320,8 +321,9 @@ namespace Veldrid.SceneGraph.InputAdapter
         public IUiEventAdapter.EventTypeValue EventType { get; set; }
         
         public IUiEventAdapter.KeySymbol Key { get; set; }
-        
-        public IUiEventAdapter.MouseButtonMaskType MouseButtonMask { get; set; }
+
+        public IUiEventAdapter.MouseButtonMaskType MouseButtonMask { get; set; } =
+            IUiEventAdapter.MouseButtonMaskType.None;
 
         public IUiEventAdapter.ScrollingMotionType ScrollingMotion { get; set; }
         
@@ -343,7 +345,7 @@ namespace Veldrid.SceneGraph.InputAdapter
         public float YNormalized =>
             PointerDataList.Count > 0
                 ? PointerDataList.Last().GetYNormalized()
-                : 2.0f * (Y - YMin) / (YMax - YMin) - 1.0f;
+                : -2.0f * (Y - YMin) / (YMax - YMin) + 1.0f;
 
         public PointerData GetPointerData(IObject obj)
         {

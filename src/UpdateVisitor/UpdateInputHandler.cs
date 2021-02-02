@@ -20,7 +20,7 @@ using Veldrid.SceneGraph.InputAdapter;
 
 namespace UpdateVisitor
 {
-    public class UpdateInputHandler : InputEventHandler
+    public class UpdateInputHandler : UiEventHandler
     {
         private IGroup _root;
 
@@ -32,25 +32,20 @@ namespace UpdateVisitor
             _root = rootNode;
         }
         
-        public override void HandleInput(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter)
+        public override bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter uiActionAdapter)
         {
-            base.HandleInput(snapshot, uiActionAdapter);
-            
-            foreach (var keyEvent in snapshot.KeyEvents)
+            switch (eventAdapter.Key)
             {
-                if (keyEvent.Down)
-                {
-                    switch (keyEvent.Key)
-                    {
-                        case Key.U:
-                            DoSwitchUpateState(snapshot);
-                            break;
-                    }
-                }
+                case IUiEventAdapter.KeySymbol.KeyU:
+                    DoSwitchUpateState();
+                    return true;
+                default:
+                    return false;
             }
+            
         }
 
-        private void DoSwitchUpateState(IInputStateSnapshot snapshot)
+        private void DoSwitchUpateState()
         {
  
         }

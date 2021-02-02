@@ -119,7 +119,7 @@ namespace Veldrid.SceneGraph.Viewer
                 mcv.Prepare();
             }
             
-            if (_camera.View is Viewer.View viewerView)
+            if (_camera.View is Veldrid.SceneGraph.Viewer.View viewerView)
             {
                 viewerView.SceneData?.Accept(_cullVisitor);
             }

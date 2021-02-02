@@ -218,13 +218,17 @@ namespace Veldrid.SceneGraph.InputAdapter
         
         protected virtual bool HandleDrag(IUiEventAdapter eventAdapter, IUiActionAdapter actionAdapter)
         {
+            AddMouseEvent(eventAdapter);
+            
             if (PerformMovement())
             {
                 actionAdapter.RequestRedraw();
-                return true;
             }
 
-            return false;
+            actionAdapter.RequestContinuousUpdate(false);
+            _thrown = false;
+            
+            return true;
         }
 
         protected virtual bool HandleMouseMove(IUiEventAdapter eventAdapter, IUiActionAdapter actionAdapter)

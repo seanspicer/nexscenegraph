@@ -53,8 +53,6 @@ namespace Veldrid.SceneGraph.Viewer
 
         private Renderer Renderer { get; set; }
         
-
-
         public SceneContext SceneContext
         {
             get => Renderer.SceneContext;

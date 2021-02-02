@@ -20,7 +20,7 @@ using Veldrid.SceneGraph.InputAdapter;
 
 namespace SwitchExample
 {
-    public class SwitchInputHandler : InputEventHandler
+    public class SwitchInputHandler : UiEventHandler
     {
         private ISwitch _switch;
         private int _pos;
@@ -33,25 +33,20 @@ namespace SwitchExample
             _pos = -1;
         }
         
-        public override void HandleInput(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter)
+        public override bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter uiActionAdapter)
         {
-            base.HandleInput(snapshot,uiActionAdapter);
-            
-            foreach (var keyEvent in snapshot.KeyEvents)
+            switch (eventAdapter.Key)
             {
-                if (keyEvent.Down)
-                {
-                    switch (keyEvent.Key)
-                    {
-                        case Key.S:
-                            DoSwitch(snapshot);
-                            break;
-                    }
-                }
+                case IUiEventAdapter.KeySymbol.KeyS:
+                    DoSwitch();
+                    return true;
+                default:
+                    return false;
             }
+            
         }
 
-        private void DoSwitch(IInputStateSnapshot snapshot)
+        private void DoSwitch()
         {
             if (_pos == -1)
             {

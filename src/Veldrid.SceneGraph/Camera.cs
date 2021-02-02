@@ -71,12 +71,14 @@ namespace Veldrid.SceneGraph
         
         void SetViewMatrixToLookAt(Vector3 position, Vector3 target, Vector3 upDirection);
         
-
         Vector3 NormalizedScreenToWorld(Vector3 screenCoords);
         
         RgbaFloat ClearColor { get; }
 
         void SetClearColor(RgbaFloat color);
+        
+        IGraphicsContext GraphicsContext { get; set; }
+
     }
 
     public interface IPerspectiveCamera : ICamera
@@ -125,6 +127,30 @@ namespace Veldrid.SceneGraph
         protected uint Width { get; set; }
         protected uint Height { get; set; }
         protected float Distance { get; set; }
+
+        private IGraphicsContext _graphicsContext;
+
+        public IGraphicsContext GraphicsContext
+        {
+            get => _graphicsContext;
+            set
+            {
+                if (value == GraphicsContext) return;
+
+                if (null != _graphicsContext)
+                {
+                    _graphicsContext.RemoveCamera(this);
+                }
+
+                _graphicsContext = value;
+
+                if (null != _graphicsContext)
+                {
+                    _graphicsContext.AddCamera(this);
+                }
+            }
+        }
+        
         
         public IView View { get; private set; }
         

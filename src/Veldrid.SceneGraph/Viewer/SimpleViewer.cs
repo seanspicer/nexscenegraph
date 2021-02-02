@@ -113,6 +113,8 @@ namespace Veldrid.SceneGraph.Viewer
         private SDL_EventFilter ResizeEventFilter = null;
 
         private readonly IUpdateVisitor _updateVisitor;
+
+        private InputSnapshotAdapter InputSnapshotAdapter { get; set; } = new InputSnapshotAdapter();
         
         //private ILog _logger;
         
@@ -275,9 +277,13 @@ namespace Veldrid.SceneGraph.Viewer
                 // TODO: Can remove InputTracker?
                 //InputTracker.UpdateFrameInput(inputSnapshot);
 
-                var inputStateSnap = InputStateSnapshot.Create(inputSnapshot, _window.Width, _window.Height, Camera.ProjectionMatrix, Camera.ViewMatrix);
-                
-                _viewerInputEvents.OnNext(inputStateSnap);
+                //var inputStateSnap = InputStateSnapshot.Create(inputSnapshot, _window.Width, _window.Height, Camera.ProjectionMatrix, Camera.ViewMatrix);
+
+                var events = InputSnapshotAdapter.Adapt(inputSnapshot, _window.Width, _window.Height);
+                foreach (var evt in events)
+                {
+                    _viewerInputEvents.OnNext(evt);
+                }
                 
                 Frame();
             }
