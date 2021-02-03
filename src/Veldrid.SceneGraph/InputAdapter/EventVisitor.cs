@@ -21,8 +21,8 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         public bool EventHandled { get; set; } = false;
 
-        private EventQueue.EventList _events = new EventQueue.EventList();
-        public IList<IEvent> Events => _events;
+        //private EventQueue.EventList _events = new EventQueue.EventList();
+        public IList<IEvent> Events { get; set; } = new List<IEvent>();
 
         public static IEventVisitor Create()
         {
@@ -36,18 +36,18 @@ namespace Veldrid.SceneGraph.InputAdapter
         
         public virtual void Reset()
         {
-            Events.Clear();
+            //Events.Clear();
             EventHandled = false;
         }
         
         public virtual void AddEvent(IEvent evt)
         {
-            Events.Add(evt);
+            //Events.Add(evt);
         }
 
         public virtual void RemoveEvent(IEvent evt)
         {
-            Events.Remove(evt);
+            //Events.Remove(evt);
         }
     }
 }

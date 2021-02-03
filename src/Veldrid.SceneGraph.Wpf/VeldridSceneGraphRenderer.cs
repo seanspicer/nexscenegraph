@@ -341,6 +341,8 @@ namespace Veldrid.SceneGraph.Wpf
 
             if (null == _graphicsDevice) return;
 
+            _view.EventTraversal();
+            
             UpdateTraversal();
 
             RenderingTraversal();

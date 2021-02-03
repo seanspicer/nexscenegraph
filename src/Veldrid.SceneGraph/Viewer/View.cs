@@ -15,6 +15,8 @@
 //
 
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Reactive.Subjects;
@@ -29,11 +31,14 @@ namespace Veldrid.SceneGraph.Viewer
         INode SceneData { get; }
         ICameraManipulator CameraManipulator { get; }
         ICamera Camera { get; }
-        IObservable<IUiEventAdapter> InputEvents { get; set; }
+        IObservable<IEvent> InputEvents { get; set; }
 
+        // Probably should be a mixin
+        void EventTraversal();
+        
         SceneContext SceneContext { get; set; }
         
-        void AddInputEventHandler(IUiEventHandler handler);
+        void AddInputEventHandler(IEventHandler handler);
 
         void SetSceneData(INode node);
         
@@ -58,8 +63,23 @@ namespace Veldrid.SceneGraph.Viewer
             get => Renderer.SceneContext;
             set => Renderer.SceneContext = value;
         }
-        
-        public IObservable<IUiEventAdapter> InputEvents { get; set; }
+
+        private IObservable<IEvent> _inputEvents;
+        private IDisposable _eventSubscriptionDisposable = null;
+        public IObservable<IEvent> InputEvents
+        {
+            get => _inputEvents;
+            set
+            {
+                _eventSubscriptionDisposable?.Dispose();
+                
+                _inputEvents = value;
+                _eventSubscriptionDisposable = _inputEvents.Subscribe((x) =>
+                {
+                    EventQueue.Enqueue(x);
+                });
+            } 
+        }
 
         private ICameraManipulator _cameraManipulator = null;
         public ICameraManipulator CameraManipulator
@@ -73,6 +93,31 @@ namespace Veldrid.SceneGraph.Viewer
             base.SetCamera(camera);
         }
         
+        public class EventHandlerList : List<IEventHandler> {}
+        public EventHandlerList EventHandlers { get; set; } = new EventHandlerList();
+
+        public class ConcurrentEventQueue : ConcurrentQueue<IEvent> {}
+        
+        protected ConcurrentEventQueue EventQueue { get; set; } = new ConcurrentEventQueue();
+
+        public void EventTraversal()
+        {
+            while (EventQueue.TryDequeue(out var inputEvent))
+            {
+                foreach (var handler in EventHandlers)
+                {
+                    if (handler is IUiEventHandler uiEventHandler)
+                    {
+                        if (inputEvent is IUiEventAdapter eventAdapter)
+                        {
+                            uiEventHandler.Handle(eventAdapter, this);
+                        }
+                        
+                    }
+                }
+            } 
+        }
+
         public void SetCameraManipulator(ICameraManipulator manipulator, bool resetPosition)
         {
             // TODO this is probably temporary now.
@@ -164,12 +209,14 @@ namespace Veldrid.SceneGraph.Viewer
             return Renderer;
         }
         
-        public void AddInputEventHandler(IUiEventHandler handler)
+        public void AddInputEventHandler(IEventHandler handler)
         {
-            InputEvents.Subscribe(x =>
-            {
-                handler.Handle(x, this);
-            });
+            // InputEvents.Subscribe(x =>
+            // {
+            //     handler.Handle(x, this);
+            // });
+            
+            EventHandlers.Add(handler);
         }
 
         public virtual void RequestRedraw()

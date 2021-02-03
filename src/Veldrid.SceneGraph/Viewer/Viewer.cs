@@ -13,10 +13,15 @@ namespace Veldrid.SceneGraph.Viewer
         public INode SceneData { get; }
         public ICameraManipulator CameraManipulator { get; }
         public ICamera Camera => View?.Camera;
-        public IObservable<IUiEventAdapter> InputEvents { get; set; }
+        public IObservable<IEvent> InputEvents { get; set; }
+        public void EventTraversal()
+        {
+            throw new NotImplementedException();
+        }
+
         public SceneContext SceneContext { get; set; }
         
-        public void AddInputEventHandler(IUiEventHandler handler)
+        public void AddInputEventHandler(IEventHandler handler)
         {
             throw new NotImplementedException();
         }

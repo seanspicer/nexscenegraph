@@ -86,7 +86,7 @@ namespace Veldrid.SceneGraph.Viewer
 
         private string _windowTitle = string.Empty;
 
-        private ISubject<IUiEventAdapter> _viewerInputEvents;
+        private ISubject<IEvent> _viewerInputEvents;
         
         private GraphicsDevice _graphicsDevice;
         private DisposeCollectorResourceFactory _factory;
@@ -113,6 +113,7 @@ namespace Veldrid.SceneGraph.Viewer
         private SDL_EventFilter ResizeEventFilter = null;
 
         private readonly IUpdateVisitor _updateVisitor;
+        private readonly IEventVisitor _eventVisitor;
 
         private InputSnapshotAdapter InputSnapshotAdapter { get; set; } = new InputSnapshotAdapter();
         
@@ -149,9 +150,10 @@ namespace Veldrid.SceneGraph.Viewer
             //_logger = LogManager.GetLogger<SimpleViewer>();
             
             // Create Subjects
-            _viewerInputEvents = new Subject<IUiEventAdapter>();
+            _viewerInputEvents = new Subject<IEvent>();
             
-            InputEvents = new Subject<IUiEventAdapter>();
+            // TODO - Remove?
+            //InputEvents = new Subject<IUiEventAdapter>();
             
             _updateVisitor = UpdateVisitor.Create();
             _windowTitle = title;
@@ -431,6 +433,8 @@ namespace Veldrid.SceneGraph.Viewer
 
             if (null == _graphicsDevice) return;
 
+            EventTraversal();
+
             UpdateTraversal();
             
             RenderingTraversals();
@@ -438,6 +442,7 @@ namespace Veldrid.SceneGraph.Viewer
             //_endFrameEvents.OnNext(new EndFrameEvent(deltaSeconds));
         }
 
+        
         private void UpdateTraversal()
         {
             //_updateVisitor.Reset();

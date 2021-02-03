@@ -7,18 +7,18 @@ namespace Veldrid.SceneGraph.Viewer
 {
     public interface IGraphicsWindow : IGraphicsContext, IUiActionAdapter
     {
-        IEventQueue EventQueue { get; set; }
+        //IEventQueue EventQueue { get; set; }
     }
 
     public abstract class GraphicsWindow : GraphicsContext, IGraphicsWindow
     {
-        public IEventQueue EventQueue { get; set; }
+        //public IEventQueue EventQueue { get; set; }
 
         public class ViewSet : HashSet<IView> {}
 
         protected GraphicsWindow()
         {
-            EventQueue = Veldrid.SceneGraph.InputAdapter.EventQueue.Create();
+            //EventQueue = Veldrid.SceneGraph.InputAdapter.EventQueue.Create();
         }
 
         protected ViewSet GetViews()
