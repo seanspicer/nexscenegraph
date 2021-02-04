@@ -353,13 +353,13 @@ namespace Veldrid.SceneGraph.Manipulators
                 PhongMaterialParameters.Create(
                     new Vector3(0.0f, 1.0f, 0.0f),
                     new Vector3(0.0f, 1.0f, 0.0f),
-                    new Vector3(1.0f, 1.0f, 1.0f),
-                    5f),
+                    new Vector3(0.0f, 0.0f, 0.0f),
+                    1f),
                 PhongHeadlight.Create(PhongLightParameters.Create(
-                    new Vector3(0.1f, 0.1f, 0.1f),
-                    new Vector3(1.0f, 1.0f, 1.0f),
-                    new Vector3(1.0f, 1.0f, 1.0f),
-                    1f,
+                    new Vector3(0.2f, 0.2f, 0.2f),
+                    new Vector3(0.2f, 0.2f, 0.2f),
+                    new Vector3(0.0f, 0.0f, 0.0f),
+                    5f,
                     0)),
                 true);
         

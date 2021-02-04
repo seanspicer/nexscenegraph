@@ -45,11 +45,11 @@ namespace Examples.Common
             // tabPlaneDraggerXForm.AddChild(tabPlaneDragger);
             // root.AddChild(tabPlaneDraggerXForm);
             //
-            // var tabBoxDragger = TabBoxDragger.Create();
-            // tabBoxDragger.SetupDefaultGeometry();
-            // var tabBoxDraggerXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(1f, -1.0f, 2.0f));
-            // tabBoxDraggerXForm.AddChild(tabBoxDragger);
-            // root.AddChild(tabBoxDraggerXForm);
+            var tabBoxDragger = TabBoxDragger.Create();
+            tabBoxDragger.SetupDefaultGeometry();
+            var tabBoxDraggerXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(1f, -1.0f, 2.0f));
+            tabBoxDraggerXForm.AddChild(tabBoxDragger);
+            root.AddChild(tabBoxDraggerXForm);
             
             return root;
         }

@@ -127,7 +127,7 @@ namespace Veldrid.SceneGraph.Manipulators
             var antiSquish = AntiSquish.Create(pos); // Use Pos as pivot
             antiSquish.AddChild(autoTransform);
 
-            return autoTransform;
+            return antiSquish;
         }
         
         protected void CreateCornerScaleDraggerGeometry(IScale2DDragger cornerScaleDragger, INode handleNode,

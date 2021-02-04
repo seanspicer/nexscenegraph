@@ -92,8 +92,8 @@ namespace Veldrid.SceneGraph
                 return false;
             }
 
-            matrix = ReferenceFrame == ReferenceFrameType.Relative ? matrix.PostMultiply(unsquishedMatrix) : unsquishedMatrix;
-
+            matrix = ReferenceFrame == ReferenceFrameType.Relative ? matrix.PreMultiply(unsquishedMatrix) : unsquishedMatrix;
+            
             return true;
         }
 

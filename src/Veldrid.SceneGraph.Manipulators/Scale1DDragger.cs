@@ -118,15 +118,25 @@ namespace Veldrid.SceneGraph.Manipulators
                 var geode = Geode.Create();
                 
                 geode.AddDrawable(ShapeDrawable<Position3Texture2Color3Normal3>.Create(
-                    Box.Create(LineProjector.LineStart, 0.05f*lineLength),
+                    Box.Create(LineProjector.LineStart, 0.5f*lineLength),
                     hints,
                     new [] {new Vector3(0.0f, 1.0f, 0.0f)}));
 
                 geode.PipelineState = pipelineState;
                 geode.PipelineState.RasterizerStateDescription 
                     = new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
-                AddChild(geode);
-                LeftHandleNode = geode;
+                
+                var autoTransform = AutoTransform.Create();
+                autoTransform.Position = LineProjector.LineStart;
+                autoTransform.PivotPoint = LineProjector.LineStart;
+                autoTransform.AutoScaleToScreen = true;
+                autoTransform.AddChild(geode);
+                
+                var antiSquish = AntiSquish.Create(LineProjector.LineStart);
+                antiSquish.AddChild(autoTransform);
+                
+                AddChild(antiSquish);
+                LeftHandleNode = antiSquish;
 
             }
             
@@ -135,16 +145,25 @@ namespace Veldrid.SceneGraph.Manipulators
                 var geode = Geode.Create();
                 
                 geode.AddDrawable(ShapeDrawable<Position3Texture2Color3Normal3>.Create(
-                    Box.Create(LineProjector.LineEnd, 0.05f*lineLength),
+                    Box.Create(LineProjector.LineEnd, 0.5f*lineLength),
                     hints,
                     new [] {new Vector3(0.0f, 1.0f, 0.0f)}));
 
                 geode.PipelineState = pipelineState;
                 geode.PipelineState.RasterizerStateDescription 
                     = new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
+
+                var autoTransform = AutoTransform.Create();
+                autoTransform.Position = LineProjector.LineEnd;
+                autoTransform.PivotPoint = LineProjector.LineEnd;
+                autoTransform.AutoScaleToScreen = true;
+                autoTransform.AddChild(geode);
                 
-                AddChild(geode);
-                RightHandleNode = geode;
+                var antiSquish = AntiSquish.Create(LineProjector.LineEnd);
+                antiSquish.AddChild(autoTransform);
+                
+                AddChild(antiSquish);
+                RightHandleNode = antiSquish;
             }
         }
 

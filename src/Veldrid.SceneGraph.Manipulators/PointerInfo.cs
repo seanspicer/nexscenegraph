@@ -30,6 +30,9 @@ namespace Veldrid.SceneGraph.Manipulators
         protected Vector3 EyeDir { get; set; }
         protected Matrix4x4 Mvpw { get; set; }
         protected Matrix4x4 InverseMvpw { get; set; }
+        
+        protected Matrix4x4 Mvp { get; set; }
+        protected Matrix4x4 InverseMvp { get; set; }
 
         //private List<Tuple<NodePath, Vector3>> _hitList = new List<Tuple<NodePath, Vector3>>();
         public IList<Tuple<NodePath, Vector3>> HitList { get; set; }= new List<Tuple<NodePath, Vector3>>();//HitList => _hitList;
@@ -57,14 +60,14 @@ namespace Veldrid.SceneGraph.Manipulators
                 Mvpw = camera.ViewMatrix.PostMultiply(camera.ProjectionMatrix);
                 if (null != camera.Viewport)
                 {
-                    Mvpw.PostMultiply(camera.Viewport.ComputeWindowMatrix4X4());
+                    Mvpw = Mvpw.PostMultiply(camera.Viewport.ComputeWindowMatrix4X4());
                 }
 
                 if (Matrix4x4.Invert(Mvpw, out var inverseMvpw))
                 {
                     InverseMvpw = inverseMvpw;
                 }
-
+                
                 camera.ViewMatrix.GetLookAt(out var eye, out var center, out var up, 1.0f);
                 EyeDir = eye - center;
             }
@@ -96,7 +99,6 @@ namespace Veldrid.SceneGraph.Manipulators
                         }
                     }
                 }
-                //return HitList.Any(hit => hit.Item1.Any(hitNode => node == hitNode));
             }
 
             return false;
