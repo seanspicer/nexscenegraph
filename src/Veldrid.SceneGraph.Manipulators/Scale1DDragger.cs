@@ -50,7 +50,7 @@ namespace Veldrid.SceneGraph.Manipulators
         
         public INode LeftHandleNode     { get; set; }
         public INode RightHandleNode  { get; set; }
-        
+
         public IScale1DDragger.ScaleMode ScaleMode { get; set; }
         
         protected double ScaleCenter { get; set; }
@@ -150,7 +150,8 @@ namespace Veldrid.SceneGraph.Manipulators
 
         public override bool Handle(IPointerInfo pointerInfo, IUiEventAdapter eventAdapter, IUiActionAdapter actionAdapter)
         {
-            if (pointerInfo.Contains(this)) return false;
+            // Check if the pointer is in the nodepath.
+            if (!pointerInfo.Contains(RightHandleNode) && !pointerInfo.Contains(LeftHandleNode)) return false;
 
             switch (eventAdapter.EventType)
             {
@@ -253,7 +254,7 @@ namespace Veldrid.SceneGraph.Manipulators
         internal static double ComputeScale(Vector3 startProjectedPoint, Vector3 projectedPoint, double scaleCenter)
         {
             var denom = startProjectedPoint.X - scaleCenter;
-            var scale = (0 == denom) ? (projectedPoint.X - scaleCenter)/denom : 1.0;
+            var scale = (0 != denom) ? (projectedPoint.X - scaleCenter)/denom : 1.0;
             return scale;
         }
     }

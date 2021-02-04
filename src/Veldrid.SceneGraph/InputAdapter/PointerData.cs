@@ -27,7 +27,7 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         public float GetYNormalized()
         {
-            return (Y - YMin) / (YMax - YMin) * 2.0f - 1.0f;
+            return -(Y - YMin) / (YMax - YMin) * 2.0f + 1.0f;
         }
     }
 

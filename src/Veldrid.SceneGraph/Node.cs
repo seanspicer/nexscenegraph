@@ -77,7 +77,9 @@ namespace Veldrid.SceneGraph
         
         void SetCullCallback(ICallback callback);
         ICallback GetCullCallback();
-        
+
+        void SetEventCallback(ICallback callback);
+        ICallback GetEventCallback();
         
         void AddParent(IGroup parent);
         void RemoveParent(IGroup parent);
@@ -204,25 +206,45 @@ namespace Veldrid.SceneGraph
             get => null != _pipelineState;
         }
 
+        private int _numChildrenRequiringEventTraversal = 0;
         public int GetNumChildrenRequiringEventTraversal()
         {
-            throw new NotImplementedException();
+            return _numChildrenRequiringEventTraversal;
         }
-
-        private int _numChildrentRequiringUpdateTraversal = 0;
-        public int GetNumChildrenRequiringUpdateTraversal()
-        {
-            return _numChildrentRequiringUpdateTraversal;
-        }
-
         public void SetNumChildrenRequiringEventTraversal(int i)
         {
-            throw new NotImplementedException();
+            // No change just return
+            if (_numChildrenRequiringEventTraversal == i) return;
+            
+            // If Event Callback is set, then parents won't be affected by changes
+            // no need to inform them
+            if (null == _eventCallback && _parents.Any())
+            {
+                // Need to pass on changes to parents
+                var delta = 0;
+                if (_numChildrenRequiringEventTraversal > 0) --delta;
+                if (i > 0) ++delta;
+                if (delta != 0)
+                {
+                    foreach (var parent in _parents)
+                    {
+                        var cur = parent.GetNumChildrenRequiringEventTraversal();
+                        parent.SetNumChildrenRequiringEventTraversal(cur+delta);
+                    }
+                }
+            }
+            
+            _numChildrenRequiringEventTraversal = i;
         }
-
+        
+        private int _numChildrenRequiringUpdateTraversal = 0;
+        public int GetNumChildrenRequiringUpdateTraversal()
+        {
+            return _numChildrenRequiringUpdateTraversal;
+        }
         public void SetNumChildrenRequiringUpdateTraversal(int i)
         {            
-            _numChildrentRequiringUpdateTraversal = i;
+            _numChildrenRequiringUpdateTraversal = i;
         }
 
         // Protected/Private fields
@@ -284,6 +306,17 @@ namespace Veldrid.SceneGraph
         public virtual ICallback GetCullCallback()
         {
             return _cullCallback;
+        }
+
+        private ICallback _eventCallback;
+        public void SetEventCallback(ICallback callback)
+        {
+            _eventCallback = callback;
+        }
+
+        public ICallback GetEventCallback()
+        {
+            return _eventCallback;
         }
 
         protected Node()

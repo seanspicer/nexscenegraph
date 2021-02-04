@@ -87,7 +87,8 @@ namespace Veldrid.SceneGraph
 
         void Apply(INode node);
         void Apply(IGeode geode);
-
+        void Apply(IGroup group);
+        
         /// <summary>
         /// Default Implementation for Billboard
         /// </summary>
@@ -96,6 +97,8 @@ namespace Veldrid.SceneGraph
 
         void Apply(ITransform transform);
 
+        void Apply(ISwitch switchNode);
+        
         void Apply(IDrawable drawable);
 
         void Traverse(INode node);
@@ -224,6 +227,14 @@ namespace Veldrid.SceneGraph
         //
         // Default implementation for Geometry Node
         // 
+        public virtual void Apply(IGroup group)
+        {
+            Apply((INode)group);
+        }
+        
+        //
+        // Default implementation for Geometry Node
+        // 
         public virtual void Apply(IGeode geode)
         {
             Apply((INode)geode);
@@ -246,6 +257,14 @@ namespace Veldrid.SceneGraph
             Apply((INode)transform);
         }
 
+        // 
+        // Default implementation for Transform node
+        // 
+        public virtual void Apply(ISwitch switchNode)
+        {
+            Apply((INode)switchNode);
+        }
+        
         public virtual void Apply(IDrawable drawable)
         {
             Apply((INode) drawable);

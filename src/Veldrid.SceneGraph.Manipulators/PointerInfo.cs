@@ -18,12 +18,15 @@ namespace Veldrid.SceneGraph.Manipulators
         void SetMousePosition(float pixelX, float pixelY);
 
         bool Contains(INode node);
+        
+        Vector3 NearPoint { get; }
+        Vector3 FarPoint { get; }
     }
     
     public class PointerInfo : IPointerInfo
     {
-        protected Vector3 NearPoint { get; set; }
-        protected Vector3 FarPoint { get; set; }
+        public Vector3 NearPoint { get; protected set; }
+        public Vector3 FarPoint { get; protected set; }
         protected Vector3 EyeDir { get; set; }
         protected Matrix4x4 Mvpw { get; set; }
         protected Matrix4x4 InverseMvpw { get; set; }
@@ -82,7 +85,18 @@ namespace Veldrid.SceneGraph.Manipulators
         {
             if (null != node && HitList.Any())
             {
-                return HitList.Any(hit => hit.Item1.Any(hitNode => node == hitNode));
+                foreach (var nodePathList in HitList)
+                {
+                    var nodePath = nodePathList.Item1;
+                    foreach (var hitNode in nodePath)
+                    {
+                        if (hitNode == node)
+                        {
+                            return true;
+                        }
+                    }
+                }
+                //return HitList.Any(hit => hit.Item1.Any(hitNode => node == hitNode));
             }
 
             return false;

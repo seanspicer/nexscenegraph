@@ -89,6 +89,18 @@ namespace Veldrid.SceneGraph
             ChildInserted(index);
             
             DirtyBound();
+
+            if (child.GetNumChildrenRequiringEventTraversal() > 0 ||
+                null != child.GetEventCallback())
+            {
+                SetNumChildrenRequiringEventTraversal(GetNumChildrenRequiringEventTraversal()+1);
+            }
+            
+            if (child.GetNumChildrenRequiringUpdateTraversal() > 0 ||
+                null != child.GetUpdateCallback())
+            {
+                SetNumChildrenRequiringUpdateTraversal(GetNumChildrenRequiringUpdateTraversal()+1);
+            }
             
             return true;
         }

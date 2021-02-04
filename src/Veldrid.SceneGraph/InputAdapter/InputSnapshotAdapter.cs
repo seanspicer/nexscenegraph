@@ -117,7 +117,9 @@ namespace Veldrid.SceneGraph.InputAdapter
             else if(IsMouseMove())
             {
                 var adaptedEvent = UiEventAdapter.Create();
-                adaptedEvent.EventType = IUiEventAdapter.EventTypeValue.Drag;
+                adaptedEvent.EventType = IsMouseButtonDown() ? 
+                    IUiEventAdapter.EventTypeValue.Drag : IUiEventAdapter.EventTypeValue.Move;
+                
                 foreach (var button in _currentlyPressedMouseButtons)
                 {
                     switch (button)

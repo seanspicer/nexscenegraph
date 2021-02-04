@@ -100,22 +100,43 @@ namespace Veldrid.SceneGraph.Viewer
         
         protected ConcurrentEventQueue EventQueue { get; set; } = new ConcurrentEventQueue();
 
+        protected IEventVisitor EventVisitor { get; set; } = Veldrid.SceneGraph.InputAdapter.EventVisitor.Create();
+        // TODO - Do this as a mixin?
         public void EventTraversal()
         {
-            while (EventQueue.TryDequeue(out var inputEvent))
+            if (null != EventVisitor && null != SceneData)
             {
-                foreach (var handler in EventHandlers)
+                EventVisitor.ActionAdapter = this;
+                while (EventQueue.TryDequeue(out var inputEvent))
                 {
-                    if (handler is IUiEventHandler uiEventHandler)
+                    if (inputEvent is IUiEventAdapter eventAdapter)
                     {
-                        if (inputEvent is IUiEventAdapter eventAdapter)
-                        {
-                            uiEventHandler.Handle(eventAdapter, this);
-                        }
+                        eventAdapter.PointerDataList.Add(new PointerData(
+                            Camera, 
+                            eventAdapter.X, 
+                            eventAdapter.XMin,
+                            eventAdapter.XMax,
+                            eventAdapter.Y,
+                            eventAdapter.YMin,
+                            eventAdapter.YMax));
                         
+                        EventVisitor.Reset();
+                        EventVisitor.AddEvent(eventAdapter);
+                        SceneData.Accept(EventVisitor);
+
+                        if (false == inputEvent.Handled)
+                        {
+                            foreach (var handler in EventHandlers)
+                            {
+                                if (handler is IUiEventHandler uiEventHandler)
+                                {
+                                    uiEventHandler.Handle(eventAdapter, this);
+                                }
+                            }
+                        }
                     }
-                }
-            } 
+                } 
+            }
         }
 
         public void SetCameraManipulator(ICameraManipulator manipulator, bool resetPosition)
@@ -261,12 +282,17 @@ namespace Veldrid.SceneGraph.Viewer
             uint traversalMask)
         {
             if (null == camera) return false;
-
-            var picker = LineSegmentIntersector.Create(cf, x, y);
+            
+            var startPos = Camera.NormalizedScreenToWorld(new Vector3(x, y, 0.0f)); // Near plane
+            var endPos = Camera.NormalizedScreenToWorld(new Vector3(x, y, 1.0f)); // Far plane
+            var picker = LineSegmentIntersector.Create(startPos, endPos);
+            
+            //var picker = LineSegmentIntersector.Create(cf, x, y);
             var intersectionVisitor = IntersectionVisitor.Create(picker);
+            
             intersectionVisitor.TraversalMask = traversalMask;
             
-            camera.Accept(intersectionVisitor);
+            SceneData.Accept(intersectionVisitor);
             
             if(picker.Intersections.Any())
             {
