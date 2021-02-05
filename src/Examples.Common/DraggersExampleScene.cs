@@ -13,12 +13,12 @@ namespace Examples.Common
         {
             var root = Group.Create();
             
-            var scale1DDragger = Scale1DDragger.Create(IScale1DDragger.ScaleMode.ScaleWithOppositeHandleAsPivot);
-            scale1DDragger.SetupDefaultGeometry();
-            scale1DDragger.HandleEvents = true;
-            var scale1DDraggerXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(-1f, 1.0f, 0.0f));
-            scale1DDraggerXForm.AddChild(scale1DDragger);
-            root.AddChild(scale1DDraggerXForm);
+            // var scale1DDragger = Scale1DDragger.Create(IScale1DDragger.ScaleMode.ScaleWithOppositeHandleAsPivot);
+            // scale1DDragger.SetupDefaultGeometry();
+            // scale1DDragger.HandleEvents = true;
+            // var scale1DDraggerXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(-1f, 1.0f, 0.0f));
+            // scale1DDraggerXForm.AddChild(scale1DDragger);
+            // root.AddChild(scale1DDraggerXForm);
             //
             //
             // var translate1DDragger = Translate1DDragger.Create();
@@ -31,15 +31,16 @@ namespace Examples.Common
             var scale2DDragger = Scale2DDragger.Create(IScale2DDragger.ScaleMode.ScaleWithOppositeHandleAsPivot);
             scale2DDragger.SetupDefaultGeometry();
             scale2DDragger.HandleEvents = true;
-            var scale2DDraggerXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(0f, 0.0f, 0.0f)); //(1f, -1.0f, 0.0f));
+            var scale2DDraggerXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(1f, -1.0f, 0.0f)); //(1f, -1.0f, 0.0f));
             scale2DDraggerXForm.AddChild(scale2DDragger);
             root.AddChild(scale2DDraggerXForm);
-            //
-            // var translate2DDragger = Translate2DDragger.Create();
-            // translate2DDragger.SetupDefaultGeometry();
-            // var translate2DDraggerXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(1f, 1.0f, 0.0f));
-            // translate2DDraggerXForm.AddChild(translate2DDragger);
-            // root.AddChild(translate2DDraggerXForm);
+            
+            var translate2DDragger = Translate2DDragger.Create();
+            translate2DDragger.SetupDefaultGeometry();
+            translate2DDragger.HandleEvents = true;
+            var translate2DDraggerXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(1f, 1.0f, 0.0f));
+            translate2DDraggerXForm.AddChild(translate2DDragger);
+            root.AddChild(translate2DDraggerXForm);
             //
             // var tabPlaneDragger = TabPlaneDragger.Create();
             // tabPlaneDragger.SetupDefaultGeometry();

@@ -2,6 +2,9 @@
 
 using System.Collections.Generic;
 using System.Numerics;
+using SixLabors.Shapes;
+using Veldrid.SceneGraph.InputAdapter;
+using Veldrid.SceneGraph.Manipulators.Commands;
 using Veldrid.SceneGraph.Shaders.Standard;
 using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Util.Shape;
@@ -16,6 +19,8 @@ namespace Veldrid.SceneGraph.Manipulators
     
     public class Translate2DDragger : Base2DDragger, ITranslate2DDragger
     {
+        protected Vector3 StartProjectedPoint { get; set; }
+        
         public new static ITranslate2DDragger Create()
         {
             return new Translate2DDragger(Matrix4x4.Identity);
@@ -127,6 +132,81 @@ namespace Veldrid.SceneGraph.Manipulators
             }
 
             AddChild(xform);
+        }
+        
+        public override bool Handle(IPointerInfo pointerInfo, IUiEventAdapter eventAdapter,
+            IUiActionAdapter actionAdapter)
+        {
+            if (!pointerInfo.Contains(this)) return false;
+            
+            switch (eventAdapter.EventType)
+            {
+                // Pick Start
+                case IUiEventAdapter.EventTypeValue.Push:
+                {
+                    // Get the local to world matrix for this node and set it for the projector
+                    var nodePathToRoot = Util.ComputeNodePathToRoot(this);
+                    var localToWorld = ComputeLocalToWorld(nodePathToRoot);
+                    PlaneProjector.LocalToWorld = localToWorld;
+
+                    if (PlaneProjector.Project(pointerInfo, out var startProjectedPoint))
+                    {
+                        StartProjectedPoint = startProjectedPoint;
+
+                        // Create the motion command
+                        var cmd = TranslateInPlaneCommand.Create(PlaneProjector.Plane);
+                        cmd.Stage = IMotionCommand.MotionStage.Start;
+                        cmd.ReferencePoint = StartProjectedPoint;
+                        cmd.SetLocalToWorldAndWorldToLocal(PlaneProjector.LocalToWorld, PlaneProjector.WorldToLocal);
+
+                        Dispatch(cmd);
+                        
+                        // TODO -- Set material color
+                        
+                        actionAdapter.RequestRedraw();
+                    }
+
+                    return true;
+                }
+                // Pick Move
+                case IUiEventAdapter.EventTypeValue.Drag:
+                {
+                    
+                    if (PlaneProjector.Project(pointerInfo, out var projectedPoint))
+                    {
+                        // Generate command
+                        var cmd = TranslateInPlaneCommand.Create(PlaneProjector.Plane);
+                        cmd.Stage = IMotionCommand.MotionStage.Move;
+                        cmd.SetLocalToWorldAndWorldToLocal(PlaneProjector.LocalToWorld, PlaneProjector.WorldToLocal);
+                        cmd.Translation = projectedPoint - StartProjectedPoint;
+                        cmd.ReferencePoint = StartProjectedPoint;
+                        
+                        Dispatch(cmd);
+                        
+                        actionAdapter.RequestRedraw();
+                        
+                    }
+                    return true;
+                }
+                case IUiEventAdapter.EventTypeValue.Release:
+                {
+                    // Create the motion command
+                    var cmd = TranslateInPlaneCommand.Create(PlaneProjector.Plane);
+                    cmd.Stage = IMotionCommand.MotionStage.Finish;
+                    cmd.ReferencePoint = StartProjectedPoint;
+                    cmd.SetLocalToWorldAndWorldToLocal(PlaneProjector.LocalToWorld, PlaneProjector.WorldToLocal);
+                    
+                    Dispatch(cmd);
+                    
+                    // TODO: Reset Color
+                    
+                    actionAdapter.RequestRedraw();
+
+                    return true;
+                }
+                default:
+                    return false;
+            }
         }
     }
 }

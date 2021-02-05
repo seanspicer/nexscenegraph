@@ -3,16 +3,15 @@ using System.Numerics;
 
 namespace Veldrid.SceneGraph.Manipulators.Commands
 {
-    public interface ITranslateInLineCommand : IMotionCommand
+    public interface ITranslateInLineCommand : ITranslateCommand
     {
         Vector3 LineStart { get; }
         Vector3 LineEnd { get; }
         void SetLine(Vector3 start, Vector3 end);
         
-        Vector3 Translation { get; set; }
     }
 
-    public class TranslateInLineCommand : MotionCommand, ITranslateInLineCommand
+    public class TranslateInLineCommand : TranslateCommand, ITranslateInLineCommand
     {
         private ILineSegment _lineSegment;
 
@@ -46,17 +45,10 @@ namespace Veldrid.SceneGraph.Manipulators.Commands
             callback.Receive(this);
         }
         
-        public override Matrix4x4 GetMotionMatrix()
-        {
-            return Matrix4x4.CreateTranslation(Translation);
-        }
-
         public override IMotionCommand CreateCommandInverse()
         {
             var inverse = TranslateInLineCommand.Create(_lineSegment.Start, _lineSegment.End);
-            inverse.Translation = -Translation;
-            inverse.SetLocalToWorldAndWorldToLocal(GetLocalToWorld(), GetWorldToLocal());
-            inverse.Stage = Stage;
+            SetInverseProperties(inverse);
             return inverse;
         }
     }

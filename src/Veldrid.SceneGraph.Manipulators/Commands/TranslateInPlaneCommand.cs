@@ -3,18 +3,15 @@ using System.Numerics;
 
 namespace Veldrid.SceneGraph.Manipulators.Commands
 {
-    public interface ITranslateInPlaneCommand : IMotionCommand
+    public interface ITranslateInPlaneCommand : ITranslateCommand
     {
         IPlane Plane { get; set; }
-        Vector3 Translation { get; set; }
         Vector3 ReferencePoint { get; set; }
     }
 
-    public class TranslateInPlaneCommand : MotionCommand, ITranslateInPlaneCommand
+    public class TranslateInPlaneCommand : TranslateCommand, ITranslateInPlaneCommand
     {
         public IPlane Plane { get; set; }
-        
-        public Vector3 Translation { get; set; }
         
         public Vector3 ReferencePoint { get; set; }
         
@@ -25,7 +22,7 @@ namespace Veldrid.SceneGraph.Manipulators.Commands
 
         protected TranslateInPlaneCommand(IPlane plane)
         {
-            
+            Plane = plane;
         }
         
         public override void Accept(IConstraint constraint)
@@ -38,13 +35,11 @@ namespace Veldrid.SceneGraph.Manipulators.Commands
             callback.Receive(this);
         }
         
-        public override Matrix4x4 GetMotionMatrix()
-        {
-            throw new System.NotImplementedException();
-        }
         public override IMotionCommand CreateCommandInverse()
         {
-            throw new System.NotImplementedException();
+            var inverse = TranslateInPlaneCommand.Create(Plane);
+            SetInverseProperties(inverse);
+            return inverse;
         }
     }
 }

@@ -37,11 +37,11 @@ namespace Veldrid.SceneGraph.Manipulators
         public Vector2 TopRightHandlePosition { get; set; }
         public Vector2 BottomRightHandlePosition { get; set; }
 
-        public Vector3 StartProjectedPoint { get; set; }
-        public Vector2 ScaleCenter { get; set; }
+        protected Vector3 StartProjectedPoint { get; set; }
+        protected Vector2 ScaleCenter { get; set; }
         
-        public Vector2 ReferencePoint { get; set; }
-        public Vector2 MinScale { get; set; } = new Vector2(0.001f, 0.001f);
+        protected Vector2 ReferencePoint { get; set; }
+        protected Vector2 MinScale { get; set; } = new Vector2(0.001f, 0.001f);
         
         public INode TopLeftHandleNode     { get; set; }
         public INode BottomLeftHandleNode  { get; set; }
