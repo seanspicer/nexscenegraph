@@ -281,9 +281,16 @@ namespace Veldrid.SceneGraph.Viewer
 
                 //var inputStateSnap = InputStateSnapshot.Create(inputSnapshot, _window.Width, _window.Height, Camera.ProjectionMatrix, Camera.ViewMatrix);
 
+                if (inputSnapshot.MousePosition.X == 0 || inputSnapshot.MousePosition.Y == 0)
+                {
+                    Console.WriteLine($"Mouse Position = [{inputSnapshot.MousePosition.X}, {inputSnapshot.MousePosition.Y}]");
+                }
+                
                 var events = InputSnapshotAdapter.Adapt(inputSnapshot, _window.Width, _window.Height);
                 foreach (var evt in events)
                 {
+                    
+                    
                     _viewerInputEvents.OnNext(evt);
                 }
                 

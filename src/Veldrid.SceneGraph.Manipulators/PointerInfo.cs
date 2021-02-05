@@ -33,6 +33,9 @@ namespace Veldrid.SceneGraph.Manipulators
         
         protected Matrix4x4 Mvp { get; set; }
         protected Matrix4x4 InverseMvp { get; set; }
+        
+        protected float PixelX { get; set; }
+        protected float PixelY { get; set; }
 
         //private List<Tuple<NodePath, Vector3>> _hitList = new List<Tuple<NodePath, Vector3>>();
         public IList<Tuple<NodePath, Vector3>> HitList { get; set; }= new List<Tuple<NodePath, Vector3>>();//HitList => _hitList;
@@ -81,6 +84,8 @@ namespace Veldrid.SceneGraph.Manipulators
 
         public void SetMousePosition(float pixelX, float pixelY)
         {
+            PixelX = pixelX;
+            PixelY = pixelY;
             ProjectWindowXyIntoObject(new Vector2(pixelX, pixelY));
         }
 

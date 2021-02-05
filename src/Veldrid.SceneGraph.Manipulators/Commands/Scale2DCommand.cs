@@ -1,5 +1,6 @@
 
 using System.Numerics;
+using Veldrid.SceneGraph.Util;
 
 namespace Veldrid.SceneGraph.Manipulators.Commands
 {
@@ -18,14 +19,34 @@ namespace Veldrid.SceneGraph.Manipulators.Commands
         public Vector2 ReferencePoint { get; set; } = Vector2.Zero;
         public Vector2 MinScale { get; set; } = new Vector2(0.001f, 0.001f);
         
+        public static IScale2DCommand Create()
+        {
+            return new Scale2DCommand();
+        }
+
+        protected Scale2DCommand()
+        {
+            
+        }
+        
         public override Matrix4x4 GetMotionMatrix()
         {
-            throw new System.NotImplementedException();
+            return Matrix4x4.CreateTranslation((float) -ScaleCenter.X, 0.0f, -ScaleCenter.Y)
+                .PostMultiply(Matrix4x4.CreateScale((float) Scale.X, 1.0f, Scale.Y))
+                .PostMultiply(Matrix4x4.CreateTranslation((float) ScaleCenter.X, 0.0f, ScaleCenter.Y));
+
         }
 
         public override IMotionCommand CreateCommandInverse()
         {
-            throw new System.NotImplementedException();
+            var inverse = Scale2DCommand.Create();
+            inverse.ScaleCenter = ScaleCenter;
+            inverse.ReferencePoint = ReferencePoint;
+            inverse.Stage = Stage;
+            inverse.MinScale = MinScale;
+            inverse.Scale = new Vector2(1.0f / Scale.X, 1.0f / Scale.Y);
+            inverse.SetLocalToWorldAndWorldToLocal(GetLocalToWorld(), GetWorldToLocal());
+            return inverse;
         }
         
         public override void Accept(IConstraint constraint)
