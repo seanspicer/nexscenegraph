@@ -48,12 +48,16 @@ namespace Veldrid.SceneGraph.Manipulators.Commands
         
         public override Matrix4x4 GetMotionMatrix()
         {
-            throw new System.NotImplementedException();
+            return Matrix4x4.CreateTranslation(Translation);
         }
 
         public override IMotionCommand CreateCommandInverse()
         {
-            throw new System.NotImplementedException();
+            var inverse = TranslateInLineCommand.Create(_lineSegment.Start, _lineSegment.End);
+            inverse.Translation = -Translation;
+            inverse.SetLocalToWorldAndWorldToLocal(GetLocalToWorld(), GetWorldToLocal());
+            inverse.Stage = Stage;
+            return inverse;
         }
     }
 }

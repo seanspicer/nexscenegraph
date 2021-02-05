@@ -1,7 +1,10 @@
 
 
 using System.Collections.Generic;
+using System.Net.Security;
 using System.Numerics;
+using Veldrid.SceneGraph.InputAdapter;
+using Veldrid.SceneGraph.Manipulators.Commands;
 using Veldrid.SceneGraph.Shaders.Standard;
 using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Util.Shape;
@@ -16,6 +19,8 @@ namespace Veldrid.SceneGraph.Manipulators
     
     public class Translate1DDragger : Base1DDragger, ITranslate1DDragger
     {
+        protected Vector3 StartProjectedPoint { get; set; }
+        
         public new static ITranslate1DDragger Create()
         {
             return new Translate1DDragger(Matrix4x4.Identity);
@@ -106,6 +111,78 @@ namespace Veldrid.SceneGraph.Manipulators
                 AddChild(geode);
             }
         }
-        
+
+        public override bool Handle(IPointerInfo pointerInfo, IUiEventAdapter eventAdapter,
+            IUiActionAdapter actionAdapter)
+        {
+            // Check if the pointer is in the nodepath.
+            if (!pointerInfo.Contains(this)) return false;
+            
+            switch (eventAdapter.EventType)
+            {
+                // Pick Start
+                case IUiEventAdapter.EventTypeValue.Push:
+                {
+                    // Get the local to world matrix for this node and set it for the projector
+                    var nodePathToRoot = Util.ComputeNodePathToRoot(this);
+                    var localToWorld = ComputeLocalToWorld(nodePathToRoot);
+                    LineProjector.LocalToWorld = localToWorld;
+
+                    if (LineProjector.Project(pointerInfo, out var startProjectedPoint))
+                    {
+                        StartProjectedPoint = startProjectedPoint;
+                        
+                        var cmd = TranslateInLineCommand.Create(LineProjector.LineStart, LineProjector.LineEnd);
+
+                        cmd.Stage = IMotionCommand.MotionStage.Start;
+                        cmd.SetLocalToWorldAndWorldToLocal(LineProjector.LocalToWorld, LineProjector.WorldToLocal);
+                        
+                        Dispatch(cmd);
+                        
+                        // TODO -- Set material color
+                        
+                        actionAdapter.RequestRedraw();
+                    }
+
+                    return true;
+                }
+                // Pick Move
+                case IUiEventAdapter.EventTypeValue.Drag:
+                {
+                    if (LineProjector.Project(pointerInfo, out var projectedPoint))
+                    {
+                        // Create the motion command
+                        var cmd = TranslateInLineCommand.Create(LineProjector.LineStart, LineProjector.LineEnd);
+                        cmd.Stage = IMotionCommand.MotionStage.Move;
+                        cmd.SetLocalToWorldAndWorldToLocal(LineProjector.LocalToWorld, LineProjector.WorldToLocal);
+                        cmd.Translation = projectedPoint - StartProjectedPoint;
+
+                        Dispatch(cmd);
+                        
+                        actionAdapter.RequestRedraw();
+                        
+                    }
+                    return true;
+                }
+                case IUiEventAdapter.EventTypeValue.Release:
+                {
+                    // Create the motion command
+                    var cmd = TranslateInLineCommand.Create(LineProjector.LineStart, LineProjector.LineEnd);
+                    cmd.Stage = IMotionCommand.MotionStage.Finish;
+                    cmd.SetLocalToWorldAndWorldToLocal(LineProjector.LocalToWorld, LineProjector.WorldToLocal);
+                    
+                    Dispatch(cmd);
+                    
+                    // TODO: Reset Color
+                    
+                    actionAdapter.RequestRedraw();
+
+                    return true;
+                }
+                default:
+                    return false;
+            }
+        }
+
     }
 }
