@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Util;
 
 namespace Veldrid.SceneGraph.Manipulators
@@ -28,6 +29,7 @@ namespace Veldrid.SceneGraph.Manipulators
                 var planeDragger = TabPlaneDragger.Create();
                 PlaneDraggers.Add(planeDragger);
                 AddChild(planeDragger);
+                DraggerList.Add(planeDragger);
             }
 
             PlaneDraggers.ElementAt(0).Matrix = Matrix4x4.CreateTranslation(0.0f, 0.5f, 0.0f);
@@ -57,6 +59,11 @@ namespace Veldrid.SceneGraph.Manipulators
                 PlaneDraggers.ElementAt(5).Matrix = Matrix4x4.CreateFromQuaternion(quat)
                     .PostMultiply(Matrix4x4.CreateTranslation(0.5f, 0.0f, 0.0f));
             }
+            
+            foreach (var dragger in DraggerList)
+            {
+                dragger.ParentDragger = this;
+            }
         }
 
         public override void SetupDefaultGeometry()
@@ -66,5 +73,7 @@ namespace Veldrid.SceneGraph.Manipulators
                 dragger.SetupDefaultGeometry();
             }
         }
+
+
     }
 }

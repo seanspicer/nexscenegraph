@@ -51,7 +51,7 @@ namespace Veldrid.SceneGraph.Manipulators
         public override bool Handle(IPointerInfo pointerInfo, IUiEventAdapter eventAdapter,
             IUiActionAdapter actionAdapter)
         {
-            if (pointerInfo.Contains(this)) return false;
+            if (!pointerInfo.Contains(this)) return false;
 
             return DraggerList.Any(dragger => dragger.Handle(pointerInfo, eventAdapter, actionAdapter));
         }
