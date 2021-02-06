@@ -15,7 +15,7 @@ namespace Veldrid.SceneGraph.Manipulators
     public class CompositeDragger : Dragger, ICompositeDragger
     {
         protected List<IDragger> DraggerList { get; set; } = new List<IDragger>();
-
+        
         public override IDragger ParentDragger
         {
             get => base.ParentDragger;

@@ -2,7 +2,9 @@
 
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using SixLabors.ImageSharp.Processing;
+using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Shaders.Standard;
 using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.VertexTypes;
@@ -32,18 +34,27 @@ namespace Veldrid.SceneGraph.Manipulators
         {
             CornerScaleDragger = Scale2DDragger.Create(IScale2DDragger.ScaleMode.ScaleWithOppositeHandleAsPivot);
             AddChild(CornerScaleDragger);
+            DraggerList.Add(CornerScaleDragger);
 
             HorizontalEdgeScaleDragger =
                 Scale1DDragger.Create(IScale1DDragger.ScaleMode.ScaleWithOppositeHandleAsPivot);
             AddChild(HorizontalEdgeScaleDragger);
-
+            DraggerList.Add(HorizontalEdgeScaleDragger);
+            
             VerticalEdgeScaleDragger = 
                 Scale1DDragger.Create(IScale1DDragger.ScaleMode.ScaleWithOppositeHandleAsPivot);
             AddChild(VerticalEdgeScaleDragger);
+            DraggerList.Add(VerticalEdgeScaleDragger);
 
             TranslateDragger = TranslatePlaneDragger.Create();
             TranslateDragger.SetColor(System.Drawing.Color.Gray);
             AddChild(TranslateDragger);
+            DraggerList.Add(TranslateDragger);
+
+            foreach (var dragger in DraggerList)
+            {
+                dragger.ParentDragger = this;
+            }
         }
 
         public override void SetupDefaultGeometry()
@@ -141,7 +152,7 @@ namespace Veldrid.SceneGraph.Manipulators
                             cornerScaleDragger.TopLeftHandlePosition.Y), handleNode, handleScaleFactor);
 
                 cornerScaleDragger.AddChild(handleScene);
-                cornerScaleDragger.TopLeftHandleNode = cornerScaleDragger;
+                cornerScaleDragger.TopLeftHandleNode = handleScene;
             }
             
             // Create bottom left box
@@ -152,7 +163,7 @@ namespace Veldrid.SceneGraph.Manipulators
                             cornerScaleDragger.BottomLeftHandlePosition.Y), handleNode, handleScaleFactor);
 
                 cornerScaleDragger.AddChild(handleScene);
-                cornerScaleDragger.BottomLeftHandleNode = cornerScaleDragger;
+                cornerScaleDragger.BottomLeftHandleNode = handleScene;
             }
             
             // Create bottom right box
@@ -163,7 +174,7 @@ namespace Veldrid.SceneGraph.Manipulators
                             cornerScaleDragger.BottomRightHandlePosition.Y), handleNode, handleScaleFactor);
 
                 cornerScaleDragger.AddChild(handleScene);
-                cornerScaleDragger.BottomRightHandleNode = cornerScaleDragger;
+                cornerScaleDragger.BottomRightHandleNode = handleScene;
             }
             
             // Create top right box
@@ -174,7 +185,7 @@ namespace Veldrid.SceneGraph.Manipulators
                             cornerScaleDragger.TopRightHandlePosition.Y), handleNode, handleScaleFactor);
 
                 cornerScaleDragger.AddChild(handleScene);
-                cornerScaleDragger.TopRightHandleNode = cornerScaleDragger;
+                cornerScaleDragger.TopRightHandleNode = handleScene;
             }
         }
 
@@ -346,6 +357,35 @@ namespace Veldrid.SceneGraph.Manipulators
 
                 translate2DDragger.AddChild(geode);
             }
+        }
+
+        public override bool Handle(IPointerInfo pointerInfo, IUiEventAdapter eventAdapter,
+            IUiActionAdapter actionAdapter)
+        {
+            if (!pointerInfo.Contains(this)) return false;
+            
+            // Since the translate plane and the handleNode lie on the same plane the hit could've been on either one. But we
+            // need to handle the scaling draggers before the translation. Check if the node path has the scaling nodes else
+            // check for the scaling nodes in next hit.
+            if (CornerScaleDragger.Handle(pointerInfo, eventAdapter, actionAdapter)) return true;
+            if (HorizontalEdgeScaleDragger.Handle(pointerInfo, eventAdapter, actionAdapter)) return true;
+            if (VerticalEdgeScaleDragger.Handle(pointerInfo, eventAdapter, actionAdapter)) return true;
+
+             var nextPointer = Veldrid.SceneGraph.Manipulators.PointerInfo.Create(pointerInfo);
+             nextPointer.Next();
+            
+             // Run through the other hits to clear them
+             while (false == nextPointer.Completed())
+             {
+                 if (CornerScaleDragger.Handle(nextPointer, eventAdapter, actionAdapter)) return true;
+                 if (HorizontalEdgeScaleDragger.Handle(nextPointer, eventAdapter, actionAdapter)) return true;
+                 if (VerticalEdgeScaleDragger.Handle(nextPointer, eventAdapter, actionAdapter)) return true;
+                 nextPointer.Next();
+             }
+            
+             if (TranslateDragger.Handle(pointerInfo, eventAdapter, actionAdapter)) return true;
+
+            return false;
         }
     }
 }

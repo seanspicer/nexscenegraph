@@ -21,13 +21,17 @@ namespace Veldrid.SceneGraph.Manipulators
         
         Vector3 NearPoint { get; }
         Vector3 FarPoint { get; }
+        Vector3 EyeDir { get; }
+
+        void Next();
+        bool Completed();
     }
     
     public class PointerInfo : IPointerInfo
     {
         public Vector3 NearPoint { get; protected set; }
         public Vector3 FarPoint { get; protected set; }
-        protected Vector3 EyeDir { get; set; }
+        public Vector3 EyeDir { get; protected set; }
         protected Matrix4x4 Mvpw { get; set; }
         protected Matrix4x4 InverseMvpw { get; set; }
         
@@ -45,9 +49,27 @@ namespace Veldrid.SceneGraph.Manipulators
             return new PointerInfo();
         }
 
+        public static IPointerInfo Create(IPointerInfo pointerInfo)
+        {
+            return new PointerInfo();
+        }
+        
         protected PointerInfo()
         {
             Reset();
+        }
+
+        protected PointerInfo(IPointerInfo other)
+        {
+            foreach (var elt in other.HitList)
+            {
+                HitList.Add(elt);
+            }
+
+            NearPoint = other.NearPoint;
+            FarPoint = other.FarPoint;
+            EyeDir = other.EyeDir;
+            
         }
         
         public void Reset()
@@ -56,6 +78,19 @@ namespace Veldrid.SceneGraph.Manipulators
             SetCamera(null);
         }
 
+        public void Next()
+        {
+            if(HitList.Any())
+            {
+                HitList.RemoveAt(0);
+            }
+        }
+
+        public bool Completed()
+        {
+            return !HitList.Any();
+        }
+        
         public void SetCamera(ICamera camera)
         {
             if (null != camera)
