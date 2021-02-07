@@ -244,6 +244,7 @@ namespace Veldrid.SceneGraph.Util
             return true;
         }
 
+        
         public override void Leave()
         {
             // Nothing Required for LineSegmentIntersector

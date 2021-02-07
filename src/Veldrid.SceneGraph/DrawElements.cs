@@ -99,5 +99,15 @@ namespace Veldrid.SceneGraph
 
             return dist / count;
         }
+
+        public override void Accept(IPrimitiveFunctor functor)
+        {
+            functor.Draw(PrimitiveTopology, 
+                _indexCount, 
+                _instanceCount, 
+                _indexStart, 
+                _vertexOffset, 
+                _instanceStart);
+        }
     }
 }

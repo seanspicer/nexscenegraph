@@ -33,6 +33,10 @@ namespace Veldrid.SceneGraph
         IBoundingBox GetBoundingBox();
         bool ComputeMatrix(ref Matrix4x4 computedMatrix, IState state);
         public void UpdateDeviceBuffers(GraphicsDevice device);
+        bool Supports(IPrimitiveFunctor functor);
+        void Accept(IPrimitiveFunctor functor);
+        bool Supports(IPrimitiveIndexFunctor functor);
+        void Accept(IPrimitiveIndexFunctor functor);
     }
     
     public abstract class Drawable : Node, IDrawable
@@ -139,5 +143,10 @@ namespace Veldrid.SceneGraph
         public abstract DeviceBuffer GetIndexBufferForDevice(GraphicsDevice device);
 
         public abstract void UpdateDeviceBuffers(GraphicsDevice device);
+
+        public virtual bool Supports(IPrimitiveFunctor functor) { return false; }
+        public virtual void Accept(IPrimitiveFunctor functor) {}
+        public virtual bool Supports(IPrimitiveIndexFunctor functor) { return false; }
+        public virtual void Accept(IPrimitiveIndexFunctor functor) {}
     }
 }

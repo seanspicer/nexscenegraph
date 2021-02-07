@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Veldrid;
@@ -165,5 +166,19 @@ namespace Veldrid.SceneGraph
                 InstanceVertexBuffer.UpdateDeviceBuffers(device);
             }
         }
+        
+        public override bool Supports(IPrimitiveFunctor functor) { return true; }
+
+        public override void Accept(IPrimitiveFunctor functor)
+        {
+            functor.VertexData = VertexData.Cast<IPrimitiveElement>().ToArray();
+
+            foreach (var pSet in PrimitiveSets)
+            {
+                pSet.Accept(functor);
+            }
+        }
+        public override bool Supports(IPrimitiveIndexFunctor functor) { return true; }
+        public override void Accept(IPrimitiveIndexFunctor functor) {}
     }
 }

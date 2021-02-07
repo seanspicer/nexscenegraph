@@ -29,6 +29,7 @@ namespace Veldrid.SceneGraph
         IBoundingBox GetBoundingBox();
         float GetEyePointDistance(Vector3 eyeLocal);
         void Draw(CommandList commandList);
+        void Accept(IPrimitiveFunctor functor);
     }
     
     public abstract class PrimitiveSet : Object, IPrimitiveSet
@@ -101,6 +102,8 @@ namespace Veldrid.SceneGraph
         protected abstract IBoundingBox ComputeBoundingBox();
 
         protected abstract float ComputeDistance(Vector3 point);
+
+        public virtual void Accept(IPrimitiveFunctor functor) {}
 
     }
 }
