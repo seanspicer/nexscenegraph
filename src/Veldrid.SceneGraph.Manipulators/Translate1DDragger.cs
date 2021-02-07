@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Net.Security;
 using System.Numerics;
+using Veldrid.SceneGraph.AssetPrimitives;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Manipulators.Commands;
 using Veldrid.SceneGraph.Shaders.Standard;
@@ -14,20 +15,32 @@ namespace Veldrid.SceneGraph.Manipulators
 {
     public interface ITranslate1DDragger : IDragger
     {
-        
+        public bool CheckForNodeInPath { get; set; }
     }
     
     public class Translate1DDragger : Base1DDragger, ITranslate1DDragger
     {
         protected Vector3 StartProjectedPoint { get; set; }
+
+        public bool CheckForNodeInPath { get; set; } = true;
         
         public new static ITranslate1DDragger Create()
         {
             return new Translate1DDragger(Matrix4x4.Identity);
         }
         
+        public new static ITranslate1DDragger Create(Vector3 s, Vector3 e)
+        {
+            return new Translate1DDragger(s, e, Matrix4x4.Identity);
+        }
+        
         protected Translate1DDragger(Matrix4x4 matrix) : base(matrix)
         {
+        }
+        
+        protected Translate1DDragger(Vector3 s, Vector3 e, Matrix4x4 matrix) : base(s,e, Matrix4x4.Identity)
+        {
+            
         }
         
         public override void SetupDefaultGeometry()
@@ -115,9 +128,12 @@ namespace Veldrid.SceneGraph.Manipulators
         public override bool Handle(IPointerInfo pointerInfo, IUiEventAdapter eventAdapter,
             IUiActionAdapter actionAdapter)
         {
-            // Check if the pointer is in the nodepath.
-            if (!pointerInfo.Contains(this)) return false;
-            
+            if (CheckForNodeInPath)
+            {
+                // Check if the pointer is in the nodepath.
+                if (!pointerInfo.Contains(this)) return false;
+            }
+
             switch (eventAdapter.EventType)
             {
                 // Pick Start

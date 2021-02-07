@@ -14,12 +14,14 @@ namespace Veldrid.SceneGraph.Manipulators
 {
     public interface ITranslate2DDragger : IDragger
     {
-        
+        public bool CheckForNodeInPath { get; set; }
     }
     
     public class Translate2DDragger : Base2DDragger, ITranslate2DDragger
     {
         protected Vector3 StartProjectedPoint { get; set; }
+
+        public bool CheckForNodeInPath { get; set; } = true;
         
         public new static ITranslate2DDragger Create()
         {
@@ -137,7 +139,10 @@ namespace Veldrid.SceneGraph.Manipulators
         public override bool Handle(IPointerInfo pointerInfo, IUiEventAdapter eventAdapter,
             IUiActionAdapter actionAdapter)
         {
-            if (!pointerInfo.Contains(this)) return false;
+            if (CheckForNodeInPath)
+            {
+                if (!pointerInfo.Contains(this)) return false;
+            }
             
             switch (eventAdapter.EventType)
             {
