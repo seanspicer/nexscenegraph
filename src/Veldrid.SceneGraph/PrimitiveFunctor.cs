@@ -14,6 +14,10 @@
 // limitations under the License.
 //
 
+using System;
+using System.Numerics;
+using Vulkan.Win32;
+
 namespace Veldrid.SceneGraph
 {
     public interface IPrimitiveFunctor
@@ -40,6 +44,42 @@ namespace Veldrid.SceneGraph
             int vertexOffset, 
             uint instanceStart);
     }
-    
-    
+
+    public interface IPrimitiveFunctorDelegate
+    {
+        void Handle(Vector3 v0, Vector3 v1, Vector3 v2);
+    }
+
+    public class TemplatePrimitiveFunctor : PrimitiveFunctor
+    {
+        private IPrimitiveFunctorDelegate _pfd;
+
+        public IPrimitiveFunctor Create(IPrimitiveFunctorDelegate pfd)
+        {
+            return new TemplatePrimitiveFunctor(pfd);
+        }
+
+        protected TemplatePrimitiveFunctor(IPrimitiveFunctorDelegate pfd)
+        {
+            _pfd = pfd;
+        }
+        
+        public override void Draw(PrimitiveTopology topology, uint indexCount, uint instanceCount, uint indexStart, int vertexOffset,
+            uint instanceStart)
+        {
+            if (null == _pfd) return;
+
+            switch (topology)
+            {
+                case PrimitiveTopology.TriangleList:
+                {
+                    throw new NotImplementedException("TODO: Implement me!");
+                    break;
+                }
+                    
+                default:
+                    break;
+            }
+        }
+    }
 }

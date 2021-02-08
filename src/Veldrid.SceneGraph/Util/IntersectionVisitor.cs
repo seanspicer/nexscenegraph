@@ -20,6 +20,11 @@ using System.Numerics;
 
 namespace Veldrid.SceneGraph.Util
 {
+    public interface IIntersectionVisitor : INodeVisitor
+    {
+        Matrix4x4 GetModelMatrix();
+    }
+    
     public class IntersectionVisitor : NodeVisitor, IIntersectionVisitor
     {
         private Stack<IIntersector> _intersectorStack = new Stack<IIntersector>();

@@ -43,6 +43,7 @@ namespace Veldrid.SceneGraph.Util
         bool Enter(INode node);
         void Leave();
         void Reset();
+        bool ReachedLimit();
     }
     
     /// <summary>
@@ -70,6 +71,13 @@ namespace Veldrid.SceneGraph.Util
         public abstract void Leave();
 
         public abstract void Reset();
+
+        public bool ReachedLimit()
+        {
+            return IntersectionLimit == IIntersector.IntersectionLimitModes.LimitOne && ContainsIntersections();
+        }
+
+        protected abstract bool ContainsIntersections();
 
     }
 }

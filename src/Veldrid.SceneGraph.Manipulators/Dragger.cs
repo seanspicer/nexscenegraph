@@ -237,7 +237,7 @@ namespace Veldrid.SceneGraph.Manipulators
                                 foreach (var intersection in intersections)
                                 {
                                     PointerInfo.HitList.Add(new Tuple<NodePath, Vector3>(intersection.NodePath,
-                                        intersection.IntersectionPoint));
+                                        intersection.LocalIntersectionPoint));
                                 }
 
                                 foreach (var node in PointerInfo.HitList.First().Item1)
