@@ -281,7 +281,7 @@ namespace Veldrid.SceneGraph.Util
             var normal = Vector3.Normalize(Vector3.Cross(E1,E2));
 
             LineSegmentIntersector.Intersection hit = new LineSegmentIntersector.Intersection();
-            hit.Start = _start;
+            hit.Start = _settings._lineSegmentIntersector.Start;
             hit.Ratio = remap_ratio;
             hit.Matrix = _settings._iv.GetModelMatrix();
             hit.NodePath = _settings._iv.NodePath.Copy();
