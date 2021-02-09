@@ -31,8 +31,13 @@ namespace Veldrid.SceneGraph.Util
         public Vector3[] _vertices { get; set; } = null;
         public bool _limitOneIntersection { get; set; } = false;
     }
+
+    internal interface IIntersectFunctor
+    {
+        
+    }
     
-    internal class LineSegmentIntersectFunctorDelegate : IPrimitiveFunctorDelegate
+    internal class LineSegmentIntersectFunctorDelegate : IPrimitiveFunctorDelegate, IIntersectFunctor
     {
         public Settings _settings { get; set; } = null;
         public uint _primitiveIndex { get; set; } = 0;
@@ -47,7 +52,7 @@ namespace Veldrid.SceneGraph.Util
         public Vector3 _d_invZ { get; set; }
         public bool _hit { get; set; } = false;
 
-        void set(Vector3 s, Vector3 e, Settings settings)
+        internal void Set(Vector3 s, Vector3 e, Settings settings)
         {
             _settings = settings;
             _start = s;
@@ -195,7 +200,7 @@ namespace Veldrid.SceneGraph.Util
             _startEndStack.Pop();
         }
         
-        public void Handle(Vector3 v0, Vector3 v1, Vector3 v2)
+        public void Handle(Vector3 v0, Vector3 v1, Vector3 v2, bool treatVertexDataAsTemporary)
         {
             Intersect(v0, v1, v2);
             ++_primitiveIndex;
@@ -276,15 +281,15 @@ namespace Veldrid.SceneGraph.Util
             var normal = Vector3.Normalize(Vector3.Cross(E1,E2));
 
             LineSegmentIntersector.Intersection hit = new LineSegmentIntersector.Intersection();
+            hit.Start = _start;
             hit.Ratio = remap_ratio;
             hit.Matrix = _settings._iv.GetModelMatrix();
-            hit.NodePath = _settings._iv.NodePath;
+            hit.NodePath = _settings._iv.NodePath.Copy();
             hit.Drawable = _settings._drawable;
             hit.PrimitiveIndex = _primitiveIndex;
-
             hit.LocalIntersectionPoint = inVal;
             hit.LocalIntersectionNormal = normal;
-
+            
             if (null != _settings._vertices)
             {
                 var first = (_settings._vertices.First());
@@ -343,9 +348,31 @@ namespace Veldrid.SceneGraph.Util
     {
         public class Intersection : IComparable<ILineSegmentIntersector.IIntersection>, ILineSegmentIntersector.IIntersection
         {
-            public Vector3 _start;
-            
-            public Vector3 LocalIntersectionPoint { get; internal set; }
+            private Vector3 _start;
+
+            public Vector3 Start
+            {
+                get => _start;
+                set
+                {
+                    _start = value;
+                    var worldStart = Matrix.PreMultiply(_start);
+                    StartToIntersectionDist = Vector3.Distance(worldStart, WorldIntersectionPoint);
+                }
+            }
+
+            private Vector3 _localIntersectionPoint = Vector3.Zero;
+            public Vector3 LocalIntersectionPoint
+            {
+                get => _localIntersectionPoint;
+                internal set
+                {
+                    _localIntersectionPoint = value;
+                    var worldStart = Matrix.PreMultiply(_start);
+                    StartToIntersectionDist = Vector3.Distance(worldStart, WorldIntersectionPoint);
+                }
+            }
+
             public Vector3 LocalIntersectionNormal { get; internal set; }
             
             public IDrawable Drawable { get; internal set; }
@@ -355,7 +382,7 @@ namespace Veldrid.SceneGraph.Util
 
             public NodePath NodePath { get; internal set; }
             
-            public float StartToIntersectionDist { get; private set; }
+            public float StartToIntersectionDist { get; internal set; }
 
             public float Ratio { get; set; }
             public uint PrimitiveIndex { get; set; }
@@ -501,27 +528,53 @@ namespace Veldrid.SceneGraph.Util
         public override void Intersect(IIntersectionVisitor iv, IDrawable drawable)
         {
             if (ReachedLimit()) return;
-            
-            if(drawable.CullingActive && !IntersectAndClip(Start, End, drawable.GetBoundingBox()))
+
+            var s = Start;
+            var e = End;
+            if(drawable.CullingActive && !IntersectAndClip(ref s, ref e, drawable.GetBoundingBox()))
             {
                 return;
             }
             
-            Intersect(iv, drawable, Start, End);
-            
-            // var bb = drawable.GetBoundingBox();
-            // if (drawable.IsCullingActive && Intersects(BoundingSphere.Create(drawable.GetBoundingBox())))
-            // {
-            //     var intersection = new Intersection(Start, bb.Center, drawable, iv.NodePath.Copy());
-            //     InsertIntersection(intersection);
-            // }
+            Intersect(iv, drawable, s, e);
         }
 
         protected void Intersect(IIntersectionVisitor iv, IDrawable drawable, Vector3 s, Vector3 e)
         {
             if (ReachedLimit()) return;
 
-            throw new NotImplementedException();
+            Veldrid.SceneGraph.Util.Settings settings = new Settings();
+            settings._lineSegmentIntersector = this;
+            settings._iv = iv;
+            settings._drawable = drawable;
+            settings._limitOneIntersection = (IntersectionLimit == IIntersector.IntersectionLimitModes.LimitOnePerDrawable || IntersectionLimit == IIntersector.IntersectionLimitModes.LimitOne);
+
+            if (drawable is IGeometry geometry)
+            {
+                settings._vertices = geometry.GetVertexArray();
+            }
+
+            var kdTree = iv.UseKdTreeWhenAvailable ? (drawable.Shape as IKdTree) : null;
+
+            if (PrecisionHint == IIntersector.PrecisionHintTypes.UseDoubleCalculations)
+            {
+                throw new NotImplementedException();
+            }
+            else
+            {
+                var intersectFunctor = new LineSegmentIntersectFunctorDelegate();
+                intersectFunctor.Set(s, e, settings);
+                var intersectPrimitiveFunctor = TemplatePrimitiveFunctor.Create(intersectFunctor);
+
+                if (null != kdTree)
+                {
+                    kdTree.Intersect(intersectFunctor, kdTree.GetNode(0));
+                }
+                else
+                {
+                    drawable.Accept(intersectPrimitiveFunctor);
+                }
+            }
         }
 
         public override bool Enter(INode node)
@@ -584,9 +637,137 @@ namespace Veldrid.SceneGraph.Util
             return true;
         }
 
-        protected bool IntersectAndClip(Vector3 s, Vector3 e, IBoundingBox bbInput)
+        protected bool IntersectAndClip(ref Vector3 s, ref Vector3 e, IBoundingBox bbInput)
         {
-            throw new NotImplementedException();
+            var bb_min = bbInput.Min;
+            var bb_max = bbInput.Max;
+
+            var epsilon = 1e-5f;
+
+            // compare s and e against the xMin to xMax range of bb.
+            if (s.X<=e.X)
+            {
+                // trivial reject of segment wholely outside.
+                if (e.X<bb_min.X) return false;
+                if (s.X>bb_max.X) return false;
+
+                if (s.X<bb_min.X)
+                {
+                    // clip s to xMin.
+                    var r = (bb_min.X-s.X)/(e.X-s.X) - epsilon;
+                    if (r>0.0) s = s + (e-s)*r;
+                }
+
+                if (e.X>bb_max.X)
+                {
+                    // clip e to xMax.
+                    var r = (bb_max.X-s.X)/(e.X-s.X) + epsilon;
+                    if (r<1.0) e = s+(e-s)*r;
+                }
+            }
+            else
+            {
+                if (s.X<bb_min.X) return false;
+                if (e.X>bb_max.X) return false;
+
+                if (e.X<bb_min.X)
+                {
+                    // clip e to xMin.
+                    var r = (bb_min.X-e.X)/(s.X-e.X) - epsilon;
+                    if (r>0.0) e = e + (s-e)*r;
+                }
+
+                if (s.X>bb_max.X)
+                {
+                    // clip s to xMax.
+                    var r = (bb_max.X-e.X)/(s.X-e.X) + epsilon;
+                    if (r<1.0) s = e + (s-e)*r;
+                }
+            }
+
+            // compare s and e against the yMin to yMax range of bb.
+            if (s.Y<=e.Y)
+            {
+                // trivial reject of segment wholely outside.
+                if (e.Y<bb_min.Y) return false;
+                if (s.Y>bb_max.Y) return false;
+
+                if (s.Y<bb_min.Y)
+                {
+                    // clip s to yMin.
+                    var r = (bb_min.Y-s.Y)/(e.Y-s.Y) - epsilon;
+                    if (r>0.0) s = s + (e-s)*r;
+                }
+
+                if (e.Y>bb_max.Y)
+                {
+                    // clip e to yMax.
+                    var r = (bb_max.Y-s.Y)/(e.Y-s.Y) + epsilon;
+                    if (r<1.0) e = s+(e-s)*r;
+                }
+            }
+            else
+            {
+                if (s.Y<bb_min.Y) return false;
+                if (e.Y>bb_max.Y) return false;
+
+                if (e.Y<bb_min.Y)
+                {
+                    // clip e to yMin.
+                    var r = (bb_min.Y-e.Y)/(s.Y-e.Y) - epsilon;
+                    if (r>0.0) e = e + (s-e)*r;
+                }
+
+                if (s.Y>bb_max.Y)
+                {
+                    // clip s to yMax.
+                    var r = (bb_max.Y-e.Y)/(s.Y-e.Y) + epsilon;
+                    if (r<1.0) s = e + (s-e)*r;
+                }
+            }
+
+            // compare s and e against the zMin to zMax range of bb.
+            if (s.Z<=e.Z)
+            {
+                // trivial reject of segment wholely outside.
+                if (e.Z<bb_min.Z) return false;
+                if (s.Z>bb_max.Z) return false;
+
+                if (s.Z<bb_min.Z)
+                {
+                    // clip s to zMin.
+                    var r = (bb_min.Z-s.Z)/(e.Z-s.Z) - epsilon;
+                    if (r>0.0) s = s + (e-s)*r;
+                }
+
+                if (e.Z>bb_max.Z)
+                {
+                    // clip e to zMax.
+                    var r = (bb_max.Z-s.Z)/(e.Z-s.Z) + epsilon;
+                    if (r<1.0) e = s+(e-s)*r;
+                }
+            }
+            else
+            {
+                if (s.Z<bb_min.Z) return false;
+                if (e.Z>bb_max.Z) return false;
+
+                if (e.Z<bb_min.Z)
+                {
+                    // clip e to zMin.
+                    var r = (bb_min.Z-e.Z)/(s.Z-e.Z) - epsilon;
+                    if (r>0.0) e = e + (s-e)*r;
+                }
+
+                if (s.Z>bb_max.Z)
+                {
+                    // clip s to zMax.
+                    var r = (bb_max.Z-e.Z)/(s.Z-e.Z) + epsilon;
+                    if (r<1.0) s = e + (s-e)*r;
+                }
+            }
+
+            return true;
         }
 
 

@@ -23,6 +23,8 @@ namespace Veldrid.SceneGraph.Util
     public interface IIntersectionVisitor : INodeVisitor
     {
         Matrix4x4 GetModelMatrix();
+
+        bool UseKdTreeWhenAvailable { get; }
     }
     
     public class IntersectionVisitor : NodeVisitor, IIntersectionVisitor
@@ -31,6 +33,8 @@ namespace Veldrid.SceneGraph.Util
         private Stack<Matrix4x4> _viewMatrixStack = new Stack<Matrix4x4>();
         private Stack<Matrix4x4> _modelMatrixStack = new Stack<Matrix4x4>();
 
+        public bool UseKdTreeWhenAvailable { get; set; } = false;
+        
         public static IIntersectionVisitor Create(
                 IIntersector intersector,
                 VisitorType type = VisitorType.IntersectionVisitor, 
@@ -63,6 +67,8 @@ namespace Veldrid.SceneGraph.Util
         {
             return _modelMatrixStack.Any() ? _modelMatrixStack.Peek() : Matrix4x4.Identity;
         }
+
+        
 
         public Matrix4x4 GetViewMatrix()
         {

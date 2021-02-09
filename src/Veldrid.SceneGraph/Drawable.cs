@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Veldrid.SceneGraph.Util.Shape;
 
 namespace Veldrid.SceneGraph
 {
@@ -27,6 +28,7 @@ namespace Veldrid.SceneGraph
         IBoundingBox InitialBoundingBox { get; set; }
         List<VertexLayoutDescription> VertexLayouts { get; set; }
         List<IPrimitiveSet> PrimitiveSets { get; }
+        IShape Shape { get; }
         void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory);
         List<DeviceBuffer> GetVertexBufferForDevice(GraphicsDevice device);
         DeviceBuffer GetIndexBufferForDevice(GraphicsDevice device);
@@ -44,6 +46,8 @@ namespace Veldrid.SceneGraph
         public string Name { get; set; } = string.Empty;
 
         public Type VertexType => GetVertexType();
+        
+        public IShape Shape { get; protected set; }
         
         private IBoundingBox _boundingBox;
         private IBoundingBox _initialBoundingBox = BoundingBox.Create();

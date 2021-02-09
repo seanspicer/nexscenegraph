@@ -33,20 +33,24 @@ namespace Veldrid.SceneGraph.Manipulators
         protected TabPlaneDragger(Matrix4x4 matrix) : base(matrix)
         {
             CornerScaleDragger = Scale2DDragger.Create(IScale2DDragger.ScaleMode.ScaleWithOppositeHandleAsPivot);
+            CornerScaleDragger.NameString = "Corner Scale Dragger";
             AddChild(CornerScaleDragger);
             DraggerList.Add(CornerScaleDragger);
 
             HorizontalEdgeScaleDragger =
                 Scale1DDragger.Create(IScale1DDragger.ScaleMode.ScaleWithOppositeHandleAsPivot);
+            HorizontalEdgeScaleDragger.NameString = "Horizontal Edge Scale Dragger";
             AddChild(HorizontalEdgeScaleDragger);
             DraggerList.Add(HorizontalEdgeScaleDragger);
             
             VerticalEdgeScaleDragger = 
                 Scale1DDragger.Create(IScale1DDragger.ScaleMode.ScaleWithOppositeHandleAsPivot);
+            VerticalEdgeScaleDragger.NameString = "Vertical Edge Scale Dragger";
             AddChild(VerticalEdgeScaleDragger);
             DraggerList.Add(VerticalEdgeScaleDragger);
 
             TranslateDragger = TranslatePlaneDragger.Create();
+            TranslateDragger.NameString = "Translate Dragger";
             TranslateDragger.SetColor(System.Drawing.Color.Gray);
             AddChild(TranslateDragger);
             DraggerList.Add(TranslateDragger);
@@ -241,6 +245,7 @@ namespace Veldrid.SceneGraph.Manipulators
 
             var rotation = QuaternionExtensions.MakeRotate(Vector3.UnitX, Vector3.UnitZ);
             vertEdgeScaleDragger.Matrix = Matrix4x4.CreateFromQuaternion(rotation);
+            
         }
 
         protected void CreateTranslateDraggerGeometry(IScale2DDragger cornerScaleDragger,

@@ -36,7 +36,14 @@ namespace Veldrid.SceneGraph.Util
             LimitNearest
         };
         
+        enum PrecisionHintTypes
+        {
+            UseDoubleCalculations,
+            UseFloatCalculations
+        };
+        
         IntersectionLimitModes IntersectionLimit { get; }
+        PrecisionHintTypes PrecisionHint { get; }
         CoordinateFrameMode CoordinateFrame { get; }
         IIntersector Clone(IIntersectionVisitor iv);
         void Intersect(IIntersectionVisitor iv, IDrawable drawable);
@@ -51,6 +58,9 @@ namespace Veldrid.SceneGraph.Util
     /// </summary>
     public abstract class Intersector : IIntersector
     {
+        public IIntersector.PrecisionHintTypes PrecisionHint { get; set; } =
+            IIntersector.PrecisionHintTypes.UseFloatCalculations;
+        
         public IIntersector.IntersectionLimitModes IntersectionLimit { get; protected set; }
 
         public IIntersector.CoordinateFrameMode CoordinateFrame { get; protected set; } 

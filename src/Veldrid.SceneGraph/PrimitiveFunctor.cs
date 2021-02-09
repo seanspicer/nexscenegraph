@@ -23,6 +23,7 @@ namespace Veldrid.SceneGraph
     public interface IPrimitiveFunctor
     {
         IPrimitiveElement[] VertexData { get; set; }
+        uint[] IndexData { get; set; }
         void Draw(
             PrimitiveTopology topology, 
             uint indexCount, 
@@ -36,6 +37,8 @@ namespace Veldrid.SceneGraph
     {
         public IPrimitiveElement[] VertexData { get; set; }
         
+        public uint[] IndexData { get; set; }
+        
         public abstract void Draw(
             PrimitiveTopology topology, 
             uint indexCount, 
@@ -47,14 +50,14 @@ namespace Veldrid.SceneGraph
 
     public interface IPrimitiveFunctorDelegate
     {
-        void Handle(Vector3 v0, Vector3 v1, Vector3 v2);
+        void Handle(Vector3 v0, Vector3 v1, Vector3 v2, bool treatVertexDataAsTemporary);
     }
 
     public class TemplatePrimitiveFunctor : PrimitiveFunctor
     {
         private IPrimitiveFunctorDelegate _pfd;
 
-        public IPrimitiveFunctor Create(IPrimitiveFunctorDelegate pfd)
+        public static IPrimitiveFunctor Create(IPrimitiveFunctorDelegate pfd)
         {
             return new TemplatePrimitiveFunctor(pfd);
         }
@@ -73,11 +76,23 @@ namespace Veldrid.SceneGraph
             {
                 case PrimitiveTopology.TriangleList:
                 {
-                    throw new NotImplementedException("TODO: Implement me!");
+                    var nTris = indexCount / 3;
+                    for (var i = indexStart; i < indexStart+indexCount; i += 3)
+                    {
+                        var v0 = VertexData[IndexData[i]].VertexPosition;
+                        var v1 = VertexData[IndexData[i + 1]].VertexPosition;
+                        var v2 = VertexData[IndexData[i + 2]].VertexPosition;
+                        _pfd.Handle(v0, v1, v2, false);
+                    }
                     break;
                 }
-                    
+                
+                case PrimitiveTopology.LineStrip:
+                    // Not implemented
+                    break;
+                
                 default:
+                    throw new NotImplementedException($"TODO: Implement me! PrimitiveTopology = {topology}.");
                     break;
             }
         }

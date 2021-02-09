@@ -20,10 +20,16 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Veldrid;
+using Vulkan;
 
 namespace Veldrid.SceneGraph
-{    
-    public interface IGeometry<T> : IDrawable where T : struct, IPrimitiveElement
+{
+    public interface IGeometry : IDrawable
+    {
+        Vector3[] GetVertexArray();
+    }
+    
+    public interface IGeometry<T> : IGeometry where T : struct, IPrimitiveElement
     {
         T[] VertexData { get; set; }
         uint[] IndexData { get; set; }
@@ -74,6 +80,17 @@ namespace Veldrid.SceneGraph
             return new Geometry<T>();
         }
 
+        public Vector3[] GetVertexArray()
+        {
+            var result = new Vector3[VertexData.Length];
+            for(var i=0; i<VertexData.Length; ++i)
+            {
+                result[i] = VertexData[i].VertexPosition;
+            }
+
+            return result;
+        }
+        
         public override void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory)
         {
             if (_vertexBufferCache.ContainsKey(device) && _indexBufferCache.ContainsKey(device))
@@ -172,7 +189,8 @@ namespace Veldrid.SceneGraph
         public override void Accept(IPrimitiveFunctor functor)
         {
             functor.VertexData = VertexData.Cast<IPrimitiveElement>().ToArray();
-
+            functor.IndexData = IndexData;
+            
             foreach (var pSet in PrimitiveSets)
             {
                 pSet.Accept(functor);
