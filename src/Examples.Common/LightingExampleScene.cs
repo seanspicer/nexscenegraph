@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -12,6 +13,37 @@ using Veldrid.SceneGraph.VertexTypes;
 
 namespace Examples.Common
 {
+    internal class UpdateCallback : NodeCallback, INodeCallback
+    {
+        private DateTime _lastTime;
+        private IPhongMaterial _material;
+        private Random _random;
+        
+        internal UpdateCallback(IPhongMaterial material)
+        {
+            _random = new Random();
+            _lastTime = DateTime.Now;
+            _material = material;
+        }
+        
+        public override bool Run(IObject obj, IObject data)
+        {
+            var curTime = DateTime.Now;
+    
+            if ((curTime - _lastTime).TotalMilliseconds > 1000)
+            {
+                var color = new Vector3((float) _random.NextDouble(), (float) _random.NextDouble(),
+                    (float) _random.NextDouble());
+                
+                _material.SetMaterial(color, color, Vector3.One, 20);
+                _lastTime = curTime;
+            }
+
+            
+            return true;
+        }
+    }
+    
     public class LightingExampleScene
     {
         public static IGroup Build()
@@ -69,6 +101,7 @@ namespace Examples.Common
             var rightBottom = MatrixTransform.Create(Matrix4x4.CreateTranslation(10f, -10f, 0f));
             
             leftTop.AddChild(model);
+            
             rightTop.AddChild(model);
             
             leftBottom.AddChild(cubeXForm);
@@ -129,6 +162,7 @@ namespace Examples.Common
                     2)),
                 true);
             
+            leftTop.SetUpdateCallback(new UpdateCallback(flatYellowMaterial));
             leftTop.PipelineState = flatYellowMaterial.CreatePipelineState();
             rightTop.PipelineState = shinyRedGoldMaterial.CreatePipelineState();
             sphere.PipelineState = sphereMaterial.CreatePipelineState();
