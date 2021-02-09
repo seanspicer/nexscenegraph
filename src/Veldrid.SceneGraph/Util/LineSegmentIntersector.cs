@@ -188,7 +188,6 @@ namespace Veldrid.SceneGraph.Util
                 }
             }
 
-            // OSG_NOTICE<<"clampped segment "<<s<<" "<<e<<std::endl;
             _startEndStack.Push(startend);
 
             return true;
@@ -196,7 +195,6 @@ namespace Veldrid.SceneGraph.Util
         
         void leave()
         {
-            // OSG_NOTICE<<"leave() "<<_startEndStack.size()<<std::endl;
             _startEndStack.Pop();
         }
         
