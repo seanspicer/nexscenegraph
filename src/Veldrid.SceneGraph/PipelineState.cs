@@ -23,14 +23,14 @@ namespace Veldrid.SceneGraph
     {
         IShaderSet ShaderSet { get; set; }
         IReadOnlyList<ITexture2D> TextureList { get; }
-        IReadOnlyList<IBindable> UniformList { get; }
+        IReadOnlyList<IUniform> UniformList { get; }
         IReadOnlyList<IVertexBuffer> VertexBufferList { get; }
         BlendStateDescription BlendStateDescription { get; set; }
         DepthStencilStateDescription DepthStencilState { get; set; }
         RasterizerStateDescription RasterizerStateDescription { get; set; }
         void AddTexture(ITexture2D texture);
-        void AddUniform(IBindable uniform);
-        void AddUniform(IDrawable drawable, IBindable uniform);
+        void AddUniform(IUniform uniform);
+        void AddUniform(IDrawable drawable, IUniform uniform);
         void AddVertexBuffer(IVertexBuffer vertexBuffer);
 
     }
@@ -42,14 +42,14 @@ namespace Veldrid.SceneGraph
         private readonly List<ITexture2D> _textureList = new List<ITexture2D>();
         public IReadOnlyList<ITexture2D> TextureList => _textureList;
 
-        private readonly List<IBindable> _uniformList = new List<IBindable>();
-        public IReadOnlyList<IBindable> UniformList => _uniformList;
+        private readonly List<IUniform> _uniformList = new List<IUniform>();
+        public IReadOnlyList<IUniform> UniformList => _uniformList;
         
         private readonly List<IVertexBuffer> _vertexBufferList = new List<IVertexBuffer>();
         public IReadOnlyList<IVertexBuffer> VertexBufferList => _vertexBufferList;
 
-        private readonly Dictionary<IDrawable, IBindable> _uniformDictionary = new Dictionary<IDrawable, IBindable>();
-        public Dictionary<IDrawable, IBindable> UniformDictionary => _uniformDictionary;
+        private readonly Dictionary<IDrawable, IUniform> _uniformDictionary = new Dictionary<IDrawable, IUniform>();
+        public Dictionary<IDrawable, IUniform> UniformDictionary => _uniformDictionary;
 
         public BlendStateDescription BlendStateDescription { get; set; } = BlendStateDescription.SingleOverrideBlend;
 
@@ -73,12 +73,12 @@ namespace Veldrid.SceneGraph
             _textureList.Add(texture);
         }
         
-        public void AddUniform(IBindable uniform)
+        public void AddUniform(IUniform uniform)
         {
             _uniformList.Add(uniform);
         }
 
-        public void AddUniform(IDrawable drawable, IBindable uniform)
+        public void AddUniform(IDrawable drawable, IUniform uniform)
         {
             _uniformDictionary.Add(drawable, uniform);
         }

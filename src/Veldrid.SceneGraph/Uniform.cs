@@ -5,16 +5,32 @@ using SharpDX.DXGI;
 
 namespace Veldrid.SceneGraph
 {
-    public interface IUniform<T> : IBindable where T : struct
+    public interface IUniform : IBindable
+    {
+        string Name { get; }
+        void Dirty();
+        void UpdateDeviceBuffers(GraphicsDevice device, ResourceFactory factory);
+    }
+    
+    public interface IUniform<T> : IUniform where T : struct
     {
         T[] UniformData { get; set; }
         
-        string Name { get; }
     }
     
-    public class Uniform<T> : Object, IUniform<T> where T : struct
+    internal class Uniform<T> : Object, IUniform<T> where T : struct
     {
-        public T[] UniformData { get; set; }
+        private T[] _uniformData;
+
+        public T[] UniformData
+        {
+            get => _uniformData;
+            set
+            {
+                _uniformData = value;
+                Dirty();
+            }
+        }
         
         private uint SizeOfUniformDataElement => (uint) Marshal.SizeOf(default(T));
 
@@ -29,6 +45,10 @@ namespace Veldrid.SceneGraph
         
         public DeviceBufferRange DeviceBufferRange { get; private set; }
 
+        private uint _hostBufStride = 0;
+        private DeviceBuffer _uniformBuffer = null;
+        private uint _modifiedCount = 0;
+        
         public static IUniform<T> Create(string name, 
             BufferUsage bufferUsage, 
             ShaderStages shaderStages,
@@ -52,35 +72,48 @@ namespace Veldrid.SceneGraph
                 options);
 
         }
+
+        public void Dirty()
+        {
+            _modifiedCount++;
+        }
         
-        public DeviceBuffer ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory)
+        public void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory)
         {
             var alignment = device.UniformBufferMinOffsetAlignment;
             
             var uniformObjSizeInBytes = SizeOfUniformDataElement;
-            var hostBuffStride = 1u;
+            _hostBufStride = 1u;
             if (alignment > SizeOfUniformDataElement)
             {
-                hostBuffStride = alignment / SizeOfUniformDataElement;
+                _hostBufStride = alignment / SizeOfUniformDataElement;
                 uniformObjSizeInBytes = alignment;
             }
 
             var bufsize = (uint)(uniformObjSizeInBytes * UniformData.Length);
             BufferDescription = new BufferDescription(bufsize, BufferUsage);
 
-            var uniformBuffer = factory.CreateBuffer(BufferDescription);
+            _uniformBuffer = factory.CreateBuffer(BufferDescription);
 
-            var uniformBufferStaging = new T[UniformData.Length * hostBuffStride];
+            UpdateDeviceBuffers(device, factory);
+            
+            DeviceBufferRange = new DeviceBufferRange(_uniformBuffer, 0, uniformObjSizeInBytes);
+            
+        }
+
+        public virtual void UpdateDeviceBuffers(GraphicsDevice device, ResourceFactory factory)
+        {
+            if (_modifiedCount == 0) return;
+            
+            var uniformBufferStaging = new T[UniformData.Length * _hostBufStride];
             for (var i = 0; i < UniformData.Length; ++i)
             {
-                uniformBufferStaging[i * hostBuffStride] = UniformData[i];
+                uniformBufferStaging[i * _hostBufStride] = UniformData[i];
             }
             
-            device.UpdateBuffer(uniformBuffer, 0, uniformBufferStaging);
-            
-            DeviceBufferRange = new DeviceBufferRange(uniformBuffer, 0, uniformObjSizeInBytes);
-            
-            return uniformBuffer;
+            device.UpdateBuffer(_uniformBuffer, 0, uniformBufferStaging);
+
+            _modifiedCount = 0;
         }
 
         private Tuple<uint, uint> CalculateMultiplierAndStride(GraphicsDevice graphicsDevice)

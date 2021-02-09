@@ -382,6 +382,17 @@ namespace Veldrid.SceneGraph.Viewer
                 Initialize(device, factory);
             }
             
+            foreach (var state in _cullVisitor.OpaqueRenderGroup.GetStateList())
+            {
+                if (state.Elements.Count == 0) continue;
+
+                foreach (var uniform in state.PipelineState.UniformList)
+                {
+                    uniform.UpdateDeviceBuffers(device, factory);
+                }
+                
+            }
+            
             device.UpdateBuffer(_projectionBuffer, 0, _camera.ProjectionMatrix);
             
             // TODO - Remove
