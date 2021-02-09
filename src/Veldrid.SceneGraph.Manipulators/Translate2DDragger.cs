@@ -76,8 +76,9 @@ namespace Veldrid.SceneGraph.Manipulators
             //AddChild(lineGeode);
             var hints = TessellationHints.Create();
             hints.ColorsType = ColorsType.ColorOverall;
+            //hints.NormalsType = NormalsType.PerFace;
 
-            var pipelineState = NormalMaterial.CreatePipelineState();
+            var pipelineState = CreateMaterial().CreatePipelineState();
             
             var geode = Geode.Create();
             

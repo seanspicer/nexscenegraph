@@ -49,8 +49,8 @@ namespace Veldrid.SceneGraph.Manipulators
     
     public abstract class Dragger : MatrixTransform, IDragger
     {
-        public Color Color { get; protected set; }
-        public Color PickColor { get; protected set; }
+        public Color Color { get; protected set; } = Color.FromArgb(255, 0, 255, 0);
+        public Color PickColor { get; protected set; } = Color.Magenta;
 
         private bool _handleEvents = false;
         public bool HandleEvents
@@ -107,6 +107,14 @@ namespace Veldrid.SceneGraph.Manipulators
             _selfUpdater = DraggerTransformCallback.Create(this);
         }
 
+        protected Vector3 GetColorVector(Color color)
+        {
+            return new Vector3(
+                (float) (color.R / 255.0),
+                (float) (color.G / 255.0),
+                (float) (color.B / 255.0));
+        }
+        
         /**
          *  Return true if the axis of the Locator are inverted requiring the faces of any cubes used from
          *  rendering to be flipped to ensure the correct front/back face is used.
@@ -345,36 +353,24 @@ namespace Veldrid.SceneGraph.Manipulators
                 command.Accept(callback);
             }
         }
-        
 
-        protected IPhongMaterial NormalMaterial =>
-            PhongMaterial.Create(
-                PhongMaterialParameters.Create(
-                    new Vector3(0.0f, 1.0f, 0.0f),
-                    new Vector3(0.0f, 1.0f, 0.0f),
-                    new Vector3(0.0f, 0.0f, 0.0f),
-                    1f),
-                PhongHeadlight.Create(PhongLightParameters.Create(
-                    new Vector3(0.2f, 0.2f, 0.2f),
-                    new Vector3(0.2f, 0.2f, 0.2f),
-                    new Vector3(0.0f, 0.0f, 0.0f),
-                    5f,
-                    0)),
-                true);
-        
-        protected IPhongMaterial PickMaterial =>
-            PhongMaterial.Create(
-                PhongMaterialParameters.Create(
-                    new Vector3(1.0f, 1.0f, 0.0f),
-                    new Vector3(1.0f, 1.0f, 0.0f),
-                    new Vector3(1.0f, 1.0f, 1.0f),
-                    5f),
-                PhongHeadlight.Create(PhongLightParameters.Create(
-                    new Vector3(0.1f, 0.1f, 0.1f),
-                    new Vector3(1.0f, 1.0f, 1.0f),
-                    new Vector3(1.0f, 1.0f, 1.0f),
-                    1f,
-                    0)),
-                true);
+        protected IPhongMaterial CreateMaterial()
+        {
+            return PhongMaterial.Create(
+                    PhongMaterialParameters.Create(
+                        new Vector3(0.0f, 1.0f, 0.0f),
+                        new Vector3(0.0f, 1.0f, 0.0f),
+                        new Vector3(0.0f, 0.0f, 0.0f),
+                        1f),
+                    PhongHeadlight.Create(PhongLightParameters.Create(
+                        new Vector3(0.2f, 0.2f, 0.2f),
+                        new Vector3(0.2f, 0.2f, 0.2f),
+                        new Vector3(0.0f, 0.0f, 0.0f),
+                        5f,
+                        0)),
+                    true);
+
+            
+        }
     }
 }

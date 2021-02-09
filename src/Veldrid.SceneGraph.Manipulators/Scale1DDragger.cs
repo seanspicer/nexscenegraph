@@ -56,6 +56,9 @@ namespace Veldrid.SceneGraph.Manipulators
         protected double ScaleCenter { get; set; }
         
         protected Vector3 StartProjectedPoint { get; set; }
+
+        private IPhongMaterial _leftHandleMaterial;
+        private IPhongMaterial _rightHandleMaterial;
         
         public static IScale1DDragger Create(IScale1DDragger.ScaleMode scaleMode = IScale1DDragger.ScaleMode.ScaleWithOriginAsPivot)
         {
@@ -110,8 +113,7 @@ namespace Veldrid.SceneGraph.Manipulators
             AddChild(lineGeode);
             var hints = TessellationHints.Create();
             hints.ColorsType = ColorsType.ColorOverall;
-
-            var pipelineState = NormalMaterial.CreatePipelineState();
+            hints.NormalsType = NormalsType.PerFace;
             
             // Create a left box
             {
@@ -122,7 +124,9 @@ namespace Veldrid.SceneGraph.Manipulators
                     hints,
                     new [] {new Vector3(0.0f, 1.0f, 0.0f)}));
 
-                geode.PipelineState = pipelineState;
+                _leftHandleMaterial = CreateMaterial();
+                
+                geode.PipelineState = _leftHandleMaterial.CreatePipelineState();
                 geode.PipelineState.RasterizerStateDescription 
                     = new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
                 
@@ -149,7 +153,9 @@ namespace Veldrid.SceneGraph.Manipulators
                     hints,
                     new [] {new Vector3(0.0f, 1.0f, 0.0f)}));
 
-                geode.PipelineState = pipelineState;
+                _rightHandleMaterial = CreateMaterial();
+                
+                geode.PipelineState = _rightHandleMaterial.CreatePipelineState();
                 geode.PipelineState.RasterizerStateDescription 
                     = new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
 
@@ -167,6 +173,7 @@ namespace Veldrid.SceneGraph.Manipulators
             }
         }
 
+        private IPhongMaterial _pickedHandleMaterial;
         public override bool Handle(IPointerInfo pointerInfo, IUiEventAdapter eventAdapter, IUiActionAdapter actionAdapter)
         {
             // Check if the pointer is in the nodepath.
@@ -191,10 +198,12 @@ namespace Veldrid.SceneGraph.Manipulators
                             if (pointerInfo.Contains(LeftHandleNode))
                             {
                                 ScaleCenter = LineProjector.LineEnd.X;
+                                _pickedHandleMaterial = _leftHandleMaterial;
                             }
                             else if (pointerInfo.Contains(RightHandleNode))
                             {
                                 ScaleCenter = LineProjector.LineStart.X;
+                                _pickedHandleMaterial = _rightHandleMaterial;
                             }
                         }
                         
@@ -204,6 +213,10 @@ namespace Veldrid.SceneGraph.Manipulators
                         cmd.SetLocalToWorldAndWorldToLocal(LineProjector.LocalToWorld, LineProjector.WorldToLocal);
                         
                         Dispatch(cmd);
+
+                        var pickColor = GetColorVector(PickColor);
+                        
+                        _pickedHandleMaterial?.SetMaterial(pickColor, pickColor, Vector3.One, 1);
                         
                         // TODO -- Set material color
                         
@@ -259,7 +272,8 @@ namespace Veldrid.SceneGraph.Manipulators
                     
                     Dispatch(cmd);
                     
-                    // TODO: Reset Color
+                    var normalColor = GetColorVector(Color);
+                    _pickedHandleMaterial?.SetMaterial(normalColor, normalColor, Vector3.One, 1);
                     
                     actionAdapter.RequestRedraw();
 

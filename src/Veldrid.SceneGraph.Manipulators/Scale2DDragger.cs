@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Numerics;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Manipulators.Commands;
+using Veldrid.SceneGraph.PipelineStates;
 using Veldrid.SceneGraph.Shaders.Standard;
 using Veldrid.SceneGraph.Util.Shape;
 using Veldrid.SceneGraph.VertexTypes;
@@ -49,6 +50,12 @@ namespace Veldrid.SceneGraph.Manipulators
         public INode BottomRightHandleNode { get; set; }
         
         public IScale2DDragger.ScaleMode ScaleMode { get; set; }
+
+        private IPhongMaterial _topLeftHandleMaterial;
+        private IPhongMaterial _topRightHandleMaterial;
+        private IPhongMaterial _bottomLeftHandleMaterial;
+        private IPhongMaterial _bottomRightHandleMaterial;
+        private IPhongMaterial _pickedHandleMaterial;
         
         public static IScale2DDragger Create(IScale2DDragger.ScaleMode scaleMode = IScale2DDragger.ScaleMode.ScaleWithOriginAsPivot)
         {
@@ -64,8 +71,10 @@ namespace Veldrid.SceneGraph.Manipulators
             BottomRightHandlePosition = new Vector2( 0.5f, -0.5f);
             TopRightHandlePosition    = new Vector2( 0.5f,  0.5f);
             
-            Color = Color.Green;
-            PickColor = Color.Magenta;
+            _topLeftHandleMaterial = CreateMaterial();
+            _topRightHandleMaterial = CreateMaterial();
+            _bottomLeftHandleMaterial = CreateMaterial();
+            _bottomRightHandleMaterial = CreateMaterial();
         }
 
         public override void SetupDefaultGeometry()
@@ -121,7 +130,7 @@ namespace Veldrid.SceneGraph.Manipulators
             
             var hints = TessellationHints.Create();
             hints.ColorsType = ColorsType.ColorOverall;
-            var pipelineState = NormalMaterial.CreatePipelineState();
+            hints.NormalsType = NormalsType.PerFace;
             
             // Create top left box
             {
@@ -132,8 +141,8 @@ namespace Veldrid.SceneGraph.Manipulators
                     Box.Create(pos, 0.5f),
                     hints,
                     new [] {new Vector3(0.0f, 1.0f, 0.0f)}));
-
-                geode.PipelineState = pipelineState;
+                
+                geode.PipelineState = _topLeftHandleMaterial.CreatePipelineState();
                 geode.PipelineState.RasterizerStateDescription 
                     = new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
                 
@@ -160,7 +169,7 @@ namespace Veldrid.SceneGraph.Manipulators
                     hints,
                     new [] {new Vector3(0.0f, 1.0f, 0.0f)}));
 
-                geode.PipelineState = pipelineState;
+                geode.PipelineState = _bottomLeftHandleMaterial.CreatePipelineState();
                 geode.PipelineState.RasterizerStateDescription 
                     = new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
                 
@@ -187,7 +196,7 @@ namespace Veldrid.SceneGraph.Manipulators
                     hints,
                     new [] {new Vector3(0.0f, 1.0f, 0.0f)}));
 
-                geode.PipelineState = pipelineState;
+                geode.PipelineState = _bottomRightHandleMaterial.CreatePipelineState();
                 geode.PipelineState.RasterizerStateDescription 
                     = new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
                 
@@ -214,7 +223,7 @@ namespace Veldrid.SceneGraph.Manipulators
                     hints,
                     new [] {new Vector3(0.0f, 1.0f, 0.0f)}));
 
-                geode.PipelineState = pipelineState;
+                geode.PipelineState = _topRightHandleMaterial.CreatePipelineState();
                 geode.PipelineState.RasterizerStateDescription 
                     = new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
                 
@@ -257,6 +266,7 @@ namespace Veldrid.SceneGraph.Manipulators
 
                         if (pointerInfo.Contains(TopLeftHandleNode))
                         {
+                            _pickedHandleMaterial = _topLeftHandleMaterial;
                             ReferencePoint = TopLeftHandlePosition;
                             if (ScaleMode == IScale2DDragger.ScaleMode.ScaleWithOppositeHandleAsPivot)
                             {
@@ -265,6 +275,7 @@ namespace Veldrid.SceneGraph.Manipulators
                         }
                         else if (pointerInfo.Contains(BottomLeftHandleNode))
                         {
+                            _pickedHandleMaterial = _bottomLeftHandleMaterial;
                             ReferencePoint = BottomLeftHandlePosition;
                             if (ScaleMode == IScale2DDragger.ScaleMode.ScaleWithOppositeHandleAsPivot)
                             {
@@ -273,6 +284,7 @@ namespace Veldrid.SceneGraph.Manipulators
                         }
                         else if (pointerInfo.Contains(BottomRightHandleNode))
                         {
+                            _pickedHandleMaterial = _bottomRightHandleMaterial;
                             ReferencePoint = BottomRightHandlePosition;
                             if (ScaleMode == IScale2DDragger.ScaleMode.ScaleWithOppositeHandleAsPivot)
                             {
@@ -281,6 +293,7 @@ namespace Veldrid.SceneGraph.Manipulators
                         }
                         else if (pointerInfo.Contains(TopRightHandleNode))
                         {
+                            _pickedHandleMaterial = _topRightHandleMaterial;
                             ReferencePoint = TopRightHandlePosition;
                             if (ScaleMode == IScale2DDragger.ScaleMode.ScaleWithOppositeHandleAsPivot)
                             {
@@ -295,8 +308,9 @@ namespace Veldrid.SceneGraph.Manipulators
                         cmd.ReferencePoint = ReferencePoint;
                         
                         Dispatch(cmd);
-                        
-                        // TODO -- Set material color
+
+                        var pickColor = GetColorVector(PickColor);
+                        _pickedHandleMaterial?.SetMaterial(pickColor, pickColor, Vector3.One, 1);
                         
                         actionAdapter.RequestRedraw();
                     }
@@ -341,7 +355,8 @@ namespace Veldrid.SceneGraph.Manipulators
                     
                     Dispatch(cmd);
                     
-                    // TODO: Reset Color
+                    var normalColor = GetColorVector(Color);
+                    _pickedHandleMaterial?.SetMaterial(normalColor, normalColor, Vector3.One, 1);
                     
                     actionAdapter.RequestRedraw();
 

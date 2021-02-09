@@ -86,9 +86,10 @@ namespace Veldrid.SceneGraph.Manipulators
             AddChild(lineGeode);
             var hints = TessellationHints.Create();
             hints.ColorsType = ColorsType.ColorOverall;
+            //hints.NormalsType = NormalsType.PerFace;
             hints.SetDetailRatio(1.0f);
 
-            var pipelineState = NormalMaterial.CreatePipelineState();
+            var pipelineState = CreateMaterial().CreatePipelineState();
             
             // Create a left Cone
             {
