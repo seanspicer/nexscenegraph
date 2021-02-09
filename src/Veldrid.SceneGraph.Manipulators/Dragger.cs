@@ -236,10 +236,9 @@ namespace Veldrid.SceneGraph.Manipulators
                             {
                                 foreach (var intersection in intersections)
                                 {
-                                    PointerInfo.HitList.Add(new Tuple<NodePath, Vector3>(intersection.NodePath,
-                                        intersection.LocalIntersectionPoint));
+                                    PointerInfo.AddIntersection(intersection.NodePath, intersection.LocalIntersectionPoint);
                                 }
-
+                                
                                 foreach (var node in PointerInfo.HitList.First().Item1)
                                 {
                                     if (node is IDragger dragger)
@@ -263,7 +262,7 @@ namespace Veldrid.SceneGraph.Manipulators
                                             
                                             PointerInfo.SetCamera(rootCamera);
                                             PointerInfo.SetMousePosition(eventAdapter.X, eventAdapter.Y);
-
+                                            
                                             if (dragger.Handle(PointerInfo, eventAdapter, actionAdapter))
                                             {
                                                 dragger.DraggerActive = true;

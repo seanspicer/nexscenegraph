@@ -9,9 +9,11 @@ namespace Veldrid.SceneGraph.Manipulators
 {
     public interface IPointerInfo
     {
-        IList<Tuple<NodePath, Vector3>> HitList { get; }
+        IReadOnlyList<Tuple<NodePath, Vector3>> HitList { get; }
         
         void Reset();
+
+        void AddIntersection(NodePath nodePath, Vector3 intersectionPoint);
 
         void SetCamera(ICamera camera);
 
@@ -41,9 +43,13 @@ namespace Veldrid.SceneGraph.Manipulators
         protected float PixelX { get; set; }
         protected float PixelY { get; set; }
 
-        //private List<Tuple<NodePath, Vector3>> _hitList = new List<Tuple<NodePath, Vector3>>();
-        public IList<Tuple<NodePath, Vector3>> HitList { get; set; }= new List<Tuple<NodePath, Vector3>>();//HitList => _hitList;
-
+        private List<Tuple<NodePath, Vector3>> _hitList = new List<Tuple<NodePath, Vector3>>();
+        private IEnumerator<Tuple<NodePath, Vector3>> _hitIter;
+        
+        public IReadOnlyList<Tuple<NodePath, Vector3>> HitList => _hitList;
+        
+        private bool _isCompleted = false;
+        
         public static IPointerInfo Create()
         {
             return new PointerInfo();
@@ -51,7 +57,7 @@ namespace Veldrid.SceneGraph.Manipulators
 
         public static IPointerInfo Create(IPointerInfo pointerInfo)
         {
-            return new PointerInfo();
+            return new PointerInfo(pointerInfo);
         }
         
         protected PointerInfo()
@@ -59,13 +65,20 @@ namespace Veldrid.SceneGraph.Manipulators
             Reset();
         }
 
-        protected PointerInfo(IPointerInfo other)
+        protected PointerInfo(IPointerInfo other) : this()
         {
             foreach (var elt in other.HitList)
             {
-                HitList.Add(elt);
+                _hitList.Add(elt);
             }
 
+            if (_hitList.Count > 0)
+            {
+                _hitIter = _hitList.GetEnumerator();
+                _hitIter.MoveNext();
+                _isCompleted = false;
+            }
+            
             NearPoint = other.NearPoint;
             FarPoint = other.FarPoint;
             EyeDir = other.EyeDir;
@@ -74,21 +87,28 @@ namespace Veldrid.SceneGraph.Manipulators
         
         public void Reset()
         {
-            HitList.Clear();
+            _hitList.Clear();
+            _hitIter = HitList.GetEnumerator();
+            _isCompleted = false;
             SetCamera(null);
         }
 
         public void Next()
         {
-            if(HitList.Any())
-            {
-                HitList.RemoveAt(0);
-            }
+            _isCompleted = !_hitIter.MoveNext();
         }
 
         public bool Completed()
         {
-            return !HitList.Any();
+            return _isCompleted;
+        }
+
+        public void AddIntersection(NodePath nodePath, Vector3 intersectionPoint)
+        {
+            _hitList.Add(Tuple.Create(nodePath, intersectionPoint));
+            _hitIter = _hitList.GetEnumerator();
+            _hitIter.MoveNext();
+            _isCompleted = false;
         }
         
         public void SetCamera(ICamera camera)
@@ -126,19 +146,17 @@ namespace Veldrid.SceneGraph.Manipulators
 
         public bool Contains(INode node)
         {
-            if (null != node && HitList.Any())
+            if (null != node && null != _hitIter.Current)
             {
-                foreach (var nodePathList in HitList)
+                var nodePath = _hitIter.Current.Item1;
+                foreach (var hitNode in nodePath)
                 {
-                    var nodePath = nodePathList.Item1;
-                    foreach (var hitNode in nodePath)
+                    if (hitNode == node)
                     {
-                        if (hitNode == node)
-                        {
-                            return true;
-                        }
+                        return true;
                     }
                 }
+                
             }
 
             return false;

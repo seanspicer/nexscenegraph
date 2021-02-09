@@ -372,9 +372,20 @@ namespace Veldrid.SceneGraph.Manipulators
             // Since the translate plane and the handleNode lie on the same plane the hit could've been on either one. But we
             // need to handle the scaling draggers before the translation. Check if the node path has the scaling nodes else
             // check for the scaling nodes in next hit.
-            if (CornerScaleDragger.Handle(pointerInfo, eventAdapter, actionAdapter)) return true;
-            if (HorizontalEdgeScaleDragger.Handle(pointerInfo, eventAdapter, actionAdapter)) return true;
-            if (VerticalEdgeScaleDragger.Handle(pointerInfo, eventAdapter, actionAdapter)) return true;
+            if (CornerScaleDragger.Handle(pointerInfo, eventAdapter, actionAdapter))
+            {
+                return true;
+            }
+
+            if (HorizontalEdgeScaleDragger.Handle(pointerInfo, eventAdapter, actionAdapter))
+            {
+                return true;
+            }
+
+            if (VerticalEdgeScaleDragger.Handle(pointerInfo, eventAdapter, actionAdapter))
+            {
+                return true;
+            }
 
              var nextPointer = Veldrid.SceneGraph.Manipulators.PointerInfo.Create(pointerInfo);
              nextPointer.Next();
@@ -382,13 +393,27 @@ namespace Veldrid.SceneGraph.Manipulators
              // Run through the other hits to clear them
              while (false == nextPointer.Completed())
              {
-                 if (CornerScaleDragger.Handle(nextPointer, eventAdapter, actionAdapter)) return true;
-                 if (HorizontalEdgeScaleDragger.Handle(nextPointer, eventAdapter, actionAdapter)) return true;
-                 if (VerticalEdgeScaleDragger.Handle(nextPointer, eventAdapter, actionAdapter)) return true;
+                 if (CornerScaleDragger.Handle(nextPointer, eventAdapter, actionAdapter))
+                 {
+                     return true;
+                 }
+
+                 if (HorizontalEdgeScaleDragger.Handle(nextPointer, eventAdapter, actionAdapter))
+                 {
+                     return true;
+                 }
+
+                 if (VerticalEdgeScaleDragger.Handle(nextPointer, eventAdapter, actionAdapter))
+                 {
+                     return true;
+                 }
                  nextPointer.Next();
              }
-            
-             if (TranslateDragger.Handle(pointerInfo, eventAdapter, actionAdapter)) return true;
+
+             if (TranslateDragger.Handle(pointerInfo, eventAdapter, actionAdapter))
+             {
+                 return true;
+             }
 
             return false;
         }
