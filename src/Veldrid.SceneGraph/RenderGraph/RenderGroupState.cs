@@ -43,6 +43,7 @@ namespace Veldrid.SceneGraph.RenderGraph
     public interface IRenderGroupState
     {
         List<RenderGroupElement> Elements { get; }
+        IPipelineState PipelineState { get; }
         RenderInfo GetPipelineAndResources(
             GraphicsDevice graphicsDevice, 
             ResourceFactory resourceFactory, 
@@ -53,7 +54,7 @@ namespace Veldrid.SceneGraph.RenderGraph
     
     public class RenderGroupState : IRenderGroupState
     {
-        private IPipelineState PipelineState;
+        public IPipelineState PipelineState { get; private set; }
         private PrimitiveTopology PrimitiveTopology;
         private List<VertexLayoutDescription> VertexLayouts;
 

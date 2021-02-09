@@ -8,6 +8,6 @@ namespace Veldrid.SceneGraph
         
         DeviceBufferRange DeviceBufferRange { get; }
         
-        DeviceBuffer ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory);
+        void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory);
     }
 }

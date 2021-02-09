@@ -75,6 +75,8 @@ namespace Veldrid.SceneGraph.PipelineStates
     public interface IPhongMaterial
     {
         IPipelineState CreatePipelineState();
+        
+        void SetMaterial(Vector3 ambientColor, Vector3 diffuseColor, Vector3 specularColor, float shininess);
     }
 
     public struct LightSource
@@ -88,7 +90,7 @@ namespace Veldrid.SceneGraph.PipelineStates
         public Vector4 Position;
     }
     
-    internal struct Material
+    public struct Material
     {
         public Vector3 AmbientColor;
         public float Shininess;
@@ -105,6 +107,10 @@ namespace Veldrid.SceneGraph.PipelineStates
         private PhongLight _light0;
         private bool _overrideColor;
 
+        private IUniform<Material> _materialUniform;
+        private IUniform<LightSource> _lightSourceUniform;
+        private IPipelineState _pso;
+        
         public static IPhongMaterial Create(IPhongMaterialParameters p, PhongLight light0, bool overrideColor = true)
         {
             return new PhongMaterial(p, light0, overrideColor);
@@ -112,14 +118,35 @@ namespace Veldrid.SceneGraph.PipelineStates
 
         protected PhongMaterial(IPhongMaterialParameters p, PhongLight light0, bool overrideColor)
         {
+            _pso = null;
             _material = p;
             _light0 = light0;
             _overrideColor = overrideColor;
         }
 
+        public void SetMaterial(Vector3 ambientColor, Vector3 diffuseColor, Vector3 specularColor, float shininess)
+        {
+            _material = PhongMaterialParameters.Create(ambientColor, diffuseColor, specularColor, shininess);
+            
+            if (null != _materialUniform)
+            {
+                _materialUniform.UniformData[0].AmbientColor =
+                    _light0.Parameters.AmbientLightColor * _material.AmbientColor;
+                _materialUniform.UniformData[0].DiffuseColor =
+                    _light0.Parameters.DiffuseLightColor * _material.DiffuseColor;
+                _materialUniform.UniformData[0].SpecularColor =
+                    _light0.Parameters.SpecularLightColor * _material.SpecularColor;
+                _materialUniform.UniformData[0].Shininess = _material.Shininess;
+                
+                _materialUniform.Dirty();
+            }
+        }
+        
         public virtual IPipelineState CreatePipelineState()
         {
-            var pso = PipelineState.Create();
+            if (null != _pso) return _pso;
+            
+            _pso = PipelineState.Create();
 
             var vtxShader =
                 new ShaderDescription(ShaderStages.Vertex, ReadEmbeddedAssetBytes(@"Veldrid.SceneGraph.Assets.Shaders.Phong-vertex.glsl"), "main");
@@ -127,15 +154,18 @@ namespace Veldrid.SceneGraph.PipelineStates
             var frgShader =
                 new ShaderDescription(ShaderStages.Fragment, ReadEmbeddedAssetBytes(@"Veldrid.SceneGraph.Assets.Shaders.Phong-fragment.glsl"), "main");
 
-            pso.ShaderSet = ShaderSet.Create("PhongShader", vtxShader, frgShader);
+            _pso.ShaderSet = ShaderSet.Create("PhongShader", vtxShader, frgShader);
+
+            _lightSourceUniform = CreateLightSourceUniform();
+            _materialUniform = CreateMaterialUniform();
             
-            pso.AddUniform(CreateLightSourceUniform());
-            pso.AddUniform(CreateMaterialUniform());
+            _pso.AddUniform(_lightSourceUniform);
+            _pso.AddUniform(_materialUniform);
             
-            return pso;
+            return _pso;
         }
 
-        protected IBindable CreateLightSourceUniform()
+        protected IUniform<LightSource> CreateLightSourceUniform()
         {
             var lightSourceUniform = Uniform<LightSource>.Create(
                 "LightSource", 
@@ -159,7 +189,7 @@ namespace Veldrid.SceneGraph.PipelineStates
             return lightSourceUniform;
         }
         
-        protected IBindable CreateMaterialUniform()
+        protected IUniform<Material> CreateMaterialUniform()
         {
             var materialDescriptionUniform = Uniform<Material>.Create(
                 "MaterialDescription", 
