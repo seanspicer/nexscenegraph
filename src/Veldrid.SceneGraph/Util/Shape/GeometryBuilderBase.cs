@@ -161,8 +161,6 @@ namespace Veldrid.SceneGraph.Util.Shape
 
                 indexDataList.AddRange(triIndicies.Select(idx => (uint) (lastIdx + idx)));
                 
-                var inverseTranspose = Matrix4x4.Transpose(Inverse);
-                
                 lastIdx += strip.Vertices.Count;
                 for (var idx = 0; idx < strip.Vertices.Count; ++idx)
                 {
