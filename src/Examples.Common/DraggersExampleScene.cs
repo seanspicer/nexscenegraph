@@ -54,13 +54,13 @@ namespace Examples.Common
             var tabPlaneDraggerXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(-1f, 1.0f, 2.0f)); //(1f, 1.0f, 2.0f)
             tabPlaneDraggerXForm.AddChild(tabPlaneDragger);
             root.AddChild(tabPlaneDraggerXForm);
-            //
-            // var tabBoxDragger = TabBoxDragger.Create();
-            // tabBoxDragger.SetupDefaultGeometry();
-            // tabBoxDragger.HandleEvents = true;
-            // var tabBoxDraggerXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(1f, -1.0f, 2.0f)); 
-            // tabBoxDraggerXForm.AddChild(tabBoxDragger);
-            // root.AddChild(tabBoxDraggerXForm);
+            
+            var tabBoxDragger = TabBoxDragger.Create();
+            tabBoxDragger.SetupDefaultGeometry();
+            tabBoxDragger.HandleEvents = true;
+            var tabBoxDraggerXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(1f, -1.0f, 2.0f)); 
+            tabBoxDraggerXForm.AddChild(tabBoxDragger);
+            root.AddChild(tabBoxDraggerXForm);
             
             return root;
         }

@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using SixLabors.ImageSharp.Processing;
 using Veldrid.SceneGraph.InputAdapter;
+using Veldrid.SceneGraph.PipelineStates;
 using Veldrid.SceneGraph.Shaders.Standard;
 using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.VertexTypes;
@@ -32,19 +33,19 @@ namespace Veldrid.SceneGraph.Manipulators
         
         protected TabPlaneDragger(Matrix4x4 matrix) : base(matrix)
         {
-            CornerScaleDragger = Scale2DDragger.Create(IScale2DDragger.ScaleMode.ScaleWithOppositeHandleAsPivot);
+            CornerScaleDragger = Scale2DDragger.Create(IScale2DDragger.ScaleMode.ScaleWithOppositeHandleAsPivot, false);
             CornerScaleDragger.NameString = "Corner Scale Dragger";
             AddChild(CornerScaleDragger);
             DraggerList.Add(CornerScaleDragger);
 
             HorizontalEdgeScaleDragger =
-                Scale1DDragger.Create(IScale1DDragger.ScaleMode.ScaleWithOppositeHandleAsPivot);
+                Scale1DDragger.Create(IScale1DDragger.ScaleMode.ScaleWithOppositeHandleAsPivot, false);
             HorizontalEdgeScaleDragger.NameString = "Horizontal Edge Scale Dragger";
             AddChild(HorizontalEdgeScaleDragger);
             DraggerList.Add(HorizontalEdgeScaleDragger);
             
             VerticalEdgeScaleDragger = 
-                Scale1DDragger.Create(IScale1DDragger.ScaleMode.ScaleWithOppositeHandleAsPivot);
+                Scale1DDragger.Create(IScale1DDragger.ScaleMode.ScaleWithOppositeHandleAsPivot, false);
             VerticalEdgeScaleDragger.NameString = "Vertical Edge Scale Dragger";
             AddChild(VerticalEdgeScaleDragger);
             DraggerList.Add(VerticalEdgeScaleDragger);
@@ -59,6 +60,7 @@ namespace Veldrid.SceneGraph.Manipulators
             {
                 dragger.ParentDragger = this;
             }
+            
         }
 
         public override void SetupDefaultGeometry()
@@ -78,21 +80,33 @@ namespace Veldrid.SceneGraph.Manipulators
 
         INode CreateHandleNode(IScale2DDragger cornerScaleDragger, float handleScaleFactor, bool twoSided)
         {
-            var vertexArray = new Position3Color3[4];
+            var vertexArray = new Position3Texture2Color3Normal3[4];
             vertexArray[0] =
-                new Position3Color3(Vector3.Multiply(handleScaleFactor, new Vector3(cornerScaleDragger.TopLeftHandlePosition.X, 0.0f, cornerScaleDragger.TopLeftHandlePosition.Y)),
+                new Position3Texture2Color3Normal3(
+                    Vector3.Multiply(handleScaleFactor, new Vector3(cornerScaleDragger.TopLeftHandlePosition.X, 0.0f, cornerScaleDragger.TopLeftHandlePosition.Y)),
+                    Vector2.Zero,
+                    Vector3.UnitY,
                     Vector3.UnitY);
             vertexArray[1] =
-                new Position3Color3(Vector3.Multiply(handleScaleFactor, new Vector3(cornerScaleDragger.BottomLeftHandlePosition.X, 0.0f, cornerScaleDragger.BottomLeftHandlePosition.Y)),
+                new Position3Texture2Color3Normal3(
+                    Vector3.Multiply(handleScaleFactor, new Vector3(cornerScaleDragger.BottomLeftHandlePosition.X, 0.0f, cornerScaleDragger.BottomLeftHandlePosition.Y)),
+                    Vector2.Zero,
+                    Vector3.UnitY,
                     Vector3.UnitY);
             vertexArray[2] =
-                new Position3Color3(Vector3.Multiply(handleScaleFactor, new Vector3(cornerScaleDragger.BottomRightHandlePosition.X, 0.0f, cornerScaleDragger.BottomRightHandlePosition.Y)),
+                new Position3Texture2Color3Normal3(
+                    Vector3.Multiply(handleScaleFactor, new Vector3(cornerScaleDragger.BottomRightHandlePosition.X, 0.0f, cornerScaleDragger.BottomRightHandlePosition.Y)),
+                    Vector2.Zero,
+                    Vector3.UnitY,
                     Vector3.UnitY);
             vertexArray[3] =
-                new Position3Color3(Vector3.Multiply(handleScaleFactor, new Vector3(cornerScaleDragger.TopRightHandlePosition.X, 0.0f, cornerScaleDragger.TopRightHandlePosition.Y)),
+                new Position3Texture2Color3Normal3(
+                    Vector3.Multiply(handleScaleFactor, new Vector3(cornerScaleDragger.TopRightHandlePosition.X, 0.0f, cornerScaleDragger.TopRightHandlePosition.Y)),
+                    Vector2.Zero,
+                    Vector3.UnitY,
                     Vector3.UnitY);
             
-            var geometry = Geometry<Position3Color3>.Create();
+            var geometry = Geometry<Position3Texture2Color3Normal3>.Create();
             
             var indexArray = new uint[6];
             indexArray[0] = 0;
@@ -106,10 +120,10 @@ namespace Veldrid.SceneGraph.Manipulators
             geometry.VertexData = vertexArray;
             geometry.VertexLayouts = new List<VertexLayoutDescription>()
             {
-                Position3Color3.VertexLayoutDescription
+                Position3Texture2Color3Normal3.VertexLayoutDescription
             };
 
-            var pSet = DrawElements<Position3Color3>.Create(
+            var pSet = DrawElements<Position3Texture2Color3Normal3>.Create(
                 geometry,
                 PrimitiveTopology.TriangleList,
                 6,
@@ -119,10 +133,7 @@ namespace Veldrid.SceneGraph.Manipulators
                 0);
             
             geometry.PrimitiveSets.Add(pSet);
-
-            geometry.PipelineState.ShaderSet = Position3Color3Shader.Instance.ShaderSet;
-            geometry.PipelineState.RasterizerStateDescription = RasterizerStateDescription.CullNone;
-
+            
             var geode = Geode.Create();
             geode.NameString = "Dragger Handle";
             geode.AddDrawable(geometry);

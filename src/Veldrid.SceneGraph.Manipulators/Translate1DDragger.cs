@@ -25,8 +25,30 @@ namespace Veldrid.SceneGraph.Manipulators
 
         public bool CheckForNodeInPath { get; set; } = true;
         
-        public INode LeftHandleNode     { get; set; }
-        public INode RightHandleNode  { get; set; }
+        private INode _leftHandleNode;
+        public INode LeftHandleNode
+        {
+            get => _leftHandleNode;
+            set
+            {
+                _leftHandleNode = value;
+                _leftHandleNode.PipelineState = _leftHandleMaterial.CreatePipelineState();
+            }
+        }
+
+        private INode _rightHandleNode;
+
+        public INode RightHandleNode
+        {
+            get => _rightHandleNode;
+            set
+            {
+                _rightHandleNode = value;
+                _rightHandleNode.PipelineState = _rightHandleMaterial.CreatePipelineState();
+            }
+        }
+        
+        
         private IPhongMaterial _leftHandleMaterial;
         private IPhongMaterial _rightHandleMaterial;
         private IPhongMaterial _pickedHandleMaterial;
@@ -41,13 +63,13 @@ namespace Veldrid.SceneGraph.Manipulators
             return new Translate1DDragger(s, e, Matrix4x4.Identity);
         }
         
-        protected Translate1DDragger(Matrix4x4 matrix) : base(matrix)
+        protected Translate1DDragger(Matrix4x4 matrix) : base(matrix, true)
         {
             _leftHandleMaterial = CreateMaterial();
             _rightHandleMaterial = CreateMaterial();
         }
         
-        protected Translate1DDragger(Vector3 s, Vector3 e, Matrix4x4 matrix) : base(s,e, Matrix4x4.Identity)
+        protected Translate1DDragger(Vector3 s, Vector3 e, Matrix4x4 matrix) : base(s,e, Matrix4x4.Identity, true)
         {
             _leftHandleMaterial = CreateMaterial();
             _rightHandleMaterial = CreateMaterial();
@@ -110,10 +132,6 @@ namespace Veldrid.SceneGraph.Manipulators
                     hints,
                     new [] {new Vector3(0.0f, 1.0f, 0.0f)}));
 
-                geode.PipelineState = _leftHandleMaterial.CreatePipelineState();
-                geode.PipelineState.RasterizerStateDescription 
-                    = new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
-                
                 var autoTransform = AutoTransform.Create();
                 autoTransform.Position = LineProjector.LineStart;
                 autoTransform.PivotPoint = LineProjector.LineStart;
@@ -138,10 +156,6 @@ namespace Veldrid.SceneGraph.Manipulators
                     hints,
                     new [] {new Vector3(0.0f, 1.0f, 0.0f)}));
 
-                geode.PipelineState = _rightHandleMaterial.CreatePipelineState();
-                geode.PipelineState.RasterizerStateDescription 
-                    = new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
-                
                 var autoTransform = AutoTransform.Create();
                 autoTransform.Position = LineProjector.LineEnd;
                 autoTransform.PivotPoint = LineProjector.LineEnd;

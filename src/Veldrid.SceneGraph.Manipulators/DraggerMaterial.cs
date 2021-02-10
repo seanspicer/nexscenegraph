@@ -15,26 +15,56 @@
 //
 
 using System.Numerics;
+using Veldrid.SceneGraph.PipelineStates;
 
 namespace Veldrid.SceneGraph.Manipulators
 {
-    public interface IDraggerMaterial
-    {
-        IPipelineState CreatePipelineState();
-        
-        void SetMaterial(Vector3 ambientColor, Vector3 diffuseColor, Vector3 specularColor, float shininess);
-    }
+
     
-    public class DraggerMaterial : IDraggerMaterial
+    internal class DraggerMaterial : PhongMaterial
     {
-        public IPipelineState CreatePipelineState()
+        internal static IPhongMaterial Create(bool usePhongShading = true)
         {
-            throw new System.NotImplementedException();
+            if (usePhongShading)
+            {
+                return new DraggerMaterial(PhongMaterialParameters.Create(
+                        new Vector3(0.0f, 1.0f, 0.0f),
+                        new Vector3(0.0f, 1.0f, 0.0f),
+                        new Vector3(0.0f, 0.0f, 0.0f),
+                        1f),
+                    PhongHeadlight.Create(PhongLightParameters.Create(
+                        new Vector3(0.2f, 0.2f, 0.2f),
+                        new Vector3(0.2f, 0.2f, 0.2f),
+                        new Vector3(0.0f, 0.0f, 0.0f),
+                        5f,
+                        0)));
+            }
+            else
+            {
+                return new DraggerMaterial(PhongMaterialParameters.Create(
+                        new Vector3(0.0f, 1.0f, 0.0f),
+                        new Vector3(0.0f, 1.0f, 0.0f),
+                        new Vector3(0.0f, 0.0f, 0.0f),
+                        1f),
+                    PhongHeadlight.Create(PhongLightParameters.Create(
+                        new Vector3(1f, 1f, 1f),
+                        new Vector3(0f, 0f, 0f),
+                        new Vector3(0.0f, 0.0f, 0.0f),
+                        5f,
+                        0)));
+            }
         }
 
-        public void SetMaterial(Vector3 ambientColor, Vector3 diffuseColor, Vector3 specularColor, float shininess)
+        protected DraggerMaterial(IPhongMaterialParameters m, PhongLight l) : base(m, l, true)
         {
-            throw new System.NotImplementedException();
+            
+        }
+        
+        public override IPipelineState CreatePipelineState()
+        {
+            var state = base.CreatePipelineState();
+            state.RasterizerStateDescription = RasterizerStateDescription.CullNone;
+            return state;
         }
     }
 }

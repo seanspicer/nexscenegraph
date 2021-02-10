@@ -47,9 +47,29 @@ namespace Veldrid.SceneGraph.Manipulators
         }
 
         public float MinScale { get; set; } = 0.001f;
-        
-        public INode LeftHandleNode     { get; set; }
-        public INode RightHandleNode  { get; set; }
+
+        private INode _leftHandleNode;
+        public INode LeftHandleNode
+        {
+            get => _leftHandleNode;
+            set
+            {
+                _leftHandleNode = value;
+                _leftHandleNode.PipelineState = _leftHandleMaterial.CreatePipelineState();
+            }
+        }
+
+        private INode _rightHandleNode;
+
+        public INode RightHandleNode
+        {
+            get => _rightHandleNode;
+            set
+            {
+                _rightHandleNode = value;
+                _rightHandleNode.PipelineState = _rightHandleMaterial.CreatePipelineState();
+            }
+        }
 
         public IScale1DDragger.ScaleMode ScaleMode { get; set; }
         
@@ -60,14 +80,16 @@ namespace Veldrid.SceneGraph.Manipulators
         private IPhongMaterial _leftHandleMaterial;
         private IPhongMaterial _rightHandleMaterial;
         
-        public static IScale1DDragger Create(IScale1DDragger.ScaleMode scaleMode = IScale1DDragger.ScaleMode.ScaleWithOriginAsPivot)
+        public static IScale1DDragger Create(IScale1DDragger.ScaleMode scaleMode = IScale1DDragger.ScaleMode.ScaleWithOriginAsPivot, bool usePhongShading=true)
         {
-            return new Scale1DDragger(scaleMode, Matrix4x4.Identity);
+            return new Scale1DDragger(scaleMode, Matrix4x4.Identity, usePhongShading);
         }
         
-        protected Scale1DDragger(IScale1DDragger.ScaleMode scaleMode, Matrix4x4 matrix) : base(matrix)
+        protected Scale1DDragger(IScale1DDragger.ScaleMode scaleMode, Matrix4x4 matrix, bool usePhongShading) : base(matrix, usePhongShading)
         {
             ScaleMode = scaleMode;
+            _leftHandleMaterial = CreateMaterial();
+            _rightHandleMaterial = CreateMaterial();
         }
 
         public override void SetupDefaultGeometry()
@@ -124,12 +146,8 @@ namespace Veldrid.SceneGraph.Manipulators
                     hints,
                     new [] {new Vector3(0.0f, 1.0f, 0.0f)}));
 
-                _leftHandleMaterial = CreateMaterial();
                 
-                geode.PipelineState = _leftHandleMaterial.CreatePipelineState();
-                geode.PipelineState.RasterizerStateDescription 
-                    = new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
-                
+
                 var autoTransform = AutoTransform.Create();
                 autoTransform.Position = LineProjector.LineStart;
                 autoTransform.PivotPoint = LineProjector.LineStart;
@@ -152,12 +170,8 @@ namespace Veldrid.SceneGraph.Manipulators
                     hints,
                     new [] {new Vector3(0.0f, 1.0f, 0.0f)}));
 
-                _rightHandleMaterial = CreateMaterial();
                 
-                geode.PipelineState = _rightHandleMaterial.CreatePipelineState();
-                geode.PipelineState.RasterizerStateDescription 
-                    = new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
-
+                
                 var autoTransform = AutoTransform.Create();
                 autoTransform.Position = LineProjector.LineEnd;
                 autoTransform.PivotPoint = LineProjector.LineEnd;

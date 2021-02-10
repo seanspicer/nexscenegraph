@@ -43,12 +43,54 @@ namespace Veldrid.SceneGraph.Manipulators
         
         protected Vector2 ReferencePoint { get; set; }
         protected Vector2 MinScale { get; set; } = new Vector2(0.001f, 0.001f);
+
+        private INode _topLeftHandleNode;
+        public INode TopLeftHandleNode
+        {
+            get => _topLeftHandleNode;
+            set
+            {
+                _topLeftHandleNode = value;
+                _topLeftHandleNode.PipelineState = _topLeftHandleMaterial.CreatePipelineState();
+            }
+        }
         
-        public INode TopLeftHandleNode     { get; set; }
-        public INode BottomLeftHandleNode  { get; set; }
-        public INode TopRightHandleNode    { get; set; }
-        public INode BottomRightHandleNode { get; set; }
-        
+        private INode _bottomLeftHandleNode;
+
+        public INode BottomLeftHandleNode
+        {
+            get => _bottomLeftHandleNode;
+            set
+            {
+                _bottomLeftHandleNode = value;
+                _bottomLeftHandleNode.PipelineState = _bottomLeftHandleMaterial.CreatePipelineState();
+            }
+        }
+
+        private INode _topRightHandleNode;
+
+        public INode TopRightHandleNode
+        {
+            get => _topRightHandleNode;
+            set
+            {
+                _topRightHandleNode = value;
+                _topRightHandleNode.PipelineState = _topRightHandleMaterial.CreatePipelineState();
+            }
+        }
+
+        private INode _bottomRightHandleNode;
+
+        public INode BottomRightHandleNode
+        {
+            get => _bottomRightHandleNode;
+            set
+            {
+                _bottomRightHandleNode = value;
+                _bottomRightHandleNode.PipelineState = _bottomRightHandleMaterial.CreatePipelineState();
+            }
+        }
+
         public IScale2DDragger.ScaleMode ScaleMode { get; set; }
 
         private IPhongMaterial _topLeftHandleMaterial;
@@ -56,13 +98,15 @@ namespace Veldrid.SceneGraph.Manipulators
         private IPhongMaterial _bottomLeftHandleMaterial;
         private IPhongMaterial _bottomRightHandleMaterial;
         private IPhongMaterial _pickedHandleMaterial;
-        
-        public static IScale2DDragger Create(IScale2DDragger.ScaleMode scaleMode = IScale2DDragger.ScaleMode.ScaleWithOriginAsPivot)
+
+        public static IScale2DDragger Create(
+            IScale2DDragger.ScaleMode scaleMode = IScale2DDragger.ScaleMode.ScaleWithOriginAsPivot,
+            bool usePhongShading = true)
         {
-            return new Scale2DDragger(scaleMode, Matrix4x4.Identity);
+            return new Scale2DDragger(scaleMode, Matrix4x4.Identity, usePhongShading);
         }
         
-        protected Scale2DDragger(IScale2DDragger.ScaleMode scaleMode, Matrix4x4 matrix) : base(matrix)
+        protected Scale2DDragger(IScale2DDragger.ScaleMode scaleMode, Matrix4x4 matrix, bool usePhongShading) : base(matrix, usePhongShading)
         {
             ScaleMode = scaleMode;
             
@@ -142,10 +186,6 @@ namespace Veldrid.SceneGraph.Manipulators
                     hints,
                     new [] {new Vector3(0.0f, 1.0f, 0.0f)}));
                 
-                geode.PipelineState = _topLeftHandleMaterial.CreatePipelineState();
-                geode.PipelineState.RasterizerStateDescription 
-                    = new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
-                
                 var autoTransform = AutoTransform.Create();
                 autoTransform.Position = pos;
                 autoTransform.PivotPoint = pos;
@@ -169,10 +209,6 @@ namespace Veldrid.SceneGraph.Manipulators
                     hints,
                     new [] {new Vector3(0.0f, 1.0f, 0.0f)}));
 
-                geode.PipelineState = _bottomLeftHandleMaterial.CreatePipelineState();
-                geode.PipelineState.RasterizerStateDescription 
-                    = new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
-                
                 var autoTransform = AutoTransform.Create();
                 autoTransform.Position = pos;
                 autoTransform.PivotPoint = pos;
@@ -196,10 +232,6 @@ namespace Veldrid.SceneGraph.Manipulators
                     hints,
                     new [] {new Vector3(0.0f, 1.0f, 0.0f)}));
 
-                geode.PipelineState = _bottomRightHandleMaterial.CreatePipelineState();
-                geode.PipelineState.RasterizerStateDescription 
-                    = new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
-                
                 var autoTransform = AutoTransform.Create();
                 autoTransform.Position = pos;
                 autoTransform.PivotPoint = pos;
@@ -223,10 +255,6 @@ namespace Veldrid.SceneGraph.Manipulators
                     hints,
                     new [] {new Vector3(0.0f, 1.0f, 0.0f)}));
 
-                geode.PipelineState = _topRightHandleMaterial.CreatePipelineState();
-                geode.PipelineState.RasterizerStateDescription 
-                    = new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
-                
                 var autoTransform = AutoTransform.Create();
                 autoTransform.Position = pos;
                 autoTransform.PivotPoint = pos;

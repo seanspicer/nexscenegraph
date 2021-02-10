@@ -49,6 +49,8 @@ namespace Veldrid.SceneGraph.Manipulators
     
     public abstract class Dragger : MatrixTransform, IDragger
     {
+        public bool UsePhongShading { get; set; } = true;
+        
         public Color Color { get; protected set; } = Color.FromArgb(255, 0, 255, 0);
         public Color PickColor { get; protected set; } = Color.Magenta;
 
@@ -101,8 +103,9 @@ namespace Veldrid.SceneGraph.Manipulators
         
         private IDraggerCallback _selfUpdater;
         
-        protected Dragger(Matrix4x4 matrix) : base(matrix)
+        protected Dragger(Matrix4x4 matrix, bool usePhongShading=true) : base(matrix)
         {
+            UsePhongShading = usePhongShading;
             _parentDragger = this;
             _selfUpdater = DraggerTransformCallback.Create(this);
         }
@@ -354,23 +357,11 @@ namespace Veldrid.SceneGraph.Manipulators
             }
         }
 
+        
+        
         protected IPhongMaterial CreateMaterial()
         {
-            return PhongMaterial.Create(
-                    PhongMaterialParameters.Create(
-                        new Vector3(0.0f, 1.0f, 0.0f),
-                        new Vector3(0.0f, 1.0f, 0.0f),
-                        new Vector3(0.0f, 0.0f, 0.0f),
-                        1f),
-                    PhongHeadlight.Create(PhongLightParameters.Create(
-                        new Vector3(0.2f, 0.2f, 0.2f),
-                        new Vector3(0.2f, 0.2f, 0.2f),
-                        new Vector3(0.0f, 0.0f, 0.0f),
-                        5f,
-                        0)),
-                    true);
-
-            
+            return DraggerMaterial.Create(UsePhongShading);
         }
     }
 }
