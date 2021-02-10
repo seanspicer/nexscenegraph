@@ -22,13 +22,14 @@ using System.Numerics;
 using Microsoft.Extensions.Logging;
 using Veldrid.SceneGraph.Logging;
 using Veldrid.SceneGraph.RenderGraph;
+using Veldrid.SceneGraph.Util;
 
 namespace Veldrid.SceneGraph.Viewer
 {
     internal class Renderer : IGraphicsDeviceOperation
     {
-        
-        private ICullVisitor _cullVisitor;
+        private readonly IUpdateVisitor _updateVisitor;
+        private readonly ICullVisitor _cullVisitor;
         
         private ICamera _camera;
         
@@ -58,6 +59,7 @@ namespace Veldrid.SceneGraph.Viewer
         public Renderer(ICamera camera)
         {
             _camera = camera;
+            _updateVisitor = UpdateVisitor.Create();
             _cullVisitor = CullVisitor.Create();
             _logger = LogManager.CreateLogger<Renderer>();
             _fullScreenQuadRenderer = new FullScreenQuadRenderer();
@@ -105,6 +107,24 @@ namespace Veldrid.SceneGraph.Viewer
             _initialized = true;
         }
 
+        private void Event()
+        {
+            if (_camera.View is Veldrid.SceneGraph.Viewer.View viewerView)
+            {
+                viewerView.EventTraversal();
+            }
+        }
+        
+        private void Update()
+        {
+            if (_camera.View is Veldrid.SceneGraph.Viewer.View viewerView)
+            {
+                viewerView.SceneData?.Accept(_updateVisitor);
+                
+                viewerView.CameraManipulator?.UpdateCamera(_camera);
+            }
+        }
+        
         private void Cull(GraphicsDevice device, ResourceFactory factory)
         {
             using (var mcv = _cullVisitor.ToMutable())
@@ -425,13 +445,21 @@ namespace Veldrid.SceneGraph.Viewer
             _stopWatch.Reset();
             _stopWatch.Start();
 
-            UpdateUniforms(device, factory);
+            Event();
+
+            var postEvent = _stopWatch.ElapsedMilliseconds;
+            
+            Update();
 
             var postUpdate = _stopWatch.ElapsedMilliseconds;
             
             Cull(device, factory);
             
             var postCull = _stopWatch.ElapsedMilliseconds;
+            
+            UpdateUniforms(device, factory);
+            
+            var postUpdateUniforms = _stopWatch.ElapsedMilliseconds;
             
             Record(device, factory);
             
@@ -446,10 +474,12 @@ namespace Veldrid.SceneGraph.Viewer
             var postSwap = _stopWatch.ElapsedMilliseconds;
 
             var logString = string.Format(
-                "UpdateUniforms = {0} ms, Cull = {1} ms, Record = {2}, Draw = {3} ms, Swap = {4} ms",
-                postUpdate,
-                postCull - postUpdate,
-                postRecord - postCull,
+                "Event = {0} ms, Update = {1} ms, Cull = {2} ms, UpdateUniforms = {3} ms, Record = {4}, Draw = {5} ms, Swap = {6} ms",
+                postEvent,
+                postUpdate - postEvent,
+                postCull - postEvent,
+                postUpdateUniforms - postCull,
+                postRecord - postUpdateUniforms,
                 postDraw - postRecord,
                 postSwap - postDraw);
             

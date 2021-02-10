@@ -429,29 +429,8 @@ namespace Veldrid.SceneGraph.Viewer
             _previousElapsed = newElapsed;
 
             if (null == _graphicsDevice) return;
-
-            EventTraversal();
-
-            UpdateTraversal();
             
             RenderingTraversals();
-
-            //_endFrameEvents.OnNext(new EndFrameEvent(deltaSeconds));
-        }
-
-        
-        private void UpdateTraversal()
-        {
-            //_updateVisitor.Reset();
-            //_updateVisitor.SetFrameStamp(GetFrameStamp());
-            //_updateVisitor.SetTraversalNumber(GetFrameStamp().GetFrameNumber());
-            
-            SceneData?.Accept(_updateVisitor);
-
-            if (null != CameraManipulator)
-            {
-                CameraManipulator.UpdateCamera(Camera);
-            }
         }
 
         //

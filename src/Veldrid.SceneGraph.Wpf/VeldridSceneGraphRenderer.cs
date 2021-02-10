@@ -340,24 +340,13 @@ namespace Veldrid.SceneGraph.Wpf
             _previousElapsed = newElapsed;
 
             if (null == _graphicsDevice) return;
-
-            _view.EventTraversal();
             
-            UpdateTraversal();
-
             RenderingTraversal();
 
             _endFrameEvents.OnNext(new EndFrameEvent(deltaSeconds));
             
         }
         
-        private void UpdateTraversal()
-        {
-            SceneData?.Accept(_updateVisitor);
-
-            CameraManipulator?.UpdateCamera(_view.Camera);
-        }
-
         private void RenderingTraversal()
         {
             GraphicsDeviceOperations?.Invoke(_graphicsDevice, _factory);

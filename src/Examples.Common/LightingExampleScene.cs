@@ -58,7 +58,7 @@ namespace Examples.Common
                 TopologyType.IndexedTriangleList);
 
             // Shape Drawables
-            var cubeShape = Box.Create(new Vector3(5f, 0.0f, 0.0f), 0.5f*Vector3.One);
+            var cubeShape = Box.Create(new Vector3(0f, 0.0f, 0.0f), 0.5f*Vector3.One);
             var hints = TessellationHints.Create();
             hints.NormalsType = NormalsType.PerVertex;
             hints.ColorsType = ColorsType.ColorPerVertex;
@@ -93,7 +93,7 @@ namespace Examples.Common
             cubeXForm.AddChild(sphere);
             
             var quat = QuaternionExtensions.MakeRotate(Vector3.UnitY, -Vector3.UnitY);
-            var cubeXForm2 = MatrixTransform.Create(Matrix4x4.CreateScale(10f, 10f, 5f).PostMultiply(Matrix4x4.CreateFromQuaternion(quat)));
+            var cubeXForm2 = MatrixTransform.Create(Matrix4x4.CreateScale(10f, 10f, 10f).PostMultiply(Matrix4x4.CreateFromQuaternion(quat)));
             cubeXForm2.AddChild(cube2);
 
             var at = AutoTransform.Create();
@@ -152,7 +152,7 @@ namespace Examples.Common
                     new Vector3(1.0f, 1.0f, 1.0f),
                     1f,
                     0)),
-                true);
+                false);
             
             var sphereMaterial = PhongMaterial.Create(
                 PhongMaterialParameters.Create(

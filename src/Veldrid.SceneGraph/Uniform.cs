@@ -103,7 +103,7 @@ namespace Veldrid.SceneGraph
 
         public virtual void UpdateDeviceBuffers(GraphicsDevice device, ResourceFactory factory)
         {
-            if (_modifiedCount == 0) return;
+            if (_modifiedCount == 0 || null == _uniformBuffer) return;
             
             var uniformBufferStaging = new T[UniformData.Length * _hostBufStride];
             for (var i = 0; i < UniformData.Length; ++i)
