@@ -5,6 +5,7 @@ using System.Numerics;
 using SixLabors.Shapes;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Manipulators.Commands;
+using Veldrid.SceneGraph.PipelineStates;
 using Veldrid.SceneGraph.Shaders.Standard;
 using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Util.Shape;
@@ -23,6 +24,17 @@ namespace Veldrid.SceneGraph.Manipulators
 
         public bool CheckForNodeInPath { get; set; } = true;
         
+        public INode LeftHandleNode     { get; set; }
+        public INode RightHandleNode  { get; set; }
+        public INode TopHandleNode     { get; set; }
+        public INode BottomHandleNode  { get; set; }
+        private IPhongMaterial _leftHandleMaterial;
+        private IPhongMaterial _rightHandleMaterial;
+        private IPhongMaterial _topHandleMaterial;
+        private IPhongMaterial _bottomHandleMaterial;
+        
+        private IPhongMaterial _pickedHandleMaterial;
+        
         public new static ITranslate2DDragger Create()
         {
             return new Translate2DDragger(Matrix4x4.Identity);
@@ -30,7 +42,10 @@ namespace Veldrid.SceneGraph.Manipulators
         
         protected Translate2DDragger(Matrix4x4 matrix) : base(matrix)
         {
-            
+            _leftHandleMaterial = CreateMaterial();
+            _rightHandleMaterial = CreateMaterial();
+            _topHandleMaterial = CreateMaterial();
+            _bottomHandleMaterial = CreateMaterial();
         }
 
         public override void SetupDefaultGeometry()
@@ -79,12 +94,13 @@ namespace Veldrid.SceneGraph.Manipulators
             //hints.NormalsType = NormalsType.PerFace;
 
             var pipelineState = CreateMaterial().CreatePipelineState();
-            
-            var geode = Geode.Create();
+
+            var horizontalConeGroup = Group.Create();
             
             // Create a left Cone
             {
-                var cone = Cone.Create(lineStart, 0.025f, 0.1f);
+                var geode = Geode.Create();
+                var cone = Cone.Create(lineStart, 0.5f, 2f);
                 cone.Rotation = QuaternionExtensions.MakeRotate(Vector3.Multiply(Vector3.UnitZ, -1.0f), Vector3.UnitZ);
                 
                 geode.AddDrawable(ShapeDrawable<Position3Texture2Color3Normal3>.Create(
@@ -92,25 +108,103 @@ namespace Veldrid.SceneGraph.Manipulators
                     hints,
                     new [] {new Vector3(0.0f, 1.0f, 0.0f)}));
 
-                geode.PipelineState = pipelineState;
+                geode.PipelineState = _leftHandleMaterial.CreatePipelineState();
                 geode.PipelineState.RasterizerStateDescription 
                     = new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
-                AddChild(geode);
+                
+                var autoTransform = AutoTransform.Create();
+                autoTransform.Position = lineStart;
+                autoTransform.PivotPoint = lineStart;
+                autoTransform.AutoScaleToScreen = true;
+                autoTransform.AddChild(geode);
+                
+                var antiSquish = AntiSquish.Create(lineStart);
+                antiSquish.AddChild(autoTransform);
+                
+                horizontalConeGroup.AddChild(antiSquish);
+                LeftHandleNode = antiSquish;
             }
             
             // Create a right Cone
             {
-                var cone = Cone.Create(lineEnd, 0.025f, 0.1f);
-                //cone.Rotation = QuaternionExtensions.MakeRotate(Vector3.UnitZ, Vector3.Multiply(Vector3.UnitZ, -1.0f));
+                var geode = Geode.Create();
+                var cone = Cone.Create(lineEnd, 0.5f, 2f);
                 geode.AddDrawable(ShapeDrawable<Position3Texture2Color3Normal3>.Create(
                     cone,
                     hints,
                     new [] {new Vector3(0.0f, 1.0f, 0.0f)}));
 
-                geode.PipelineState = pipelineState;
+                geode.PipelineState = _rightHandleMaterial.CreatePipelineState();
                 geode.PipelineState.RasterizerStateDescription 
                     = new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
-                AddChild(geode);
+                
+                var autoTransform = AutoTransform.Create();
+                autoTransform.Position = lineEnd;
+                autoTransform.PivotPoint = lineEnd;
+                autoTransform.AutoScaleToScreen = true;
+                autoTransform.AddChild(geode);
+                
+                var antiSquish = AntiSquish.Create(lineEnd);
+                antiSquish.AddChild(autoTransform);
+                
+                horizontalConeGroup.AddChild(antiSquish);
+                RightHandleNode = antiSquish;
+            }
+            
+            var verticalConeGroup = Group.Create();
+            
+            // Create a top Cone
+            {
+                var geode = Geode.Create();
+                var cone = Cone.Create(lineStart, 0.5f, 2f);
+                cone.Rotation = QuaternionExtensions.MakeRotate(Vector3.Multiply(Vector3.UnitZ, -1.0f), Vector3.UnitZ);
+                
+                geode.AddDrawable(ShapeDrawable<Position3Texture2Color3Normal3>.Create(
+                    cone,
+                    hints,
+                    new [] {new Vector3(0.0f, 1.0f, 0.0f)}));
+
+                geode.PipelineState = _topHandleMaterial.CreatePipelineState();
+                geode.PipelineState.RasterizerStateDescription 
+                    = new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
+                
+                var autoTransform = AutoTransform.Create();
+                autoTransform.Position = lineStart;
+                autoTransform.PivotPoint = lineStart;
+                autoTransform.AutoScaleToScreen = true;
+                autoTransform.AddChild(geode);
+                
+                var antiSquish = AntiSquish.Create(lineStart);
+                antiSquish.AddChild(autoTransform);
+                
+                verticalConeGroup.AddChild(antiSquish);
+                TopHandleNode = antiSquish;
+            }
+            
+            // Create a right Cone
+            {
+                var geode = Geode.Create();
+                var cone = Cone.Create(lineEnd, 0.5f, 2f);
+                geode.AddDrawable(ShapeDrawable<Position3Texture2Color3Normal3>.Create(
+                    cone,
+                    hints,
+                    new [] {new Vector3(0.0f, 1.0f, 0.0f)}));
+
+                geode.PipelineState = _bottomHandleMaterial.CreatePipelineState();
+                geode.PipelineState.RasterizerStateDescription 
+                    = new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
+                
+                var autoTransform = AutoTransform.Create();
+                autoTransform.Position = lineEnd;
+                autoTransform.PivotPoint = lineEnd;
+                autoTransform.AutoScaleToScreen = true;
+                autoTransform.AddChild(geode);
+                
+                var antiSquish = AntiSquish.Create(lineEnd);
+                antiSquish.AddChild(autoTransform);
+                
+                verticalConeGroup.AddChild(antiSquish);
+                BottomHandleNode = antiSquish;
             }
 
             var planeNormal = Vector3.Normalize(PlaneProjector.Plane.Normal);
@@ -122,7 +216,7 @@ namespace Veldrid.SceneGraph.Manipulators
                 var rot = QuaternionExtensions.MakeRotate(new Vector3(1.0f, 0.0f, 0.0f), new Vector3(0.0f, 0.0f, 1.0f));
                 var arrow = MatrixTransform.Create(Matrix4x4.CreateFromQuaternion(rot));
                 arrow.AddChild(lineGeode);
-                arrow.AddChild(geode);
+                arrow.AddChild(verticalConeGroup);
                 xform.AddChild(arrow);
             }
             
@@ -130,7 +224,7 @@ namespace Veldrid.SceneGraph.Manipulators
             {
                 var arrow = Group.Create();
                 arrow.AddChild(lineGeode);
-                arrow.AddChild(geode);
+                arrow.AddChild(horizontalConeGroup);
                 xform.AddChild(arrow);
             }
 
@@ -142,7 +236,11 @@ namespace Veldrid.SceneGraph.Manipulators
         {
             if (CheckForNodeInPath)
             {
-                if (!pointerInfo.Contains(this)) return false;
+                if (!pointerInfo.Contains(LeftHandleNode) && 
+                    !pointerInfo.Contains(RightHandleNode) && 
+                    !pointerInfo.Contains(TopHandleNode) &&
+                    !pointerInfo.Contains(BottomHandleNode)) 
+                    return false;
             }
             
             switch (eventAdapter.EventType)
@@ -159,6 +257,23 @@ namespace Veldrid.SceneGraph.Manipulators
                     {
                         StartProjectedPoint = startProjectedPoint;
 
+                        if (pointerInfo.Contains(LeftHandleNode))
+                        {
+                            _pickedHandleMaterial = _leftHandleMaterial;
+                        }
+                        else if (pointerInfo.Contains(RightHandleNode))
+                        {
+                            _pickedHandleMaterial = _rightHandleMaterial;
+                        }
+                        else if (pointerInfo.Contains(TopHandleNode))
+                        {
+                            _pickedHandleMaterial = _topHandleMaterial;
+                        }
+                        else if (pointerInfo.Contains(BottomHandleNode))
+                        {
+                            _pickedHandleMaterial = _bottomHandleMaterial;
+                        }
+                        
                         // Create the motion command
                         var cmd = TranslateInPlaneCommand.Create(PlaneProjector.Plane);
                         cmd.Stage = IMotionCommand.MotionStage.Start;
@@ -167,7 +282,8 @@ namespace Veldrid.SceneGraph.Manipulators
 
                         Dispatch(cmd);
                         
-                        // TODO -- Set material color
+                        var pickColor = GetColorVector(PickColor);
+                        _pickedHandleMaterial?.SetMaterial(pickColor, pickColor, Vector3.One, 1);
                         
                         actionAdapter.RequestRedraw();
                     }
@@ -204,7 +320,8 @@ namespace Veldrid.SceneGraph.Manipulators
                     
                     Dispatch(cmd);
                     
-                    // TODO: Reset Color
+                    var normalColor = GetColorVector(Color);
+                    _pickedHandleMaterial?.SetMaterial(normalColor, normalColor, Vector3.One, 1);
                     
                     actionAdapter.RequestRedraw();
 

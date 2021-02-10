@@ -75,6 +75,8 @@ namespace Veldrid.SceneGraph.Util.Shape
         
         protected void End()
         {
+            var inverseTranspose = Matrix4x4.Transpose(Inverse);
+            
             for (var i = 0; i < _currentPrimitive.Vertices.Count; ++i)
             {
                 _currentPrimitive.Vertices[i] = Vector3.Transform(_currentPrimitive.Vertices[i], _matrix);
@@ -82,7 +84,7 @@ namespace Veldrid.SceneGraph.Util.Shape
             
             for (var i = 0; i < _currentPrimitive.Normals.Count; ++i)
             {
-                _currentPrimitive.Normals[i] = Vector3.Normalize(Vector3.Transform(_currentPrimitive.Normals[i], _inverse));
+                _currentPrimitive.Normals[i] = Vector3.Normalize(Vector3.Transform(_currentPrimitive.Normals[i], inverseTranspose));
             }
             
             _primitives.Add(_currentPrimitive);
@@ -158,6 +160,8 @@ namespace Veldrid.SceneGraph.Util.Shape
                 }
 
                 indexDataList.AddRange(triIndicies.Select(idx => (uint) (lastIdx + idx)));
+                
+                var inverseTranspose = Matrix4x4.Transpose(Inverse);
                 
                 lastIdx += strip.Vertices.Count;
                 for (var idx = 0; idx < strip.Vertices.Count; ++idx)

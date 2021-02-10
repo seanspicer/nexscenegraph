@@ -138,7 +138,6 @@ namespace Veldrid.SceneGraph.Manipulators
                 
                 var antiSquish = AntiSquish.Create(LineProjector.LineStart);
                 antiSquish.AddChild(autoTransform);
-                
                 AddChild(antiSquish);
                 LeftHandleNode = antiSquish;
 

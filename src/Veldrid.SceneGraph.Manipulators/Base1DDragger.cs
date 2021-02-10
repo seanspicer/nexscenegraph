@@ -20,9 +20,6 @@ namespace Veldrid.SceneGraph.Manipulators
         {
             LineProjector = Veldrid.SceneGraph.Manipulators.LineProjector.Create(
                 LineSegment.Create(s,e));
-            
-            Color = Color.Green;
-            PickColor = Color.Magenta;
         }
     }
 }

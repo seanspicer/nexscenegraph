@@ -189,13 +189,15 @@ namespace Veldrid.SceneGraph.Util.Shape
             
             var vertexDataList = new List<T>();
 
+            var inverseTranspose = Matrix4x4.Transpose(Inverse);
+            
             foreach (var face in faces)
             {
                 for (var i = 0; i < face.VertexIndices.Count; ++i)
                 {
                     var vtx = new T();
                     vtx.SetPosition(Vector3.Transform(vertices[face.VertexIndices[i]], Matrix));
-                    vtx.SetNormal(Vector3.Normalize(Vector3.Transform(normals[face.NormalIndices[i]], Inverse)));
+                    vtx.SetNormal(Vector3.Normalize(Vector3.Transform(normals[face.NormalIndices[i]], inverseTranspose)));
                     vtx.SetColor3(colors[face.ColorIndices[i]]);
                     vtx.SetTexCoord2(texcoords[face.TexCoordIndices[i]]);
                     vertexDataList.Add(vtx);

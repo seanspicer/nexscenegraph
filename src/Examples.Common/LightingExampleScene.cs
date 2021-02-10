@@ -58,7 +58,7 @@ namespace Examples.Common
                 TopologyType.IndexedTriangleList);
 
             // Shape Drawables
-            var cubeShape = Box.Create(Vector3.Zero, 0.5f*Vector3.One);
+            var cubeShape = Box.Create(new Vector3(5f, 0.0f, 0.0f), 0.5f*Vector3.One);
             var hints = TessellationHints.Create();
             hints.NormalsType = NormalsType.PerVertex;
             hints.ColorsType = ColorsType.ColorPerVertex;
@@ -87,12 +87,18 @@ namespace Examples.Common
 
             var sphere = Geode.Create();
             sphere.AddDrawable(sphereDrawable);
+
             
             var cubeXForm = MatrixTransform.Create(Matrix4x4.CreateScale(10f, 10f, 10f));
             cubeXForm.AddChild(sphere);
             
-            var cubeXForm2 = MatrixTransform.Create(Matrix4x4.CreateScale(10f, 10f, 10f));
+            var quat = QuaternionExtensions.MakeRotate(Vector3.UnitY, -Vector3.UnitY);
+            var cubeXForm2 = MatrixTransform.Create(Matrix4x4.CreateScale(10f, 10f, 5f).PostMultiply(Matrix4x4.CreateFromQuaternion(quat)));
             cubeXForm2.AddChild(cube2);
+
+            var at = AutoTransform.Create();
+            at.AutoScaleToScreen = true;
+            at.AddChild(cubeXForm2);
 
             var leftTop = MatrixTransform.Create(Matrix4x4.CreateTranslation(-10f, 10f, 0f));
             var rightTop = MatrixTransform.Create(Matrix4x4.CreateTranslation(10f, 10f, 0f));
@@ -146,7 +152,7 @@ namespace Examples.Common
                     new Vector3(1.0f, 1.0f, 1.0f),
                     1f,
                     0)),
-                false);
+                true);
             
             var sphereMaterial = PhongMaterial.Create(
                 PhongMaterialParameters.Create(

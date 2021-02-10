@@ -17,8 +17,6 @@ namespace Veldrid.SceneGraph.Manipulators.Commands
 
         public Vector3 LineStart => _lineSegment.Start;
         public Vector3 LineEnd => _lineSegment.End;
-
-        public Vector3 Translation { get; set; }
         
         public static ITranslateInLineCommand Create(Vector3 start, Vector3 end)
         {
