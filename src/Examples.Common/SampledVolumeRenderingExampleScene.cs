@@ -2,6 +2,8 @@
 using System.Reflection;
 using Veldrid;
 using Veldrid.SceneGraph;
+using Veldrid.SceneGraph.Manipulators;
+using Veldrid.SceneGraph.Manipulators.Commands;
 using Veldrid.SceneGraph.Math.IsoSurface;
 using Veldrid.SceneGraph.NodeKits.DirectVolumeRendering;
 using Veldrid.SceneGraph.Shaders;
@@ -54,13 +56,93 @@ namespace Examples.Common
             // Values[1, 1, 1] = 1.0;
         }
     }
+
+    public class DraggerVolumeTileCallback : DraggerCallback
+    {
+        private IVolumeTile _volumeTile;
+        private ILocator _locator;
+        
+        private Matrix4x4 _startMotionMatrix;
+        private Matrix4x4 _localToWorld;
+        private Matrix4x4 _worldToLocal;
+        
+        public DraggerVolumeTileCallback(IVolumeTile volumeTile, ILocator locator)
+        {
+            _volumeTile = volumeTile;
+            _locator = locator;
+        }
+
+        public override bool Receive(IMotionCommand command)
+        {
+            if (null == _locator) return false;
+
+            switch (command.Stage)
+            {
+                case IMotionCommand.MotionStage.Start:
+                {
+                    // Save the current matrix
+                    _startMotionMatrix = _locator.Transform;
+
+                    // Get the LocalToWorld and WorldToLocal matrix for this node.
+                    var  nodePathToRoot = Veldrid.SceneGraph.Manipulators.Util.ComputeNodePathToRoot(_volumeTile);
+                    _localToWorld = _startMotionMatrix * Transform.ComputeLocalToWorld(nodePathToRoot);
+                    if (Matrix4x4.Invert(_localToWorld, out var worldToLocal))
+                    {
+                        _worldToLocal = worldToLocal;
+                    }
+                    
+                    return true;
+                }
+                case IMotionCommand.MotionStage.Move:
+                {
+                    // Transform the command's motion matrix into local motion matrix.
+                    Matrix4x4 localMotionMatrix = _localToWorld * command.GetWorldToLocal()
+                                                                  * command.GetMotionMatrix()
+                                                                  * command.GetLocalToWorld() * _worldToLocal;
+
+                    // Transform by the localMotionMatrix
+                    _locator.SetTransform(localMotionMatrix.PostMultiply(_startMotionMatrix));
+
+                    return true;
+                }
+                case IMotionCommand.MotionStage.Finish:
+                {
+                    return true;
+                }
+                case IMotionCommand.MotionStage.None:
+                default:
+                    return false;
+            }
+        }
+    }
     
     public class SampledVolumeRenderingExampleScene
     {
         public static IGroup Build()
         {
+            //var root = Group.Create();
+            //root.AddChild(SampledVolumeNode.Create(new CornerVoxelVolume(), CreateShaderSet()));
+            //return root;
+
+            var volume = Volume.Create();
+            var tile = VolumeTile.Create();
+            volume.AddChild(tile);
+
+            var layer = VoxelVolumeLayer.Create(new CornerVoxelVolume());
+            tile.Layer = layer;
+            tile.Locator = layer.Locator;
+            tile.SetVolumeTechnique(LevoyCabralTechnique.Create(CreateShaderSet()));
+
+            var dragger = TabBoxDragger.Create();
+            dragger.SetupDefaultGeometry();
+            dragger.HandleEvents = true;
+            dragger.DraggerCallbacks.Add(new DraggerVolumeTileCallback(tile, tile.Locator));
+            dragger.Matrix = Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f)
+                .PostMultiply(tile.Locator.Transform);
+            
             var root = Group.Create();
-            root.AddChild(SampledVolumeNode.Create(new CornerVoxelVolume(), CreateShaderSet()));
+            root.AddChild(volume);
+            root.AddChild(dragger);
             return root;
         }
 

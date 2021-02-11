@@ -83,6 +83,8 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         void SetDirty(bool dirty);
 
         void Init();
+
+        void TraverseGroup(INodeVisitor nv);
     }
 
     public class VolumeTile : Group, IVolumeTile
@@ -140,14 +142,14 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
             int dirtyDelta = Dirty ? -1 : 0;
 
-            if (VolumeTechnique.Valid())
+            if (null != VolumeTechnique)
             {
                 VolumeTechnique.VolumeTile = null;
             }
 
             VolumeTechnique = volumeTechnique;
 
-            if (VolumeTechnique.Valid())
+            if (null != VolumeTechnique)
             {
                 VolumeTechnique.VolumeTile = this;
                 ++dirtyDelta;
@@ -175,7 +177,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
         public void Init()
         {
-            if (VolumeTechnique.Valid() && Dirty)
+            if (null != VolumeTechnique && Dirty)
             {
                 VolumeTechnique.Init();
 
@@ -185,6 +187,11 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
         private bool _hasBeenTraversal = false;
 
+        public void TraverseGroup(INodeVisitor nv)
+        {
+            base.Traverse(nv);
+        }
+        
         public override void Traverse(INodeVisitor nv)
         {
             if (!_hasBeenTraversal)
@@ -213,7 +220,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
                 Layer.Update(nv);
             }
 
-            if (VolumeTechnique.Valid())
+            if (null != VolumeTechnique)
             {
                 VolumeTechnique.Traverse(nv);
             }
@@ -226,7 +233,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         public override IBoundingSphere ComputeBound()
         {
             var masterLocator = Locator;
-            if (Layer.Valid() && null != masterLocator)
+            if (null != Layer && null != masterLocator)
             {
                 masterLocator = Layer.Locator;
             }
@@ -239,7 +246,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
                 return BoundingSphere.Create((left+right)*0.5f, (right-left).Length()*0.5f);
             }
-            else if (Layer.Valid())
+            else if (null != Layer)
             {
                 // we have a layer but no Locator defined so will assume a Identity Locator
                 return BoundingSphere.Create( new Vector3(0.5f,0.5f,0.5f), 0.867f);

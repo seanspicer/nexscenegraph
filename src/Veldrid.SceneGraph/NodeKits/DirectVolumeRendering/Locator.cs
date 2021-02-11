@@ -30,6 +30,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         }
         
         Matrix4x4 Transform { get; }
+        public void SetTransform(Matrix4x4 transform);
         
         void ComputeLocalBounds(ref Vector3 left, ref Vector3 right);
 
@@ -53,22 +54,29 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         protected Matrix4x4 _transform = Matrix4x4.Identity;
         protected Matrix4x4 _inverse = Matrix4x4.Identity;
 
-        void SetTransformAsExtents(float minX, float minY, float maxX, float maxY, float minZ, float maxZ)
+        public static ILocator Create(float minX, float maxX, float minY, float maxY, float minZ, float maxZ)
         {
-            _transform = Matrix4x4.Identity;
-            _transform.M11 = maxX - minX;
-            _transform.M22 = maxY - minY;
-            _transform.M33 = maxZ - minZ;
-            _transform.M41 = minX;
-            _transform.M42 = minY;
-            _transform.M43 = minZ;
+            return new Locator(minX, maxX, minY, maxY, minZ, maxZ);
+        }
 
-            if (Matrix4x4.Invert(_transform, out var inverse))
-            {
-                _inverse = inverse;
-            }
+        protected Locator(float minX, float maxX, float minY, float maxY, float minZ, float maxZ)
+        {
+            SetTransformAsExtents(minX, maxX, minY, maxY, minZ, maxZ);;
+        }
+        
+        protected Locator() {}
+        
+        protected void SetTransformAsExtents(float minX, float maxX, float minY, float maxY, float minZ, float maxZ)
+        {
+            var transform = Matrix4x4.Identity;
+            transform.M11 = maxX - minX;
+            transform.M22 = maxY - minY;
+            transform.M33 = maxZ - minZ;
+            transform.M41 = minX;
+            transform.M42 = minY;
+            transform.M43 = minZ;
 
-            LocatorModified();
+            SetTransform(transform);
         }
         
         public Vector3 ConvertLocalToModel(Vector3 local)
@@ -79,10 +87,19 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         public Vector3 ConvertModelToLocal(Vector3 world)
         {
             return _inverse.PreMultiply(world);
-
         }
 
         public Matrix4x4 Transform => _transform;
+
+        public virtual void SetTransform(Matrix4x4 transform)
+        {
+            _transform = transform;
+            if (Matrix4x4.Invert(_transform, out var inverse))
+            {
+                _inverse = inverse;
+            }
+            LocatorModified();
+        }
 
         public void ComputeLocalBounds(ref Vector3 bottomLeft, ref Vector3 topRight)
         {

@@ -7,7 +7,7 @@ namespace Veldrid.SceneGraph.Manipulators
 {
     public class Util
     {
-        internal static NodePath ComputeNodePathToRoot(INode node)
+        public static NodePath ComputeNodePathToRoot(INode node)
         {
             var result = new NodePath();
             

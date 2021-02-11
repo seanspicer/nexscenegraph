@@ -351,7 +351,7 @@ namespace Veldrid.SceneGraph.Manipulators
             ParentDragger.Receive(command);
             
             // Pass along movement to any callbacks
-            foreach (var callback in DraggerCallbacks)
+            foreach (var callback in ParentDragger.DraggerCallbacks)
             {
                 command.Accept(callback);
             }

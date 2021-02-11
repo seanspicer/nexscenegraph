@@ -35,6 +35,11 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         protected Dictionary<VolumeTileId, IVolumeTile> VolumeTileDict { get; } =
             new Dictionary<VolumeTileId, IVolumeTile>();
         
+        public new static IVolume Create()
+        {
+            return new Volume();
+        }
+        
         public IVolumeTile GetVolumeTile(VolumeTileId tileId)
         {
             return VolumeTileDict.TryGetValue(tileId, out var volumeTile) ? volumeTile : null;

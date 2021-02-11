@@ -22,7 +22,6 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
     public interface IVolumeTechnique : IObject
     {
         public IVolumeTile VolumeTile { get; internal set; }
-        bool Valid();
         void Init();
         void Traverse(INodeVisitor nv);
     }
@@ -35,11 +34,6 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         {
             get => _volumeTile;
             set => _volumeTile = value;
-        }
-
-        public bool Valid()
-        {
-            throw new System.NotImplementedException();
         }
 
         public abstract void Init();
@@ -65,7 +59,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
                 }
 
             }
-            else if (nv.Type == NodeVisitor.VisitorType.CullVisitor)
+            else if ((nv.Type & NodeVisitor.VisitorType.CullVisitor) != 0)
             {
                 if (nv is ICullVisitor cv)
                 {
@@ -76,8 +70,8 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
             if (_volumeTile.Dirty) _volumeTile.Init();
 
-            // otherwise fallback to the Group::traverse()
-            _volumeTile.Traverse(nv);
+            // otherwise fallback to the Group.Traverse()
+            _volumeTile.TraverseGroup(nv);
         }
     }
 }
