@@ -191,47 +191,50 @@ namespace Veldrid.SceneGraph.Manipulators
 
                 if (ActivationModKeyMask != 0 || ActivationMouseButtonMask != 0 || ActivationKeyEvent != 0)
                 {
-                    ActivationPermittedByModKeyMask = (ActivationModKeyMask != 0) && 
-                                                      ((eventAdapter.ModKeyMask & 
-                                                        ActivationModKeyMask) != 0);
-                    
-                    ActivationPermittedByMouseButtonMask = (ActivationMouseButtonMask != 0) &&
-                                                           ((eventAdapter.MouseButtonMask &
-                                                             ActivationMouseButtonMask) != 0);
+                    ActivationPermittedByModKeyMask = (ActivationModKeyMask != 0)
+                        ? ((eventAdapter.ModKeyMask &
+                            ActivationModKeyMask) != 0)
+                        : false;
 
-                }
+                    ActivationPermittedByMouseButtonMask = (ActivationMouseButtonMask != 0)
+                        ? ((eventAdapter.MouseButtonMask &
+                            ActivationMouseButtonMask) != 0)
+                        : false;
 
-                if (ActivationKeyEvent != 0)
-                {
-                    switch (eventAdapter.EventType)
+
+
+                    if (ActivationKeyEvent != 0)
                     {
-                        case IUiEventAdapter.EventTypeValue.KeyDown:
+                        switch (eventAdapter.EventType)
                         {
-                            if (eventAdapter.Key == ActivationKeyEvent)
+                            case IUiEventAdapter.EventTypeValue.KeyDown:
                             {
-                                ActivationPermittedByKeyEvent = true;
-                            }
+                                if (eventAdapter.Key == ActivationKeyEvent)
+                                {
+                                    ActivationPermittedByKeyEvent = true;
+                                }
 
-                            break;
-                        }
-                        case IUiEventAdapter.EventTypeValue.KeyUp:
-                        {
-                            if (eventAdapter.Key == ActivationKeyEvent)
+                                break;
+                            }
+                            case IUiEventAdapter.EventTypeValue.KeyUp:
                             {
-                                ActivationPermittedByKeyEvent = false;
-                            }
+                                if (eventAdapter.Key == ActivationKeyEvent)
+                                {
+                                    ActivationPermittedByKeyEvent = false;
+                                }
 
-                            break;
-                        }
-                        default:
-                        {
-                            break;
+                                break;
+                            }
+                            default:
+                            {
+                                break;
+                            }
                         }
                     }
-
                     activationPermitted = ActivationPermittedByModKeyMask || 
                                           ActivationPermittedByMouseButtonMask ||
                                           ActivationPermittedByKeyEvent;
+
                 }
 
                 if (activationPermitted || DraggerActive)

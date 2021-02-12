@@ -2,6 +2,7 @@
 using System.Reflection;
 using Veldrid;
 using Veldrid.SceneGraph;
+using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Manipulators;
 using Veldrid.SceneGraph.Manipulators.Commands;
 using Veldrid.SceneGraph.Math.IsoSurface;
@@ -180,6 +181,7 @@ namespace Examples.Common
 
             var dragger1 = TabBoxDragger.Create();
             dragger1.SetupDefaultGeometry();
+            dragger1.ActivationModKeyMask = IUiEventAdapter.ModKeyMaskType.ModKeyCtl;
             dragger1.HandleEvents = true;
             dragger1.DraggerCallbacks.Add(new DraggerVolumeTileCallback(tile1, tile1.Locator));
             dragger1.Matrix = Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f)
@@ -195,6 +197,7 @@ namespace Examples.Common
             
             var dragger2 = TabBoxDragger.Create();
             dragger2.SetupDefaultGeometry();
+            dragger2.ActivationModKeyMask = IUiEventAdapter.ModKeyMaskType.ModKeyAlt;
             dragger2.HandleEvents = true;
             dragger2.DraggerCallbacks.Add(new DraggerVolumeTileCallback(tile2, tile2.Locator));
             dragger2.Matrix = Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f)

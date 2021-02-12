@@ -106,36 +106,39 @@ namespace Veldrid.SceneGraph.Viewer
         {
             if (null != EventVisitor && null != SceneData)
             {
-                EventVisitor.ActionAdapter = this;
-                while (EventQueue.TryDequeue(out var inputEvent))
+                lock (EventVisitor)
                 {
-                    if (inputEvent is IUiEventAdapter eventAdapter)
+                    EventVisitor.ActionAdapter = this;
+                    while (EventQueue.TryDequeue(out var inputEvent))
                     {
-                        eventAdapter.PointerDataList.Add(new PointerData(
-                            Camera, 
-                            eventAdapter.X, 
-                            eventAdapter.XMin,
-                            eventAdapter.XMax,
-                            eventAdapter.Y,
-                            eventAdapter.YMin,
-                            eventAdapter.YMax));
-                        
-                        EventVisitor.Reset();
-                        EventVisitor.AddEvent(eventAdapter);
-                        SceneData.Accept(EventVisitor);
-
-                        if (false == inputEvent.Handled)
+                        if (inputEvent is IUiEventAdapter eventAdapter)
                         {
-                            foreach (var handler in EventHandlers)
+                            eventAdapter.PointerDataList.Add(new PointerData(
+                                Camera,
+                                eventAdapter.X,
+                                eventAdapter.XMin,
+                                eventAdapter.XMax,
+                                eventAdapter.Y,
+                                eventAdapter.YMin,
+                                eventAdapter.YMax));
+
+                            EventVisitor.Reset();
+                            EventVisitor.AddEvent(eventAdapter);
+                            SceneData.Accept(EventVisitor);
+
+                            if (false == inputEvent.Handled)
                             {
-                                if (handler is IUiEventHandler uiEventHandler)
+                                foreach (var handler in EventHandlers)
                                 {
-                                    uiEventHandler.Handle(eventAdapter, this);
+                                    if (handler is IUiEventHandler uiEventHandler)
+                                    {
+                                        uiEventHandler.Handle(eventAdapter, this);
+                                    }
                                 }
                             }
                         }
                     }
-                } 
+                }
             }
         }
 
