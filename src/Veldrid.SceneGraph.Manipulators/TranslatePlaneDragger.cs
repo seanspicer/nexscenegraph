@@ -18,6 +18,14 @@ namespace Veldrid.SceneGraph.Manipulators
     
     public class TranslatePlaneDragger : CompositeDragger, ITranslatePlaneDragger
     {
+        private class AlwaysCullCallback : DrawableCullCallback
+        {
+            public override bool Cull(INodeVisitor nodeVisitor, IDrawable drawable)
+            {
+                return true;
+            }
+        }
+        
         public ITranslate1DDragger Translate1DDragger { get; protected set; }
         public ITranslate2DDragger Translate2DDragger { get; protected set; }
 
@@ -96,12 +104,12 @@ namespace Veldrid.SceneGraph.Manipulators
                 geometry.PipelineState.RasterizerStateDescription = new RasterizerStateDescription(FaceCullMode.None,
                     PolygonFillMode.Solid, FrontFace.Clockwise, true, false);
                 geometry.PipelineState.BlendStateDescription = BlendStateDescription.SingleAlphaBlend;
-
+                geometry.SetCullCallback(new AlwaysCullCallback());
 
                 var geode = Geode.Create();
                 geode.NameString = "Dragger Dragger Translate Plane";
                 geode.AddDrawable(geometry);
-
+    
                 AddChild(geode);
             }
 

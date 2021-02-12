@@ -22,13 +22,16 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
     public interface ILayer : IObject
     {
         ILocator Locator { get; set; }
+
+        ILocator GetLocator();
+        
         void Update(INodeVisitor nv);
         
         // Specify when an volume layer (Image) requires update traversal.
         bool RequiresUpdateTraversal();
     }
     
-    public class Layer : Object, ILayer
+    public abstract class Layer : Object, ILayer
     {
         public ILocator Locator { get; set; }
         public virtual void Update(INodeVisitor nv)
@@ -39,16 +42,20 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         {
             return false;
         }
+
+        public abstract ILocator GetLocator();
     }
 
     public interface IVoxelVolumeLayer : ILayer
     {
         IVoxelVolume VoxelVolume { get; }
+        ILevoyCabralLocator BaseLocator { get; }
     }
 
     public class VoxelVolumeLayer : Layer, IVoxelVolumeLayer
     {
         public IVoxelVolume VoxelVolume { get; }
+        public ILevoyCabralLocator BaseLocator { get; protected set; }
         
         public static IVoxelVolumeLayer Create(IVoxelVolume voxelVolume)
         {
@@ -64,6 +71,12 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         protected void BuildLocator()
         {
             Locator = LevoyCabralLocator.Create(VoxelVolume);
+            BaseLocator = LevoyCabralLocator.Create(VoxelVolume);
+        }
+
+        public override ILocator GetLocator()
+        {
+            return LevoyCabralLocator.Create(VoxelVolume);
         }
     }
     

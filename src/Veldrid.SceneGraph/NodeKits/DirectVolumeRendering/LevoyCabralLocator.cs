@@ -25,6 +25,15 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         public double MaxDist { get; }
         public void UpdateDistances(Vector3 eyePoint);
         Vector3 TexGen(Vector3 point);
+        
+        public double XMin { get; }
+        public double XMax { get; }
+        
+        public double YMin { get; }
+        public double YMax { get; }
+        
+        public double ZMin { get; }
+        public double ZMax { get; }
     }
     
     public class LevoyCabralLocator : Locator, ILevoyCabralLocator
@@ -50,7 +59,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
         private Vector3 _lastEyePoint = Vector3.Zero;
         
-        public static ILocator Create(IVoxelVolume voxelVolume)
+        public static ILevoyCabralLocator Create(IVoxelVolume voxelVolume)
         {
             return new LevoyCabralLocator(voxelVolume);
         }
@@ -90,6 +99,8 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         
         public Vector3 TexGen(Vector3 point)
         {
+            return point;
+            
             return new Vector3(
                 (float)((point.X - XMin) / (XMax - XMin)),
                 (float)((point.Y - YMin) / (YMax - YMin)),
@@ -111,7 +122,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
             XMax = Transform.M11 + XMin;
             YMax = Transform.M22 + YMin;
-            ZMax = Transform.M33 + YMin;
+            ZMax = Transform.M33 + ZMin;
             
             UpdateDistances(_lastEyePoint);
 

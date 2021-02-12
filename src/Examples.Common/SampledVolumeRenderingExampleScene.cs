@@ -100,9 +100,33 @@ namespace Examples.Common
                                                                   * command.GetMotionMatrix()
                                                                   * command.GetLocalToWorld() * _worldToLocal;
 
+                    var matrix = localMotionMatrix.PostMultiply(_startMotionMatrix);
+                    
+                    var xMin = matrix.M41;
+                    var yMin = matrix.M42;
+                    var zMin = matrix.M43;
+
+                    var xMax = matrix.M11 + xMin;
+                    var yMax = matrix.M22 + yMin;
+                    var zMax = matrix.M33 + zMin;
+
+                    if (_volumeTile.Layer is IVoxelVolumeLayer layer)
+                    {
+                        var lcl = layer.BaseLocator;
+                        if (xMin >= lcl.XMin &&
+                            xMax <= lcl.XMax &&
+                            yMin >= lcl.YMin &&
+                            yMax <= lcl.YMax &&
+                            zMin >= lcl.ZMin &&
+                            zMax <= lcl.ZMax)
+                        {
+                            
+                        }
+                    }
+                    
                     // Transform by the localMotionMatrix
                     _locator.SetTransform(localMotionMatrix.PostMultiply(_startMotionMatrix));
-
+                    
                     return true;
                 }
                 case IMotionCommand.MotionStage.Finish:
@@ -115,34 +139,73 @@ namespace Examples.Common
             }
         }
     }
+
+    public class VolumeExtentsConstraint : Constraint
+    {
+        private float _xmin;
+        private float _xmax;
+        private float _ymin;
+        private float _ymax;
+        private float _zmin;
+        private float _zmax;
+
+        public VolumeExtentsConstraint(ILevoyCabralLocator baseLocator)
+        {
+            _xmin = (float) baseLocator.XMin;
+            _xmax = (float) baseLocator.XMax;
+            _ymin = (float) baseLocator.YMin;
+            _ymax = (float) baseLocator.YMax;
+            _zmin = (float) baseLocator.ZMin;
+            _zmax = (float) baseLocator.ZMax;
+        }
+
+        public override bool Constrain(IMotionCommand command)
+        {
+            return base.Constrain(command);
+        }
+    }
     
     public class SampledVolumeRenderingExampleScene
     {
         public static IGroup Build()
         {
-            //var root = Group.Create();
-            //root.AddChild(SampledVolumeNode.Create(new CornerVoxelVolume(), CreateShaderSet()));
-            //return root;
-
             var volume = Volume.Create();
-            var tile = VolumeTile.Create();
-            volume.AddChild(tile);
+            var tile1 = VolumeTile.Create();
+            volume.AddChild(tile1);
 
             var layer = VoxelVolumeLayer.Create(new CornerVoxelVolume());
-            tile.Layer = layer;
-            tile.Locator = layer.Locator;
-            tile.SetVolumeTechnique(LevoyCabralTechnique.Create(CreateShaderSet()));
+            tile1.Layer = layer;
+            tile1.Locator = layer.GetLocator();
+            tile1.SetVolumeTechnique(LevoyCabralTechnique.Create(CreateShaderSet()));
 
-            var dragger = TabBoxDragger.Create();
-            dragger.SetupDefaultGeometry();
-            dragger.HandleEvents = true;
-            dragger.DraggerCallbacks.Add(new DraggerVolumeTileCallback(tile, tile.Locator));
-            dragger.Matrix = Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f)
-                .PostMultiply(tile.Locator.Transform);
+            var dragger1 = TabBoxDragger.Create();
+            dragger1.SetupDefaultGeometry();
+            dragger1.HandleEvents = true;
+            dragger1.DraggerCallbacks.Add(new DraggerVolumeTileCallback(tile1, tile1.Locator));
+            dragger1.Matrix = Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f)
+                .PostMultiply(tile1.Locator.Transform);
             
+            /////////////////
+            
+            var tile2 = VolumeTile.Create();
+            tile2.Layer = layer;
+            tile2.Locator = layer.GetLocator();
+            tile2.SetVolumeTechnique(LevoyCabralTechnique.Create(CreateShaderSet()));
+            volume.AddChild(tile2);
+            
+            var dragger2 = TabBoxDragger.Create();
+            dragger2.SetupDefaultGeometry();
+            dragger2.HandleEvents = true;
+            dragger2.DraggerCallbacks.Add(new DraggerVolumeTileCallback(tile2, tile2.Locator));
+            dragger2.Matrix = Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f)
+                .PostMultiply(tile2.Locator.Transform);
+            
+            /////////////////
+
             var root = Group.Create();
             root.AddChild(volume);
-            root.AddChild(dragger);
+            root.AddChild(dragger1);
+            root.AddChild(dragger2);
             return root;
         }
 

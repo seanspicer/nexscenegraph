@@ -146,20 +146,31 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             Geometry.PipelineState.BlendStateDescription = BlendStateDescription.SingleAlphaBlend;
             Geometry.PipelineState.RasterizerStateDescription = new RasterizerStateDescription
             {
-                CullMode = FaceCullMode.Back,
+                CullMode = FaceCullMode.None,
                 FillMode = PolygonFillMode.Solid,
                 DepthClipEnabled = false,
                 FrontFace = FrontFace.CounterClockwise
             };
             
+            OutlinesGeometry = Geometry<Position3Color3>.Create();
+
+            OutlinesGeometry.VertexLayouts = new List<VertexLayoutDescription>()
+            {
+                Position3Color3.VertexLayoutDescription
+            };
+            
+            OutlinesGeometry.PipelineState.ShaderSet = Position3Color3Shader.Instance.ShaderSet;
+            OutlinesGeometry.PipelineState.RasterizerStateDescription = RasterizerStateDescription.CullNone;
+            
             geode.AddDrawable(Geometry);
+            //geode.AddDrawable(OutlinesGeometry);
             return geode;
         }
         
         private void BuildIsoSurfaces()
         {
             // TODO enable changing this.
-            var sampleRate = 100;
+            var sampleRate = 200;
             var sampleStep = (_levoyCabralLocator.MaxDist - _levoyCabralLocator.MinDist) / sampleRate;
             
             _isoSurfaces.Clear();

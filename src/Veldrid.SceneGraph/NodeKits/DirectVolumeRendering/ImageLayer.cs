@@ -18,6 +18,9 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 {
     public class ImageLayer : Layer
     {
-        
+        public override ILocator GetLocator()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
