@@ -1,6 +1,10 @@
 
 
+using System;
 using System.Numerics;
+using System.Runtime.CompilerServices;
+using Veldrid.SceneGraph.Util;
+using Veldrid.SceneGraph.Util.Shape;
 
 namespace Veldrid.SceneGraph.Manipulators
 {
@@ -48,5 +52,66 @@ namespace Veldrid.SceneGraph.Manipulators
 
         
         public abstract bool Project(IPointerInfo pi, out Vector3 projectedPoint);
+
+        protected static bool GetPlaneLineIntersection(Vector4 plane, Vector3 lineStart, Vector3 lineEnd, out Vector3 isect)
+        {
+            var deltaX = lineEnd.X - lineStart.X;
+            var deltaY = lineEnd.Y - lineStart.Y;
+            var deltaZ = lineEnd.Z - lineStart.Z;
+
+            var denominator = (plane.X*deltaX + plane.Y*deltaY + plane.Z*deltaZ);
+            if (0 == denominator)
+            {
+                isect = Vector3.Zero;
+                return false;
+            }
+
+            var c = (plane.X*lineStart.X + plane.Y*lineStart.Y + plane.Z*lineStart.Z + plane.W) / denominator;
+
+            isect = new Vector3(
+                (float)(lineStart.X - deltaX * c),
+                (float)(lineStart.Y - deltaY * c),
+                (float)(lineStart.Z - deltaZ * c)
+            );
+            
+            return true;
+        }
+
+        protected static IPlane ComputeIntersectionPlane(
+            Vector3 eyeDir, Matrix4x4 localToWorld,
+            Vector3 axisDir, ICylinder cylinder,
+            bool front,
+            ref Vector3 planeLineStart, ref Vector3 planeLineEnd,
+            ref bool parallelPlane)
+        {
+            var unitAxisDir = Vector3.Normalize(axisDir);
+            var perpDir = Vector3.Cross(unitAxisDir, GetLocalEyeDirection(eyeDir, localToWorld));
+
+            // Check to make sure eye and cylinder axis are not too close
+            if(perpDir.LengthSquared() < 1e-1)
+            {
+                // Too close, so instead return plane perpendicular to cylinder axis.
+                parallelPlane = false;
+                return Plane.Create(unitAxisDir, cylinder.Center);
+            }
+
+            // Otherwise compute plane along axisDir oriented towards eye
+            var planeDir = Vector3.Normalize(Vector3.Cross(perpDir, axisDir));
+            if (!front)
+            {
+                planeDir = -planeDir;
+            }
+            
+            var planePoint = (planeDir * cylinder.Radius) + axisDir;
+            planeLineStart = planePoint;
+            planeLineEnd = planePoint + axisDir;
+            parallelPlane = true;
+            return Plane.Create(planeDir, planePoint);
+        }
+        
+        protected static Vector3 GetLocalEyeDirection(Vector3 eyeDir, Matrix4x4 localToWorld)
+        {
+            return Vector3.Normalize(localToWorld.PostMultiply(eyeDir));
+        }
     }
 }

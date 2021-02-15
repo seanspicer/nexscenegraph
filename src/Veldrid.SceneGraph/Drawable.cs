@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Text;
 using Veldrid.SceneGraph.Util.Shape;
 
 namespace Veldrid.SceneGraph
@@ -27,6 +28,7 @@ namespace Veldrid.SceneGraph
         Type VertexType { get; }
         IBoundingBox InitialBoundingBox { get; set; }
         List<VertexLayoutDescription> VertexLayouts { get; set; }
+        string VertexLayoutsDescription { get; }
         List<IPrimitiveSet> PrimitiveSets { get; }
         IShape Shape { get; }
         void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory);
@@ -77,8 +79,19 @@ namespace Veldrid.SceneGraph
             };
         }
         
-        public List<VertexLayoutDescription> VertexLayouts { get; set; }
-        
+        private List<VertexLayoutDescription> _vertexLayouts;
+        public List<VertexLayoutDescription> VertexLayouts
+        {
+            get => _vertexLayouts;
+            set
+            {
+                _vertexLayouts = value;
+                VertexLayoutsDescription = VertexLayoutDescriptionListString(_vertexLayouts);
+            }
+        }
+
+        public string VertexLayoutsDescription { get; private set; }
+
         public List<IPrimitiveSet> PrimitiveSets { get; } = new List<IPrimitiveSet>();
         
         public event Func<Drawable, BoundingBox> ComputeBoundingBoxCallback;
@@ -152,5 +165,21 @@ namespace Veldrid.SceneGraph
         public virtual void Accept(IPrimitiveFunctor functor) {}
         public virtual bool Supports(IPrimitiveIndexFunctor functor) { return false; }
         public virtual void Accept(IPrimitiveIndexFunctor functor) {}
+        
+        private string VertexLayoutDescriptionListString(IList<VertexLayoutDescription> vertexLayoutDescriptions)
+        {
+            var sb = new StringBuilder();
+            foreach (var vld in vertexLayoutDescriptions)
+            {
+                foreach (var elt in vld.Elements)
+                {
+                    sb.Append($"{elt.Name}-");
+                }
+
+                sb.Append("|");
+            }
+
+            return sb.ToString();
+        }
     }
 }

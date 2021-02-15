@@ -62,6 +62,13 @@ namespace Examples.Common
             tabBoxDraggerXForm.AddChild(tabBoxDragger);
             root.AddChild(tabBoxDraggerXForm);
             
+            var rotateCylinderDragger = RotateCylinderDragger.Create();
+            rotateCylinderDragger.SetupDefaultGeometry();
+            //rotateCylinderDragger.HandleEvents = true;
+            var rotateCylinderDraggerXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(-1f, -1.0f, 2.0f)); 
+            rotateCylinderDraggerXForm.AddChild(rotateCylinderDragger);
+            root.AddChild(rotateCylinderDraggerXForm);
+            
             return root;
         }
     }

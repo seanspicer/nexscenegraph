@@ -16,6 +16,11 @@ namespace Veldrid.SceneGraph.Util.Shape
 
         public float Height { get; }
 
+        public static ICylinder Create()
+        {
+            return new Cylinder(Vector3.Zero, 1.0f, 1.0f);
+        }
+        
         public static ICylinder Create(Vector3 center, float radius, float height)
         {
             return new Cylinder(center, radius, height);

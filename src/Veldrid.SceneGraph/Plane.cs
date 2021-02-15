@@ -42,6 +42,8 @@ namespace Veldrid.SceneGraph
         /// return -1 if the bb is completely below the plane.
         /// </returns>
         int Intersect(IBoundingBox bb);
+
+        Vector4 AsVector4();
     }
     
     public class Plane : IPlane
@@ -56,7 +58,12 @@ namespace Veldrid.SceneGraph
         public float D => _internalPlane.D;
 
         public Vector3 Normal => new Vector3(Nx, Ny, Nz);
-        
+
+        public Vector4 AsVector4()
+        {
+            return new Vector4(Nx, Ny, Nz, D);
+        }
+
         public static IPlane Create(float nX, float nY, float nZ, float D)
         {
             return new Plane(nX, nY, nZ, D);
@@ -65,6 +72,12 @@ namespace Veldrid.SceneGraph
         public static IPlane Create(IPlane other)
         {
             return new Plane(other.Nx, other.Ny, other.Nz, other.D);
+        }
+
+        public static IPlane Create(Vector3 norm, Vector3 point)
+        {
+            var d = -norm.X*point.X - norm.Y*point.Y - norm.Z*point.Z;
+            return new Plane(norm.X, norm.Y, norm.Z, d);
         }
 
         protected Plane(float nX, float nY, float nZ, float D)

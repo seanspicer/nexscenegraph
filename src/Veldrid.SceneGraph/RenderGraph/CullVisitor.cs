@@ -380,11 +380,11 @@ namespace Veldrid.SceneGraph.RenderGraph
                     IRenderGroupState renderGroupState = null;
                     if (drawablePso.BlendStateDescription.AttachmentStates.Contains(BlendAttachmentDescription.AlphaBlend))
                     {
-                        renderGroupState = TransparentRenderGroup.GetOrCreateState(GraphicsDevice, drawablePso, pset.PrimitiveTopology, drawable.VertexLayouts);
+                        renderGroupState = TransparentRenderGroup.GetOrCreateState(GraphicsDevice, drawablePso, pset.PrimitiveTopology, drawable);
                     }
                     else
                     {
-                        renderGroupState = OpaqueRenderGroup.GetOrCreateState(GraphicsDevice, drawablePso, pset.PrimitiveTopology, drawable.VertexLayouts);
+                        renderGroupState = OpaqueRenderGroup.GetOrCreateState(GraphicsDevice, drawablePso, pset.PrimitiveTopology, drawable);
                     }
 
                     if (false == renderElementCache.TryGetValue(renderGroupState, out var renderElement))
@@ -484,11 +484,11 @@ namespace Veldrid.SceneGraph.RenderGraph
                 IRenderGroupState renderGroupState = null;
                 if (pso.BlendStateDescription.AttachmentStates.Contains(BlendAttachmentDescription.AlphaBlend))
                 {
-                    renderGroupState = TransparentRenderGroup.GetOrCreateState(GraphicsDevice, pso, pset.PrimitiveTopology, drawable.VertexLayouts);
+                    renderGroupState = TransparentRenderGroup.GetOrCreateState(GraphicsDevice, pso, pset.PrimitiveTopology, drawable);
                 }
                 else
                 {
-                    renderGroupState = OpaqueRenderGroup.GetOrCreateState(GraphicsDevice, pso, pset.PrimitiveTopology, drawable.VertexLayouts);
+                    renderGroupState = OpaqueRenderGroup.GetOrCreateState(GraphicsDevice, pso, pset.PrimitiveTopology, drawable);
                 }
 
                 if (false == renderElementCache.TryGetValue(renderGroupState, out var renderElement))

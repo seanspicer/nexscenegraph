@@ -156,12 +156,13 @@ namespace Veldrid.SceneGraph.RenderGraph
                 uniform.ConfigureDeviceBuffers(graphicsDevice, resourceFactory);
                 
                 resourceLayoutElementDescriptionList.Add(uniform.ResourceLayoutElementDescription);
-                
-                bindableResourceList.Add(uniform.DeviceBufferRange);
+
+                var deviceBufferRange = uniform.GetDeviceBufferRange(graphicsDevice);
+                bindableResourceList.Add(deviceBufferRange);
 
                 if (uniform.ResourceLayoutElementDescription.Options == ResourceLayoutElementOptions.DynamicBinding)
                 {
-                    UniformStrides.Add(uniform.DeviceBufferRange.SizeInBytes);
+                    UniformStrides.Add(deviceBufferRange.SizeInBytes);
                 }
             }
 

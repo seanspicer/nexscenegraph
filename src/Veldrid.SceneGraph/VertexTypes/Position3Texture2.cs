@@ -28,7 +28,7 @@ namespace Veldrid.SceneGraph.VertexTypes
                 new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate,
                     VertexElementFormat.Float3),
                 new VertexElementDescription("TexCoord", VertexElementSemantic.TextureCoordinate,
-                    VertexElementFormat.Float2));
+                    VertexElementFormat.Float2, 12));
 
         public VertexLayoutDescription GetVertexLayoutDescription()
         {

@@ -27,6 +27,8 @@ namespace Veldrid.SceneGraph.Manipulators
 
         void Next();
         bool Completed();
+
+        Vector3 GetLocalIntersectionPoint();
     }
     
     public class PointerInfo : IPointerInfo
@@ -83,6 +85,11 @@ namespace Veldrid.SceneGraph.Manipulators
             FarPoint = other.FarPoint;
             EyeDir = other.EyeDir;
             
+        }
+
+        public Vector3 GetLocalIntersectionPoint()
+        {
+            return _hitIter.Current?.Item2 ?? Vector3.Zero;
         }
         
         public void Reset()

@@ -30,9 +30,9 @@ namespace Veldrid.SceneGraph.VertexTypes
                 new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate,
                     VertexElementFormat.Float3),
             new VertexElementDescription("TexCoord", VertexElementSemantic.TextureCoordinate,
-                    VertexElementFormat.Float3),
+                    VertexElementFormat.Float3, 12),
             new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate,
-                VertexElementFormat.Float4));
+                VertexElementFormat.Float4, 24));
 
         public VertexLayoutDescription GetVertexLayoutDescription()
         {

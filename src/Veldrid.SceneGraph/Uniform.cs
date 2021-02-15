@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using SharpDX.DXGI;
@@ -42,6 +43,12 @@ namespace Veldrid.SceneGraph
         private ShaderStages ShaderStages { get; set; }
         
         public ResourceLayoutElementDescription ResourceLayoutElementDescription { get; private set; }
+
+        private Dictionary<GraphicsDevice, DeviceBuffer> DeviceBufferCache =
+            new Dictionary<GraphicsDevice, DeviceBuffer>();
+        
+        private Dictionary<GraphicsDevice, DeviceBufferRange> DeviceBufferRangeCache =
+            new Dictionary<GraphicsDevice, DeviceBufferRange>();
         
         public DeviceBufferRange DeviceBufferRange { get; private set; }
 
@@ -77,7 +84,17 @@ namespace Veldrid.SceneGraph
         {
             _modifiedCount++;
         }
-        
+
+        public DeviceBufferRange GetDeviceBufferRange(GraphicsDevice device)
+        {
+            if (DeviceBufferRangeCache.TryGetValue(device, out var deviceBufferRange))
+            {
+                return deviceBufferRange;
+            }
+
+            throw new ArgumentException("Invalid device");
+        }
+
         public void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory)
         {
             var alignment = device.UniformBufferMinOffsetAlignment;
@@ -93,12 +110,19 @@ namespace Veldrid.SceneGraph
             var bufsize = (uint)(uniformObjSizeInBytes * UniformData.Length);
             BufferDescription = new BufferDescription(bufsize, BufferUsage);
 
-            _uniformBuffer = factory.CreateBuffer(BufferDescription);
-
+            if (false == DeviceBufferCache.TryGetValue(device, out var uniformBuffer))
+            {
+                _uniformBuffer = factory.CreateBuffer(BufferDescription);
+                DeviceBufferCache.Add(device, _uniformBuffer);
+            }
+            
             UpdateDeviceBuffers(device, factory);
-            
-            DeviceBufferRange = new DeviceBufferRange(_uniformBuffer, 0, uniformObjSizeInBytes);
-            
+
+            if (false == DeviceBufferRangeCache.TryGetValue(device, out var deviceBufferRange))
+            {
+                deviceBufferRange = new DeviceBufferRange(_uniformBuffer, 0, uniformObjSizeInBytes);
+                DeviceBufferRangeCache.Add(device, deviceBufferRange);
+            }
         }
 
         public virtual void UpdateDeviceBuffers(GraphicsDevice device, ResourceFactory factory)
@@ -110,9 +134,12 @@ namespace Veldrid.SceneGraph
             {
                 uniformBufferStaging[i * _hostBufStride] = UniformData[i];
             }
-            
-            device.UpdateBuffer(_uniformBuffer, 0, uniformBufferStaging);
 
+            foreach( var uniformBuffer in DeviceBufferCache.Values)
+            {
+                device.UpdateBuffer(uniformBuffer, 0, uniformBufferStaging);
+            }
+            
             _modifiedCount = 0;
         }
 
