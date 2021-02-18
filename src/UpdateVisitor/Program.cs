@@ -49,9 +49,9 @@ namespace UpdateVisitor
         }
     }
 
-    internal class UpdateCallback : INodeCallback
+    internal class UpdateCallback : NodeCallback, INodeCallback
     {
-        public bool Run(IObject obj, IObject data)
+        public override bool Run(IObject obj, IObject data)
         {
             Console.WriteLine("UpdateCallback");
             return true;

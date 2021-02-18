@@ -1,20 +1,37 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using SharpDX.DXGI;
 
 namespace Veldrid.SceneGraph
 {
-    public interface IUniform<T> : IBindable where T : struct
+    public interface IUniform : IBindable
+    {
+        string Name { get; }
+        void Dirty();
+        void UpdateDeviceBuffers(GraphicsDevice device, ResourceFactory factory);
+    }
+    
+    public interface IUniform<T> : IUniform where T : struct
     {
         T[] UniformData { get; set; }
         
-        string Name { get; }
     }
     
-    public class Uniform<T> : IUniform<T> where T : struct
+    internal class Uniform<T> : Object, IUniform<T> where T : struct
     {
-        public T[] UniformData { get; set; }
+        private T[] _uniformData;
+
+        public T[] UniformData
+        {
+            get => _uniformData;
+            set
+            {
+                _uniformData = value;
+                Dirty();
+            }
+        }
         
         private uint SizeOfUniformDataElement => (uint) Marshal.SizeOf(default(T));
 
@@ -26,9 +43,19 @@ namespace Veldrid.SceneGraph
         private ShaderStages ShaderStages { get; set; }
         
         public ResourceLayoutElementDescription ResourceLayoutElementDescription { get; private set; }
+
+        private Dictionary<GraphicsDevice, DeviceBuffer> DeviceBufferCache =
+            new Dictionary<GraphicsDevice, DeviceBuffer>();
+        
+        private Dictionary<GraphicsDevice, DeviceBufferRange> DeviceBufferRangeCache =
+            new Dictionary<GraphicsDevice, DeviceBufferRange>();
         
         public DeviceBufferRange DeviceBufferRange { get; private set; }
 
+        private uint _hostBufStride = 0;
+        private DeviceBuffer _uniformBuffer = null;
+        private uint _modifiedCount = 0;
+        
         public static IUniform<T> Create(string name, 
             BufferUsage bufferUsage, 
             ShaderStages shaderStages,
@@ -52,35 +79,68 @@ namespace Veldrid.SceneGraph
                 options);
 
         }
-        
-        public DeviceBuffer ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory)
+
+        public void Dirty()
+        {
+            _modifiedCount++;
+        }
+
+        public DeviceBufferRange GetDeviceBufferRange(GraphicsDevice device)
+        {
+            if (DeviceBufferRangeCache.TryGetValue(device, out var deviceBufferRange))
+            {
+                return deviceBufferRange;
+            }
+
+            throw new ArgumentException("Invalid device");
+        }
+
+        public void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory)
         {
             var alignment = device.UniformBufferMinOffsetAlignment;
             
             var uniformObjSizeInBytes = SizeOfUniformDataElement;
-            var hostBuffStride = 1u;
+            _hostBufStride = 1u;
             if (alignment > SizeOfUniformDataElement)
             {
-                hostBuffStride = alignment / SizeOfUniformDataElement;
+                _hostBufStride = alignment / SizeOfUniformDataElement;
                 uniformObjSizeInBytes = alignment;
             }
 
             var bufsize = (uint)(uniformObjSizeInBytes * UniformData.Length);
             BufferDescription = new BufferDescription(bufsize, BufferUsage);
 
-            var uniformBuffer = factory.CreateBuffer(BufferDescription);
-
-            var uniformBufferStaging = new T[UniformData.Length * hostBuffStride];
-            for (var i = 0; i < UniformData.Length; ++i)
+            if (false == DeviceBufferCache.TryGetValue(device, out var uniformBuffer))
             {
-                uniformBufferStaging[i * hostBuffStride] = UniformData[i];
+                _uniformBuffer = factory.CreateBuffer(BufferDescription);
+                DeviceBufferCache.Add(device, _uniformBuffer);
             }
             
-            device.UpdateBuffer(uniformBuffer, 0, uniformBufferStaging);
+            UpdateDeviceBuffers(device, factory);
+
+            if (false == DeviceBufferRangeCache.TryGetValue(device, out var deviceBufferRange))
+            {
+                deviceBufferRange = new DeviceBufferRange(_uniformBuffer, 0, uniformObjSizeInBytes);
+                DeviceBufferRangeCache.Add(device, deviceBufferRange);
+            }
+        }
+
+        public virtual void UpdateDeviceBuffers(GraphicsDevice device, ResourceFactory factory)
+        {
+            if (_modifiedCount == 0 || null == _uniformBuffer) return;
             
-            DeviceBufferRange = new DeviceBufferRange(uniformBuffer, 0, uniformObjSizeInBytes);
+            var uniformBufferStaging = new T[UniformData.Length * _hostBufStride];
+            for (var i = 0; i < UniformData.Length; ++i)
+            {
+                uniformBufferStaging[i * _hostBufStride] = UniformData[i];
+            }
+
+            foreach( var uniformBuffer in DeviceBufferCache.Values)
+            {
+                device.UpdateBuffer(uniformBuffer, 0, uniformBufferStaging);
+            }
             
-            return uniformBuffer;
+            _modifiedCount = 0;
         }
 
         private Tuple<uint, uint> CalculateMultiplierAndStride(GraphicsDevice graphicsDevice)

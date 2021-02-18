@@ -98,13 +98,13 @@ namespace Veldrid.SceneGraph.IO
                     vertices.Add(vertex);
                     
 
-                    dim.Max.X = Math.Max(pPos.X, dim.Max.X);
-                    dim.Max.Y = Math.Max(pPos.Y, dim.Max.Y);
-                    dim.Max.Z = Math.Max(pPos.Z, dim.Max.Z);
+                    dim.Max.X =  System.Math.Max(pPos.X, dim.Max.X);
+                    dim.Max.Y =  System.Math.Max(pPos.Y, dim.Max.Y);
+                    dim.Max.Z =  System.Math.Max(pPos.Z, dim.Max.Z);
 
-                    dim.Min.X = Math.Min(pPos.X, dim.Min.X);
-                    dim.Min.Y = Math.Min(pPos.Y, dim.Min.Y);
-                    dim.Min.Z = Math.Min(pPos.Z, dim.Min.Z);
+                    dim.Min.X =  System.Math.Min(pPos.X, dim.Min.X);
+                    dim.Min.Y =  System.Math.Min(pPos.Y, dim.Min.Y);
+                    dim.Min.Z =  System.Math.Min(pPos.Z, dim.Min.Z);
                 }
 
                 dim.Size = dim.Max - dim.Min;

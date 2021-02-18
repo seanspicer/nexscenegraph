@@ -54,6 +54,8 @@ namespace Veldrid.SceneGraph.RenderGraph
         Matrix4x4 GetModelViewProjectionInverseMatrix();
         Matrix4x4 GetProjectionMatrix();
         Vector3 GetEyeLocal();
+        Vector3 GetUpLocal();
+        float PixelSize(Vector3 v, float radius);
 
         IMutableCullVisitor ToMutable();
     }
@@ -79,6 +81,7 @@ namespace Veldrid.SceneGraph.RenderGraph
 
         private Matrix4x4 ViewMatrix => GetCurrentCamera().ViewMatrix;
         private Matrix4x4 ProjectionMatrix => GetCurrentCamera().ProjectionMatrix;
+        private IViewport Viewport => GetCurrentCamera().Viewport;
 
         private ICamera _camera;
         
@@ -170,6 +173,12 @@ namespace Veldrid.SceneGraph.RenderGraph
             var eyeWorld = Vector3.Zero;
             var modelViewInverse = GetModelViewInverseMatrix();
             return Vector3.Transform(eyeWorld, modelViewInverse);
+        }
+
+        public Vector3 GetUpLocal()
+        {
+            var matrix = GetModelViewMatrix();
+            return new Vector3(matrix.M12, matrix.M22, matrix.M32);
         }
         
         private bool IsCulled(IBoundingBox bb, Matrix4x4 modelMatrix)
@@ -371,11 +380,11 @@ namespace Veldrid.SceneGraph.RenderGraph
                     IRenderGroupState renderGroupState = null;
                     if (drawablePso.BlendStateDescription.AttachmentStates.Contains(BlendAttachmentDescription.AlphaBlend))
                     {
-                        renderGroupState = TransparentRenderGroup.GetOrCreateState(GraphicsDevice, drawablePso, pset.PrimitiveTopology, drawable.VertexLayouts);
+                        renderGroupState = TransparentRenderGroup.GetOrCreateState(GraphicsDevice, drawablePso, pset.PrimitiveTopology, drawable);
                     }
                     else
                     {
-                        renderGroupState = OpaqueRenderGroup.GetOrCreateState(GraphicsDevice, drawablePso, pset.PrimitiveTopology, drawable.VertexLayouts);
+                        renderGroupState = OpaqueRenderGroup.GetOrCreateState(GraphicsDevice, drawablePso, pset.PrimitiveTopology, drawable);
                     }
 
                     if (false == renderElementCache.TryGetValue(renderGroupState, out var renderElement))
@@ -413,7 +422,10 @@ namespace Veldrid.SceneGraph.RenderGraph
             {
                 if (callback is IDrawableCullCallback dcb)
                 {
-                    if (dcb.Cull(this, drawable)) return;
+                    if (dcb.Cull(this, drawable))
+                    {
+                        return;
+                    }
                 }
                 else
                 {
@@ -472,11 +484,11 @@ namespace Veldrid.SceneGraph.RenderGraph
                 IRenderGroupState renderGroupState = null;
                 if (pso.BlendStateDescription.AttachmentStates.Contains(BlendAttachmentDescription.AlphaBlend))
                 {
-                    renderGroupState = TransparentRenderGroup.GetOrCreateState(GraphicsDevice, pso, pset.PrimitiveTopology, drawable.VertexLayouts);
+                    renderGroupState = TransparentRenderGroup.GetOrCreateState(GraphicsDevice, pso, pset.PrimitiveTopology, drawable);
                 }
                 else
                 {
-                    renderGroupState = OpaqueRenderGroup.GetOrCreateState(GraphicsDevice, pso, pset.PrimitiveTopology, drawable.VertexLayouts);
+                    renderGroupState = OpaqueRenderGroup.GetOrCreateState(GraphicsDevice, pso, pset.PrimitiveTopology, drawable);
                 }
 
                 if (false == renderElementCache.TryGetValue(renderGroupState, out var renderElement))
@@ -525,6 +537,45 @@ namespace Veldrid.SceneGraph.RenderGraph
             {
                 Traverse(node);
             }
+        }
+
+        Vector4 ComputePixelSizeVector(IViewport viewport, Matrix4x4 projectionMatrix, Matrix4x4 modelMatrix)
+        {
+            // scaling for horizontal pixels
+            var p11 = projectionMatrix.M11*viewport.Width*0.5f;
+            var p31_34 = projectionMatrix.M31*viewport.Width*0.5f + projectionMatrix.M34*viewport.Width*0.5f;
+            var scale_11 = new Vector3(
+                modelMatrix.M11*p11 + modelMatrix.M13*p31_34, 
+                modelMatrix.M21*p11 + modelMatrix.M23*p31_34, 
+                modelMatrix.M31*p11 + modelMatrix.M33*p31_34);
+
+            // scaling for vertical pixels
+            var p22 = projectionMatrix.M22*viewport.Height*0.5f;
+            var p32_34 = projectionMatrix.M32*viewport.Height*0.5f + projectionMatrix.M34*viewport.Height*0.5f;
+            var scale_22 = new Vector3(
+                modelMatrix.M12*p22 + modelMatrix.M13*p32_34, 
+                modelMatrix.M22*p22 + modelMatrix.M23*p32_34, 
+                modelMatrix.M32*p22 + modelMatrix.M33*p32_34);
+
+            var p34 = projectionMatrix.M34;
+            var p44 = projectionMatrix.M44;
+            var pixelSizeVector = new Vector4(
+                modelMatrix.M13*p34, 
+                modelMatrix.M23*p34, 
+                modelMatrix.M33*p34, 
+                modelMatrix.M43*p34 + modelMatrix.M44*p44);
+
+            var scaleRatio  = 0.7071067811f/(float) System.Math.Sqrt(scale_11.LengthSquared()+scale_22.LengthSquared());
+            pixelSizeVector *= scaleRatio;
+
+            return pixelSizeVector;
+        }
+
+        public float PixelSize(Vector3 v, float radius)
+        {
+            var pixelSizeVector = ComputePixelSizeVector(Viewport, ProjectionMatrix, GetModelViewMatrix());
+            var denom = Vector4.Dot(new Vector4(v.X, v.Y, v.Z, 1.0f), pixelSizeVector);
+            return radius / System.Math.Abs(denom);
         }
     }
 

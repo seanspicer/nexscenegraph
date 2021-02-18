@@ -6,14 +6,11 @@ namespace Veldrid.SceneGraph.Util.Shape
 {
     public interface ISphere : IShape
     {
-        Vector3 Center { get; }
         float Radius { get; }
     }
     
-    public class Sphere : ISphere
+    public class Sphere : Shape, ISphere
     {
-        private Vector3 _center;
-        public Vector3 Center => _center;
 
         private float _radius;
         public float Radius => _radius;
@@ -25,11 +22,11 @@ namespace Veldrid.SceneGraph.Util.Shape
 
         internal Sphere(Vector3 center, float radius)
         {
-            _center = center;
+            Center = center;
             _radius = radius;
         }
         
-        public void Accept(IShapeVisitor shapeVisitor)
+        public override void Accept(IShapeVisitor shapeVisitor)
         {
             shapeVisitor.Apply(this);
         }

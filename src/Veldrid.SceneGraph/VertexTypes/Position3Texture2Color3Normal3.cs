@@ -53,9 +53,9 @@ namespace Veldrid.SceneGraph.VertexTypes
             {
                 return new VertexLayoutDescription(
                     new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
-                    new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
-                    new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
-                    new VertexElementDescription("Normal", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3));
+                    new VertexElementDescription("Texture", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2, 12),
+                    new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3, 20),
+                    new VertexElementDescription("Normal", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3, 32));
 
             }
         }
@@ -67,7 +67,8 @@ namespace Veldrid.SceneGraph.VertexTypes
 
         public bool HasPosition => true;
         public bool HasNormal => true;
-        public bool HasTexCoord => true;
+        public bool HasTexCoord2 => true;
+        public bool HasTexCoord3 => true;
         public bool HasColor3 => true;
         public bool HasColor4 => false;
         public void SetPosition(Vector3 position)
@@ -80,11 +81,16 @@ namespace Veldrid.SceneGraph.VertexTypes
             Normal = normal;
         }
 
-        public void SetTexCoord(Vector2 texCoord)
+        public void SetTexCoord2(Vector2 texCoord)
         {
             TexCoord = texCoord;
         }
 
+        public void SetTexCoord3(Vector3 texCoord)
+        {
+            throw new System.NotImplementedException();
+        }
+        
         public void SetColor3(Vector3 color)
         {
             Color = color;

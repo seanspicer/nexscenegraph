@@ -76,7 +76,6 @@ namespace Veldrid.SceneGraph
                 rotationMatrix = Matrix4x4.Identity;
             }
 
-
             if (SizeMode != SizeModes.ObjectCoords)
             {
                 float width = 960.0f;

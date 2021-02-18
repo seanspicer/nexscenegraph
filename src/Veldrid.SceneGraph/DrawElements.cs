@@ -15,6 +15,7 @@
 //
 
 using System;
+using System.Numerics;
 
 namespace Veldrid.SceneGraph
 {
@@ -84,6 +85,29 @@ namespace Veldrid.SceneGraph
             }
 
             return bb;
+        }
+
+        protected override float ComputeDistance(Vector3 point)
+        {
+            float dist = 0.0f;
+            float count = 0f;
+            for(var idx = _indexStart; idx < (_indexStart+_indexCount); ++idx)
+            {
+                dist += Vector3.Distance(_geometry.VertexData[_geometry.IndexData[idx]].VertexPosition, point);
+                count += 1.0f;
+            }
+
+            return dist / count;
+        }
+
+        public override void Accept(IPrimitiveFunctor functor)
+        {
+            functor.Draw(PrimitiveTopology, 
+                _indexCount, 
+                _instanceCount, 
+                _indexStart, 
+                _vertexOffset, 
+                _instanceStart);
         }
     }
 }

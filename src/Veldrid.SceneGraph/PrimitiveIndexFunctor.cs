@@ -1,5 +1,5 @@
 //
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,12 +14,15 @@
 // limitations under the License.
 //
 
-using System.Numerics;
-
-namespace Veldrid.SceneGraph.Util
+namespace Veldrid.SceneGraph
 {
-    public interface IIntersectionVisitor : INodeVisitor
+    public interface IPrimitiveIndexFunctor
     {
-        Matrix4x4 GetModelMatrix();
+        
+    }
+    
+    public abstract class PrimitiveIndexFunctor : IPrimitiveIndexFunctor
+    {
+        
     }
 }

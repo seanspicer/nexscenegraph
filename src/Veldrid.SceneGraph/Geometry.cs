@@ -16,13 +16,20 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Veldrid;
+using Vulkan;
 
 namespace Veldrid.SceneGraph
-{    
-    public interface IGeometry<T> : IDrawable where T : struct, IPrimitiveElement
+{
+    public interface IGeometry : IDrawable
+    {
+        Vector3[] GetVertexArray();
+    }
+    
+    public interface IGeometry<T> : IGeometry where T : struct, IPrimitiveElement
     {
         T[] VertexData { get; set; }
         uint[] IndexData { get; set; }
@@ -32,12 +39,31 @@ namespace Veldrid.SceneGraph
     
     public class Geometry<T> : Drawable, IGeometry<T> where T : struct, IPrimitiveElement
     {
-        public T[] VertexData { get; set; }
+        private T[] _vertexData;
+
+        public T[] VertexData
+        {
+            get => _vertexData;
+            set
+            {
+                _vertexBufferCache.Clear();
+                _vertexData = value;
+            }
+        }
         private int SizeOfVertexData => Marshal.SizeOf(default(T));
 
         public IVertexBuffer InstanceVertexBuffer { get; set; }
 
-        public uint[] IndexData { get; set; }
+        private uint[] _indexData;
+        public uint[] IndexData
+        {
+            get => _indexData;
+            set
+            {
+                _indexBufferCache.Clear();
+                _indexData = value;
+            }
+        }
         
         private Dictionary<GraphicsDevice, List<DeviceBuffer>> _vertexBufferCache 
             = new Dictionary<GraphicsDevice, List<DeviceBuffer>>();
@@ -54,9 +80,23 @@ namespace Veldrid.SceneGraph
             return new Geometry<T>();
         }
 
+        public Vector3[] GetVertexArray()
+        {
+            var result = new Vector3[VertexData.Length];
+            for(var i=0; i<VertexData.Length; ++i)
+            {
+                result[i] = VertexData[i].VertexPosition;
+            }
+
+            return result;
+        }
+        
         public override void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory)
         {
-            if (_vertexBufferCache.ContainsKey(device) && _indexBufferCache.ContainsKey(device)) return;
+            if (_vertexBufferCache.ContainsKey(device) && _indexBufferCache.ContainsKey(device))
+            {
+                return;
+            }
             
             var vertexBuffers = new List<DeviceBuffer>();
             
@@ -73,15 +113,18 @@ namespace Veldrid.SceneGraph
                 var ivbo = InstanceVertexBuffer.GetVertexBufferForDevice(device);
                 vertexBuffers.Add(ivbo);
             }
-            
+
+
             _vertexBufferCache.Add(device, vertexBuffers);
+              
             
             var idxBufferDesc =
                 new BufferDescription((uint) (IndexData.Length * sizeof(uint)), BufferUsage.IndexBuffer);
             var ibo = factory.CreateBuffer(idxBufferDesc);
             device.UpdateBuffer(ibo, 0, IndexData);
-            
+
             _indexBufferCache.Add(device, ibo);
+            
         }
 
 
@@ -140,5 +183,20 @@ namespace Veldrid.SceneGraph
                 InstanceVertexBuffer.UpdateDeviceBuffers(device);
             }
         }
+        
+        public override bool Supports(IPrimitiveFunctor functor) { return true; }
+
+        public override void Accept(IPrimitiveFunctor functor)
+        {
+            functor.VertexData = VertexData.Cast<IPrimitiveElement>().ToArray();
+            functor.IndexData = IndexData;
+            
+            foreach (var pSet in PrimitiveSets)
+            {
+                pSet.Accept(functor);
+            }
+        }
+        public override bool Supports(IPrimitiveIndexFunctor functor) { return true; }
+        public override void Accept(IPrimitiveIndexFunctor functor) {}
     }
 }

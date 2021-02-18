@@ -41,7 +41,28 @@ namespace Veldrid.SceneGraph.Util.Shape
         private ExtendedPrimitive _currentPrimitive;
             
         protected Vector3 Center { get; set; } = Vector3.Zero;
+
+        private Matrix4x4 _matrix = Matrix4x4.Identity;
         
+        protected Matrix4x4 Matrix
+        {
+            get
+            {
+                return _matrix;
+            }
+            set
+            {
+                _matrix = value;
+                if (Matrix4x4.Invert(_matrix, out var inverse))
+                {
+                    _inverse = inverse;
+                }
+            }
+        }
+        
+        private Matrix4x4 _inverse = Matrix4x4.Identity;
+        protected Matrix4x4 Inverse => _inverse;
+
         protected void BeginQuadStrip()
         {
             _currentPrimitive = new QuadStrip();
@@ -54,6 +75,18 @@ namespace Veldrid.SceneGraph.Util.Shape
         
         protected void End()
         {
+            var inverseTranspose = Matrix4x4.Transpose(Inverse);
+            
+            for (var i = 0; i < _currentPrimitive.Vertices.Count; ++i)
+            {
+                _currentPrimitive.Vertices[i] = Vector3.Transform(_currentPrimitive.Vertices[i], _matrix);
+            }
+            
+            for (var i = 0; i < _currentPrimitive.Normals.Count; ++i)
+            {
+                _currentPrimitive.Normals[i] = Vector3.Normalize(Vector3.Transform(_currentPrimitive.Normals[i], inverseTranspose));
+            }
+            
             _primitives.Add(_currentPrimitive);
         }
             
@@ -84,7 +117,7 @@ namespace Veldrid.SceneGraph.Util.Shape
             TexCoord2f(new Vector2(x, y));
         }
 
-        protected void BuildVertexAndIndexArrays(out T[] vertexArray, out uint[] indexArray, Vector3 [] colors)
+        protected virtual void BuildVertexAndIndexArrays(out T[] vertexArray, out uint[] indexArray, Vector3 [] colors)
         {
             var vertexDataList = new List<T>();
             var indexDataList = new List<uint>();
@@ -134,7 +167,7 @@ namespace Veldrid.SceneGraph.Util.Shape
                     var vtx = new T();
                     vtx.SetPosition(strip.Vertices[idx]);
                     vtx.SetNormal(strip.Normals[idx]);
-                    vtx.SetTexCoord(strip.TexCoords[idx]);
+                    vtx.SetTexCoord2(strip.TexCoords[idx]);
                     vtx.SetColor3(colors[0]);
                     vertexDataList.Add(vtx);
                 }

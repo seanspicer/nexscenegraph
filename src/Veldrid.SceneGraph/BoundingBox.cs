@@ -106,7 +106,7 @@ namespace Veldrid.SceneGraph
         public float ZMax => _max.Z;
 
         public Vector3 Center => (_min + _max) * 0.5f;
-        public float Radius => (float)Math.Sqrt(RadiusSquared);
+        public float Radius => (float) System.Math.Sqrt(RadiusSquared);
         public float RadiusSquared => 0.25f * ((_max - _min).LengthSquared());
 
         private Vector3 _min;
@@ -324,15 +324,15 @@ namespace Veldrid.SceneGraph
         public IBoundingBox Intersect(IBoundingBox bb)
         {
             return new BoundingBox(
-                Math.Max(XMin, bb.XMin), Math.Max(YMin, bb.YMin), Math.Max(ZMin, bb.ZMin),
-                Math.Min(XMax, bb.XMax), Math.Min(YMax, bb.YMax), Math.Min(ZMax, bb.ZMax));
+                 System.Math.Max(XMin, bb.XMin),  System.Math.Max(YMin, bb.YMin),  System.Math.Max(ZMin, bb.ZMin),
+                 System.Math.Min(XMax, bb.XMax),  System.Math.Min(YMax, bb.YMax),  System.Math.Min(ZMax, bb.ZMax));
         }
         
         public bool Intersects(IBoundingBox bb)
         {
-            return Math.Max(XMin, bb.XMin) <= Math.Min(XMax, bb.XMax) &&
-                   Math.Max(YMin, bb.YMin) <= Math.Min(YMax, bb.YMax) &&
-                   Math.Max(ZMin, bb.ZMin) <= Math.Min(ZMax, bb.ZMax);
+            return  System.Math.Max(XMin, bb.XMin) <=  System.Math.Min(XMax, bb.XMax) &&
+                    System.Math.Max(YMin, bb.YMin) <=  System.Math.Min(YMax, bb.YMax) &&
+                    System.Math.Max(ZMin, bb.ZMin) <=  System.Math.Min(ZMax, bb.ZMax);
         }
 
         public bool Contains(Vector3 v)

@@ -22,13 +22,14 @@ using System.Numerics;
 using Microsoft.Extensions.Logging;
 using Veldrid.SceneGraph.Logging;
 using Veldrid.SceneGraph.RenderGraph;
+using Veldrid.SceneGraph.Util;
 
 namespace Veldrid.SceneGraph.Viewer
 {
     internal class Renderer : IGraphicsDeviceOperation
     {
-        
-        private ICullVisitor _cullVisitor;
+        private readonly IUpdateVisitor _updateVisitor;
+        private readonly ICullVisitor _cullVisitor;
         
         private ICamera _camera;
         
@@ -58,6 +59,7 @@ namespace Veldrid.SceneGraph.Viewer
         public Renderer(ICamera camera)
         {
             _camera = camera;
+            _updateVisitor = UpdateVisitor.Create();
             _cullVisitor = CullVisitor.Create();
             _logger = LogManager.CreateLogger<Renderer>();
             _fullScreenQuadRenderer = new FullScreenQuadRenderer();
@@ -105,6 +107,24 @@ namespace Veldrid.SceneGraph.Viewer
             _initialized = true;
         }
 
+        private void Event()
+        {
+            if (_camera.View is Veldrid.SceneGraph.Viewer.View viewerView)
+            {
+                viewerView.EventTraversal();
+            }
+        }
+        
+        private void Update()
+        {
+            if (_camera.View is Veldrid.SceneGraph.Viewer.View viewerView)
+            {
+                viewerView.SceneData?.Accept(_updateVisitor);
+                
+                viewerView.CameraManipulator?.UpdateCamera(_camera);
+            }
+        }
+        
         private void Cull(GraphicsDevice device, ResourceFactory factory)
         {
             using (var mcv = _cullVisitor.ToMutable())
@@ -119,7 +139,7 @@ namespace Veldrid.SceneGraph.Viewer
                 mcv.Prepare();
             }
             
-            if (_camera.View is Viewer.View viewerView)
+            if (_camera.View is Veldrid.SceneGraph.Viewer.View viewerView)
             {
                 viewerView.SceneData?.Accept(_cullVisitor);
             }
@@ -288,17 +308,27 @@ namespace Veldrid.SceneGraph.Viewer
                     // Iterate over all primitive sets in this state
                     foreach (var pset in renderElement.PrimitiveSets)
                     {
-                        var ctr = pset.GetBoundingBox().Center;
-
+                        float sortDist = 0.0f;
+                        
                         // Compute distance eye point 
                         var modelView = renderElement.ModelViewMatrix;
-                        var ctr_w = Vector3.Transform(ctr, modelView);
-                        var dist = Vector3.Distance(ctr_w, Vector3.Zero);
+                        if(Matrix4x4.Invert(modelView, out var modelViewInvese))
+                        {
+                            var eyeLocal = Vector3.Transform(Vector3.Zero, modelViewInvese);
+                            sortDist = pset.GetEyePointDistance(eyeLocal);
+                        }
+                        else
+                        {
+                            var ctr = pset.GetBoundingBox().Center;
+                            var ctrW = Vector3.Transform(ctr, modelView);
+                            sortDist = Vector3.Distance(ctrW, Vector3.Zero);
+                        }
+                        
 
-                        if (!drawOrderMap.TryGetValue(dist, out var renderList))
+                        if (!drawOrderMap.TryGetValue(sortDist, out var renderList))
                         {
                             renderList = new List<Tuple<IRenderGroupState, RenderGroupElement, IPrimitiveSet, uint>>();
-                            drawOrderMap.Add(dist, renderList);
+                            drawOrderMap.Add(sortDist, renderList);
                         }
 
                         renderList.Add(Tuple.Create(state, renderElement, pset, (uint)j));
@@ -372,6 +402,17 @@ namespace Veldrid.SceneGraph.Viewer
                 Initialize(device, factory);
             }
             
+            foreach (var state in _cullVisitor.OpaqueRenderGroup.GetStateList())
+            {
+                if (state.Elements.Count == 0) continue;
+
+                foreach (var uniform in state.PipelineState.UniformList)
+                {
+                    uniform.UpdateDeviceBuffers(device, factory);
+                }
+                
+            }
+            
             device.UpdateBuffer(_projectionBuffer, 0, _camera.ProjectionMatrix);
             
             // TODO - Remove
@@ -404,13 +445,21 @@ namespace Veldrid.SceneGraph.Viewer
             _stopWatch.Reset();
             _stopWatch.Start();
 
-            UpdateUniforms(device, factory);
+            Event();
+
+            var postEvent = _stopWatch.ElapsedMilliseconds;
+            
+            Update();
 
             var postUpdate = _stopWatch.ElapsedMilliseconds;
             
             Cull(device, factory);
             
             var postCull = _stopWatch.ElapsedMilliseconds;
+            
+            UpdateUniforms(device, factory);
+            
+            var postUpdateUniforms = _stopWatch.ElapsedMilliseconds;
             
             Record(device, factory);
             
@@ -425,10 +474,12 @@ namespace Veldrid.SceneGraph.Viewer
             var postSwap = _stopWatch.ElapsedMilliseconds;
 
             var logString = string.Format(
-                "UpdateUniforms = {0} ms, Cull = {1} ms, Record = {2}, Draw = {3} ms, Swap = {4} ms",
-                postUpdate,
-                postCull - postUpdate,
-                postRecord - postCull,
+                "Event = {0} ms, Update = {1} ms, Cull = {2} ms, UpdateUniforms = {3} ms, Record = {4}, Draw = {5} ms, Swap = {6} ms",
+                postEvent,
+                postUpdate - postEvent,
+                postCull - postEvent,
+                postUpdateUniforms - postCull,
+                postRecord - postUpdateUniforms,
                 postDraw - postRecord,
                 postSwap - postDraw);
             

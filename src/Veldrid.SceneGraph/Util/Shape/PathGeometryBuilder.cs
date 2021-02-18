@@ -12,6 +12,8 @@ namespace Veldrid.SceneGraph.Util.Shape
     {
         internal void Build(IGeometry<T> geometry, ITessellationHints hints, Vector3[] colors, IPath path)
         {
+            Matrix = Matrix4x4.CreateFromQuaternion(path.Rotation)*Matrix4x4.CreateTranslation(path.Center);
+            
             if (path.PathLocations.Length < 2)
             {
                 throw new ArgumentException("Not enough vertices for a path");
@@ -38,13 +40,15 @@ namespace Veldrid.SceneGraph.Util.Shape
             var vertexDataList = new List<T>();
             var indexDataList = new List<uint>();
             
+            
+            
             // Draw a line
             for (var i = 0; i < path.PathLocations.Length; ++i)
             {
                 var vtx = new T();
                 vtx.SetPosition(path.PathLocations[i]);
                 vtx.SetNormal(Vector3.UnitX);
-                vtx.SetTexCoord(Vector2.Zero);
+                vtx.SetTexCoord2(Vector2.Zero);
                 vtx.SetColor3(colors[0]);
                 vertexDataList.Add(vtx);
                 
@@ -85,7 +89,7 @@ namespace Veldrid.SceneGraph.Util.Shape
                 shape[i] = new Vector2((float)(r*System.Math.Sin(theta)), (float)(r*System.Math.Cos(theta)));
             }
 
-            var extrusion = Math.ExtrudeShape(shape, path.PathLocations);
+            var extrusion =  Util.Math.ExtrudeShape(shape, path.PathLocations);
 
             // Build from quad strips
             for (var j = 0; j < nSegments-1; ++j)

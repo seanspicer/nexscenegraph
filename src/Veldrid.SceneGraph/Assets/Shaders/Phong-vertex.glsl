@@ -123,7 +123,7 @@ void main()
     vec3 LightPosition_cameraspace = (1-lightSource.IsHeadlight) * ( field_View * field_Model * lightSource.Position).xyz;
     vec3 LightDirection_cameraspace = LightPosition_cameraspace + EyeDirection_cameraspace;
     
-    vec3 Normal_cameraspace = ( field_View * transpose(inverse(field_Model)) * vec4(Normal,0)).xyz;
+    vec3 Normal_cameraspace = (mat3(field_View) * mat3(transpose(inverse(field_Model)))) * Normal;
     
     fsin_eyeDir = EyeDirection_cameraspace;
     fsin_normal = Normal_cameraspace;
@@ -131,7 +131,6 @@ void main()
     
     float A = materialDesc.MaterialOverride;
     float B = 1-A;
-    
     
     fsin_AmbientColor = A*(materialDesc.AmbientColor) + B*(Color*lightSource.AmbientColor);
     fsin_DiffuseColor = A*(materialDesc.DiffuseColor) + B*(Color*lightSource.DiffuseColor);

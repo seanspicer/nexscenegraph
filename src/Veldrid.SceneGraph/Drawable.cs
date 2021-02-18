@@ -17,6 +17,8 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Text;
+using Veldrid.SceneGraph.Util.Shape;
 
 namespace Veldrid.SceneGraph
 {
@@ -26,13 +28,19 @@ namespace Veldrid.SceneGraph
         Type VertexType { get; }
         IBoundingBox InitialBoundingBox { get; set; }
         List<VertexLayoutDescription> VertexLayouts { get; set; }
+        string VertexLayoutsDescription { get; }
         List<IPrimitiveSet> PrimitiveSets { get; }
+        IShape Shape { get; }
         void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory);
         List<DeviceBuffer> GetVertexBufferForDevice(GraphicsDevice device);
         DeviceBuffer GetIndexBufferForDevice(GraphicsDevice device);
         IBoundingBox GetBoundingBox();
         bool ComputeMatrix(ref Matrix4x4 computedMatrix, IState state);
         public void UpdateDeviceBuffers(GraphicsDevice device);
+        bool Supports(IPrimitiveFunctor functor);
+        void Accept(IPrimitiveFunctor functor);
+        bool Supports(IPrimitiveIndexFunctor functor);
+        void Accept(IPrimitiveIndexFunctor functor);
     }
     
     public abstract class Drawable : Node, IDrawable
@@ -40,6 +48,8 @@ namespace Veldrid.SceneGraph
         public string Name { get; set; } = string.Empty;
 
         public Type VertexType => GetVertexType();
+        
+        public IShape Shape { get; protected set; }
         
         private IBoundingBox _boundingBox;
         private IBoundingBox _initialBoundingBox = BoundingBox.Create();
@@ -69,8 +79,19 @@ namespace Veldrid.SceneGraph
             };
         }
         
-        public List<VertexLayoutDescription> VertexLayouts { get; set; }
-        
+        private List<VertexLayoutDescription> _vertexLayouts;
+        public List<VertexLayoutDescription> VertexLayouts
+        {
+            get => _vertexLayouts;
+            set
+            {
+                _vertexLayouts = value;
+                VertexLayoutsDescription = VertexLayoutDescriptionListString(_vertexLayouts);
+            }
+        }
+
+        public string VertexLayoutsDescription { get; private set; }
+
         public List<IPrimitiveSet> PrimitiveSets { get; } = new List<IPrimitiveSet>();
         
         public event Func<Drawable, BoundingBox> ComputeBoundingBoxCallback;
@@ -139,5 +160,26 @@ namespace Veldrid.SceneGraph
         public abstract DeviceBuffer GetIndexBufferForDevice(GraphicsDevice device);
 
         public abstract void UpdateDeviceBuffers(GraphicsDevice device);
+
+        public virtual bool Supports(IPrimitiveFunctor functor) { return false; }
+        public virtual void Accept(IPrimitiveFunctor functor) {}
+        public virtual bool Supports(IPrimitiveIndexFunctor functor) { return false; }
+        public virtual void Accept(IPrimitiveIndexFunctor functor) {}
+        
+        private string VertexLayoutDescriptionListString(IList<VertexLayoutDescription> vertexLayoutDescriptions)
+        {
+            var sb = new StringBuilder();
+            foreach (var vld in vertexLayoutDescriptions)
+            {
+                foreach (var elt in vld.Elements)
+                {
+                    sb.Append($"{elt.Name}-");
+                }
+
+                sb.Append("|");
+            }
+
+            return sb.ToString();
+        }
     }
 }

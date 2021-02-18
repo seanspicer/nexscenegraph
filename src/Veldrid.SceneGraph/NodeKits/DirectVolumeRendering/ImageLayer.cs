@@ -1,5 +1,5 @@
 //
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,15 +14,13 @@
 // limitations under the License.
 //
 
-namespace Veldrid.SceneGraph.Util
+namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 {
-    public interface IIntersector
+    public class ImageLayer : Layer
     {
-        Intersector.IntersectionLimitModes IntersectionLimit { get; set; }
-        Intersector Clone(IIntersectionVisitor iv);
-        void Intersect(IIntersectionVisitor iv, IDrawable drawable);
-        bool Enter(INode node);
-        void Leave();
-        void Reset();
+        public override ILocator GetLocator()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

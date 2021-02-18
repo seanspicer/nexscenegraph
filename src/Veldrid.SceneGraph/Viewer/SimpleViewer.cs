@@ -86,7 +86,7 @@ namespace Veldrid.SceneGraph.Viewer
 
         private string _windowTitle = string.Empty;
 
-        private ISubject<IInputStateSnapshot> _viewerInputEvents;
+        private ISubject<IEvent> _viewerInputEvents;
         
         private GraphicsDevice _graphicsDevice;
         private DisposeCollectorResourceFactory _factory;
@@ -113,6 +113,9 @@ namespace Veldrid.SceneGraph.Viewer
         private SDL_EventFilter ResizeEventFilter = null;
 
         private readonly IUpdateVisitor _updateVisitor;
+        private readonly IEventVisitor _eventVisitor;
+
+        private InputSnapshotAdapter InputSnapshotAdapter { get; set; } = new InputSnapshotAdapter();
         
         //private ILog _logger;
         
@@ -147,9 +150,10 @@ namespace Veldrid.SceneGraph.Viewer
             //_logger = LogManager.GetLogger<SimpleViewer>();
             
             // Create Subjects
-            _viewerInputEvents = new Subject<IInputStateSnapshot>();
+            _viewerInputEvents = new Subject<IEvent>();
             
-            InputEvents = new Subject<IInputStateSnapshot>();
+            // TODO - Remove?
+            //InputEvents = new Subject<IUiEventAdapter>();
             
             _updateVisitor = UpdateVisitor.Create();
             _windowTitle = title;
@@ -271,13 +275,14 @@ namespace Veldrid.SceneGraph.Viewer
             while (_window.Exists)
             {
                 var inputSnapshot = _window.PumpEvents();
-                
-                // TODO: Can remove InputTracker?
-                //InputTracker.UpdateFrameInput(inputSnapshot);
 
-                var inputStateSnap = InputStateSnapshot.Create(inputSnapshot, _window.Width, _window.Height, Camera.ProjectionMatrix, Camera.ViewMatrix);
-                
-                _viewerInputEvents.OnNext(inputStateSnap);
+                var events = InputSnapshotAdapter.Adapt(inputSnapshot, _window.Width, _window.Height);
+                foreach (var evt in events)
+                {
+                    
+                    
+                    _viewerInputEvents.OnNext(evt);
+                }
                 
                 Frame();
             }
@@ -424,26 +429,8 @@ namespace Veldrid.SceneGraph.Viewer
             _previousElapsed = newElapsed;
 
             if (null == _graphicsDevice) return;
-
-            UpdateTraversal();
             
             RenderingTraversals();
-
-            //_endFrameEvents.OnNext(new EndFrameEvent(deltaSeconds));
-        }
-
-        private void UpdateTraversal()
-        {
-            //_updateVisitor.Reset();
-            //_updateVisitor.SetFrameStamp(GetFrameStamp());
-            //_updateVisitor.SetTraversalNumber(GetFrameStamp().GetFrameNumber());
-            
-            SceneData?.Accept(_updateVisitor);
-
-            if (null != CameraManipulator)
-            {
-                CameraManipulator.UpdateCamera(Camera);
-            }
         }
 
         //

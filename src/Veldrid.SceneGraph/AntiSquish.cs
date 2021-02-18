@@ -92,8 +92,8 @@ namespace Veldrid.SceneGraph
                 return false;
             }
 
-            matrix = ReferenceFrame == ReferenceFrameType.Relative ? matrix.PostMultiply(unsquishedMatrix) : unsquishedMatrix;
-
+            matrix = ReferenceFrame == ReferenceFrameType.Relative ? matrix.PreMultiply(unsquishedMatrix) : unsquishedMatrix;
+            
             return true;
         }
 
@@ -149,7 +149,7 @@ namespace Veldrid.SceneGraph
             s.Y = av;
             s.Z = av;
 
-            if (Math.Abs(av) < 1e-6) return false;
+            if ( System.Math.Abs(av) < 1e-6) return false;
 
             // Pivot
             if (_usePivot)

@@ -18,6 +18,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Text;
+using Veldrid.OpenGLBinding;
 
 namespace Veldrid.SceneGraph.RenderGraph
 {
@@ -34,7 +36,7 @@ namespace Veldrid.SceneGraph.RenderGraph
         bool HasDrawableElements();
         void Reset();
         IEnumerable<IRenderGroupState> GetStateList();
-        IRenderGroupState GetOrCreateState(GraphicsDevice device, IPipelineState pso, PrimitiveTopology pt, List<VertexLayoutDescription> vl);
+        IRenderGroupState GetOrCreateState(GraphicsDevice device, IPipelineState pso, PrimitiveTopology pt, IDrawable drawable);
     }
     
     public class RenderGroup : IRenderGroup
@@ -44,7 +46,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             return RenderGroupStateCache.Count > 0;
         }
         
-        private Dictionary<Tuple<IPipelineState, PrimitiveTopology, List<VertexLayoutDescription>>, List<IRenderGroupState>> RenderGroupStateCache;
+        private Dictionary<Tuple<IPipelineState, PrimitiveTopology, string>, List<IRenderGroupState>> RenderGroupStateCache;
 
         public static IRenderGroup Create()
         {
@@ -53,7 +55,7 @@ namespace Veldrid.SceneGraph.RenderGraph
         
         protected RenderGroup()
         {
-            RenderGroupStateCache = new Dictionary<Tuple<IPipelineState, PrimitiveTopology, List<VertexLayoutDescription>>, List<IRenderGroupState>>();
+            RenderGroupStateCache = new Dictionary<Tuple<IPipelineState, PrimitiveTopology, string>, List<IRenderGroupState>>();
         }
 
         public void Reset()
@@ -80,7 +82,7 @@ namespace Veldrid.SceneGraph.RenderGraph
             }
         }
         
-        public IRenderGroupState GetOrCreateState(GraphicsDevice device, IPipelineState pso, PrimitiveTopology pt, List<VertexLayoutDescription> vertexLayouts)
+        public IRenderGroupState GetOrCreateState(GraphicsDevice device, IPipelineState pso, PrimitiveTopology pt, IDrawable drawable)
         {
             var modelOffset = 64u;
             if (device.UniformBufferMinOffsetAlignment > 64)
@@ -90,7 +92,7 @@ namespace Veldrid.SceneGraph.RenderGraph
 
             var maxAllowedDrawables = 65536u / modelOffset;
             
-            var key = new Tuple<IPipelineState, PrimitiveTopology, List<VertexLayoutDescription>>(pso, pt, vertexLayouts);
+            var key = new Tuple<IPipelineState, PrimitiveTopology, string>(pso, pt, drawable.VertexLayoutsDescription);
             if (RenderGroupStateCache.TryGetValue(key, out var renderGroupStateList))
             {
                 // Check to see if this state list can accept any more drawables, if not, allocate a new one
@@ -102,14 +104,16 @@ namespace Veldrid.SceneGraph.RenderGraph
                     }
                 }
                 
-                renderGroupStateList.Add(RenderGroupState.Create(pso, pt, vertexLayouts));
+                renderGroupStateList.Add(RenderGroupState.Create(pso, pt, drawable.VertexLayouts));
                 return renderGroupStateList.Last();
             }
 
-            renderGroupStateList = new List<IRenderGroupState> {RenderGroupState.Create(pso, pt, vertexLayouts)}; 
+            renderGroupStateList = new List<IRenderGroupState> {RenderGroupState.Create(pso, pt, drawable.VertexLayouts)}; 
             RenderGroupStateCache.Add(key, renderGroupStateList);
 
             return renderGroupStateList.Last();
         }
+
+
     }
 }

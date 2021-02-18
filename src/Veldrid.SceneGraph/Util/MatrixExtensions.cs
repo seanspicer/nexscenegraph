@@ -50,6 +50,15 @@ namespace Veldrid.SceneGraph.Util
                 (mat.M21*v.X + mat.M22*v.Y + mat.M23*v.Z + mat.M24)*d,
                 (mat.M31*v.X + mat.M32*v.Y + mat.M33*v.Z + mat.M34)*d) ;
         }
+        
+        public static Matrix4x4 PreMultiplyScale(this Matrix4x4 mat, Vector3 v)
+        {
+            mat.M11 *= v.X; mat.M12 *= v.X; mat.M13 *= v.X; mat.M14 *= v.X;
+            mat.M21 *= v.Y; mat.M22 *= v.Y; mat.M23 *= v.Y; mat.M24 *= v.Y;
+            mat.M31 *= v.Z; mat.M32 *= v.Z; mat.M33 *= v.Z; mat.M34 *= v.Z;
+
+            return mat;
+        }
 
         public static Matrix4x4 PostMultiplyScale(this Matrix4x4 mat, Vector3 v)
         {
@@ -59,6 +68,38 @@ namespace Veldrid.SceneGraph.Util
 
             return mat;
         }
+
+        public static Matrix4x4 PreMultiplyTranslate(this Matrix4x4 mat, Vector3 v)
+        {
+            var tol = 1e-6;
+            Matrix4x4 result = mat;
+            
+            if (System.Math.Abs(v.X) > tol)
+            {
+                result.M41 += (v.X * result.M11);
+                result.M42 += (v.X * result.M12);
+                result.M43 += (v.X * result.M13);
+                result.M44 += (v.X * result.M14);
+            }
+
+            if (System.Math.Abs(v.Y) > tol)
+            {
+                result.M41 += (v.Y * result.M21);
+                result.M42 += (v.Y * result.M22);
+                result.M43 += (v.Y * result.M23);
+                result.M44 += (v.Y * result.M24);
+            }
+
+            if (System.Math.Abs(v.Z) > tol)
+            {
+                result.M41 += (v.Z * result.M31);
+                result.M42 += (v.Z * result.M32);
+                result.M43 += (v.Z * result.M33);
+                result.M44 += (v.Z * result.M34);
+            }
+            
+            return result;
+        }
         
         public static Matrix4x4 PostMultiplyTranslate(this Matrix4x4 mat, Vector3 v)
         {
@@ -67,26 +108,26 @@ namespace Veldrid.SceneGraph.Util
             
             if (System.Math.Abs(v.X) > tol)
             {
-                result.M11 = mat.M11 + (v.X * mat.M14);
-                result.M21 = mat.M21 + (v.X * mat.M24);
-                result.M31 = mat.M31 + (v.X * mat.M34);
-                result.M41 = mat.M41 + (v.X * mat.M44);
+                result.M11 += (v.X * result.M14);
+                result.M21 += (v.X * result.M24);
+                result.M31 += (v.X * result.M34);
+                result.M41 += (v.X * result.M44);
             }
 
             if (System.Math.Abs(v.Y) > tol)
             {
-                result.M12 = mat.M12 + (v.Y * mat.M14);
-                result.M22 = mat.M22 + (v.Y * mat.M24);
-                result.M32 = mat.M32 + (v.Y * mat.M34);
-                result.M42 = mat.M42 + (v.Y * mat.M44);
+                result.M12 += (v.Y * result.M14);
+                result.M22 += (v.Y * result.M24);
+                result.M32 += (v.Y * result.M34);
+                result.M42 += (v.Y * result.M44);
             }
 
             if (System.Math.Abs(v.Z) > tol)
             {
-                result.M13 = mat.M13 + (v.Z * mat.M14);
-                result.M23 = mat.M23 + (v.Z * mat.M24);
-                result.M33 = mat.M33 + (v.Z * mat.M34);
-                result.M43 = mat.M43 + (v.Z * mat.M44);
+                result.M13 += (v.Z * result.M14);
+                result.M23 += (v.Z * result.M24);
+                result.M33 += (v.Z * result.M34);
+                result.M43 += (v.Z * result.M44);
             }
             
             return result;

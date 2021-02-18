@@ -6,6 +6,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Veldrid.SceneGraph.IO\Veldrid.SceneGraph.IO.csproj" />
+      <ProjectReference Include="..\Veldrid.SceneGraph.Manipulators\Veldrid.SceneGraph.Manipulators.csproj" />
       <ProjectReference Include="..\Veldrid.SceneGraph\Veldrid.SceneGraph.csproj" />
     </ItemGroup>
 
@@ -22,6 +23,10 @@
       <EmbeddedResource Include="Assets\Shaders\LargeSphereCount-fragment.glsl" />
       <None Remove="Assets\Shaders\LargeSphereCount-vertex.glsl" />
       <EmbeddedResource Include="Assets\Shaders\LargeSphereCount-vertex.glsl" />
+      <None Remove="Assets\Shaders\ProceduralVolumeShader-fragment.glsl" />
+      <EmbeddedResource Include="Assets\Shaders\ProceduralVolumeShader-fragment.glsl" />
+      <None Remove="Assets\Shaders\ProceduralVolumeShader-vertex.glsl" />
+      <EmbeddedResource Include="Assets\Shaders\ProceduralVolumeShader-vertex.glsl" />
     </ItemGroup>
 
 </Project>

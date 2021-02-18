@@ -72,8 +72,8 @@ namespace Veldrid.SceneGraph
 
         public Matrix4x4 ComputeWindowMatrix4X4()
         {
-            return Matrix4x4.CreateTranslation(1f, 1f, 1f) *
-                   Matrix4x4.CreateScale(0.5f * Width, 0.5f * Height, 0.5f) *
+            return Matrix4x4.CreateTranslation(1f, -1f, 1f) *
+                   Matrix4x4.CreateScale(0.5f * Width, -0.5f * Height, 0.5f) *
                    Matrix4x4.CreateTranslation(X, Y, 0);
         }
     }

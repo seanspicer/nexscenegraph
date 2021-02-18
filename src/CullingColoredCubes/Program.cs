@@ -58,7 +58,7 @@ namespace ColoredCube
             var viewer = SimpleViewer.Create("Culling Colored Cube Scene Graph");
             //viewer.SetCameraOrthographic();
             viewer.SetCameraManipulator(TrackballManipulator.Create());
-            //viewer.AddInputEventHandler(new PickEventHandler(viewer.View));
+            
 
             var root = Group.Create();
             root.NameString = "Root";
@@ -83,7 +83,7 @@ namespace ColoredCube
             }
 
             root.PipelineState = CreateSharedState();
-            
+            viewer.AddInputEventHandler(new PickEventHandler());
             viewer.SetSceneData(root);
             viewer.ViewAll();
             viewer.Run();

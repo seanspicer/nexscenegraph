@@ -145,8 +145,8 @@ namespace Veldrid.SceneGraph.Wpf.Element
         /// </summary>
         protected override System.Windows.Size MeasureOverride(System.Windows.Size availableSize)
         {
-            int w = (int)Math.Ceiling(availableSize.Width);
-            int h = (int)Math.Ceiling(availableSize.Height);
+            int w = (int)System.Math.Ceiling(availableSize.Width);
+            int h = (int)System.Math.Ceiling(availableSize.Height);
             return new System.Windows.Size(w, h);
         }
 

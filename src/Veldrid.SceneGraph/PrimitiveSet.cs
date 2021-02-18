@@ -15,6 +15,7 @@
 //
 
 using System;
+using System.Numerics;
 
 namespace Veldrid.SceneGraph
 {
@@ -26,7 +27,9 @@ namespace Veldrid.SceneGraph
         event Func<PrimitiveSet, IBoundingBox> ComputeBoundingBoxCallback;
         void DirtyBound();
         IBoundingBox GetBoundingBox();
+        float GetEyePointDistance(Vector3 eyeLocal);
         void Draw(CommandList commandList);
+        void Accept(IPrimitiveFunctor functor);
     }
     
     public abstract class PrimitiveSet : Object, IPrimitiveSet
@@ -50,7 +53,11 @@ namespace Veldrid.SceneGraph
         
         public IDrawable Drawable { get; }
 
-        
+        public virtual float GetEyePointDistance(Vector3 eyeLocal)
+        {
+            return ComputeDistance(eyeLocal);
+        }
+
         public PrimitiveTopology PrimitiveTopology { get; set; }
         
         protected PrimitiveSet(IDrawable drawable, PrimitiveTopology primitiveTopology)
@@ -93,6 +100,10 @@ namespace Veldrid.SceneGraph
         public abstract void Draw(CommandList commandList);
 
         protected abstract IBoundingBox ComputeBoundingBox();
+
+        protected abstract float ComputeDistance(Vector3 point);
+
+        public virtual void Accept(IPrimitiveFunctor functor) {}
 
     }
 }
