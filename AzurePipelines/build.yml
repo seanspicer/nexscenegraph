@@ -64,7 +64,7 @@ steps:
   displayName: 'Create NuGet Packages'
   inputs:
     command: 'pack'
-    packagesToPack: '$(System.DefaultWorkingDirectory)/src/Veldrid.SceneGraph/*.csproj;$(System.DefaultWorkingDirectory)/src/Veldrid.SceneGraph.Wpf/*.csproj'
+    packagesToPack: '$(System.DefaultWorkingDirectory)/src/Veldrid.SceneGraph/*.csproj;$(System.DefaultWorkingDirectory)/src/Veldrid.SceneGraph.Manipulators/*.csproj;$(System.DefaultWorkingDirectory)/src/Veldrid.SceneGraph.Wpf/*.csproj'
     configuration: 'Release'
     versioningScheme: 'byEnvVar'
     versionEnvVar: 'GitVersion.NuGetVersionV2'
