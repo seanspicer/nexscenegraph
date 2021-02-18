@@ -14,8 +14,11 @@
 // limitations under the License.
 //
 
+using System;
+
 namespace Veldrid.SceneGraph.InputAdapter
 {
+    [Obsolete("This method will be removed and no longer works.")]
     public interface IInputEventHandler
     {
         void HandleInput(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter);
