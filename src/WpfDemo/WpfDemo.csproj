@@ -18,6 +18,6 @@
       <ProjectReference Include="..\Veldrid.SceneGraph\Veldrid.SceneGraph.csproj" />
     </ItemGroup>
     <ItemGroup>
-      <PackageReference Include="Veldrid.SPIRV" Version="1.0.12" />
+      <PackageReference Include="Veldrid.SPIRV" Version="1.0.14" />
     </ItemGroup>
 </Project>
