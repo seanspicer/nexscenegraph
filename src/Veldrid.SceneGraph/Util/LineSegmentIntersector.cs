@@ -394,6 +394,12 @@ namespace Veldrid.SceneGraph.Util
                 PrimitiveIndex = 0;
 
             }
+
+            public static ILineSegmentIntersector.IIntersection Create(Vector3 start, Vector3 localIntersectionPoint,
+                IDrawable d, NodePath nodePath)
+            {
+                return new Intersection(start, localIntersectionPoint, d, nodePath);
+            }
             
             internal Intersection(Vector3 start, Vector3 localIntersectionPoint, IDrawable d, NodePath nodePath)
             {
@@ -601,7 +607,7 @@ namespace Veldrid.SceneGraph.Util
             Intersections.Clear();
         }
 
-        private bool Intersects(IBoundingSphere bs)
+        protected virtual bool Intersects(IBoundingSphere bs)
         {
             if (!bs.Valid()) return true;
 
