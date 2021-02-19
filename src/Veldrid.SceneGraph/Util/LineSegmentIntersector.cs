@@ -526,15 +526,17 @@ namespace Veldrid.SceneGraph.Util
         public override void Intersect(IIntersectionVisitor iv, IDrawable drawable)
         {
             if (ReachedLimit()) return;
-
-            var s = Start;
-            var e = End;
-            if(drawable.CullingActive && !IntersectAndClip(ref s, ref e, drawable.GetBoundingBox()))
-            {
-                return;
-            }
             
-            Intersect(iv, drawable, s, e);
+            var bb = drawable.GetBoundingBox();
+            if (drawable.IsCullingActive && Intersects(BoundingSphere.Create(bb)))
+            {
+                var s = Start;
+                var e = End;
+                if(IntersectAndClip(ref s, ref e, drawable.GetBoundingBox()))
+                {
+                    Intersect(iv, drawable, s, e);
+                }
+            }
         }
 
         protected void Intersect(IIntersectionVisitor iv, IDrawable drawable, Vector3 s, Vector3 e)
