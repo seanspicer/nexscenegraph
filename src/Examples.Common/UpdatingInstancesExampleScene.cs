@@ -49,7 +49,7 @@ namespace Examples.Common
                 _idx = 0;
             }
             
-            public bool Run(IObject obj, IObject data)
+            public override bool Run(IObject obj, IObject data)
             {
                 var curTime = DateTime.Now;
 

@@ -111,10 +111,7 @@ namespace Veldrid.SceneGraph.Viewer
         private readonly double[] _frameTimeBuff = new double[NFramesInBuffer];
 
         private SDL_EventFilter ResizeEventFilter = null;
-
-        private readonly IUpdateVisitor _updateVisitor;
-        private readonly IEventVisitor _eventVisitor;
-
+        
         private InputSnapshotAdapter InputSnapshotAdapter { get; set; } = new InputSnapshotAdapter();
         
         //private ILog _logger;
@@ -155,7 +152,6 @@ namespace Veldrid.SceneGraph.Viewer
             // TODO - Remove?
             //InputEvents = new Subject<IUiEventAdapter>();
             
-            _updateVisitor = UpdateVisitor.Create();
             _windowTitle = title;
             
             var wci = new WindowCreateInfo()

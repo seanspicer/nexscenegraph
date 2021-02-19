@@ -434,9 +434,9 @@ namespace Veldrid.SceneGraph.Util
         protected LineSegmentIntersector Parent { get; set; } = null;
 
         /** Construct a LineSegmentIntersector that runs between the specified start and end points in MODEL coordinates. */
-        public static ILineSegmentIntersector Create(Vector3 start, Vector3 end)
+        public static ILineSegmentIntersector Create(Vector3 start, Vector3 end, IIntersector.IntersectionLimitModes intersectionLimit = IIntersector.IntersectionLimitModes.NoLimit)
         {
-            return new LineSegmentIntersector(start, end);
+            return new LineSegmentIntersector(start, end, intersectionLimit);
         }
         
         /** Convenience constructor for supporting picking in WINDOW, or PROJECTION coordinates
@@ -447,6 +447,15 @@ namespace Veldrid.SceneGraph.Util
         {
             return new LineSegmentIntersector(cf, x, y);
         }
+
+        public static ILineSegmentIntersector Create(IIntersector.CoordinateFrameMode cf,
+            Vector3 start,
+            Vector3 end,
+            LineSegmentIntersector parent = null,
+            IIntersector.IntersectionLimitModes intersectionLimit = IIntersector.IntersectionLimitModes.NoLimit)
+        {
+            return new LineSegmentIntersector(cf, start, end, parent, intersectionLimit);
+        }
         
         /// <summary>
         /// Constructor for LineSegment Intersector given start and end points in
@@ -454,7 +463,8 @@ namespace Veldrid.SceneGraph.Util
         /// </summary>
         /// <param name="start"></param>
         /// <param name="end"></param>
-        protected LineSegmentIntersector(Vector3 start, Vector3 end)
+        protected LineSegmentIntersector(Vector3 start, Vector3 end, IIntersector.IntersectionLimitModes intersectionLimit)
+        : base(IIntersector.CoordinateFrameMode.Model, intersectionLimit)
         {
             Start = start;
             End = end;
@@ -503,10 +513,10 @@ namespace Veldrid.SceneGraph.Util
             
             var lsi = new LineSegmentIntersector(
                 matrix.PreMultiply(Start),
-                matrix.PreMultiply(End));
+                matrix.PreMultiply(End),
+                this.IntersectionLimit);
 
             lsi.Parent = this;
-            lsi.IntersectionLimit = this.IntersectionLimit;
 
             return lsi;
         }

@@ -34,7 +34,7 @@ namespace Veldrid.SceneGraph.Util.Shape
             Rotation = quaternion;
         }
 
-        public void Accept(IShapeVisitor shapeVisitor)
+        public override void Accept(IShapeVisitor shapeVisitor)
         {
             shapeVisitor.Apply(this);
         }

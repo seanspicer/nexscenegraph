@@ -58,7 +58,7 @@ namespace Veldrid.SceneGraph.Manipulators
             return new Translate1DDragger(Matrix4x4.Identity);
         }
         
-        public new static ITranslate1DDragger Create(Vector3 s, Vector3 e)
+        public static ITranslate1DDragger Create(Vector3 s, Vector3 e)
         {
             return new Translate1DDragger(s, e, Matrix4x4.Identity);
         }
