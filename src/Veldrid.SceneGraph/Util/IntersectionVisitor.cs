@@ -153,18 +153,18 @@ namespace Veldrid.SceneGraph.Util
         {
             if (false == Enter(geode)) return;
 
-            Traverse(geode);
-
+            var nChildren = geode.GetNumChildren();
+            for (var i = 0; i < nChildren; ++i)
+            {
+                geode.GetChild(i).Accept(this);
+            }
+            
             Leave();
         }
 
         public override void Apply(IDrawable drawable)
         {
-            if (false == Enter(drawable)) return;
-            
             Intersect(drawable);
-            
-            Leave();
         }
 
         public override void Apply(ITransform transform)
