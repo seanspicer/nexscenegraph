@@ -321,6 +321,13 @@ namespace Veldrid.SceneGraph.Wpf.Element
                 ((IInteractiveDirect3D)Renderer).OnKeyDown(this, e);
         }
 
+        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        {
+            base.OnPreviewKeyDown(e);
+            if (Renderer is IInteractiveDirect3D)
+                ((IInteractiveDirect3D)Renderer).OnKeyDown(this, e);
+        }
+        
         /// <summary>
         /// 
         /// </summary>
@@ -331,7 +338,14 @@ namespace Veldrid.SceneGraph.Wpf.Element
             if (Renderer is IInteractiveDirect3D)
                 ((IInteractiveDirect3D)Renderer).OnKeyUp(this, e);
         }
-
+        
+        protected override void OnPreviewKeyUp(KeyEventArgs e)
+        {
+            base.OnPreviewKeyDown(e);
+            if (Renderer is IInteractiveDirect3D)
+                ((IInteractiveDirect3D)Renderer).OnKeyUp(this, e);
+        }
+        
         #endregion
 
         #region INotifyPropertyChanged Members

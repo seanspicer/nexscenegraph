@@ -113,13 +113,14 @@ namespace Veldrid.SceneGraph.Wpf
         protected override void OnMouseEnter(MouseEventArgs e)
         {
             base.OnMouseEnter(e);
-            //Focus();
+            Keyboard.Focus(this);
             ShouldHandleKeyEvents = true;
         }
 
         protected override void OnMouseLeave(MouseEventArgs e)
         {
             base.OnMouseLeave(e);
+            Keyboard.Focus(null);
             ShouldHandleKeyEvents = false;
         }
 
@@ -196,23 +197,48 @@ namespace Veldrid.SceneGraph.Wpf
                 key = e.SystemKey;
             }
 
+            KeyEvent keyEvent;
             switch (key)
             {
                 case System.Windows.Input.Key.LeftShift:
-                case System.Windows.Input.Key.RightShift:
+                    keyEvent = new KeyEvent(Key.ShiftLeft, e.IsDown, _modifierKeys);
                     _modifierKeys |= ModifierKeys.Shift;
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
+                    break;
+                case System.Windows.Input.Key.RightShift:
+                    keyEvent = new KeyEvent(Key.ShiftRight, e.IsDown, _modifierKeys);
+                    _modifierKeys |= ModifierKeys.Shift;
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
                     break;
                 case System.Windows.Input.Key.LeftCtrl:
-                case System.Windows.Input.Key.RightCtrl:
+                    keyEvent = new KeyEvent(Key.ControlLeft, e.IsDown, _modifierKeys);
                     _modifierKeys |= ModifierKeys.Control;
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
+                    break;
+                case System.Windows.Input.Key.RightCtrl:
+                    keyEvent = new KeyEvent(Key.ControlRight, e.IsDown, _modifierKeys);
+                    _modifierKeys |= ModifierKeys.Control;
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
                     break;
                 case System.Windows.Input.Key.LeftAlt:
-                case System.Windows.Input.Key.RightAlt:
+                    keyEvent = new KeyEvent(Key.AltLeft, e.IsDown, _modifierKeys);
                     _modifierKeys |= ModifierKeys.Alt;
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
+                    break;
+                case System.Windows.Input.Key.RightAlt:
+                    keyEvent = new KeyEvent(Key.AltRight, e.IsDown, _modifierKeys);
+                    _modifierKeys |= ModifierKeys.Alt;
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
                     break;
                 default:
                 {
-                    var keyEvent = new KeyEvent(MapKey(e), e.IsDown, _modifierKeys);
+                    keyEvent = new KeyEvent(MapKey(e), e.IsDown, _modifierKeys);
                     _inputState.KeyEventList.Add(keyEvent);
                     ProcessEvents();
                     break;
@@ -231,24 +257,49 @@ namespace Veldrid.SceneGraph.Wpf
             {
                 key = e.SystemKey;
             }
-            
+
+            KeyEvent keyEvent;
             switch (key)
             {
                 case System.Windows.Input.Key.LeftShift:
-                case System.Windows.Input.Key.RightShift:
+                    keyEvent = new KeyEvent(Key.ShiftLeft, e.IsDown, _modifierKeys);
                     _modifierKeys &= ~ModifierKeys.Shift;
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
+                    break;
+                case System.Windows.Input.Key.RightShift:
+                    keyEvent = new KeyEvent(Key.ShiftRight, e.IsDown, _modifierKeys);
+                    _modifierKeys &= ~ModifierKeys.Shift;
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
                     break;
                 case System.Windows.Input.Key.LeftCtrl:
-                case System.Windows.Input.Key.RightCtrl:
+                    keyEvent = new KeyEvent(Key.ControlLeft, e.IsDown, _modifierKeys);
                     _modifierKeys &= ~ModifierKeys.Control;
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
+                    break;
+                case System.Windows.Input.Key.RightCtrl:
+                    keyEvent = new KeyEvent(Key.ControlRight, e.IsDown, _modifierKeys);
+                    _modifierKeys &= ~ModifierKeys.Control;
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
                     break;
                 case System.Windows.Input.Key.LeftAlt:
-                case System.Windows.Input.Key.RightAlt:
+                    keyEvent = new KeyEvent(Key.AltLeft, e.IsDown, _modifierKeys);
                     _modifierKeys &= ~ModifierKeys.Alt;
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
+                    break;
+                case System.Windows.Input.Key.RightAlt:
+                    keyEvent = new KeyEvent(Key.AltRight, e.IsDown, _modifierKeys);
+                    _modifierKeys &= ~ModifierKeys.Alt;
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
                     break;
                 default:
                 {
-                    var keyEvent = new KeyEvent(MapKey(e), e.IsDown, _modifierKeys);
+                    keyEvent = new KeyEvent(MapKey(e), e.IsDown, _modifierKeys);
                     _inputState.KeyEventList.Add(keyEvent);
                     ProcessEvents();
                     break;
