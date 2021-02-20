@@ -153,11 +153,7 @@ namespace Veldrid.SceneGraph.Util
         {
             if (false == Enter(geode)) return;
 
-            var nChildren = geode.GetNumChildren();
-            for (var i = 0; i < nChildren; ++i)
-            {
-                geode.GetChild(i).Accept(this);
-            }
+            Traverse(geode);
             
             Leave();
         }

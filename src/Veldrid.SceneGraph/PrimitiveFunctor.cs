@@ -22,8 +22,8 @@ namespace Veldrid.SceneGraph
 {
     public interface IPrimitiveFunctor
     {
-        IPrimitiveElement[] VertexData { get; set; }
-        uint[] IndexData { get; set; }
+        IDrawable Drawable { get; }
+        
         void Draw(
             PrimitiveTopology topology, 
             uint indexCount, 
@@ -32,12 +32,14 @@ namespace Veldrid.SceneGraph
             int vertexOffset, 
             uint instanceStart);
     }
-    
-    public abstract class PrimitiveFunctor : IPrimitiveFunctor
+
+    public interface IPrimitiveFunctor<T> : IPrimitiveFunctor where T : struct, IPrimitiveElement
     {
-        public IPrimitiveElement[] VertexData { get; set; }
-        
-        public uint[] IndexData { get; set; }
+    }
+    
+    public abstract class PrimitiveFunctor<T> : IPrimitiveFunctor<T> where T : struct, IPrimitiveElement
+    {
+        public abstract IDrawable Drawable { get; }
         
         public abstract void Draw(
             PrimitiveTopology topology, 
@@ -53,17 +55,16 @@ namespace Veldrid.SceneGraph
         void Handle(Vector3 v0, Vector3 v1, Vector3 v2, bool treatVertexDataAsTemporary);
     }
 
-    public class TemplatePrimitiveFunctor : PrimitiveFunctor
+    internal class TemplatePrimitiveFunctor<T> : PrimitiveFunctor<T> where T : struct, IPrimitiveElement
     {
+        public override IDrawable Drawable => _geometry;
+        
+        private IGeometry<T> _geometry;
         private IPrimitiveFunctorDelegate _pfd;
-
-        public static IPrimitiveFunctor Create(IPrimitiveFunctorDelegate pfd)
+        
+        internal TemplatePrimitiveFunctor(IPrimitiveFunctorDelegate pfd, IGeometry<T> geometry)
         {
-            return new TemplatePrimitiveFunctor(pfd);
-        }
-
-        protected TemplatePrimitiveFunctor(IPrimitiveFunctorDelegate pfd)
-        {
+            _geometry = geometry;
             _pfd = pfd;
         }
         
@@ -76,13 +77,13 @@ namespace Veldrid.SceneGraph
             {
                 case PrimitiveTopology.TriangleList:
                 {
-                    var nTris = indexCount / 3;
                     for (var i = indexStart; i < indexStart+indexCount; i += 3)
                     {
-                        var v0 = VertexData[IndexData[i]].VertexPosition;
-                        var v1 = VertexData[IndexData[i + 1]].VertexPosition;
-                        var v2 = VertexData[IndexData[i + 2]].VertexPosition;
-                        _pfd.Handle(v0, v1, v2, false);
+                        _pfd.Handle(
+                            _geometry.VertexData[_geometry.IndexData[i + 0]].VertexPosition,
+                            _geometry.VertexData[_geometry.IndexData[i + 1]].VertexPosition,
+                            _geometry.VertexData[_geometry.IndexData[i + 2]].VertexPosition,
+                            false);
                     }
                     break;
                 }

@@ -4,6 +4,10 @@
         <TargetFrameworks>net48;netcoreapp3.1</TargetFrameworks>
         <UseWPF>true</UseWPF>
     </PropertyGroup>
+    <PropertyGroup>
+        <VersionPrefix>0.4.5</VersionPrefix>
+        <VersionSuffix>alpha</VersionSuffix>
+    </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\Veldrid.SceneGraph\Veldrid.SceneGraph.csproj" />
     </ItemGroup>

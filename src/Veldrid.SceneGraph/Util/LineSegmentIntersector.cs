@@ -23,12 +23,13 @@ using SharpDX.Direct3D11;
 
 namespace Veldrid.SceneGraph.Util
 {
-    internal class Settings
+
+    
+    public class Settings
     {
         public LineSegmentIntersector _lineSegmentIntersector { get; set; } = null;
         public IIntersectionVisitor _iv { get; set; } = null;
         public IDrawable _drawable { get; set; } = null;
-        public Vector3[] _vertices { get; set; } = null;
         public bool _limitOneIntersection { get; set; } = false;
     }
 
@@ -37,7 +38,7 @@ namespace Veldrid.SceneGraph.Util
         
     }
     
-    internal class LineSegmentIntersectFunctorDelegate : IPrimitiveFunctorDelegate, IIntersectFunctor
+    public class LineSegmentIntersectFunctorDelegate : IPrimitiveFunctorDelegate, IIntersectFunctor
     {
         public Settings _settings { get; set; } = null;
         public uint _primitiveIndex { get; set; } = 0;
@@ -287,33 +288,38 @@ namespace Veldrid.SceneGraph.Util
             hit.PrimitiveIndex = _primitiveIndex;
             hit.LocalIntersectionPoint = inVal;
             hit.LocalIntersectionNormal = normal;
-            
-            if (null != _settings._vertices)
-            {
-                var first = (_settings._vertices.First());
 
+            if (_settings._drawable is IGeometry geometry)
+            {
                 if (r0!=0.0f)
                 {
-                    var idx = Array.IndexOf(_settings._vertices, v0);
-                    hit.IndexList.Add((uint) idx);
-                    hit.RatioList.Add(r0);
+                    if(geometry.IndexOfVertex(v0, out var idx))
+                    {
+                        hit.IndexList.Add((uint) idx);
+                        hit.RatioList.Add(r0);
+                    }
+                    
                 }
-
+            
                 if (r1!=0.0f)
                 {
-                    var idx = Array.IndexOf(_settings._vertices, v1);
-                    hit.IndexList.Add((uint) idx);
-                    hit.RatioList.Add(r1);
+                    if(geometry.IndexOfVertex(v1, out var idx))
+                    {
+                        hit.IndexList.Add((uint) idx);
+                        hit.RatioList.Add(r1);
+                    }
                 }
-
+            
                 if (r2!=0.0f)
                 {
-                    var idx = Array.IndexOf(_settings._vertices, v2);
-                    hit.IndexList.Add((uint) idx);
-                    hit.RatioList.Add(r2);
+                    if(geometry.IndexOfVertex(v2, out var idx))
+                    {
+                        hit.IndexList.Add((uint) idx);
+                        hit.RatioList.Add(r2);
+                    }
                 }
             }
-
+            
             _settings._lineSegmentIntersector.InsertIntersection(hit);
             _hit = true;
         }
@@ -527,7 +533,7 @@ namespace Veldrid.SceneGraph.Util
             return lsi;
         }
 
-        public void InsertIntersection(Intersection intersection)
+        public void InsertIntersection(ILineSegmentIntersector.IIntersection intersection)
         {
             if (null == Parent)
             {
@@ -561,12 +567,7 @@ namespace Veldrid.SceneGraph.Util
             settings._iv = iv;
             settings._drawable = drawable;
             settings._limitOneIntersection = (IntersectionLimit == IIntersector.IntersectionLimitModes.LimitOnePerDrawable || IntersectionLimit == IIntersector.IntersectionLimitModes.LimitOne);
-
-            if (drawable is IGeometry geometry)
-            {
-                settings._vertices = geometry.GetVertexArray();
-            }
-
+            
             var kdTree = iv.UseKdTreeWhenAvailable ? (drawable.Shape as IKdTree) : null;
 
             if (PrecisionHint == IIntersector.PrecisionHintTypes.UseDoubleCalculations)
@@ -577,7 +578,7 @@ namespace Veldrid.SceneGraph.Util
             {
                 var intersectFunctor = new LineSegmentIntersectFunctorDelegate();
                 intersectFunctor.Set(s, e, settings);
-                var intersectPrimitiveFunctor = TemplatePrimitiveFunctor.Create(intersectFunctor);
+                var intersectPrimitiveFunctor = drawable.CreateTemplatePrimitiveFunctor(intersectFunctor);
 
                 if (null != kdTree)
                 {

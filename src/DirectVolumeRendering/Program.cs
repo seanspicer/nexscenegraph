@@ -14,6 +14,7 @@ namespace DirectVolumeRendering
             Veldrid.SceneGraph.Logging.LogManager.SetLogger(Bootstrapper.LoggerFactory);
 
             var viewer = SimpleViewer.Create("Direct Volume Rendering", TextureSampleCount.Count8);
+            viewer.SetBackgroundColor(RgbaFloat.Black);
             viewer.SetCameraManipulator(TrackballManipulator.Create());
 
             var root = SampledVolumeRenderingExampleScene.Build();

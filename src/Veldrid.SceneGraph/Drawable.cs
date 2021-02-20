@@ -37,6 +37,9 @@ namespace Veldrid.SceneGraph
         IBoundingBox GetBoundingBox();
         bool ComputeMatrix(ref Matrix4x4 computedMatrix, IState state);
         public void UpdateDeviceBuffers(GraphicsDevice device);
+
+        IPrimitiveFunctor CreateTemplatePrimitiveFunctor(IPrimitiveFunctorDelegate pfd);
+        
         bool Supports(IPrimitiveFunctor functor);
         void Accept(IPrimitiveFunctor functor);
         bool Supports(IPrimitiveIndexFunctor functor);
@@ -161,8 +164,17 @@ namespace Veldrid.SceneGraph
 
         public abstract void UpdateDeviceBuffers(GraphicsDevice device);
 
+        public abstract IPrimitiveFunctor CreateTemplatePrimitiveFunctor(IPrimitiveFunctorDelegate pfd);
+        
         public virtual bool Supports(IPrimitiveFunctor functor) { return false; }
-        public virtual void Accept(IPrimitiveFunctor functor) {}
+
+        public virtual void Accept(IPrimitiveFunctor functor)
+        {
+            if (functor.Drawable != this)
+            {
+                throw new NotSupportedException("This functor is not supported for this drawable");
+            }
+        }
         public virtual bool Supports(IPrimitiveIndexFunctor functor) { return false; }
         public virtual void Accept(IPrimitiveIndexFunctor functor) {}
         

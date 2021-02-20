@@ -26,7 +26,7 @@ namespace Veldrid.SceneGraph
 {
     public interface IGeometry : IDrawable
     {
-        Vector3[] GetVertexArray();
+        bool IndexOfVertex(Vector3 vertex, out uint index);
     }
     
     public interface IGeometry<T> : IGeometry where T : struct, IPrimitiveElement
@@ -80,15 +80,32 @@ namespace Veldrid.SceneGraph
             return new Geometry<T>();
         }
 
-        public Vector3[] GetVertexArray()
+        // public T[] GetVertexArray()
+        // {
+        //     return VertexData;
+        //     
+        //     var result = new Vector3[VertexData.Length];
+        //     for(var i=0; i<VertexData.Length; ++i)
+        //     {
+        //         result[i] = VertexData[i].VertexPosition;
+        //     }
+        //
+        //     return result;
+        // }
+
+        public bool IndexOfVertex(Vector3 vertex, out uint index)
         {
-            var result = new Vector3[VertexData.Length];
-            for(var i=0; i<VertexData.Length; ++i)
+            index = 0;
+            foreach (var val in VertexData)
             {
-                result[i] = VertexData[i].VertexPosition;
+                if (val.VertexPosition == vertex)
+                {
+                    return true;
+                }
+                index++;
             }
 
-            return result;
+            return false;
         }
         
         public override void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory)
@@ -183,14 +200,17 @@ namespace Veldrid.SceneGraph
                 InstanceVertexBuffer.UpdateDeviceBuffers(device);
             }
         }
+
+        public override IPrimitiveFunctor CreateTemplatePrimitiveFunctor(IPrimitiveFunctorDelegate pfd)
+        {
+            return new TemplatePrimitiveFunctor<T>(pfd, this);
+        }
         
         public override bool Supports(IPrimitiveFunctor functor) { return true; }
 
         public override void Accept(IPrimitiveFunctor functor)
         {
-            functor.VertexData = VertexData.Cast<IPrimitiveElement>().ToArray();
-            functor.IndexData = IndexData;
-            
+            base.Accept(functor);
             foreach (var pSet in PrimitiveSets)
             {
                 pSet.Accept(functor);
