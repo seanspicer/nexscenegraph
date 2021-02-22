@@ -29,8 +29,6 @@ namespace Veldrid.SceneGraph.Viewer
 {
     internal class Renderer : IGraphicsDeviceOperation
     {
-        private RenderDoc _renderDoc;
-        
         private bool _doFrameCapture = false;
         
         private readonly IUpdateVisitor _updateVisitor;
@@ -69,22 +67,6 @@ namespace Veldrid.SceneGraph.Viewer
             _logger = LogManager.CreateLogger<Renderer>();
             _fullScreenQuadRenderer = new FullScreenQuadRenderer();
             SceneContext = null;
-
-            var renderDocCapturePath =
-                Environment.GetEnvironmentVariable("VELDRID_SCENE_GRAPH_RENDERDOC_CAPTURE_PATH");
-            
-            if (null == _renderDoc && null != Environment.GetEnvironmentVariable("VELDRID_SCENE_GRAPH_ENABLE_RENDERDOC_CAPTURE"))
-            {
-                if (RenderDoc.Load(out var renderDoc))
-                {
-                    _renderDoc = renderDoc;
-                    if (null != renderDocCapturePath)
-                    {
-                        _renderDoc.SetCaptureSavePath(renderDocCapturePath);
-                    }
-                    
-                }
-            }
         }
 
         private void Initialize(GraphicsDevice device, ResourceFactory factory)
@@ -475,10 +457,21 @@ namespace Veldrid.SceneGraph.Viewer
 
             var postEvent = _stopWatch.ElapsedMilliseconds;
 
+            IntPtr devicePtr = IntPtr.Zero;
             if (_doFrameCapture)
             {
-                //_renderDoc?.TriggerCapture();
-                _renderDoc?.StartFrameCapture();
+                
+                RenderDocManager.Instance?.TriggerCapture();
+                 if (device.GetD3D11Info(out var info))
+                 {
+                     devicePtr = info.Device;
+                     RenderDocManager.Instance?.StartFrameCapture(devicePtr, IntPtr.Zero);
+                 }
+                 else
+                {
+                    RenderDocManager.Instance?.StartFrameCapture();
+                }
+                
             }
             
             Update();
@@ -507,7 +500,15 @@ namespace Veldrid.SceneGraph.Viewer
 
             if (_doFrameCapture)
             {
-                _renderDoc?.EndFrameCapture();
+                if (null != RenderDocManager.Instance)
+                {
+                    var result = RenderDocManager.Instance.EndFrameCapture(devicePtr, IntPtr.Zero);
+                    if (false == result)
+                    {
+                        _logger?.LogError("Unable to capture frame");
+                    }
+                }
+                
                 _doFrameCapture = false;
             }
             

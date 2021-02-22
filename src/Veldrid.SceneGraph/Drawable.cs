@@ -125,8 +125,13 @@ namespace Veldrid.SceneGraph
             ResourceLayout parentLayout)
         {
             // Nothing by default
-        }     
-        
+        }
+
+        public override IBoundingSphere ComputeBound()
+        {
+            return BoundingSphere.Create(GetBoundingBox());
+        }
+
         public IBoundingBox GetBoundingBox()
         {
             if (_boundingSphereComputed) return _boundingBox;

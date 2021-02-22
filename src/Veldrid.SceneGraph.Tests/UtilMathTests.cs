@@ -59,7 +59,7 @@ namespace Veldrid.SceneGraph.Tests
                 Vector3.UnitX - Vector3.UnitY + Vector3.UnitZ
             };
 
-            var tangents = Util.Math.ComputePathTangents(trajectory);
+            var tangents = Veldrid.SceneGraph.Util.Math.ComputePathTangents(trajectory);
             
             Assert.That(tangents[0], Is.EqualTo(new Vector3( 0.0f, -1.5f, -0.5f)));
             Assert.That(tangents[1], Is.EqualTo(new Vector3( 0.0f, -0.5f,  0.5f)));
@@ -92,7 +92,7 @@ namespace Veldrid.SceneGraph.Tests
 
             Assert.DoesNotThrow(() =>
             {
-                var extrusion = Util.Math.ExtrudeShape(shape, path);
+                var extrusion = Veldrid.SceneGraph.Util.Math.ExtrudeShape(shape, path);
             });
             
             
@@ -117,7 +117,7 @@ namespace Veldrid.SceneGraph.Tests
                 Vector3.UnitY
             };
 
-            var extrusion = Util.Math.ExtrudeShape(shape, path);
+            var extrusion = Veldrid.SceneGraph.Util.Math.ExtrudeShape(shape, path);
             
             Assert.That(extrusion.GetLength(0), Is.EqualTo(path.Length));
             Assert.That(extrusion.GetLength(1), Is.EqualTo(nSegments));
