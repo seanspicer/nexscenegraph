@@ -1,5 +1,5 @@
 //
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,13 +19,13 @@ using SharpDX.Win32;
 using Veldrid;
 using Veldrid.SceneGraph.InputAdapter;
 
-namespace Lighting.Wpf
+namespace MixedOpaqueTransparentGeometry.Wpf
 {
-    public class LightingDemoViewModel : ViewModelBase
+    public class MixedOpaqueTransparentGeometryDemoViewModel : ViewModelBase
     {
-        public LightingDemoViewModel() : base()
+        public MixedOpaqueTransparentGeometryDemoViewModel() : base()
         {
-            SceneRoot = Examples.Common.LightingExampleScene.Build();
+            SceneRoot = Examples.Common.MixedOpaqueTransparentGeometryScene.Build();
             CameraManipulator = TrackballManipulator.Create();
             ClearColor = RgbaFloat.Grey;
             FsaaCount = TextureSampleCount.Count8; // 8x FSAA

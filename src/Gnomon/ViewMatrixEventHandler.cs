@@ -1,12 +1,14 @@
 
 
 using System.Numerics;
+using Examples.Common.Wpf;
 using Veldrid;
 using Veldrid.SceneGraph.InputAdapter;
+using Veldrid.SceneGraph.Viewer;
 
 namespace Gnomon
 {
-    public class ViewMatrixEventHandler : InputEventHandler
+    public class ViewMatrixEventHandler : FrameCaptureEventHandler
     {
         
         private readonly SceneViewModel _viewModel;
@@ -16,10 +18,20 @@ namespace Gnomon
             _viewModel = viewModel;
         }
 
-        public override void HandleInput(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter)
+        public override bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter uiActionAdapter)
         {
-            base.HandleInput(snapshot, uiActionAdapter);
-            _viewModel.MainViewMatrix = snapshot.ViewMatrix;
+            if (base.Handle(eventAdapter, uiActionAdapter))
+            {
+                return true;
+            }
+            
+            if(uiActionAdapter is IView view)
+            {
+                _viewModel.MainViewMatrix = view.Camera.ViewMatrix;
+                return true;
+            }
+
+            return false;
         }
     }
 }

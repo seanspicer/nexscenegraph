@@ -23,6 +23,25 @@ using Veldrid.SceneGraph.InputAdapter;
 
 namespace Examples.Common.Wpf
 {
+    public class FrameCaptureEventHandler : UiEventHandler
+    {
+        public override bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter actionAdapter)
+        {
+            if (actionAdapter is Veldrid.SceneGraph.Viewer.IView view)
+            {
+                if (eventAdapter.Key == IUiEventAdapter.KeySymbol.KeyC &&
+                    (eventAdapter.EventType & IUiEventAdapter.EventTypeValue.KeyDown) != 0 &&
+                    (eventAdapter.ModKeyMask & IUiEventAdapter.ModKeyMaskType.ModKeyShift) != 0 &&
+                    (eventAdapter.ModKeyMask & IUiEventAdapter.ModKeyMaskType.ModKeyCtl) != 0)
+                {
+                    view?.Camera?.Renderer.CaptureNextFrame();
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+    
     public abstract class ViewModelBase : INotifyPropertyChanged
     {
         private IGroup _sceneRoot;
@@ -48,9 +67,9 @@ namespace Examples.Common.Wpf
             }
         }
 
-        private IInputEventHandler _eventHandler;
+        private IUiEventHandler _eventHandler;
 
-        public IInputEventHandler EventHandler
+        public IUiEventHandler EventHandler
         {
             get => _eventHandler;
             set
@@ -87,6 +106,7 @@ namespace Examples.Common.Wpf
         protected ViewModelBase()
         {
             FsaaCount = TextureSampleCount.Count16;
+            EventHandler = new FrameCaptureEventHandler();
         }
         
         public event PropertyChangedEventHandler PropertyChanged;

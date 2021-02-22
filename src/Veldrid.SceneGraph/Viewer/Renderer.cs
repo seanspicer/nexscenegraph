@@ -20,6 +20,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using Microsoft.Extensions.Logging;
+using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Logging;
 using Veldrid.SceneGraph.RenderGraph;
 using Veldrid.SceneGraph.Util;
@@ -28,6 +29,10 @@ namespace Veldrid.SceneGraph.Viewer
 {
     internal class Renderer : IGraphicsDeviceOperation
     {
+        private RenderDoc _renderDoc;
+        
+        private bool _doFrameCapture = false;
+        
         private readonly IUpdateVisitor _updateVisitor;
         private readonly ICullVisitor _cullVisitor;
         
@@ -64,6 +69,22 @@ namespace Veldrid.SceneGraph.Viewer
             _logger = LogManager.CreateLogger<Renderer>();
             _fullScreenQuadRenderer = new FullScreenQuadRenderer();
             SceneContext = null;
+
+            var renderDocCapturePath =
+                Environment.GetEnvironmentVariable("VELDRID_SCENE_GRAPH_RENDERDOC_CAPTURE_PATH");
+            
+            if (null == _renderDoc && null != Environment.GetEnvironmentVariable("VELDRID_SCENE_GRAPH_ENABLE_RENDERDOC_CAPTURE"))
+            {
+                if (RenderDoc.Load(out var renderDoc))
+                {
+                    _renderDoc = renderDoc;
+                    if (null != renderDocCapturePath)
+                    {
+                        _renderDoc.SetCaptureSavePath(renderDocCapturePath);
+                    }
+                    
+                }
+            }
         }
 
         private void Initialize(GraphicsDevice device, ResourceFactory factory)
@@ -107,6 +128,11 @@ namespace Veldrid.SceneGraph.Viewer
             _initialized = true;
         }
 
+        public void CaptureNextFrame()
+        {
+            _doFrameCapture = true;
+        }
+        
         private void Event()
         {
             if (_camera.View is Veldrid.SceneGraph.Viewer.View viewerView)
@@ -448,6 +474,12 @@ namespace Veldrid.SceneGraph.Viewer
             Event();
 
             var postEvent = _stopWatch.ElapsedMilliseconds;
+
+            if (_doFrameCapture)
+            {
+                //_renderDoc?.TriggerCapture();
+                _renderDoc?.StartFrameCapture();
+            }
             
             Update();
 
@@ -470,9 +502,15 @@ namespace Veldrid.SceneGraph.Viewer
             var postDraw = _stopWatch.ElapsedMilliseconds;
             
             SwapBuffers(device);
-            
+
             var postSwap = _stopWatch.ElapsedMilliseconds;
 
+            if (_doFrameCapture)
+            {
+                _renderDoc?.EndFrameCapture();
+                _doFrameCapture = false;
+            }
+            
             var logString = string.Format(
                 "Event = {0} ms, Update = {1} ms, Cull = {2} ms, UpdateUniforms = {3} ms, Record = {4}, Draw = {5} ms, Swap = {6} ms",
                 postEvent,

@@ -23,5 +23,7 @@ namespace Veldrid.SceneGraph
         void HandleOperation(GraphicsDevice device, ResourceFactory factory);
 
         void HandleResize(GraphicsDevice device);
+
+        void CaptureNextFrame();
     }
 }

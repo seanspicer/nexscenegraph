@@ -4,14 +4,11 @@ namespace Veldrid.SceneGraph.InputAdapter
     public interface IUiEventHandler : IEventHandler
     {
         bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter actionAdapter);
-
-        bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter actionAdapter, IObject obj,
-            INodeVisitor nodeVisitor);
     }
     
     public class UiEventHandler : EventHandler, IUiEventHandler
     {
-        public virtual bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter actionAdapter, IObject obj,
+        protected virtual bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter actionAdapter, IObject obj,
             INodeVisitor nodeVisitor)
         {
             return Handle(eventAdapter, actionAdapter);

@@ -19,6 +19,7 @@ namespace Veldrid.SceneGraph.Wpf
 {
     public class VeldridSceneGraphRenderer : BaseRenderer
     {
+
         private ISubject<IEndFrameEvent> _endFrameEvents;
         private ISubject<IUiEventAdapter> _viewerInputEvents;
 
@@ -92,7 +93,7 @@ namespace Veldrid.SceneGraph.Wpf
             }
         }
 
-        private RgbaFloat _clearColor;
+        private RgbaFloat _clearColor = RgbaFloat.Grey;
 
         public RgbaFloat ClearColor
         {
@@ -154,6 +155,8 @@ namespace Veldrid.SceneGraph.Wpf
         
         public VeldridSceneGraphRenderer()
         {
+
+            
             DpiScale = 1.0d;
             _initialized = false;
             _updateVisitor = UpdateVisitor.Create();

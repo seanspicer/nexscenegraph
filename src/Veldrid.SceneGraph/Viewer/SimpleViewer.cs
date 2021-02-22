@@ -55,6 +55,25 @@ namespace Veldrid.SceneGraph.Viewer
         }
 
     }
+
+    internal class FrameCaptureEventHandler : UiEventHandler
+    {
+        public override bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter actionAdapter)
+        {
+            if (actionAdapter is IView view)
+            {
+                if (eventAdapter.Key == IUiEventAdapter.KeySymbol.KeyC &&
+                    (eventAdapter.EventType & IUiEventAdapter.EventTypeValue.KeyDown) != 0 &&
+                    (eventAdapter.ModKeyMask & IUiEventAdapter.ModKeyMaskType.ModKeyShift) != 0 &&
+                    (eventAdapter.ModKeyMask & IUiEventAdapter.ModKeyMaskType.ModKeyCtl) != 0)
+                {
+                    view?.Camera?.Renderer.CaptureNextFrame();
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
     
     public class SimpleViewer : View, IViewer
     {
@@ -193,6 +212,8 @@ namespace Veldrid.SceneGraph.Viewer
             SceneContext = _sceneContext;
             
             Camera.SetProjectionResizePolicy(ProjectionResizePolicy.Fixed);
+            
+            AddInputEventHandler(new FrameCaptureEventHandler());
         }
 
         public override void SetCamera(ICamera camera)
@@ -246,17 +267,7 @@ namespace Veldrid.SceneGraph.Viewer
             // TODO - fix this nasty cast
             Camera.SetClearColor(color);
         }
-
-        // public void AddInputEventHandler(IInputEventHandler handler)
-        // {
-        //     AddInputEventHandler(handler);
-        // }
         
-        // public void Run()
-        // {
-        //     Run(null);
-        // }
-
         /// <summary>
         /// Run the viewer
         /// </summary>
@@ -275,8 +286,6 @@ namespace Veldrid.SceneGraph.Viewer
                 var events = InputSnapshotAdapter.Adapt(inputSnapshot, _window.Width, _window.Height);
                 foreach (var evt in events)
                 {
-                    
-                    
                     _viewerInputEvents.OnNext(evt);
                 }
                 

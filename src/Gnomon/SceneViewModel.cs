@@ -32,11 +32,24 @@ namespace Gnomon
                 OnPropertyChanged("MainViewMatrix");
             }
         }
-        
+
+        private RgbaFloat _gnomonClearColor;
+
+        public RgbaFloat GnomonClearColor
+        {
+            get => _gnomonClearColor;
+            set
+            {
+                _gnomonClearColor = value;
+                OnPropertyChanged("GnomonClearColor");
+            }
+        }
+
         internal SceneViewModel()
         {
             SceneRoot = Examples.Common.PathExampleScene.Build();
             CameraManipulator = TrackballManipulator.Create();
+            GnomonClearColor = RgbaFloat.Clear;
             FsaaCount = TextureSampleCount.Count16;
             
             GnomonRoot = Group.Create();

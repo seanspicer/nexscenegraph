@@ -34,7 +34,8 @@
             <wpf:VeldridSceneGraphControl 
                 x:Name="VsgElementGnomon" 
                 SceneRoot="{Binding GnomonRoot}"
-                FsaaCount = "{Binding FsaaCount}">
+                FsaaCount = "{Binding FsaaCount}"
+                ClearColor = "{Binding GnomonClearColor}">
             </wpf:VeldridSceneGraphControl>
         </Border>
         

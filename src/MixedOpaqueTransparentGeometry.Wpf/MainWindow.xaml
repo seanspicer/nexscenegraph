@@ -1,9 +1,9 @@
-﻿<Window x:Class="DirectVolumeRendering.Wpf.MainWindow"
+﻿<Window x:Class="MixedOpaqueTransparentGeometry.Wpf.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:DirectVolumeRendering.Wpf"
+        xmlns:local="clr-namespace:MixedOpaqueTransparentGeometry.Wpf"
         xmlns:wpf="clr-namespace:Veldrid.SceneGraph.Wpf;assembly=Veldrid.SceneGraph.Wpf"
         mc:Ignorable="d"
         Background="Transparent"
@@ -14,8 +14,8 @@
             SceneRoot="{Binding SceneRoot}"
             CameraManipulator="{Binding CameraManipulator}"
             EventHandler="{Binding EventHandler}"
-            FsaaCount="{Binding FsaaCount}"
-            ClearColor="{Binding ClearColor}">
+            ClearColor="{Binding ClearColor}"
+            FsaaCount="{Binding FsaaCount}">
         </wpf:VeldridSceneGraphControl>
         
         <Canvas>
@@ -31,5 +31,6 @@
                 </TextBlock.Effect>
             </TextBlock>
         </Canvas>
+        
     </Grid>
 </Window>

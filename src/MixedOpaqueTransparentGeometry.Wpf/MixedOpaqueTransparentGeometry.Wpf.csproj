@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFrameworks>net48;netcoreapp3.1</TargetFrameworks>
+        <UseWPF>true</UseWPF>
+        <LangVersion>8</LangVersion>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <PlatformTarget>x64</PlatformTarget>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <PlatformTarget>x64</PlatformTarget>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Examples.Common.Wpf\Examples.Common.Wpf.csproj" />
+        <ProjectReference Include="..\Examples.Common\Examples.Common.csproj" />
+        <ProjectReference Include="..\Veldrid.SceneGraph.Wpf\Veldrid.SceneGraph.Wpf.csproj" />
+        <ProjectReference Include="..\Veldrid.SceneGraph\Veldrid.SceneGraph.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Veldrid.SPIRV" Version="1.0.14" />
+    </ItemGroup>
+</Project>

@@ -69,7 +69,10 @@ namespace Veldrid.SceneGraph.Wpf.Element
             Render(args);
 
             if (args.Target != null)
+            {
                 SetBackBuffer(args.Target);
+            }
+                
         }
 
         /// <summary>
