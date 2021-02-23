@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Text;
 using Veldrid.SceneGraph.Shaders;
 using Veldrid.SPIRV;
 using Veldrid.Utilities;
@@ -229,14 +230,46 @@ namespace Veldrid.SceneGraph.RenderGraph
             Framebuffer fb,
             IShaderSet shaderSet)
         {
-            Shader[] shaders = factory.CreateFromSpirv(
-                shaderSet.VertexShaderDescription,
-                shaderSet.FragmentShaderDescription,
-                GetOptions(gd,fb));
-
-            Shader vs = shaders[0];
-            Shader fs = shaders[1];
-
+            Shader vs = null;
+            Shader fs = null;
+            
+            // We are in D3D11 land...do this so we can get 
+            // the information we need to debug shaders in 
+            // HLSL in RenderDoc.
+            if (gd.GetD3D11Info(out var info))
+            {
+                var result = SpirvCompilation.CompileVertexFragment(
+                    shaderSet.VertexShaderDescription.ShaderBytes,
+                    shaderSet.FragmentShaderDescription.ShaderBytes,
+                    CrossCompileTarget.HLSL,
+                    GetOptions(gd, fb));
+            
+                var vertexShaderDescription = new ShaderDescription(
+                    ShaderStages.Vertex, 
+                    Encoding.ASCII.GetBytes(result.VertexShader),
+                    "main", true);
+            
+                var fragmentShaderDescription = new ShaderDescription(
+                    ShaderStages.Fragment, 
+                    Encoding.ASCII.GetBytes(result.FragmentShader),
+                    "main", true);
+                
+                vs = factory.CreateShader(vertexShaderDescription);
+                fs = factory.CreateShader(fragmentShaderDescription);
+            }
+            
+            // We are in Vulkan or other land
+            else
+            {
+                Shader[] shaders = factory.CreateFromSpirv(
+                    shaderSet.VertexShaderDescription,
+                    shaderSet.FragmentShaderDescription,
+                    GetOptions(gd,fb));
+                
+                vs = shaders[0];
+                fs = shaders[1];
+            }
+            
             vs.Name = shaderSet.Name + "-Vertex";
             fs.Name = shaderSet.Name + "-Fragment";
 
