@@ -161,16 +161,20 @@ namespace Veldrid.SceneGraph.Manipulators
             {
                 if (nodeVisitor is IEventVisitor eventVisitor) 
                 {
-                    foreach (var evt in eventVisitor.Events)
+                    lock (eventVisitor.Events)
                     {
-                        if (evt is IUiEventAdapter eventAdapter)
+                        foreach (var evt in eventVisitor.Events)
                         {
-                            if (Handle(eventAdapter, eventVisitor.ActionAdapter))
+                            if (evt is IUiEventAdapter eventAdapter)
                             {
-                                eventAdapter.Handled = true;
+                                if (Handle(eventAdapter, eventVisitor.ActionAdapter))
+                                {
+                                    eventAdapter.Handled = true;
+                                }
                             }
                         }
                     }
+
                 }
 
                 return;
