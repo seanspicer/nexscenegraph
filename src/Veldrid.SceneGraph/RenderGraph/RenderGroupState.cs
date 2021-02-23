@@ -247,12 +247,12 @@ namespace Veldrid.SceneGraph.RenderGraph
                 var vertexShaderDescription = new ShaderDescription(
                     ShaderStages.Vertex, 
                     Encoding.ASCII.GetBytes(result.VertexShader),
-                    "main", true);
+                    "main", shaderSet.VertexShaderDescription.Debug);
             
                 var fragmentShaderDescription = new ShaderDescription(
                     ShaderStages.Fragment, 
                     Encoding.ASCII.GetBytes(result.FragmentShader),
-                    "main", true);
+                    "main", shaderSet.FragmentShaderDescription.Debug);
                 
                 vs = factory.CreateShader(vertexShaderDescription);
                 fs = factory.CreateShader(fragmentShaderDescription);
