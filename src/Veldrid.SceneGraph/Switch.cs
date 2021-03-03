@@ -37,9 +37,17 @@ namespace Veldrid.SceneGraph
 
         public override void Traverse(INodeVisitor nv)
         {
-            foreach (var child in _children)
-                if (child.Item2)
+            if (nv.TraversalMode == NodeVisitor.TraversalModeType.TraverseActiveChildren)
+            {
+                foreach (var child in _children.Where(child => child.Item2))
+                {
                     child.Item1.Accept(nv);
+                }
+            }
+            else
+            {
+                base.Traverse(nv);
+            }
         }
 
         public void SetValue(int pos, bool value)
