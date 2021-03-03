@@ -6,6 +6,7 @@ using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.PipelineStates;
 using Veldrid.SceneGraph.Util.Shape;
 using Veldrid.SceneGraph.VertexTypes;
+using Color = System.Windows.Media.Color;
 using MatrixTransform = Veldrid.SceneGraph.MatrixTransform;
 
 namespace Gnomon
