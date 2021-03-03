@@ -14,28 +14,26 @@
 // limitations under the License.
 //
 
-using System;
 using Examples.Common;
-using Veldrid;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Viewer;
 
 namespace ConstLineWidthExample.cs
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             Bootstrapper.Configure();
-            
+
             var viewer = SimpleViewer.Create("Const Line Width Example");
             viewer.SetCameraManipulator(TrackballManipulator.Create());
 
             // Build the scene
             var root = ConstLineWidthExampleScene.Build();
-            
+
             viewer.SetSceneData(root);
-            viewer.ViewAll();            
+            viewer.ViewAll();
             viewer.Run();
         }
     }

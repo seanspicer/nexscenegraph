@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 
-using System;
 using System.Numerics;
 using Veldrid.SceneGraph.Util;
 
@@ -22,41 +21,42 @@ namespace Veldrid.SceneGraph
 {
     public class PerspectiveCamera : Camera, IPerspectiveCamera
     {
-        public float VerticalFov { get; private set; }
+        private float _zFar = 100f;
 
         private float _zNear = 1.0f;
-        private float _zFar = 100f;
-        
-        public static IPerspectiveCamera Create(uint width, uint height, float distance)
-        {
-            return new PerspectiveCamera(width, height, distance);
-        }
 
         protected PerspectiveCamera(uint width, uint height, float distance) : base(width, height, distance)
         {
-            
             // TODO: This is tricky - need to fix when ViewAll implemented
-            VerticalFov = (float) System.Math.Atan2(height / 2.0f, distance) * 2.0f; 
+            VerticalFov = (float) System.Math.Atan2(height / 2.0f, distance) * 2.0f;
 
             // TODO - fix this nasty cast
-            SetProjectionMatrixAsPerspective(VerticalFov, (float)width / height, _zNear, _zFar);
+            SetProjectionMatrixAsPerspective(VerticalFov, (float) width / height, _zNear, _zFar);
         }
-        
+
+        public float VerticalFov { get; }
+
         public void SetProjectionMatrixAsPerspective(float vfov, float aspectRatio, float zNear, float zFar)
         {
             _zNear = zNear;
             _zFar = zFar;
             SetProjectionMatrix(Matrix4x4.CreatePerspectiveFieldOfView(vfov, aspectRatio, zNear, zFar));
-            
         }
 
-        public bool GetProjectionMatrixAsFrustum(ref float left, ref float right, ref float bottom, ref float top, ref float zNear,
+        public bool GetProjectionMatrixAsFrustum(ref float left, ref float right, ref float bottom, ref float top,
+            ref float zNear,
             ref float zFar)
         {
             return ProjectionMatrix.GetFrustum(ref left, ref right, ref bottom, ref top, ref zNear, ref zFar);
         }
-        
-        protected override void ResizeProjection(int width, int height, ResizeMask resizeMask = ResizeMask.ResizeDefault)
+
+        public static IPerspectiveCamera Create(uint width, uint height, float distance)
+        {
+            return new PerspectiveCamera(width, height, distance);
+        }
+
+        protected override void ResizeProjection(int width, int height,
+            ResizeMask resizeMask = ResizeMask.ResizeDefault)
         {
             double previousWidth = Viewport.Width;
             double previousHeight = Viewport.Height;
@@ -66,18 +66,14 @@ namespace Veldrid.SceneGraph
             // TODO -- THIS NEEDS TO BE MOVED, it shouldn't be necessary.
             if (System.Math.Abs(previousWidth) < 1e-6 && System.Math.Abs(previousHeight) < 1e-6)
             {
-                
                 // TODO: This is tricky - need to fix when ViewAll implemented
                 var vfov = (float) System.Math.Atan2(height / 2.0f, Distance) * 2.0f;
-            
-                var aspectRatio = (float)width / (float)height;
+
+                var aspectRatio = width / (float) height;
                 SetProjectionMatrixAsPerspective(vfov, aspectRatio, _zNear, _zFar);
-                
-                
-                if((resizeMask & ResizeMask.ResizeViewport) != 0)
-                {
-                    SetViewport(0, 0, width, height);
-                }
+
+
+                if ((resizeMask & ResizeMask.ResizeViewport) != 0) SetViewport(0, 0, width, height);
             }
 
             if (previousWidth > 1e-6 && System.Math.Abs(previousWidth - newWidth) > 1e-6 ||
@@ -90,31 +86,27 @@ namespace Veldrid.SceneGraph
                     var aspectRatioChange = widthChangeRatio / heightChangeRatio;
 
                     if (System.Math.Abs(aspectRatioChange - 1.0) > 1e-6)
-                    {
                         switch (ProjectionResizePolicy)
                         {
                             case ProjectionResizePolicy.Horizontal:
                                 SetProjectionMatrix(ProjectionMatrix *
-                                                    Matrix4x4.CreateScale(1.0f / (float) aspectRatioChange, 1.0f, 1.0f));
+                                                    Matrix4x4.CreateScale(1.0f / (float) aspectRatioChange, 1.0f,
+                                                        1.0f));
                                 break;
                             case ProjectionResizePolicy.Vertical:
                                 SetProjectionMatrix(ProjectionMatrix *
                                                     Matrix4x4.CreateScale(1.0f, (float) aspectRatioChange, 1.0f));
                                 break;
                             case ProjectionResizePolicy.Fixed:
-                                
-                                var aspectRatio = (float)width / (float)height;
+
+                                var aspectRatio = width / (float) height;
                                 SetProjectionMatrixAsPerspective(VerticalFov, aspectRatio, _zNear, _zFar);
-                                
+
                                 break;
                         }
-                    }
                 }
-                
-                if((resizeMask & ResizeMask.ResizeViewport) != 0)
-                {
-                    SetViewport(0, 0, width, height);
-                }
+
+                if ((resizeMask & ResizeMask.ResizeViewport) != 0) SetViewport(0, 0, width, height);
             }
         }
     }

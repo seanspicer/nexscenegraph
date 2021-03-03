@@ -17,7 +17,6 @@
 using System.Numerics;
 using Moq;
 using NUnit.Framework;
-using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.VertexTypes;
 
 namespace Veldrid.SceneGraph.Tests
@@ -31,31 +30,31 @@ namespace Veldrid.SceneGraph.Tests
             var vertices = new Position3Color3[3];
             vertices[0] = new Position3Color3(new Vector3(-1, -1, -1), Vector3.UnitX);
             vertices[1] = new Position3Color3(new Vector3(-1, -1, 1), Vector3.UnitX);
-            
+
             // Use an extra vertex to be sure we don't introduce an "add" bug
             vertices[2] = new Position3Color3(new Vector3(1, 1, 1), Vector3.UnitX);
-            
+
             var geometryMock = new Mock<IGeometry<Position3Color3>>();
             geometryMock.Setup(x => x.VertexData).Returns(vertices);
-            geometryMock.Setup(x => x.IndexData).Returns(new[]{0u,1u,2u});
+            geometryMock.Setup(x => x.IndexData).Returns(new[] {0u, 1u, 2u});
 
             var drawElts = DrawElements<Position3Color3>.Create(
                 geometryMock.Object,
                 PrimitiveTopology.LineStrip,
-                3, 
-                1, 
-                0, 
-                0, 
+                3,
+                1,
+                0,
+                0,
                 0);
 
             var bbox = drawElts.GetBoundingBox();
-            
+
             Assert.That(bbox.Center, Is.EqualTo(Vector3.Zero));
             Assert.That(bbox.Radius, Is.EqualTo(System.Math.Sqrt(3)).Within(1e-6));
             Assert.That(bbox.Min, Is.EqualTo(-Vector3.One));
             Assert.That(bbox.Max, Is.EqualTo(Vector3.One));
         }
-        
+
         [Test]
         public void ComputeBoundingBoxCorrectlyForLineInPlane()
         {
@@ -65,43 +64,43 @@ namespace Veldrid.SceneGraph.Tests
 
             var geometryMock = new Mock<IGeometry<Position3Color3>>();
             geometryMock.Setup(x => x.VertexData).Returns(vertices);
-            geometryMock.Setup(x => x.IndexData).Returns(new[]{0u,1u});
+            geometryMock.Setup(x => x.IndexData).Returns(new[] {0u, 1u});
 
             var drawElts = DrawElements<Position3Color3>.Create(
                 geometryMock.Object,
                 PrimitiveTopology.LineStrip,
-                2, 
-                1, 
-                0, 
-                0, 
+                2,
+                1,
+                0,
+                0,
                 0);
 
             var bbox = drawElts.GetBoundingBox();
-            
+
             Assert.That(bbox.Center, Is.EqualTo(Vector3.Zero));
             Assert.That(bbox.Radius, Is.EqualTo(System.Math.Sqrt(2)).Within(1e-6));
             Assert.That(bbox.Min, Is.EqualTo(new Vector3(-1, -1, 0)));
             Assert.That(bbox.Max, Is.EqualTo(new Vector3(1, 1, 0)));
         }
-        
+
         [Test]
         public void ComputeBoundingBoxCorrectlyForUniAxialLine()
         {
             var vertices = new Position3Color3[3];
             vertices[0] = new Position3Color3(new Vector3(-1, 0, 0), Vector3.UnitX);
             vertices[1] = new Position3Color3(new Vector3(1, 0, 0), Vector3.UnitX);
-            
+
             var geometryMock = new Mock<IGeometry<Position3Color3>>();
             geometryMock.Setup(x => x.VertexData).Returns(vertices);
-            geometryMock.Setup(x => x.IndexData).Returns(new[]{0u,1u});
+            geometryMock.Setup(x => x.IndexData).Returns(new[] {0u, 1u});
 
             var drawElts = DrawElements<Position3Color3>.Create(
                 geometryMock.Object,
                 PrimitiveTopology.LineStrip,
-                2, 
-                1, 
-                0, 
-                0, 
+                2,
+                1,
+                0,
+                0,
                 0);
 
             var bbox = drawElts.GetBoundingBox();

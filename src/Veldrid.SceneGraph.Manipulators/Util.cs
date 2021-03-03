@@ -1,7 +1,4 @@
-
-
 using System.Linq;
-using System.Numerics;
 
 namespace Veldrid.SceneGraph.Manipulators
 {
@@ -10,10 +7,10 @@ namespace Veldrid.SceneGraph.Manipulators
         public static NodePath ComputeNodePathToRoot(INode node)
         {
             var result = new NodePath();
-            
+
             var nodePaths = node.GetParentalNodePaths();
             if (!nodePaths.Any()) return result;
-            
+
             result = nodePaths.First();
             if (nodePaths.Count > 1)
             {
@@ -22,7 +19,5 @@ namespace Veldrid.SceneGraph.Manipulators
 
             return result;
         }
-
-
     }
 }

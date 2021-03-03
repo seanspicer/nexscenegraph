@@ -14,30 +14,22 @@
 // limitations under the License.
 //
 
-using System;
 using Microsoft.Extensions.Logging;
-using Serilog;
-using SharpDX.Win32;
-using Veldrid.SceneGraph;
 
 namespace Examples.Common
 {
     public static class Bootstrapper
     {
-        private static ILoggerFactory _Factory = null;
-        
+        public static ILoggerFactory LoggerFactory { get; private set; }
+
         public static void Configure()
         {
             BuildLogger();
-            
-
         }
-
-        public static ILoggerFactory LoggerFactory => _Factory;
 
         private static void BuildLogger()
         {
-            _Factory = Microsoft.Extensions.Logging.LoggerFactory.Create(builder =>
+            LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(builder =>
             {
                 builder.AddConsole();
                 builder.AddFilter(level => level >= LogLevel.Trace);

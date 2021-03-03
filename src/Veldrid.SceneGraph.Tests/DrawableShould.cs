@@ -24,7 +24,6 @@ namespace Veldrid.SceneGraph.Tests
         [TestCase]
         public void ComputeBoundCorrectly()
         {
-            
         }
     }
 }

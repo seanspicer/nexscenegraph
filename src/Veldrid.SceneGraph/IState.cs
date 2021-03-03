@@ -15,7 +15,6 @@
 //
 
 using System.Numerics;
-using Veldrid.SceneGraph.Viewer;
 
 namespace Veldrid.SceneGraph
 {

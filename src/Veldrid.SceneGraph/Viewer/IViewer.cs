@@ -14,24 +14,19 @@
 // limitations under the License.
 //
 
-using System;
-using System.Dynamic;
-using Veldrid;
-using Veldrid.SceneGraph.InputAdapter;
-
 namespace Veldrid.SceneGraph.Viewer
 {
     public interface IEndFrameEvent
     {
         float FrameTime { get; }
     }
-    
+
     public interface IResizedEvent
     {
         int Width { get; }
         int Height { get; }
     }
-    
+
     public interface IViewer : IView
     {
         Platform PlatformType { get; }
@@ -43,7 +38,7 @@ namespace Veldrid.SceneGraph.Viewer
         uint Height { get; }
         void SetBackgroundColor(RgbaFloat color);
         void ViewAll();
-        
+
         void Run();
         void SetCameraOrthographic();
         void SetCameraPerspective();

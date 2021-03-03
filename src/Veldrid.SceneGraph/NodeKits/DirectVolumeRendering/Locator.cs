@@ -14,90 +14,54 @@
 // limitations under the License.
 //
 
-using System;
 using System.Collections.Generic;
 using System.Numerics;
-using SixLabors.ImageSharp.Processing;
 using Veldrid.SceneGraph.Util;
 
 namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 {
     public interface ILocator : IObject
     {
-        public interface ILocatorCallback
-        {
-            void LocatorModified(ILocator locator);
-        }
-        
         Matrix4x4 Transform { get; }
         public void SetTransform(Matrix4x4 transform);
-        
+
         void ComputeLocalBounds(ref Vector3 left, ref Vector3 right);
 
         void AddCallback(ILocatorCallback callback);
         void RemoveCallback(ILocatorCallback callback);
+
+        public interface ILocatorCallback
+        {
+            void LocatorModified(ILocator locator);
+        }
     }
-    
-    
+
+
     public class Locator : Object, ILocator
     {
-        public class LocatorCallback : ILocator.ILocatorCallback
+        protected Matrix4x4 _inverse = Matrix4x4.Identity;
+
+        protected Matrix4x4 _transform = Matrix4x4.Identity;
+
+        protected Locator(float minX, float maxX, float minY, float maxY, float minZ, float maxZ)
         {
-            public virtual void LocatorModified(ILocator locator)
-            {
-            }
+            SetTransformAsExtents(minX, maxX, minY, maxY, minZ, maxZ);
+            ;
+        }
+
+        protected Locator()
+        {
         }
 
         protected HashSet<ILocator.ILocatorCallback> LocatorCallbacks { get; } =
             new HashSet<ILocator.ILocatorCallback>();
-        
-        protected Matrix4x4 _transform = Matrix4x4.Identity;
-        protected Matrix4x4 _inverse = Matrix4x4.Identity;
-
-        public static ILocator Create(float minX, float maxX, float minY, float maxY, float minZ, float maxZ)
-        {
-            return new Locator(minX, maxX, minY, maxY, minZ, maxZ);
-        }
-
-        protected Locator(float minX, float maxX, float minY, float maxY, float minZ, float maxZ)
-        {
-            SetTransformAsExtents(minX, maxX, minY, maxY, minZ, maxZ);;
-        }
-        
-        protected Locator() {}
-        
-        protected void SetTransformAsExtents(float minX, float maxX, float minY, float maxY, float minZ, float maxZ)
-        {
-            var transform = Matrix4x4.Identity;
-            transform.M11 = maxX - minX;
-            transform.M22 = maxY - minY;
-            transform.M33 = maxZ - minZ;
-            transform.M41 = minX;
-            transform.M42 = minY;
-            transform.M43 = minZ;
-
-            SetTransform(transform);
-        }
-        
-        public Vector3 ConvertLocalToModel(Vector3 local)
-        {
-            return _transform.PreMultiply(local);
-        }
-        
-        public Vector3 ConvertModelToLocal(Vector3 world)
-        {
-            return _inverse.PreMultiply(world);
-        }
 
         public Matrix4x4 Transform => _transform;
 
         public virtual void SetTransform(Matrix4x4 transform)
         {
             _transform = transform;
-            if (Matrix4x4.Invert(_transform, out var inverse))
-            {
-                _inverse = inverse;
-            }
+            if (Matrix4x4.Invert(_transform, out var inverse)) _inverse = inverse;
             LocatorModified();
         }
 
@@ -135,11 +99,43 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             LocatorCallbacks.Remove(callback);
         }
 
+        public static ILocator Create(float minX, float maxX, float minY, float maxY, float minZ, float maxZ)
+        {
+            return new Locator(minX, maxX, minY, maxY, minZ, maxZ);
+        }
+
+        protected void SetTransformAsExtents(float minX, float maxX, float minY, float maxY, float minZ, float maxZ)
+        {
+            var transform = Matrix4x4.Identity;
+            transform.M11 = maxX - minX;
+            transform.M22 = maxY - minY;
+            transform.M33 = maxZ - minZ;
+            transform.M41 = minX;
+            transform.M42 = minY;
+            transform.M43 = minZ;
+
+            SetTransform(transform);
+        }
+
+        public Vector3 ConvertLocalToModel(Vector3 local)
+        {
+            return _transform.PreMultiply(local);
+        }
+
+        public Vector3 ConvertModelToLocal(Vector3 world)
+        {
+            return _inverse.PreMultiply(world);
+        }
+
         protected void LocatorModified()
         {
-            foreach (var callback in LocatorCallbacks)
+            foreach (var callback in LocatorCallbacks) callback.LocatorModified(this);
+        }
+
+        public class LocatorCallback : ILocator.ILocatorCallback
+        {
+            public virtual void LocatorModified(ILocator locator)
             {
-                callback.LocatorModified(this);
             }
         }
     }
@@ -147,24 +143,20 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
     public class TransformLocatorCallback : Locator.LocatorCallback
     {
         protected IMatrixTransform _transform;
-        
-        public static ILocator.ILocatorCallback Create(IMatrixTransform transform)
-        {
-            return new TransformLocatorCallback(transform);
-        }
 
         protected TransformLocatorCallback(IMatrixTransform transform)
         {
             _transform = transform;
         }
 
+        public static ILocator.ILocatorCallback Create(IMatrixTransform transform)
+        {
+            return new TransformLocatorCallback(transform);
+        }
+
         public override void LocatorModified(ILocator locator)
         {
-            if (null != _transform)
-            {
-                _transform.Matrix = locator.Transform;
-            }
+            if (null != _transform) _transform.Matrix = locator.Transform;
         }
     }
-    
 }

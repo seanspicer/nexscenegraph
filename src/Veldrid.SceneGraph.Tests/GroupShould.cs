@@ -23,7 +23,7 @@ namespace Veldrid.SceneGraph.Tests
             group.AddChild(geode_neg);
 
             var boundingSphere = group.GetBound();
-            
+
             Assert.That(boundingSphere.Center, Is.EqualTo(Vector3.Zero));
             Assert.That(boundingSphere.Radius, Is.EqualTo(2.41421366).Within(1e-6));
         }

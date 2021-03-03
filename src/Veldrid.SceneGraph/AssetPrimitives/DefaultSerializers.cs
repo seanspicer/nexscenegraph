@@ -23,11 +23,11 @@ namespace Veldrid.SceneGraph.AssetPrimitives
     {
         public static Dictionary<Type, BinaryAssetSerializer> Get()
         {
-            return new Dictionary<Type, BinaryAssetSerializer>()
+            return new Dictionary<Type, BinaryAssetSerializer>
             {
-                { typeof(ProcessedTexture), new ProcessedTextureDataSerializer() },
-                { typeof(ProcessedModel), new ProcessedModelSerializer() },
-                { typeof(byte[]), new ByteArraySerializer() }
+                {typeof(ProcessedTexture), new ProcessedTextureDataSerializer()},
+                {typeof(ProcessedModel), new ProcessedModelSerializer()},
+                {typeof(byte[]), new ByteArraySerializer()}
             };
         }
     }

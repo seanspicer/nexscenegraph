@@ -26,24 +26,14 @@ namespace Veldrid.SceneGraph
         int Height { get; }
 
         float AspectRatio { get; }
-        
+
         bool Valid();
-        
+
         Matrix4x4 ComputeWindowMatrix4X4();
     }
-    
+
     public class Viewport : IViewport
     {
-        public int X { get; }
-        public int Y { get; }
-        public int Width { get; }
-        public int Height { get; }
-
-        public static IViewport Create(int x, int y, int width, int height)
-        {
-            return new Viewport(x, y, width, height);
-        }
-
         protected Viewport(int x, int y, int width, int height)
         {
             X = x;
@@ -51,6 +41,11 @@ namespace Veldrid.SceneGraph
             Width = width;
             Height = height;
         }
+
+        public int X { get; }
+        public int Y { get; }
+        public int Width { get; }
+        public int Height { get; }
 
         public bool Valid()
         {
@@ -61,10 +56,7 @@ namespace Veldrid.SceneGraph
         {
             get
             {
-                if (Height != 0)
-                {
-                    return (float) ((double) Width / (double) Height);
-                }
+                if (Height != 0) return (float) (Width / (double) Height);
 
                 return 1.0f;
             }
@@ -75,6 +67,11 @@ namespace Veldrid.SceneGraph
             return Matrix4x4.CreateTranslation(1f, -1f, 1f) *
                    Matrix4x4.CreateScale(0.5f * Width, -0.5f * Height, 0.5f) *
                    Matrix4x4.CreateTranslation(X, Y, 0);
+        }
+
+        public static IViewport Create(int x, int y, int width, int height)
+        {
+            return new Viewport(x, y, width, height);
         }
     }
 }

@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 
-using System.Numerics;
 using Veldrid.SceneGraph.Math.IsoSurface;
 
 namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
@@ -24,16 +23,17 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         ILocator Locator { get; set; }
 
         ILocator GetLocator();
-        
+
         void Update(INodeVisitor nv);
-        
+
         // Specify when an volume layer (Image) requires update traversal.
         bool RequiresUpdateTraversal();
     }
-    
+
     public abstract class Layer : Object, ILayer
     {
         public ILocator Locator { get; set; }
+
         public virtual void Update(INodeVisitor nv)
         {
         }
@@ -54,18 +54,23 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
     public class VoxelVolumeLayer : Layer, IVoxelVolumeLayer
     {
-        public IVoxelVolume VoxelVolume { get; }
-        public ILevoyCabralLocator BaseLocator { get; protected set; }
-        
-        public static IVoxelVolumeLayer Create(IVoxelVolume voxelVolume)
-        {
-            return new VoxelVolumeLayer(voxelVolume);
-        }
-
         protected VoxelVolumeLayer(IVoxelVolume voxelVolume)
         {
             VoxelVolume = voxelVolume;
             BuildLocator();
+        }
+
+        public IVoxelVolume VoxelVolume { get; }
+        public ILevoyCabralLocator BaseLocator { get; protected set; }
+
+        public override ILocator GetLocator()
+        {
+            return LevoyCabralLocator.Create(VoxelVolume);
+        }
+
+        public static IVoxelVolumeLayer Create(IVoxelVolume voxelVolume)
+        {
+            return new VoxelVolumeLayer(voxelVolume);
         }
 
         protected void BuildLocator()
@@ -73,12 +78,5 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             Locator = LevoyCabralLocator.Create(VoxelVolume);
             BaseLocator = LevoyCabralLocator.Create(VoxelVolume);
         }
-
-        public override ILocator GetLocator()
-        {
-            return LevoyCabralLocator.Create(VoxelVolume);
-        }
     }
-    
-    
 }

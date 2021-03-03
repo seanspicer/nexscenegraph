@@ -15,19 +15,19 @@
 //
 
 using System;
-using System.Reflection;
-using Veldrid.SceneGraph.Util;
 
 namespace Veldrid.SceneGraph.Shaders.Standard
 {
     public class Vertex3Color4Shader : StandardShaderBase
     {
-        private static readonly Lazy<Vertex3Color4Shader> Lazy = new Lazy<Vertex3Color4Shader>(() => new Vertex3Color4Shader());
+        private static readonly Lazy<Vertex3Color4Shader> Lazy =
+            new Lazy<Vertex3Color4Shader>(() => new Vertex3Color4Shader());
 
-        public static Vertex3Color4Shader Instance => Lazy.Value;
-
-        private Vertex3Color4Shader() : base(@"Vertex3Color4",@"Vertex3Color4-vertex.glsl", @"Vertex3Color4-fragment.glsl")
+        private Vertex3Color4Shader() : base(@"Vertex3Color4", @"Vertex3Color4-vertex.glsl",
+            @"Vertex3Color4-fragment.glsl")
         {
         }
+
+        public static Vertex3Color4Shader Instance => Lazy.Value;
     }
 }

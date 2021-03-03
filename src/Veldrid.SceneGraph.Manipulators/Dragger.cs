@@ -1,11 +1,7 @@
-
-using System;
 using System.Collections.Generic;
-using System.Numerics;
 using System.Drawing;
-using System.Globalization;
 using System.Linq;
-using System.Reflection;
+using System.Numerics;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Manipulators.Commands;
 using Veldrid.SceneGraph.PipelineStates;
@@ -15,26 +11,26 @@ namespace Veldrid.SceneGraph.Manipulators
 {
     public interface IDragger : IMatrixTransform
     {
-        void SetupDefaultGeometry();
         bool HandleEvents { get; set; }
-        bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter uiActionAdapter);
-        bool Handle(IPointerInfo pointerInfo, IUiEventAdapter eventAdapter, IUiActionAdapter uiActionAdapter);
-        
+
         HashSet<IConstraint> Constraints { get; }
         HashSet<IDraggerCallback> DraggerCallbacks { get; }
-        
+
         Color Color { get; }
         Color PickColor { get; }
-        
+
         IUiEventAdapter.ModKeyMaskType ActivationModKeyMask { get; set; }
         IUiEventAdapter.MouseButtonMaskType ActivationMouseButtonMask { get; set; }
-        IUiEventAdapter.KeySymbol  ActivationKeyEvent { get; set; }
+        IUiEventAdapter.KeySymbol ActivationKeyEvent { get; set; }
         bool ActivationPermittedByModKeyMask { get; set; }
         bool ActivationPermittedByMouseButtonMask { get; set; }
         bool ActivationPermittedByKeyEvent { get; set; }
         IDragger ParentDragger { get; set; }
         bool DraggerActive { get; set; }
         uint IntersectionNodeMask { get; set; }
+        void SetupDefaultGeometry();
+        bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter uiActionAdapter);
+        bool Handle(IPointerInfo pointerInfo, IUiEventAdapter eventAdapter, IUiActionAdapter uiActionAdapter);
 
         bool Receive(IMotionCommand command);
         void Dispatch(IMotionCommand command);
@@ -44,17 +40,30 @@ namespace Veldrid.SceneGraph.Manipulators
                 IDraggerTransformCallback.HandleCommandMask.HandleAll);
 
         void RemoveTransformUpdating(IMatrixTransform transform);
-
     }
-    
+
     public abstract class Dragger : MatrixTransform, IDragger
     {
+        private bool _handleEvents;
+
+        private IDragger _parentDragger;
+
+        private readonly IDraggerCallback _selfUpdater;
+
+        protected Dragger(Matrix4x4 matrix, bool usePhongShading = true) : base(matrix)
+        {
+            UsePhongShading = usePhongShading;
+            _parentDragger = this;
+            _selfUpdater = DraggerTransformCallback.Create(this);
+        }
+
         public bool UsePhongShading { get; set; } = true;
-        
+
+        protected IPointerInfo PointerInfo { get; set; } = Manipulators.PointerInfo.Create();
+
         public Color Color { get; protected set; } = Color.FromArgb(255, 0, 255, 0);
         public Color PickColor { get; protected set; } = Color.Magenta;
 
-        private bool _handleEvents = false;
         public bool HandleEvents
         {
             get => _handleEvents;
@@ -63,35 +72,27 @@ namespace Veldrid.SceneGraph.Manipulators
                 if (_handleEvents == value) return;
 
                 _handleEvents = value;
-                
+
                 // update the number of children that require an event traversal to make sure this dragger receives events
                 if (_handleEvents)
-                {
-                    SetNumChildrenRequiringEventTraversal(GetNumChildrenRequiringEventTraversal()+1);
-                }
+                    SetNumChildrenRequiringEventTraversal(GetNumChildrenRequiringEventTraversal() + 1);
                 else if (GetNumChildrenRequiringEventTraversal() >= 1)
-                {
-                    SetNumChildrenRequiringEventTraversal(GetNumChildrenRequiringEventTraversal()-1);
-                }
+                    SetNumChildrenRequiringEventTraversal(GetNumChildrenRequiringEventTraversal() - 1);
             }
         }
 
-        public bool DraggerActive { get; set; } = false;
+        public bool DraggerActive { get; set; }
 
-        protected IPointerInfo PointerInfo { get; set; } = Veldrid.SceneGraph.Manipulators.PointerInfo.Create();
-        
         public IUiEventAdapter.ModKeyMaskType ActivationModKeyMask { get; set; } = 0;
         public IUiEventAdapter.MouseButtonMaskType ActivationMouseButtonMask { get; set; } = 0;
         public IUiEventAdapter.KeySymbol ActivationKeyEvent { get; set; } = 0;
-        public bool ActivationPermittedByModKeyMask { get; set; } = false;
-        public bool ActivationPermittedByMouseButtonMask { get; set; } = false;
-        public bool ActivationPermittedByKeyEvent { get; set; } = false;
+        public bool ActivationPermittedByModKeyMask { get; set; }
+        public bool ActivationPermittedByMouseButtonMask { get; set; }
+        public bool ActivationPermittedByKeyEvent { get; set; }
 
         public HashSet<IConstraint> Constraints { get; } = new HashSet<IConstraint>();
 
         public HashSet<IDraggerCallback> DraggerCallbacks { get; } = new HashSet<IDraggerCallback>();
-
-        private IDragger _parentDragger = null;
 
         public virtual IDragger ParentDragger
         {
@@ -100,37 +101,6 @@ namespace Veldrid.SceneGraph.Manipulators
         }
 
         public virtual uint IntersectionNodeMask { get; set; } = 0xffffffff;
-        
-        private IDraggerCallback _selfUpdater;
-        
-        protected Dragger(Matrix4x4 matrix, bool usePhongShading=true) : base(matrix)
-        {
-            UsePhongShading = usePhongShading;
-            _parentDragger = this;
-            _selfUpdater = DraggerTransformCallback.Create(this);
-        }
-
-        protected Vector3 GetColorVector(Color color)
-        {
-            return new Vector3(
-                (float) (color.R / 255.0),
-                (float) (color.G / 255.0),
-                (float) (color.B / 255.0));
-        }
-        
-        /**
-         *  Return true if the axis of the Locator are inverted requiring the faces of any cubes used from
-         *  rendering to be flipped to ensure the correct front/back face is used.
-         */
-        public bool Inverted()
-        {
-            var xAxis = new Vector3(Matrix.M11, Matrix.M21, Matrix.M31);
-            var yAxis = new Vector3(Matrix.M12, Matrix.M22, Matrix.M32);
-            var zAxis = new Vector3(Matrix.M13, Matrix.M23, Matrix.M33);
-
-            var volume = Vector3.Dot(Vector3.Cross(xAxis, yAxis), zAxis);
-            return volume < 0.0f;
-        }
 
         public void AddTransformUpdating(IMatrixTransform transform,
             IDraggerTransformCallback.HandleCommandMask handleCommandMask =
@@ -144,11 +114,8 @@ namespace Veldrid.SceneGraph.Manipulators
             DraggerCallbacks.RemoveWhere(x =>
             {
                 if (!(x is IDraggerTransformCallback dtc)) return false;
-                
-                if (dtc.Transform == transform)
-                {
-                    return true;
-                }
+
+                if (dtc.Transform == transform) return true;
 
                 return false;
             });
@@ -159,86 +126,64 @@ namespace Veldrid.SceneGraph.Manipulators
         {
             if (HandleEvents && nodeVisitor.Type == NodeVisitor.VisitorType.EventVisitor)
             {
-                if (nodeVisitor is IEventVisitor eventVisitor) 
-                {
+                if (nodeVisitor is IEventVisitor eventVisitor)
                     lock (eventVisitor.Events)
                     {
                         foreach (var evt in eventVisitor.Events)
-                        {
                             if (evt is IUiEventAdapter eventAdapter)
-                            {
                                 if (Handle(eventAdapter, eventVisitor.ActionAdapter))
-                                {
                                     eventAdapter.Handled = true;
-                                }
-                            }
-                        }
                     }
-
-                }
 
                 return;
             }
-            
+
             base.Traverse(nodeVisitor);
         }
-        
+
         public virtual bool Handle(IUiEventAdapter eventAdapter,
             IUiActionAdapter actionAdapter)
         {
             if (eventAdapter.Handled) return false;
 
-            if (actionAdapter is Veldrid.SceneGraph.Viewer.IView view)
+            if (actionAdapter is Viewer.IView view)
             {
                 var handled = false;
                 var activationPermitted = true;
 
                 if (ActivationModKeyMask != 0 || ActivationMouseButtonMask != 0 || ActivationKeyEvent != 0)
                 {
-                    ActivationPermittedByModKeyMask = (ActivationModKeyMask != 0)
-                        ? ((eventAdapter.ModKeyMask &
-                            ActivationModKeyMask) != 0)
+                    ActivationPermittedByModKeyMask = ActivationModKeyMask != 0
+                        ? (eventAdapter.ModKeyMask &
+                           ActivationModKeyMask) != 0
                         : false;
 
-                    ActivationPermittedByMouseButtonMask = (ActivationMouseButtonMask != 0)
-                        ? ((eventAdapter.MouseButtonMask &
-                            ActivationMouseButtonMask) != 0)
+                    ActivationPermittedByMouseButtonMask = ActivationMouseButtonMask != 0
+                        ? (eventAdapter.MouseButtonMask &
+                           ActivationMouseButtonMask) != 0
                         : false;
-
 
 
                     if (ActivationKeyEvent != 0)
-                    {
                         switch (eventAdapter.EventType)
                         {
                             case IUiEventAdapter.EventTypeValue.KeyDown:
                             {
-                                if (eventAdapter.Key == ActivationKeyEvent)
-                                {
-                                    ActivationPermittedByKeyEvent = true;
-                                }
+                                if (eventAdapter.Key == ActivationKeyEvent) ActivationPermittedByKeyEvent = true;
 
                                 break;
                             }
                             case IUiEventAdapter.EventTypeValue.KeyUp:
                             {
-                                if (eventAdapter.Key == ActivationKeyEvent)
-                                {
-                                    ActivationPermittedByKeyEvent = false;
-                                }
+                                if (eventAdapter.Key == ActivationKeyEvent) ActivationPermittedByKeyEvent = false;
 
-                                break;
-                            }
-                            default:
-                            {
                                 break;
                             }
                         }
-                    }
-                    activationPermitted = ActivationPermittedByModKeyMask || 
+
+                    activationPermitted = ActivationPermittedByModKeyMask ||
                                           ActivationPermittedByMouseButtonMask ||
                                           ActivationPermittedByKeyEvent;
-
                 }
 
                 if (activationPermitted || DraggerActive)
@@ -248,47 +193,38 @@ namespace Veldrid.SceneGraph.Manipulators
                         case IUiEventAdapter.EventTypeValue.Push:
                         {
                             var intersections = new SortedMultiSet<ILineSegmentIntersector.IIntersection>();
-                            
+
                             PointerInfo.Reset();
                             if (view.ComputeIntersections(eventAdapter, ref intersections, IntersectionNodeMask))
                             {
                                 foreach (var intersection in intersections)
-                                {
-                                    PointerInfo.AddIntersection(intersection.NodePath, intersection.LocalIntersectionPoint);
-                                }
-                                
+                                    PointerInfo.AddIntersection(intersection.NodePath,
+                                        intersection.LocalIntersectionPoint);
+
                                 foreach (var node in PointerInfo.HitList.First().Item1)
-                                {
                                     if (node is IDragger dragger)
-                                    {
                                         if (dragger == this)
                                         {
                                             var rootCamera = view.Camera;
                                             var nodePath = PointerInfo.HitList.First().Item1;
                                             foreach (var rnode in nodePath.Reverse())
-                                            {
                                                 if (rnode is Camera camera)
-                                                {
                                                     if (camera.ReferenceFrame !=
                                                         ReferenceFrameType.Relative || camera.NumParents == 0)
                                                     {
                                                         rootCamera = camera;
                                                         break;
                                                     }
-                                                }
-                                            }
-                                            
+
                                             PointerInfo.SetCamera(rootCamera);
                                             PointerInfo.SetMousePosition(eventAdapter.X, eventAdapter.Y);
-                                            
+
                                             if (dragger.Handle(PointerInfo, eventAdapter, actionAdapter))
                                             {
                                                 dragger.DraggerActive = true;
                                                 handled = true;
                                             }
                                         }
-                                    }
-                                }
                             }
 
                             break;
@@ -300,15 +236,11 @@ namespace Veldrid.SceneGraph.Manipulators
                             {
                                 PointerInfo.SetMousePosition(eventAdapter.X, eventAdapter.Y);
 
-                                if (Handle(PointerInfo, eventAdapter, actionAdapter))
-                                {
-                                    handled = true;
-                                }
+                                if (Handle(PointerInfo, eventAdapter, actionAdapter)) handled = true;
                             }
+
                             break;
                         }
-                        default:
-                            break;
                     }
 
                     if (DraggerActive && eventAdapter.EventType == IUiEventAdapter.EventTypeValue.Release)
@@ -329,8 +261,10 @@ namespace Veldrid.SceneGraph.Manipulators
         {
             return false;
         }
-        
-        public virtual void SetupDefaultGeometry() {}
+
+        public virtual void SetupDefaultGeometry()
+        {
+        }
 
         public bool Receive(IMotionCommand command)
         {
@@ -340,32 +274,43 @@ namespace Veldrid.SceneGraph.Manipulators
         public void Dispatch(IMotionCommand command)
         {
             // Apply any constraints
-            foreach (var constraint in Constraints)
-            {
-                command.Accept(constraint);
-            }
-            
+            foreach (var constraint in Constraints) command.Accept(constraint);
+
             // Apply any constraints of the parent dragger
             if (this != ParentDragger)
-            {
                 foreach (var constraint in ParentDragger.Constraints)
-                {
                     command.Accept(constraint);
-                }
-            }
-            
+
             // Move self
             ParentDragger.Receive(command);
-            
+
             // Pass along movement to any callbacks
-            foreach (var callback in ParentDragger.DraggerCallbacks)
-            {
-                command.Accept(callback);
-            }
+            foreach (var callback in ParentDragger.DraggerCallbacks) command.Accept(callback);
         }
 
-        
-        
+        protected Vector3 GetColorVector(Color color)
+        {
+            return new Vector3(
+                (float) (color.R / 255.0),
+                (float) (color.G / 255.0),
+                (float) (color.B / 255.0));
+        }
+
+        /**
+         * Return true if the axis of the Locator are inverted requiring the faces of any cubes used from
+         * rendering to be flipped to ensure the correct front/back face is used.
+         */
+        public bool Inverted()
+        {
+            var xAxis = new Vector3(Matrix.M11, Matrix.M21, Matrix.M31);
+            var yAxis = new Vector3(Matrix.M12, Matrix.M22, Matrix.M32);
+            var zAxis = new Vector3(Matrix.M13, Matrix.M23, Matrix.M33);
+
+            var volume = Vector3.Dot(Vector3.Cross(xAxis, yAxis), zAxis);
+            return volume < 0.0f;
+        }
+
+
         protected IPhongMaterial CreateMaterial()
         {
             return DraggerMaterial.Create(UsePhongShading);

@@ -15,10 +15,8 @@
 //
 
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Numerics;
-using System.Security.Cryptography.X509Certificates;
 using NUnit.Framework;
 using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.VertexTypes;
@@ -31,13 +29,13 @@ namespace Veldrid.SceneGraph.Tests.Util
         [TestCase]
         public void PassCanaryTest()
         {
-            Assert.That(2+2, Is.EqualTo(4));
+            Assert.That(2 + 2, Is.EqualTo(4));
         }
 
         [TestCase]
         public void IntersectGeodeCorrectly()
         {
-            var vtxArray = new List<Position3Color3>()
+            var vtxArray = new List<Position3Color3>
             {
                 new Position3Color3(new Vector3(-1.0f, -1.0f, 0.0f), Vector3.Zero),
                 new Position3Color3(new Vector3(1.0f, -1.0f, 0.0f), Vector3.Zero),
@@ -45,21 +43,21 @@ namespace Veldrid.SceneGraph.Tests.Util
                 new Position3Color3(new Vector3(-1.0f, 1.0f, 0.0f), Vector3.Zero)
             };
 
-            var idxArray = new List<uint>() {0, 1, 2, 2, 3, 0};
+            var idxArray = new List<uint> {0, 1, 2, 2, 3, 0};
 
             var geom = Geometry<Position3Color3>.Create();
             geom.VertexData = vtxArray.ToArray();
             geom.IndexData = idxArray.ToArray();
 
             var pset = DrawElements<Position3Color3>.Create(
-                geom, 
-                PrimitiveTopology.TriangleList, 
-                6, 
-                1, 
-                0, 
-                0, 
+                geom,
+                PrimitiveTopology.TriangleList,
+                6,
+                1,
+                0,
+                0,
                 0);
-            
+
             geom.PrimitiveSets.Add(pset);
 
             var geode = Geode.Create();
@@ -67,26 +65,25 @@ namespace Veldrid.SceneGraph.Tests.Util
 
             var lineSegmentIntersector =
                 LineSegmentIntersector.Create(new Vector3(0.5f, 0.0f, -1.0f), new Vector3(0.5f, 0.0f, 1.0f));
-            
-            var intersectionVisitor 
+
+            var intersectionVisitor
                 = IntersectionVisitor.Create(lineSegmentIntersector);
-            
+
             geode.Accept(intersectionVisitor);
 
             var intersections = lineSegmentIntersector.Intersections;
-            
+
             Assert.That(intersections.Count(), Is.EqualTo(1));
 
             var intersection = intersections.First();
             Assert.That(intersection.LocalIntersectionPoint, Is.EqualTo(new Vector3(0.5f, 0.0f, 0.0f)));
             Assert.That(intersection.WorldIntersectionPoint, Is.EqualTo(new Vector3(0.5f, 0.0f, 0.0f)));
-
         }
-        
+
         [TestCase]
         public void IntersectDrawableCorrectly()
         {
-            var vtxArray = new List<Position3Color3>()
+            var vtxArray = new List<Position3Color3>
             {
                 new Position3Color3(new Vector3(-1.0f, -1.0f, 0.0f), Vector3.Zero),
                 new Position3Color3(new Vector3(1.0f, -1.0f, 0.0f), Vector3.Zero),
@@ -94,39 +91,38 @@ namespace Veldrid.SceneGraph.Tests.Util
                 new Position3Color3(new Vector3(-1.0f, 1.0f, 0.0f), Vector3.Zero)
             };
 
-            var idxArray = new List<uint>() {0, 1, 2, 2, 3, 0};
+            var idxArray = new List<uint> {0, 1, 2, 2, 3, 0};
 
             var geom = Geometry<Position3Color3>.Create();
             geom.VertexData = vtxArray.ToArray();
             geom.IndexData = idxArray.ToArray();
 
             var pset = DrawElements<Position3Color3>.Create(
-                geom, 
-                PrimitiveTopology.TriangleList, 
-                6, 
-                1, 
-                0, 
-                0, 
+                geom,
+                PrimitiveTopology.TriangleList,
+                6,
+                1,
+                0,
+                0,
                 0);
-            
+
             geom.PrimitiveSets.Add(pset);
-            
+
             var lineSegmentIntersector =
                 LineSegmentIntersector.Create(new Vector3(0.5f, 0.0f, -1.0f), new Vector3(0.5f, 0.0f, 1.0f));
-            
-            var intersectionVisitor 
+
+            var intersectionVisitor
                 = IntersectionVisitor.Create(lineSegmentIntersector);
-            
+
             geom.Accept(intersectionVisitor);
 
             var intersections = lineSegmentIntersector.Intersections;
-            
+
             Assert.That(intersections.Count(), Is.EqualTo(1));
 
             var intersection = intersections.First();
             Assert.That(intersection.LocalIntersectionPoint, Is.EqualTo(new Vector3(0.5f, 0.0f, 0.0f)));
             Assert.That(intersection.WorldIntersectionPoint, Is.EqualTo(new Vector3(0.5f, 0.0f, 0.0f)));
-
         }
     }
 }

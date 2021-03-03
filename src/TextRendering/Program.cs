@@ -14,22 +14,18 @@
 // limitations under the License.
 //
 
-using System;
-using System.ComponentModel.DataAnnotations;
 using Examples.Common;
-using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
-using Veldrid.SceneGraph.Text;
 using Veldrid.SceneGraph.Viewer;
 
 namespace TextRendering
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             Bootstrapper.Configure();
-            
+
             var viewer = SimpleViewer.Create("Text Rendering Demo");
             viewer.SetCameraManipulator(TrackballManipulator.Create());
 
@@ -37,7 +33,7 @@ namespace TextRendering
 
             viewer.SetSceneData(root);
 
-            viewer.ViewAll();            
+            viewer.ViewAll();
             viewer.Run();
         }
     }

@@ -1,7 +1,3 @@
-
-
-using System.Collections.Generic;
-
 namespace Veldrid.SceneGraph.Math.IsoSurface
 {
     public interface IIsoSurfaceGenerator

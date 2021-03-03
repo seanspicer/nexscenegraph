@@ -1,4 +1,3 @@
-
 using System.Collections.Generic;
 
 namespace Veldrid.SceneGraph.Math.IsoSurface
@@ -9,11 +8,11 @@ namespace Veldrid.SceneGraph.Math.IsoSurface
         double Y { get; }
         double Z { get; }
     }
-    
+
     public interface IIsoSurface
     {
         double IsoValue { get; }
-        
+
         LinkedList<IVertex3D> IsoSurfaceVertices { get; }
     }
 }

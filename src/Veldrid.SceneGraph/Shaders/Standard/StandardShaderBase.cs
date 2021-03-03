@@ -21,8 +21,6 @@ namespace Veldrid.SceneGraph.Shaders.Standard
 {
     public class StandardShaderBase
     {
-        public IShaderSet ShaderSet { get; }
-        
         internal StandardShaderBase(string name, string vertexShader, string fragmentShader)
         {
             var asm = Assembly.GetAssembly(GetType());
@@ -30,18 +28,20 @@ namespace Veldrid.SceneGraph.Shaders.Standard
             const string basePath = @"Veldrid.SceneGraph.Assets.Shaders";
             var vertexShaderPath = $"{basePath}.{vertexShader}";
             var fragmentShaderPath = $"{basePath}.{fragmentShader}";
-            
+
             var vertexShaderDescription = new ShaderDescription(
-                ShaderStages.Vertex, 
-                ShaderTools.ReadEmbeddedAssetBytes(vertexShaderPath, asm), 
-                "main", true);
-            
-            var fragmentShaderDescription = new ShaderDescription(
-                ShaderStages.Fragment, 
-                ShaderTools.ReadEmbeddedAssetBytes(fragmentShaderPath, asm), 
+                ShaderStages.Vertex,
+                ShaderTools.ReadEmbeddedAssetBytes(vertexShaderPath, asm),
                 "main", true);
 
-            ShaderSet = Veldrid.SceneGraph.Shaders.ShaderSet.Create(name, vertexShaderDescription, fragmentShaderDescription);
+            var fragmentShaderDescription = new ShaderDescription(
+                ShaderStages.Fragment,
+                ShaderTools.ReadEmbeddedAssetBytes(fragmentShaderPath, asm),
+                "main", true);
+
+            ShaderSet = Shaders.ShaderSet.Create(name, vertexShaderDescription, fragmentShaderDescription);
         }
+
+        public IShaderSet ShaderSet { get; }
     }
 }

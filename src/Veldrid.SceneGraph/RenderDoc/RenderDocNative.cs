@@ -19,44 +19,42 @@ using System.Runtime.InteropServices;
 namespace Veldrid.SceneGraph.RenderDoc
 {
     /// <summary>
-    /// RenderDoc API entry point
-    ///
-    /// This entry point can be obtained via GetProcAddress/dlsym if RenderDoc is available.
-    ///
-    /// The name is the same as the typedef - "RENDERDOC_GetAPI"
-    ///
-    /// This function is not thread safe, and should not be called on multiple threads at once.
-    /// Ideally, call this once as early as possible in your application's startup, before doing
-    /// any API work, since some configuration functionality etc has to be done also before
-    /// initialising any APIs.
+    ///     RenderDoc API entry point
+    ///     This entry point can be obtained via GetProcAddress/dlsym if RenderDoc is available.
+    ///     The name is the same as the typedef - "RENDERDOC_GetAPI"
+    ///     This function is not thread safe, and should not be called on multiple threads at once.
+    ///     Ideally, call this once as early as possible in your application's startup, before doing
+    ///     any API work, since some configuration functionality etc has to be done also before
+    ///     initialising any APIs.
     /// </summary>
     /// <param name="version">A single value from the RENDERDOC_Version above.</param>
     /// <param name="outAPIPointers">Will be filled out with a pointer to the corresponding struct of function pointers</param>
     /// <returns>
-    ///   1 - if the outAPIPointers has been filled with a pointer to the API struct requested
-    ///   0 - if the requested version is not supported or the arguments are invalid.
+    ///     1 - if the outAPIPointers has been filled with a pointer to the API struct requested
+    ///     0 - if the requested version is not supported or the arguments are invalid.
     /// </returns>
     internal unsafe delegate int pRENDERDOC_GetAPI(RENDERDOC_Version version, void** outAPIPointers);
 
     internal enum RENDERDOC_Version
     {
-        API_Version_1_0_0 = 10000,    // RENDERDOC_API_1_0_0 = 1 00 00
-        API_Version_1_0_1 = 10001,    // RENDERDOC_API_1_0_1 = 1 00 01
-        API_Version_1_0_2 = 10002,    // RENDERDOC_API_1_0_2 = 1 00 02
-        API_Version_1_1_0 = 10100,    // RENDERDOC_API_1_1_0 = 1 01 00
-        API_Version_1_1_1 = 10101,    // RENDERDOC_API_1_1_1 = 1 01 01
-        API_Version_1_1_2 = 10102,    // RENDERDOC_API_1_1_2 = 1 01 02
-        API_Version_1_2_0 = 10200,    // RENDERDOC_API_1_2_0 = 1 02 00
-        API_Version_1_3_0 = 10300,    // RENDERDOC_API_1_3_0 = 1 03 00
-        API_Version_1_4_0 = 10400,    // RENDERDOC_API_1_4_0 = 1 04 00
-        API_Version_1_4_1 = 10401,    // RENDERDOC_API_1_4_1 = 1 04 01
+        API_Version_1_0_0 = 10000, // RENDERDOC_API_1_0_0 = 1 00 00
+        API_Version_1_0_1 = 10001, // RENDERDOC_API_1_0_1 = 1 00 01
+        API_Version_1_0_2 = 10002, // RENDERDOC_API_1_0_2 = 1 00 02
+        API_Version_1_1_0 = 10100, // RENDERDOC_API_1_1_0 = 1 01 00
+        API_Version_1_1_1 = 10101, // RENDERDOC_API_1_1_1 = 1 01 01
+        API_Version_1_1_2 = 10102, // RENDERDOC_API_1_1_2 = 1 01 02
+        API_Version_1_2_0 = 10200, // RENDERDOC_API_1_2_0 = 1 02 00
+        API_Version_1_3_0 = 10300, // RENDERDOC_API_1_3_0 = 1 03 00
+        API_Version_1_4_0 = 10400, // RENDERDOC_API_1_4_0 = 1 04 00
+        API_Version_1_4_1 = 10401 // RENDERDOC_API_1_4_1 = 1 04 01
     }
 
     /// <summary>
-    /// RenderDoc can return a higher version than requested if it's backwards compatible,
-    /// this function returns the actual version returned. If a parameter is NULL, it will be
-    /// ignored and the others will be filled out.
-    /// /// </summary>
+    ///     RenderDoc can return a higher version than requested if it's backwards compatible,
+    ///     this function returns the actual version returned. If a parameter is NULL, it will be
+    ///     ignored and the others will be filled out.
+    ///     ///
+    /// </summary>
     internal unsafe delegate void pRENDERDOC_GetAPIVersion(int* major, int* minor, int* patch);
 
     internal enum RENDERDOC_CaptureOption
@@ -85,7 +83,7 @@ namespace Veldrid.SceneGraph.RenderDoc
         //     the capture, which is matched up with events on replay
         // 0 - no API debugging is forcibly enabled
         APIValidation = 2,
-        DebugDeviceMode = 2,    // deprecated name of this enum
+        DebugDeviceMode = 2, // deprecated name of this enum
 
         // Capture CPU callstacks for API events
         //
@@ -199,26 +197,26 @@ namespace Veldrid.SceneGraph.RenderDoc
         //
         // No values are documented, this option should only be used when absolutely
         // necessary as directed by a RenderDoc developer.
-        AllowUnsupportedVendorExtensions = 12,
-
+        AllowUnsupportedVendorExtensions = 12
     }
 
     // Sets an option that controls how RenderDoc behaves on capture.
     //
     // Returns 1 if the option and value are valid
     // Returns 0 if either is invalid and the option is unchanged
-    internal unsafe delegate int pRENDERDOC_SetCaptureOptionU32(RENDERDOC_CaptureOption opt, uint val);
-    internal unsafe delegate int pRENDERDOC_SetCaptureOptionF32(RENDERDOC_CaptureOption opt, float val);
+    internal delegate int pRENDERDOC_SetCaptureOptionU32(RENDERDOC_CaptureOption opt, uint val);
+
+    internal delegate int pRENDERDOC_SetCaptureOptionF32(RENDERDOC_CaptureOption opt, float val);
 
     // Gets the current value of an option as a uint
     //
     // If the option is invalid, 0xffffffff is returned
-    internal unsafe delegate uint pRENDERDOC_GetCaptureOptionU32(RENDERDOC_CaptureOption opt);
+    internal delegate uint pRENDERDOC_GetCaptureOptionU32(RENDERDOC_CaptureOption opt);
 
     // Gets the current value of an option as a float
     //
     // If the option is invalid, -FLT_MAX is returned
-    internal unsafe delegate float pRENDERDOC_GetCaptureOptionF32(RENDERDOC_CaptureOption opt);
+    internal delegate float pRENDERDOC_GetCaptureOptionF32(RENDERDOC_CaptureOption opt);
 
     internal enum RENDERDOC_InputButton
     {
@@ -296,7 +294,7 @@ namespace Veldrid.SceneGraph.RenderDoc
         eRENDERDOC_Key_PrtScrn,
         eRENDERDOC_Key_Pause,
 
-        eRENDERDOC_Key_Max,
+        eRENDERDOC_Key_Max
     }
 
     // Sets which key or keys can be used to toggle focus between multiple windows
@@ -324,19 +322,20 @@ namespace Veldrid.SceneGraph.RenderDoc
         CaptureList = 0x8,
 
         // Default values for the overlay mask
-        Default = (Enabled | FrameRate | FrameNumber | CaptureList),
+        Default = Enabled | FrameRate | FrameNumber | CaptureList,
 
         // Enable all bits
         All = ~0U,
 
         // Disable all bits
-        None = 0,
+        None = 0
     }
 
     // returns the overlay bits that have been set
-    internal unsafe delegate uint pRENDERDOC_GetOverlayBits();
+    internal delegate uint pRENDERDOC_GetOverlayBits();
+
     // sets the overlay bits with an and & or mask
-    internal unsafe delegate void pRENDERDOC_MaskOverlayBits(uint And, uint Or);
+    internal delegate void pRENDERDOC_MaskOverlayBits(uint And, uint Or);
 
     // this function will attempt to shut down RenderDoc.
     //
@@ -344,14 +343,14 @@ namespace Veldrid.SceneGraph.RenderDoc
     // the dll is loaded, before any API work happens. RenderDoc will remove its
     // injected hooks and shut down. Behaviour is undefined if this is called
     // after any API functions have been called.
-    internal unsafe delegate void pRENDERDOC_Shutdown();
+    internal delegate void pRENDERDOC_Shutdown();
 
     // This function will unload RenderDoc's crash handler.
     //
     // If you use your own crash handler and don't want RenderDoc's handler to
     // intercede, you can call this function to unload it and any unhandled
     // exceptions will pass to the next handler.
-    internal unsafe delegate void pRENDERDOC_UnloadCrashHandler();
+    internal delegate void pRENDERDOC_UnloadCrashHandler();
 
     // Sets the capture file path template
     //
@@ -376,7 +375,7 @@ namespace Veldrid.SceneGraph.RenderDoc
     internal unsafe delegate byte* pRENDERDOC_GetCaptureFilePathTemplate();
 
     // returns the number of captures that have been made
-    internal unsafe delegate uint pRENDERDOC_GetNumCaptures();
+    internal delegate uint pRENDERDOC_GetNumCaptures();
 
     // This function returns the details of a capture, by index. New captures are added
     // to the end of the list.
@@ -405,7 +404,7 @@ namespace Veldrid.SceneGraph.RenderDoc
     internal unsafe delegate void pRENDERDOC_SetCaptureFileComments(byte* filePath, byte* comments);
 
     // returns 1 if the RenderDoc UI is connected to this application, 0 otherwise
-    internal unsafe delegate uint pRENDERDOC_IsTargetControlConnected();
+    internal delegate uint pRENDERDOC_IsTargetControlConnected();
 
     // This function will launch the Replay UI associated with the RenderDoc library injected
     // into the running application.
@@ -427,10 +426,10 @@ namespace Veldrid.SceneGraph.RenderDoc
     internal unsafe delegate void pRENDERDOC_SetActiveWindow(void* device, void* wndHandle);
 
     // capture the next frame on whichever window and API is currently considered active
-    internal unsafe delegate void pRENDERDOC_TriggerCapture();
+    internal delegate void pRENDERDOC_TriggerCapture();
 
     // capture the next N frames on whichever window and API is currently considered active
-    internal unsafe delegate void pRENDERDOC_TriggerMultiFrameCapture(uint numFrames);
+    internal delegate void pRENDERDOC_TriggerMultiFrameCapture(uint numFrames);
 
     // When choosing either a device pointer or a window handle to capture, you can pass NULL.
     // Passing NULL specifies a 'wildcard' match against anything. This allows you to specify
@@ -455,7 +454,7 @@ namespace Veldrid.SceneGraph.RenderDoc
     // Returns whether or not a frame capture is currently ongoing anywhere.
     //
     // This will return 1 if a capture is ongoing, and 0 if there is no capture running
-    internal unsafe delegate uint pRENDERDOC_IsFrameCapturing();
+    internal delegate uint pRENDERDOC_IsFrameCapturing();
 
     // Ends capturing immediately.
     //
@@ -514,8 +513,8 @@ namespace Veldrid.SceneGraph.RenderDoc
 
         // new function in 1.2.0
         public pRENDERDOC_SetCaptureFileComments SetCaptureFileComments;
+
         // new function in 1.4.0
         public pRENDERDOC_DiscardFrameCapture DiscardFrameCapture;
     }
-    
 }

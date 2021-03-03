@@ -22,13 +22,13 @@ using System.Linq;
 namespace Veldrid.SceneGraph.Util
 {
     /// <summary>
-    /// Implementation of Sorted Multiset based on SO Answer:
-    /// https://stackoverflow.com/questions/2597691/are-there-any-implementations-of-multiset-for-net/36315344
+    ///     Implementation of Sorted Multiset based on SO Answer:
+    ///     https://stackoverflow.com/questions/2597691/are-there-any-implementations-of-multiset-for-net/36315344
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class SortedMultiSet<T> : IEnumerable<T>
     {
-        private SortedDictionary<T, int> _dict; 
+        private readonly SortedDictionary<T, int> _dict;
 
         public SortedMultiSet()
         {
@@ -38,6 +38,18 @@ namespace Veldrid.SceneGraph.Util
         public SortedMultiSet(IEnumerable<T> items) : this()
         {
             Add(items);
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            foreach (var kvp in _dict)
+                for (var i = 0; i < kvp.Value; i++)
+                    yield return kvp.Key;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
 
         public bool Contains(T item)
@@ -83,21 +95,9 @@ namespace Veldrid.SceneGraph.Util
         // Return the last value in the multiset and remove it.
         public T Pop()
         {
-            T item = Peek();
+            var item = Peek();
             Remove(item);
             return item;
-        }
-
-        public IEnumerator<T> GetEnumerator()
-        {
-            foreach(var kvp in _dict)
-                for(int i = 0; i < kvp.Value; i++)
-                    yield return kvp.Key;
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
         }
     }
 }

@@ -16,11 +16,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Veldrid;
-using Vulkan;
 
 namespace Veldrid.SceneGraph
 {
@@ -28,7 +25,7 @@ namespace Veldrid.SceneGraph
     {
         bool IndexOfVertex(Vector3 vertex, out uint index);
     }
-    
+
     public interface IGeometry<T> : IGeometry where T : struct, IPrimitiveElement
     {
         T[] VertexData { get; set; }
@@ -36,10 +33,24 @@ namespace Veldrid.SceneGraph
 
         IVertexBuffer InstanceVertexBuffer { get; set; }
     }
-    
+
     public class Geometry<T> : Drawable, IGeometry<T> where T : struct, IPrimitiveElement
     {
+        private readonly Dictionary<GraphicsDevice, DeviceBuffer> _indexBufferCache
+            = new Dictionary<GraphicsDevice, DeviceBuffer>();
+
+        private uint[] _indexData;
+
+        private readonly Dictionary<GraphicsDevice, List<DeviceBuffer>> _vertexBufferCache
+            = new Dictionary<GraphicsDevice, List<DeviceBuffer>>();
+
         private T[] _vertexData;
+
+        protected Geometry()
+        {
+        }
+
+        private int SizeOfVertexData => Marshal.SizeOf(default(T));
 
         public T[] VertexData
         {
@@ -50,11 +61,9 @@ namespace Veldrid.SceneGraph
                 _vertexData = value;
             }
         }
-        private int SizeOfVertexData => Marshal.SizeOf(default(T));
 
         public IVertexBuffer InstanceVertexBuffer { get; set; }
 
-        private uint[] _indexData;
         public uint[] IndexData
         {
             get => _indexData;
@@ -63,21 +72,6 @@ namespace Veldrid.SceneGraph
                 _indexBufferCache.Clear();
                 _indexData = value;
             }
-        }
-        
-        private Dictionary<GraphicsDevice, List<DeviceBuffer>> _vertexBufferCache 
-            = new Dictionary<GraphicsDevice, List<DeviceBuffer>>();
-        
-        private Dictionary<GraphicsDevice, DeviceBuffer> _indexBufferCache 
-            = new Dictionary<GraphicsDevice, DeviceBuffer>();
-        
-        protected Geometry()
-        {
-        }
-
-        public static IGeometry<T> Create()
-        {
-            return new Geometry<T>();
         }
 
         // public T[] GetVertexArray()
@@ -98,32 +92,26 @@ namespace Veldrid.SceneGraph
             index = 0;
             foreach (var val in VertexData)
             {
-                if (val.VertexPosition == vertex)
-                {
-                    return true;
-                }
+                if (val.VertexPosition == vertex) return true;
                 index++;
             }
 
             return false;
         }
-        
+
         public override void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory)
         {
-            if (_vertexBufferCache.ContainsKey(device) && _indexBufferCache.ContainsKey(device))
-            {
-                return;
-            }
-            
+            if (_vertexBufferCache.ContainsKey(device) && _indexBufferCache.ContainsKey(device)) return;
+
             var vertexBuffers = new List<DeviceBuffer>();
-            
+
             var vtxBufferDesc =
                 new BufferDescription((uint) (VertexData.Length * SizeOfVertexData), BufferUsage.VertexBuffer);
             var vbo = factory.CreateBuffer(vtxBufferDesc);
             device.UpdateBuffer(vbo, 0, VertexData);
 
             vertexBuffers.Add(vbo);
-            
+
             if (null != InstanceVertexBuffer)
             {
                 InstanceVertexBuffer.ConfigureDeviceBuffers(device, factory);
@@ -133,15 +121,63 @@ namespace Veldrid.SceneGraph
 
 
             _vertexBufferCache.Add(device, vertexBuffers);
-              
-            
+
+
             var idxBufferDesc =
                 new BufferDescription((uint) (IndexData.Length * sizeof(uint)), BufferUsage.IndexBuffer);
             var ibo = factory.CreateBuffer(idxBufferDesc);
             device.UpdateBuffer(ibo, 0, IndexData);
 
             _indexBufferCache.Add(device, ibo);
-            
+        }
+
+        public override List<DeviceBuffer> GetVertexBufferForDevice(GraphicsDevice device)
+        {
+            if (_vertexBufferCache.ContainsKey(device))
+                return _vertexBufferCache[device];
+            throw new Exception("No vertex buffer for device");
+        }
+
+        public override DeviceBuffer GetIndexBufferForDevice(GraphicsDevice device)
+        {
+            if (_indexBufferCache.ContainsKey(device))
+                return _indexBufferCache[device];
+            throw new Exception("No index buffer for device");
+        }
+
+        public override void UpdateDeviceBuffers(GraphicsDevice device)
+        {
+            if (null != InstanceVertexBuffer) InstanceVertexBuffer.UpdateDeviceBuffers(device);
+        }
+
+        public override IPrimitiveFunctor CreateTemplatePrimitiveFunctor(IPrimitiveFunctorDelegate pfd)
+        {
+            return new TemplatePrimitiveFunctor<T>(pfd, this);
+        }
+
+        public override bool Supports(IPrimitiveFunctor functor)
+        {
+            return true;
+        }
+
+        public override void Accept(IPrimitiveFunctor functor)
+        {
+            base.Accept(functor);
+            foreach (var pSet in PrimitiveSets) pSet.Accept(functor);
+        }
+
+        public override bool Supports(IPrimitiveIndexFunctor functor)
+        {
+            return true;
+        }
+
+        public override void Accept(IPrimitiveIndexFunctor functor)
+        {
+        }
+
+        public static IGeometry<T> Create()
+        {
+            return new Geometry<T>();
         }
 
 
@@ -150,73 +186,18 @@ namespace Veldrid.SceneGraph
             return typeof(T);
         }
 
-        protected override void DrawImplementation(GraphicsDevice device, List<Tuple<uint, ResourceSet>> resourceSets, CommandList commandList)
+        protected override void DrawImplementation(GraphicsDevice device, List<Tuple<uint, ResourceSet>> resourceSets,
+            CommandList commandList)
         {
-            foreach (var primitiveSet in PrimitiveSets)
-            {                
-                primitiveSet.Draw(commandList);
-            }
+            foreach (var primitiveSet in PrimitiveSets) primitiveSet.Draw(commandList);
         }
-        
+
         protected override IBoundingBox ComputeBoundingBox()
         {
             var bb = BoundingBox.Create();
-            foreach (var pset in PrimitiveSets)
-            {
-                bb.ExpandBy(pset.GetBoundingBox());
-            }
+            foreach (var pset in PrimitiveSets) bb.ExpandBy(pset.GetBoundingBox());
 
             return bb;
         }
-
-        public override List<DeviceBuffer> GetVertexBufferForDevice(GraphicsDevice device)
-        {
-            if (_vertexBufferCache.ContainsKey(device))
-            {
-                return _vertexBufferCache[device];
-            }
-            else
-            {
-                throw new Exception("No vertex buffer for device");
-            }
-        }
-        
-        public override DeviceBuffer GetIndexBufferForDevice(GraphicsDevice device)
-        {
-            if (_indexBufferCache.ContainsKey(device))
-            {
-                return _indexBufferCache[device];
-            }
-            else
-            {
-                throw new Exception("No index buffer for device");
-            }
-        }
-
-        public override void UpdateDeviceBuffers(GraphicsDevice device)
-        {
-            if (null != InstanceVertexBuffer)
-            {
-                InstanceVertexBuffer.UpdateDeviceBuffers(device);
-            }
-        }
-
-        public override IPrimitiveFunctor CreateTemplatePrimitiveFunctor(IPrimitiveFunctorDelegate pfd)
-        {
-            return new TemplatePrimitiveFunctor<T>(pfd, this);
-        }
-        
-        public override bool Supports(IPrimitiveFunctor functor) { return true; }
-
-        public override void Accept(IPrimitiveFunctor functor)
-        {
-            base.Accept(functor);
-            foreach (var pSet in PrimitiveSets)
-            {
-                pSet.Accept(functor);
-            }
-        }
-        public override bool Supports(IPrimitiveIndexFunctor functor) { return true; }
-        public override void Accept(IPrimitiveIndexFunctor functor) {}
     }
 }

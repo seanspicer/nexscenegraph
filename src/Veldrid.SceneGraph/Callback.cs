@@ -14,23 +14,19 @@
 // limitations under the License.
 //
 
-using SixLabors.ImageSharp.Processing;
-using Veldrid.SceneGraph.RenderGraph;
-
 namespace Veldrid.SceneGraph
 {
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
     public interface ICallback
     {
-        bool Run(IObject obj, IObject data);
-        
         ICallback NestedCallback { get; set; }
+        bool Run(IObject obj, IObject data);
     }
 
     public abstract class Callback : ICallback
     {
         public ICallback NestedCallback { get; set; } = null;
-        
+
         public virtual bool Run(IObject obj, IObject data)
         {
             return Traverse(obj, data);
@@ -39,7 +35,7 @@ namespace Veldrid.SceneGraph
         public bool Traverse(IObject obj, IObject data)
         {
             if (null != NestedCallback) return NestedCallback.Run(obj, data);
-            
+
             if (obj is INode node && data is INodeVisitor nodeVisitor)
             {
                 nodeVisitor.Traverse(node);
@@ -49,12 +45,13 @@ namespace Veldrid.SceneGraph
             return false;
         }
     }
-    
+
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
     public interface INodeCallback : ICallback
     {
         void Execute(INode node, INodeVisitor nodeVisitor);
     }
+
     public abstract class NodeCallback : Callback, INodeCallback
     {
         public override bool Run(IObject obj, IObject data)
@@ -64,10 +61,8 @@ namespace Veldrid.SceneGraph
                 Execute(node, nodeVisitor);
                 return true;
             }
-            else
-            {
-                return Traverse(obj, data);
-            }
+
+            return Traverse(obj, data);
         }
 
         public virtual void Execute(INode node, INodeVisitor nodeVisitor)
@@ -75,7 +70,7 @@ namespace Veldrid.SceneGraph
             Traverse(node, nodeVisitor);
         }
     }
-    
+
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
     public interface IDrawableCullCallback : ICallback
     {
@@ -89,13 +84,13 @@ namespace Veldrid.SceneGraph
             return false;
         }
     }
-    
+
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
     public interface IDrawableEventCallback : INodeCallback
     {
         void Event(INodeVisitor nodeVisitor, IDrawable drawable);
     }
-    
+
     public abstract class DrawableEventCallback : NodeCallback, IDrawableEventCallback
     {
         public override bool Run(IObject obj, IObject data)
@@ -105,12 +100,12 @@ namespace Veldrid.SceneGraph
                 Event(nodeVisitor, drawable);
                 return true;
             }
-            else
-            {
-                return Traverse(obj, data);
-            }
+
+            return Traverse(obj, data);
         }
 
-        public void Event(INodeVisitor nodeVisitor, IDrawable drawable) {}
+        public void Event(INodeVisitor nodeVisitor, IDrawable drawable)
+        {
+        }
     }
 }

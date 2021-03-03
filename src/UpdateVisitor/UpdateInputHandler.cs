@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 
-using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
 
@@ -25,13 +24,13 @@ namespace UpdateVisitor
         private IGroup _root;
 
         //private ILog _logger;
-        
+
         public UpdateInputHandler(IGroup rootNode)
         {
             //_logger = LogManager.GetLogger<UpdateInputHandler>();
             _root = rootNode;
         }
-        
+
         public override bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter uiActionAdapter)
         {
             switch (eventAdapter.Key)
@@ -42,12 +41,10 @@ namespace UpdateVisitor
                 default:
                     return false;
             }
-            
         }
 
         private void DoSwitchUpateState()
         {
- 
         }
     }
 }

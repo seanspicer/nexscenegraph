@@ -25,7 +25,7 @@ namespace Veldrid.SceneGraph.Manipulators.Tests
         [TestCase]
         public void PassCanaryTest()
         {
-            Assert.That(2+2, Is.EqualTo(4));
+            Assert.That(2 + 2, Is.EqualTo(4));
         }
 
         [TestCase]
@@ -33,13 +33,12 @@ namespace Veldrid.SceneGraph.Manipulators.Tests
         {
             var l1 = LineSegment.Create(Vector3.Zero, Vector3.UnitX);
             var l2 = LineSegment.Create(new Vector3(1f, 1f, 0f), new Vector3(1f, 1f, 1f));
-            
+
             var canCompute = LineProjector.ComputeClosestPoints(l1, l2, out var p1, out var p2);
 
             Assert.That(canCompute, Is.True);
             Assert.That(p1, Is.EqualTo(Vector3.UnitX));
             Assert.That(p2, Is.EqualTo(new Vector3(1f, 1f, 0f)));
-
         }
     }
 }

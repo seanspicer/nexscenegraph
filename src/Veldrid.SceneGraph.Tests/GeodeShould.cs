@@ -14,11 +14,11 @@ namespace Veldrid.SceneGraph.Tests
             geode.AddDrawable(geom);
 
             var bSphere = geode.ComputeBound();
-            
+
             Assert.That(bSphere.Center, Is.EqualTo(Vector3.Zero));
             Assert.That(bSphere.Radius, Is.EqualTo(System.Math.Sqrt(3)).Within(1e-6));
         }
-        
+
         [TestCase]
         public void ComputeBoundingBoxCorrectlyFor3dGeometry()
         {
@@ -27,13 +27,13 @@ namespace Veldrid.SceneGraph.Tests
             geode.AddDrawable(geom);
 
             var bbox = geode.GetBoundingBox();
-            
+
             Assert.That(bbox.Center, Is.EqualTo(Vector3.Zero));
             Assert.That(bbox.Radius, Is.EqualTo(System.Math.Sqrt(3)).Within(1e-6));
             Assert.That(bbox.Min, Is.EqualTo(-Vector3.One));
             Assert.That(bbox.Max, Is.EqualTo(Vector3.One));
         }
-        
+
         [TestCase]
         public void ComputeBoundingSphereCorrectlyForPlaneGeometry()
         {
@@ -42,11 +42,11 @@ namespace Veldrid.SceneGraph.Tests
             geode.AddDrawable(geom);
 
             var bSphere = geode.ComputeBound();
-            
+
             Assert.That(bSphere.Center, Is.EqualTo(Vector3.Zero));
             Assert.That(bSphere.Radius, Is.EqualTo(System.Math.Sqrt(2)).Within(1e-6));
         }
-        
+
         [TestCase]
         public void ComputeBoundingBoxCorrectlyForPlaneGeometry()
         {
@@ -55,13 +55,13 @@ namespace Veldrid.SceneGraph.Tests
             geode.AddDrawable(geom);
 
             var bbox = geode.GetBoundingBox();
-            
+
             Assert.That(bbox.Center, Is.EqualTo(Vector3.Zero));
             Assert.That(bbox.Radius, Is.EqualTo(System.Math.Sqrt(2)).Within(1e-6));
             Assert.That(bbox.Min, Is.EqualTo(new Vector3(-1, -1, 0)));
             Assert.That(bbox.Max, Is.EqualTo(new Vector3(1, 1, 0)));
         }
-        
+
         [TestCase]
         public void ComputeBoundingSphereCorrectlyForUniaxialGeometry()
         {
@@ -70,11 +70,11 @@ namespace Veldrid.SceneGraph.Tests
             geode.AddDrawable(geom);
 
             var bSphere = geode.ComputeBound();
-            
+
             Assert.That(bSphere.Center, Is.EqualTo(Vector3.Zero));
             Assert.That(bSphere.Radius, Is.EqualTo(1).Within(1e-6));
         }
-        
+
         [TestCase]
         public void ComputeBoundingBoxCorrectlyForUniaxialGeometry()
         {
@@ -83,7 +83,7 @@ namespace Veldrid.SceneGraph.Tests
             geode.AddDrawable(geom);
 
             var bbox = geode.GetBoundingBox();
-            
+
             Assert.That(bbox.Center, Is.EqualTo(Vector3.Zero));
             Assert.That(bbox.Radius, Is.EqualTo(1).Within(1e-6));
             Assert.That(bbox.Min, Is.EqualTo(new Vector3(-1, 0, 0)));
@@ -99,15 +99,15 @@ namespace Veldrid.SceneGraph.Tests
             var geode = Geode.Create();
             geode.AddDrawable(xy_pos);
             geode.AddDrawable(xy_neg);
-            
+
             var bbox = geode.GetBoundingBox();
-            
+
             Assert.That(bbox.Center, Is.EqualTo(Vector3.Zero));
             Assert.That(bbox.Radius, Is.EqualTo(System.Math.Sqrt(3)).Within(1e-6));
             Assert.That(bbox.Min, Is.EqualTo(-Vector3.One));
             Assert.That(bbox.Max, Is.EqualTo(Vector3.One));
         }
-        
+
         [TestCase]
         public void ComputeBoundingSphereCorrectlyForSplitDrawables()
         {
@@ -117,9 +117,9 @@ namespace Veldrid.SceneGraph.Tests
             var geode = Geode.Create();
             geode.AddDrawable(xy_pos);
             geode.AddDrawable(xy_neg);
-            
+
             var boundingSphere = geode.GetBound();
-            
+
             Assert.That(boundingSphere.Center, Is.EqualTo(Vector3.Zero));
             Assert.That(boundingSphere.Radius, Is.EqualTo(System.Math.Sqrt(3)).Within(1e-6));
         }

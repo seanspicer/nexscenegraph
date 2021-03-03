@@ -1,26 +1,24 @@
 using System;
-using System.ComponentModel;
 using System.Linq;
 using System.Numerics;
-using System.Threading;
 using Veldrid.SceneGraph.Util;
 
 namespace Veldrid.SceneGraph.InputAdapter
 {
     public class AnimationData
     {
-        public double AnimationTime { get; set; }
-        public bool IsAnimating { get; set; }
-        public DateTime StartTime { get; set; }
-        public double Phase { get; set; }
-
         public AnimationData()
         {
-            AnimationTime =0;
+            AnimationTime = 0;
             IsAnimating = false;
             StartTime = DateTime.MinValue;
             Phase = 0;
         }
+
+        public double AnimationTime { get; set; }
+        public bool IsAnimating { get; set; }
+        public DateTime StartTime { get; set; }
+        public double Phase { get; set; }
 
         public void Start(DateTime startTime)
         {
@@ -28,29 +26,10 @@ namespace Veldrid.SceneGraph.InputAdapter
             StartTime = startTime;
             Phase = 0;
         }
-    };
-    
+    }
+
     public abstract class StandardManipulator : CameraManipulator
     {
-
-        private INode _node;
-        private float _modelSize;
-        protected UserInteractionFlags _flags;
-
-        protected bool _thrown = false;
-        public bool AllowThrow { get; protected set; } = true;
-        public bool VerticalAxisFixed { get; protected set; } = true;
-
-        protected float MouseCenterX { get; set; }
-        protected float MouseCenterY { get; set; }
-        
-        protected IUiEventAdapter EventAdapterT0 { get; set; } = null;
-        protected IUiEventAdapter EventAdapterT1 { get; set; } = null;
-        
-        protected DateTime LastFrameTime { get; set; } = DateTime.MinValue;
-        protected double DeltaFrameTime { get; set; } = 0;
-        protected AnimationData AnimationData { get; set; }
-        
         [Flags]
         public enum UserInteractionFlags
         {
@@ -59,18 +38,38 @@ namespace Veldrid.SceneGraph.InputAdapter
             ProcessMouseWheel = 4,
             SetCenterOnForwardWheelMovement = 8,
             DefaultSettings = UpdateModelSize | ComputeHomeUsingBoundingBox | ProcessMouseWheel
-        };
+        }
+
+        protected UserInteractionFlags _flags;
+        private float _modelSize;
+
+        private INode _node;
+
+        protected bool _thrown;
 
         protected StandardManipulator(UserInteractionFlags flags = UserInteractionFlags.DefaultSettings)
         {
             _flags = flags;
         }
-        
+
+        public bool AllowThrow { get; protected set; } = true;
+        public bool VerticalAxisFixed { get; protected set; } = true;
+
+        protected float MouseCenterX { get; set; }
+        protected float MouseCenterY { get; set; }
+
+        protected IUiEventAdapter EventAdapterT0 { get; set; }
+        protected IUiEventAdapter EventAdapterT1 { get; set; }
+
+        protected DateTime LastFrameTime { get; set; } = DateTime.MinValue;
+        protected double DeltaFrameTime { get; set; }
+        protected AnimationData AnimationData { get; set; }
+
         public override INode GetNode()
         {
             return _node;
         }
-        
+
         public override void SetNode(INode node)
         {
             _node = node;
@@ -86,9 +85,7 @@ namespace Veldrid.SceneGraph.InputAdapter
             }
 
             if (GetAutoComputeHomePosition())
-            {
                 ComputeHomePosition(null, (_flags & UserInteractionFlags.ComputeHomeUsingBoundingBox) != 0);
-            }
         }
 
         protected void FlushMouseEventStack()
@@ -101,13 +98,13 @@ namespace Veldrid.SceneGraph.InputAdapter
         {
             if (null == EventAdapterT0 || null == EventAdapterT1) return false;
             const float velocity = 0.1f;
-            
+
             var dx = EventAdapterT0.XNormalized - EventAdapterT1.XNormalized;
             var dy = EventAdapterT0.YNormalized - EventAdapterT1.YNormalized;
             var len = System.Math.Sqrt(dx * dx + dy * dy);
             var dt = (EventAdapterT0.Time - EventAdapterT1.Time).TotalSeconds;
 
-            return (len > dt * velocity);
+            return len > dt * velocity;
         }
 
         protected bool IsAnimating()
@@ -119,7 +116,7 @@ namespace Veldrid.SceneGraph.InputAdapter
         {
             return AnimationData?.AnimationTime ?? 0.0f;
         }
-        
+
         protected void AddMouseEvent(IUiEventAdapter eventAdapter)
         {
             EventAdapterT1 = EventAdapterT0;
@@ -132,7 +129,7 @@ namespace Veldrid.SceneGraph.InputAdapter
             _thrown = false;
             actionAdapter.RequestContinuousUpdate(false);
         }
-        
+
         public override bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter actionAdapter)
         {
             switch (eventAdapter.EventType)
@@ -141,8 +138,6 @@ namespace Veldrid.SceneGraph.InputAdapter
                     return HandleFrame(eventAdapter, actionAdapter);
                 case IUiEventAdapter.EventTypeValue.Resize:
                     return HandleResize(actionAdapter);
-                default:
-                    break;
             }
 
             if (eventAdapter.Handled) return false;
@@ -162,10 +157,10 @@ namespace Veldrid.SceneGraph.InputAdapter
                 case IUiEventAdapter.EventTypeValue.KeyUp:
                     return HandleKeyUp(eventAdapter, actionAdapter);
                 case IUiEventAdapter.EventTypeValue.Scroll:
-                    return (_flags & UserInteractionFlags.ProcessMouseWheel) != 0 && HandleWheelDelta(eventAdapter, actionAdapter);
+                    return (_flags & UserInteractionFlags.ProcessMouseWheel) != 0 &&
+                           HandleWheelDelta(eventAdapter, actionAdapter);
                 default:
                     return false;
-                    
             }
 
             // if (InputStateTracker.IsMouseButtonPushed())
@@ -195,19 +190,14 @@ namespace Veldrid.SceneGraph.InputAdapter
             DeltaFrameTime = (currentFrameTime - LastFrameTime).TotalSeconds;
             LastFrameTime = currentFrameTime;
 
-            if (_thrown && PerformMovement())
-            {
-                actionAdapter.RequestRedraw();
-            }
+            if (_thrown && PerformMovement()) actionAdapter.RequestRedraw();
 
             if (null != AnimationData && AnimationData.IsAnimating)
-            {
                 PerformAnimiationMovement(eventAdapter, actionAdapter);
-            }
 
             return false;
         }
-        
+
         protected virtual bool HandleResize(IUiActionAdapter actionAdapter)
         {
             Init(actionAdapter);
@@ -215,19 +205,16 @@ namespace Veldrid.SceneGraph.InputAdapter
             actionAdapter.RequestRedraw();
             return true;
         }
-        
+
         protected virtual bool HandleDrag(IUiEventAdapter eventAdapter, IUiActionAdapter actionAdapter)
         {
             AddMouseEvent(eventAdapter);
-            
-            if (PerformMovement())
-            {
-                actionAdapter.RequestRedraw();
-            }
+
+            if (PerformMovement()) actionAdapter.RequestRedraw();
 
             actionAdapter.RequestContinuousUpdate(false);
             _thrown = false;
-            
+
             return true;
         }
 
@@ -242,11 +229,8 @@ namespace Veldrid.SceneGraph.InputAdapter
             FlushMouseEventStack();
             AddMouseEvent(eventAdapter);
 
-            if (PerformMovement())
-            {
-                actionAdapter.RequestRedraw();
-            }
-            
+            if (PerformMovement()) actionAdapter.RequestRedraw();
+
             actionAdapter.RequestContinuousUpdate(false);
             _thrown = false;
 
@@ -258,15 +242,12 @@ namespace Veldrid.SceneGraph.InputAdapter
         {
             if (0 == eventAdapter.MouseButtonMask)
             {
-                var timeSinceLastRecordEvent = (null != EventAdapterT0)
+                var timeSinceLastRecordEvent = null != EventAdapterT0
                     ? (eventAdapter.Time - EventAdapterT0.Time).TotalSeconds
                     : double
                         .MaxValue;
 
-                if (timeSinceLastRecordEvent > 0.02)
-                {
-                    FlushMouseEventStack();
-                }
+                if (timeSinceLastRecordEvent > 0.02) FlushMouseEventStack();
 
                 if (IsMouseMoving())
                 {
@@ -283,16 +264,13 @@ namespace Veldrid.SceneGraph.InputAdapter
 
             FlushMouseEventStack();
             AddMouseEvent(eventAdapter);
-            if (PerformMovement())
-            {
-                actionAdapter.RequestRedraw();
-            }
+            if (PerformMovement()) actionAdapter.RequestRedraw();
 
             actionAdapter.RequestContinuousUpdate(false);
             _thrown = false;
 
             return true;
-            
+
             //_logger.Debug(m => m("Button Released!"));
         }
 
@@ -323,11 +301,8 @@ namespace Veldrid.SceneGraph.InputAdapter
         protected virtual bool PerformMovement()
         {
             // Return if fewer than two events have been added
-            if (null == EventAdapterT0 || null == EventAdapterT1)
-            {
-                return false;
-            }
-            
+            if (null == EventAdapterT0 || null == EventAdapterT1) return false;
+
             // Determine delta time
             var eventTimeDelta = (EventAdapterT0.Time - EventAdapterT1.Time).TotalSeconds;
             if (eventTimeDelta < 0)
@@ -335,38 +310,32 @@ namespace Veldrid.SceneGraph.InputAdapter
                 throw new Exception($"Event Time Delta is Wrong? EventTimeDelta={eventTimeDelta} seconds");
                 eventTimeDelta = 0;
             }
-            
+
             // Get Delta X and Delta Y
             var dx = EventAdapterT0.XNormalized - EventAdapterT1.XNormalized;
             var dy = EventAdapterT0.YNormalized - EventAdapterT1.YNormalized;
-            
+
             // Return if there is no movement
             if (0 == dx && 0 == dy) return false;
-            
+
             // Call Appropriate methods
             var buttonMask = EventAdapterT1.MouseButtonMask;
             var modMask = EventAdapterT1.ModKeyMask;
             if (buttonMask == IUiEventAdapter.MouseButtonMaskType.LeftMouseButton)
-            {
                 return PerformMovementLeftMouseButton(eventTimeDelta, dx, dy);
-            }
-            else if (buttonMask == IUiEventAdapter.MouseButtonMaskType.MiddleMouseButton ||
-                     (buttonMask == IUiEventAdapter.MouseButtonMaskType.RightMouseButton &&
-                      (modMask & IUiEventAdapter.ModKeyMaskType.ModKeyCtl) != 0) ||
-                     (buttonMask == (IUiEventAdapter.MouseButtonMaskType.LeftMouseButton |
-                                     IUiEventAdapter.MouseButtonMaskType.RightMouseButton)))
-            {
+            if (buttonMask == IUiEventAdapter.MouseButtonMaskType.MiddleMouseButton ||
+                buttonMask == IUiEventAdapter.MouseButtonMaskType.RightMouseButton &&
+                (modMask & IUiEventAdapter.ModKeyMaskType.ModKeyCtl) != 0 ||
+                buttonMask == (IUiEventAdapter.MouseButtonMaskType.LeftMouseButton |
+                               IUiEventAdapter.MouseButtonMaskType.RightMouseButton))
                 return PerformMovementMiddleMouseButton(eventTimeDelta, dx, dy);
-            }
-            else if (buttonMask == IUiEventAdapter.MouseButtonMaskType.RightMouseButton)
-            {
+            if (buttonMask == IUiEventAdapter.MouseButtonMaskType.RightMouseButton)
                 return PerformMovementRightMouseButton(eventTimeDelta, dx, dy);
-            }
 
             return false;
         }
-        
-        
+
+
         // protected virtual bool PerformMovement(IUiEventAdapter actionAdapter)
         // {
         //     var dx = (InputStateTracker.MousePosition?.X - InputStateTracker.LastMousePosition?.X)/InputStateTracker.FrameSnapshot.WindowWidth;
@@ -388,16 +357,16 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         protected virtual bool PerformAnimiationMovement(IUiEventAdapter eventAdapter, IUiActionAdapter actionAdapter)
         {
-            var f = ((eventAdapter.Time - AnimationData.StartTime).TotalSeconds / AnimationData.AnimationTime);
-            if( f >= 1)
+            var f = (eventAdapter.Time - AnimationData.StartTime).TotalSeconds / AnimationData.AnimationTime;
+            if (f >= 1)
             {
                 f = 1;
                 AnimationData.IsAnimating = false;
-                if( !_thrown )
-                    actionAdapter.RequestContinuousUpdate( false );
+                if (!_thrown)
+                    actionAdapter.RequestContinuousUpdate(false);
             }
 
-            ApplyAnimationStep( f, AnimationData.Phase );
+            ApplyAnimationStep(f, AnimationData.Phase);
 
             AnimationData.Phase = f;
             actionAdapter.RequestRedraw();
@@ -413,12 +382,12 @@ namespace Veldrid.SceneGraph.InputAdapter
         {
             return false;
         }
-        
+
         protected virtual bool PerformMovementMiddleMouseButton(double eventTimeDelta, float dx, float dy)
         {
             return false;
         }
-        
+
         protected virtual bool PerformMovementRightMouseButton(double eventTimeDelta, float dx, float dy)
         {
             return false;
@@ -431,31 +400,23 @@ namespace Veldrid.SceneGraph.InputAdapter
         public override void Home(IUiActionAdapter aa)
         {
             if (GetAutoComputeHomePosition())
-            {
                 if (aa is Viewer.IView view)
-                {
                     ComputeHomePosition(view.Camera,
                         (_flags & UserInteractionFlags.ComputeHomeUsingBoundingBox) != 0);
-                }
-            }
 
-            SetTransformation( _homeEye, _homeCenter, _homeUp );
+            SetTransformation(_homeEye, _homeCenter, _homeUp);
 
-            aa.RequestRedraw(); 
-            aa.RequestContinuousUpdate( false );
-            
+            aa.RequestRedraw();
+            aa.RequestContinuousUpdate(false);
         }
 
         protected float GetThrowScale(double eventTimeDelta)
         {
             if (_thrown)
             {
-                if (eventTimeDelta == 0.0f)
-                {
-                    return 0.0f;
-                }
+                if (eventTimeDelta == 0.0f) return 0.0f;
 
-                return (float)(DeltaFrameTime / eventTimeDelta);
+                return (float) (DeltaFrameTime / eventTimeDelta);
             }
 
             return 1.0f;
@@ -466,13 +427,10 @@ namespace Veldrid.SceneGraph.InputAdapter
         protected bool SetCenterByMousePointerIntersection(IUiEventAdapter eventAdapter,
             IUiActionAdapter actionAdapter)
         {
-            if (actionAdapter is Veldrid.SceneGraph.Viewer.IView view)
+            if (actionAdapter is Viewer.IView view)
             {
                 var camera = view.Camera;
-                if (null == camera)
-                {
-                    return false;
-                }
+                if (null == camera) return false;
 
                 var x = (eventAdapter.X - eventAdapter.XMin) / (eventAdapter.XMax - eventAdapter.XMin);
                 var y = (eventAdapter.Y - eventAdapter.YMin) / (eventAdapter.YMax - eventAdapter.YMin);
@@ -490,10 +448,7 @@ namespace Veldrid.SceneGraph.InputAdapter
                 var iv = IntersectionVisitor.Create(picker);
                 camera.Accept(iv);
 
-                if (!picker.Intersections.Any())
-                {
-                    return false;
-                }
+                if (!picker.Intersections.Any()) return false;
 
                 var (eye, center, up) = GetTransformation();
                 var newCenter = picker.Intersections.First().WorldIntersectionPoint;
@@ -505,7 +460,7 @@ namespace Veldrid.SceneGraph.InputAdapter
 
                     up = FixVerticalAxis(newCenter - eye, up, localUp);
                 }
-                
+
                 SetTransformation(eye, newCenter, up);
 
                 CenterMousePointer(eventAdapter, actionAdapter);
@@ -533,10 +488,10 @@ namespace Veldrid.SceneGraph.InputAdapter
         {
             var coordinateFrame = GetCoordinateFrame(eye);
             var localUp = GetUpVector(coordinateFrame);
-            
+
             return FixVerticalAxis(rotation, localUp, disallowFlipOver);
         }
-        
+
         protected Quaternion FixVerticalAxis(Quaternion rotation, Vector3 localUp, bool disallowFlipOver)
         {
             var cameraUp = rotation.RotateVector(Vector3.UnitY);
@@ -545,14 +500,11 @@ namespace Veldrid.SceneGraph.InputAdapter
 
             var newCameraRight1 = Vector3.Cross(cameraForward, localUp);
             var newCameraRight2 = Vector3.Cross(cameraUp, localUp);
-            var newCameraRight = (newCameraRight1.LengthSquared() > newCameraRight2.LengthSquared())
+            var newCameraRight = newCameraRight1.LengthSquared() > newCameraRight2.LengthSquared()
                 ? newCameraRight1
                 : newCameraRight2;
 
-            if (Vector3.Dot(newCameraRight, cameraRight) < 0.0f)
-            {
-                newCameraRight = -newCameraRight;
-            }
+            if (Vector3.Dot(newCameraRight, cameraRight) < 0.0f) newCameraRight = -newCameraRight;
 
             var rotationVerticalAxisCorrection = QuaternionExtensions.MakeRotate(cameraRight, newCameraRight);
 
@@ -562,9 +514,7 @@ namespace Veldrid.SceneGraph.InputAdapter
             {
                 var newCameraUp = Vector3.Cross(newCameraRight, cameraForward);
                 if (Vector3.Dot(newCameraUp, localUp) < 0)
-                {
-                    rotation = new Quaternion(Vector3.UnitZ, (float)System.Math.PI);
-                }
+                    rotation = new Quaternion(Vector3.UnitZ, (float) System.Math.PI);
             }
 
             return rotation;
@@ -574,16 +524,12 @@ namespace Veldrid.SceneGraph.InputAdapter
         {
             var right1 = Vector3.Cross(forward, localUp);
             var right2 = Vector3.Cross(up, localUp);
-            var right = (right1.LengthSquared() > right2.LengthSquared()) ? right1 : right2;
+            var right = right1.LengthSquared() > right2.LengthSquared() ? right1 : right2;
 
             var updatedUp = Vector3.Cross(right, forward);
-            if (updatedUp.Length() >= 0.0f)
-            {
-                return updatedUp;
-            }
-            
+            if (updatedUp.Length() >= 0.0f) return updatedUp;
+
             return up;
-            
         }
     }
 }

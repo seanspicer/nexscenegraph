@@ -14,12 +14,8 @@
 // limitations under the License.
 //
 
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Numerics;
 using NUnit.Framework;
-using Veldrid.SceneGraph;
 
 namespace Veldrid.SceneGraph.Tests
 {
@@ -30,23 +26,23 @@ namespace Veldrid.SceneGraph.Tests
         public void TestIntersectBoundingBoxPlane(Plane planeUnderTest, BoundingBox bbUnderTest, int expected)
         {
             // Intersect should return 1
-            Assert.That( expected, Is.EqualTo(planeUnderTest.Intersect(bbUnderTest)));
+            Assert.That(expected, Is.EqualTo(planeUnderTest.Intersect(bbUnderTest)));
         }
-        
+
         public static IEnumerable<object[]> GetData()
         {
-            var quadrant1 = BoundingBox.Create( 1, 1, 1, 2, 2, 2);
-            var quadrant2 = BoundingBox.Create(-1, 1, 1,-2, 2, 2);
-            var quadrant3 = BoundingBox.Create(-1,-1, 1,-2,-2, 2);
-            var quadrant4 = BoundingBox.Create( 1,-1, 1, 2,-2, 2);
-            
-            var quadrant5 = BoundingBox.Create( 1, 1,-1, 2, 2,-2);
-            var quadrant6 = BoundingBox.Create(-1, 1,-1,-2, 2,-2);
-            var quadrant7 = BoundingBox.Create(-1,-1,-1,-2,-2,-2);
-            var quadrant8 = BoundingBox.Create( 1,-1,-1, 2,-2,-2);
-            
-            var unit = BoundingBox.Create(-1,-1,-1, 1, 1, 1);
-            
+            var quadrant1 = BoundingBox.Create(1, 1, 1, 2, 2, 2);
+            var quadrant2 = BoundingBox.Create(-1, 1, 1, -2, 2, 2);
+            var quadrant3 = BoundingBox.Create(-1, -1, 1, -2, -2, 2);
+            var quadrant4 = BoundingBox.Create(1, -1, 1, 2, -2, 2);
+
+            var quadrant5 = BoundingBox.Create(1, 1, -1, 2, 2, -2);
+            var quadrant6 = BoundingBox.Create(-1, 1, -1, -2, 2, -2);
+            var quadrant7 = BoundingBox.Create(-1, -1, -1, -2, -2, -2);
+            var quadrant8 = BoundingBox.Create(1, -1, -1, 2, -2, -2);
+
+            var unit = BoundingBox.Create(-1, -1, -1, 1, 1, 1);
+
             var allData = new List<object[]>
             {
                 // XY (Z=0) Plane Tests
@@ -54,71 +50,71 @@ namespace Veldrid.SceneGraph.Tests
                 new object[] {Plane.Create(0, 0, 1, 0), quadrant2, 1},
                 new object[] {Plane.Create(0, 0, 1, 0), quadrant3, 1},
                 new object[] {Plane.Create(0, 0, 1, 0), quadrant4, 1},
-                
-                new object[] {Plane.Create(0, 0, 1, 0), quadrant5,-1},
-                new object[] {Plane.Create(0, 0, 1, 0), quadrant6,-1},
-                new object[] {Plane.Create(0, 0, 1, 0), quadrant7,-1},
-                new object[] {Plane.Create(0, 0, 1, 0), quadrant8,-1},
-                
+
+                new object[] {Plane.Create(0, 0, 1, 0), quadrant5, -1},
+                new object[] {Plane.Create(0, 0, 1, 0), quadrant6, -1},
+                new object[] {Plane.Create(0, 0, 1, 0), quadrant7, -1},
+                new object[] {Plane.Create(0, 0, 1, 0), quadrant8, -1},
+
                 // -XY (Z=0) Plane Tests
-                new object[] {Plane.Create(0, 0,-1, 0), quadrant1,-1},
-                new object[] {Plane.Create(0, 0,-1, 0), quadrant2,-1},
-                new object[] {Plane.Create(0, 0,-1, 0), quadrant3,-1},
-                new object[] {Plane.Create(0, 0,-1, 0), quadrant4,-1},
-                
-                new object[] {Plane.Create(0, 0,-1, 0), quadrant5, 1},
-                new object[] {Plane.Create(0, 0,-1, 0), quadrant6, 1},
-                new object[] {Plane.Create(0, 0,-1, 0), quadrant7, 1},
-                new object[] {Plane.Create(0, 0,-1, 0), quadrant8, 1},
-                
+                new object[] {Plane.Create(0, 0, -1, 0), quadrant1, -1},
+                new object[] {Plane.Create(0, 0, -1, 0), quadrant2, -1},
+                new object[] {Plane.Create(0, 0, -1, 0), quadrant3, -1},
+                new object[] {Plane.Create(0, 0, -1, 0), quadrant4, -1},
+
+                new object[] {Plane.Create(0, 0, -1, 0), quadrant5, 1},
+                new object[] {Plane.Create(0, 0, -1, 0), quadrant6, 1},
+                new object[] {Plane.Create(0, 0, -1, 0), quadrant7, 1},
+                new object[] {Plane.Create(0, 0, -1, 0), quadrant8, 1},
+
                 // XZ (Y=0) Plane Tests
                 new object[] {Plane.Create(0, 1, 0, 0), quadrant1, 1},
                 new object[] {Plane.Create(0, 1, 0, 0), quadrant2, 1},
                 new object[] {Plane.Create(0, 1, 0, 0), quadrant5, 1},
                 new object[] {Plane.Create(0, 1, 0, 0), quadrant6, 1},
-                
-                new object[] {Plane.Create(0, 1, 0, 0), quadrant3,-1},
-                new object[] {Plane.Create(0, 1, 0, 0), quadrant4,-1}, 
-                new object[] {Plane.Create(0, 1, 0, 0), quadrant7,-1},
-                new object[] {Plane.Create(0, 1, 0, 0), quadrant8,-1},
-                
+
+                new object[] {Plane.Create(0, 1, 0, 0), quadrant3, -1},
+                new object[] {Plane.Create(0, 1, 0, 0), quadrant4, -1},
+                new object[] {Plane.Create(0, 1, 0, 0), quadrant7, -1},
+                new object[] {Plane.Create(0, 1, 0, 0), quadrant8, -1},
+
                 // -XZ (Y=0) Plane Tests
-                new object[] {Plane.Create(0,-1, 0, 0), quadrant1,-1},
-                new object[] {Plane.Create(0,-1, 0, 0), quadrant2,-1},
-                new object[] {Plane.Create(0,-1, 0, 0), quadrant5,-1},
-                new object[] {Plane.Create(0,-1, 0, 0), quadrant6,-1},
-                
-                new object[] {Plane.Create(0,-1, 0, 0), quadrant3, 1},
-                new object[] {Plane.Create(0,-1, 0, 0), quadrant4, 1},
-                new object[] {Plane.Create(0,-1, 0, 0), quadrant7, 1},
-                new object[] {Plane.Create(0,-1, 0, 0), quadrant8, 1},
-                
+                new object[] {Plane.Create(0, -1, 0, 0), quadrant1, -1},
+                new object[] {Plane.Create(0, -1, 0, 0), quadrant2, -1},
+                new object[] {Plane.Create(0, -1, 0, 0), quadrant5, -1},
+                new object[] {Plane.Create(0, -1, 0, 0), quadrant6, -1},
+
+                new object[] {Plane.Create(0, -1, 0, 0), quadrant3, 1},
+                new object[] {Plane.Create(0, -1, 0, 0), quadrant4, 1},
+                new object[] {Plane.Create(0, -1, 0, 0), quadrant7, 1},
+                new object[] {Plane.Create(0, -1, 0, 0), quadrant8, 1},
+
                 // YZ (X=0) Plane Tests
                 new object[] {Plane.Create(1, 0, 0, 0), quadrant1, 1},
                 new object[] {Plane.Create(1, 0, 0, 0), quadrant4, 1},
                 new object[] {Plane.Create(1, 0, 0, 0), quadrant5, 1},
                 new object[] {Plane.Create(1, 0, 0, 0), quadrant8, 1},
-                
-                new object[] {Plane.Create(1, 0, 0, 0), quadrant2,-1},
-                new object[] {Plane.Create(1, 0, 0, 0), quadrant3,-1}, 
-                new object[] {Plane.Create(1, 0, 0, 0), quadrant6,-1},
-                new object[] {Plane.Create(1, 0, 0, 0), quadrant7,-1},
-                
+
+                new object[] {Plane.Create(1, 0, 0, 0), quadrant2, -1},
+                new object[] {Plane.Create(1, 0, 0, 0), quadrant3, -1},
+                new object[] {Plane.Create(1, 0, 0, 0), quadrant6, -1},
+                new object[] {Plane.Create(1, 0, 0, 0), quadrant7, -1},
+
                 // -YZ (X=0) Plane Tests
-                new object[] {Plane.Create(-1, 0, 0, 0), quadrant1,-1},
-                new object[] {Plane.Create(-1, 0, 0, 0), quadrant4,-1},
-                new object[] {Plane.Create(-1, 0, 0, 0), quadrant5,-1},
-                new object[] {Plane.Create(-1, 0, 0, 0), quadrant8,-1},
-                
+                new object[] {Plane.Create(-1, 0, 0, 0), quadrant1, -1},
+                new object[] {Plane.Create(-1, 0, 0, 0), quadrant4, -1},
+                new object[] {Plane.Create(-1, 0, 0, 0), quadrant5, -1},
+                new object[] {Plane.Create(-1, 0, 0, 0), quadrant8, -1},
+
                 new object[] {Plane.Create(-1, 0, 0, 0), quadrant2, 1},
-                new object[] {Plane.Create(-1, 0, 0, 0), quadrant3, 1}, 
+                new object[] {Plane.Create(-1, 0, 0, 0), quadrant3, 1},
                 new object[] {Plane.Create(-1, 0, 0, 0), quadrant6, 1},
                 new object[] {Plane.Create(-1, 0, 0, 0), quadrant7, 1},
-                
+
                 // Unit Bounding Box Crossing Tests
                 new object[] {Plane.Create(0, 0, 1, 0), unit, 0},
                 new object[] {Plane.Create(0, 1, 0, 0), unit, 0},
-                new object[] {Plane.Create(1, 0, 0, 0), unit, 0},
+                new object[] {Plane.Create(1, 0, 0, 0), unit, 0}
             };
 
             return allData;

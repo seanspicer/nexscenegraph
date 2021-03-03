@@ -1,5 +1,3 @@
-
-
 using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
@@ -15,44 +13,28 @@ namespace Veldrid.SceneGraph.Manipulators
         public ITranslate2DDragger Translate2DDragger { get; }
         void SetColor(Color color);
     }
-    
+
     public class TranslatePlaneDragger : CompositeDragger, ITranslatePlaneDragger
     {
-        private class AlwaysCullCallback : DrawableCullCallback
-        {
-            public override bool Cull(INodeVisitor nodeVisitor, IDrawable drawable)
-            {
-                return true;
-            }
-        }
-        
-        public ITranslate1DDragger Translate1DDragger { get; protected set; }
-        public ITranslate2DDragger Translate2DDragger { get; protected set; }
-
-        protected bool UsingTranslate1DDragger { get; set; } = false;
-
-        public new static ITranslatePlaneDragger Create()
-        {
-            return new TranslatePlaneDragger(Matrix4x4.Identity);
-        }
-        
         protected TranslatePlaneDragger(Matrix4x4 matrix) : base(matrix)
         {
-            Translate1DDragger = Veldrid.SceneGraph.Manipulators.Translate1DDragger.Create(Vector3.Zero, Vector3.UnitY);
+            Translate1DDragger = Manipulators.Translate1DDragger.Create(Vector3.Zero, Vector3.UnitY);
             Translate1DDragger.CheckForNodeInPath = false;
             AddChild(Translate1DDragger);
             DraggerList.Add(Translate1DDragger);
 
-            Translate2DDragger = Veldrid.SceneGraph.Manipulators.Translate2DDragger.Create();
+            Translate2DDragger = Manipulators.Translate2DDragger.Create();
             Translate2DDragger.CheckForNodeInPath = false;
             AddChild(Translate2DDragger);
             DraggerList.Add(Translate2DDragger);
-            
-            foreach (var dragger in DraggerList)
-            {
-                dragger.ParentDragger = this;
-            }
+
+            foreach (var dragger in DraggerList) dragger.ParentDragger = this;
         }
+
+        protected bool UsingTranslate1DDragger { get; set; } = false;
+
+        public ITranslate1DDragger Translate1DDragger { get; protected set; }
+        public ITranslate2DDragger Translate2DDragger { get; protected set; }
 
         public override void SetupDefaultGeometry()
         {
@@ -84,7 +66,7 @@ namespace Veldrid.SceneGraph.Manipulators
 
                 geometry.IndexData = indexArray;
                 geometry.VertexData = vertexArray;
-                geometry.VertexLayouts = new List<VertexLayoutDescription>()
+                geometry.VertexLayouts = new List<VertexLayoutDescription>
                 {
                     Position3Color4.VertexLayoutDescription
                 };
@@ -109,7 +91,7 @@ namespace Veldrid.SceneGraph.Manipulators
                 var geode = Geode.Create();
                 geode.NameString = "Dragger Dragger Translate Plane";
                 geode.AddDrawable(geometry);
-    
+
                 AddChild(geode);
             }
 
@@ -140,7 +122,7 @@ namespace Veldrid.SceneGraph.Manipulators
 
                 geometry.IndexData = indexArray;
                 geometry.VertexData = vertexArray;
-                geometry.VertexLayouts = new List<VertexLayoutDescription>()
+                geometry.VertexLayouts = new List<VertexLayoutDescription>
                 {
                     Position3Color4.VertexLayoutDescription
                 };
@@ -171,7 +153,6 @@ namespace Veldrid.SceneGraph.Manipulators
 
         public void SetColor(Color color)
         {
-            
         }
 
         public override bool Handle(IPointerInfo pointerInfo, IUiEventAdapter eventAdapter,
@@ -179,23 +160,30 @@ namespace Veldrid.SceneGraph.Manipulators
         {
             if (!pointerInfo.Contains(this)) return false;
 
-            bool handled = false;
+            var handled = false;
             if (UsingTranslate1DDragger)
             {
-                if (Translate1DDragger.Handle(pointerInfo, eventAdapter, actionAdapter))
-                {
-                    handled = true;
-                }
+                if (Translate1DDragger.Handle(pointerInfo, eventAdapter, actionAdapter)) handled = true;
             }
             else
             {
-                if (Translate2DDragger.Handle(pointerInfo, eventAdapter, actionAdapter))
-                {
-                    handled = true;
-                }
+                if (Translate2DDragger.Handle(pointerInfo, eventAdapter, actionAdapter)) handled = true;
             }
 
             return handled;
+        }
+
+        public new static ITranslatePlaneDragger Create()
+        {
+            return new TranslatePlaneDragger(Matrix4x4.Identity);
+        }
+
+        private class AlwaysCullCallback : DrawableCullCallback
+        {
+            public override bool Cull(INodeVisitor nodeVisitor, IDrawable drawable)
+            {
+                return true;
+            }
         }
     }
 }

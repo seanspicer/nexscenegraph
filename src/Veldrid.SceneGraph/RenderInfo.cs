@@ -14,25 +14,10 @@
 // limitations under the License.
 //
 
-using System.Collections.Generic;
-using Veldrid.SceneGraph.Util;
-
 namespace Veldrid.SceneGraph
 {
     public class RenderInfo
     {
-        public View View { get; set; }= null;
-
-        public GraphicsDevice GraphicsDevice { get; set; }
-        public ResourceFactory ResourceFactory { get; set; }
-        public CommandList CommandList { get; set; }
-        public ResourceLayout ResourceLayout { get; set; }
-        public ResourceSet ResourceSet { get; set; }
-        
-        // TODO - these dont really belong here.
-        public DeviceBuffer VertexBuffer { get; set; }
-        public DeviceBuffer IndexBuffer { get; set; }
-        
         public RenderInfo()
         {
         }
@@ -46,5 +31,17 @@ namespace Veldrid.SceneGraph
         {
             View = renderInfo.View;
         }
+
+        public View View { get; set; }
+
+        public GraphicsDevice GraphicsDevice { get; set; }
+        public ResourceFactory ResourceFactory { get; set; }
+        public CommandList CommandList { get; set; }
+        public ResourceLayout ResourceLayout { get; set; }
+        public ResourceSet ResourceSet { get; set; }
+
+        // TODO - these dont really belong here.
+        public DeviceBuffer VertexBuffer { get; set; }
+        public DeviceBuffer IndexBuffer { get; set; }
     }
 }

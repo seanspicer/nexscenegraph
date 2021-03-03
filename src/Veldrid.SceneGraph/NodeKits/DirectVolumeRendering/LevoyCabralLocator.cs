@@ -23,55 +23,33 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
     {
         public double MinDist { get; }
         public double MaxDist { get; }
-        public void UpdateDistances(Vector3 eyePoint);
-        Vector3 TexGen(Vector3 point);
-        
+
         public double XMin { get; }
         public double XMax { get; }
-        
+
         public double YMin { get; }
         public double YMax { get; }
-        
+
         public double ZMin { get; }
         public double ZMax { get; }
+        public void UpdateDistances(Vector3 eyePoint);
+        Vector3 TexGen(Vector3 point);
     }
-    
+
     public class LevoyCabralLocator : Locator, ILevoyCabralLocator
     {
-        public double[,,] Values { get; }
-        public double[,,] XValues { get; }
-        public double[,,] YValues { get; }
-        public double[,,] ZValues { get; }
-
-        public double XMin { get; protected set; }
-        public double XMax { get; protected set; }
-        
-        public double YMin { get; protected set; }
-        public double YMax { get; protected set; }
-        
-        public double ZMin { get; protected set; }
-        public double ZMax { get; protected set; }
-
-        private IVoxelVolume _source;
-        
-        public double MinDist { get; private set; }
-        public double MaxDist { get; private set; }
-
         private Vector3 _lastEyePoint = Vector3.Zero;
-        
-        public static ILevoyCabralLocator Create(IVoxelVolume voxelVolume)
-        {
-            return new LevoyCabralLocator(voxelVolume);
-        }
-        
-        protected LevoyCabralLocator(IVoxelVolume voxelVolume) 
+
+        private readonly IVoxelVolume _source;
+
+        protected LevoyCabralLocator(IVoxelVolume voxelVolume)
         {
             _source = voxelVolume;
 
-            var xdim = _source.XValues.GetLength(0)-1;
-            var ydim = _source.XValues.GetLength(1)-1;
-            var zdim = _source.XValues.GetLength(2)-1;
-            
+            var xdim = _source.XValues.GetLength(0) - 1;
+            var ydim = _source.XValues.GetLength(1) - 1;
+            var zdim = _source.XValues.GetLength(2) - 1;
+
             Values = new double[2, 2, 2];
             XValues = new double[2, 2, 2];
             YValues = new double[2, 2, 2];
@@ -85,36 +63,50 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
             ZMin = _source.ZValues[0, 0, 0];
             ZMax = _source.ZValues[0, 0, zdim];
-            
+
             UpdateDistances(Vector3.Zero);
-            
+
             SetTransformAsExtents(
-                (float) XMin, 
-                (float) XMax, 
-                (float) YMin, 
-                (float) YMax, 
-                (float) ZMin, 
+                (float) XMin,
+                (float) XMax,
+                (float) YMin,
+                (float) YMax,
+                (float) ZMin,
                 (float) ZMax);
         }
-        
+
+        public double[,,] Values { get; }
+        public double[,,] XValues { get; }
+        public double[,,] YValues { get; }
+        public double[,,] ZValues { get; }
+
+        public double XMin { get; protected set; }
+        public double XMax { get; protected set; }
+
+        public double YMin { get; protected set; }
+        public double YMax { get; protected set; }
+
+        public double ZMin { get; protected set; }
+        public double ZMax { get; protected set; }
+
+        public double MinDist { get; private set; }
+        public double MaxDist { get; private set; }
+
         public Vector3 TexGen(Vector3 point)
         {
             return point;
-            
+
             return new Vector3(
-                (float)((point.X - XMin) / (XMax - XMin)),
-                (float)((point.Y - YMin) / (YMax - YMin)),
-                (float)((point.Z - ZMin) / (ZMax - ZMin))
+                (float) ((point.X - XMin) / (XMax - XMin)),
+                (float) ((point.Y - YMin) / (YMax - YMin)),
+                (float) ((point.Z - ZMin) / (ZMax - ZMin))
             );
         }
 
         public override void SetTransform(Matrix4x4 transform)
         {
             _transform = transform;
-            if (Matrix4x4.Invert(_transform, out var inverse))
-            {
-                _inverse = inverse;
-            }
+            if (Matrix4x4.Invert(_transform, out var inverse)) _inverse = inverse;
 
             XMin = Transform.M41;
             YMin = Transform.M42;
@@ -123,16 +115,16 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             XMax = Transform.M11 + XMin;
             YMax = Transform.M22 + YMin;
             ZMax = Transform.M33 + ZMin;
-            
+
             UpdateDistances(_lastEyePoint);
 
             LocatorModified();
         }
-        
+
         public void UpdateDistances(Vector3 eyePoint)
         {
             _lastEyePoint = eyePoint;
-            
+
             XValues[0, 0, 0] = XMin;
             YValues[0, 0, 0] = YMin;
             ZValues[0, 0, 0] = ZMin;
@@ -140,55 +132,55 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             XValues[1, 0, 0] = XMax;
             YValues[1, 0, 0] = YMin;
             ZValues[1, 0, 0] = ZMin;
-            
+
             XValues[0, 1, 0] = XMin;
             YValues[0, 1, 0] = YMax;
             ZValues[0, 1, 0] = ZMin;
-            
+
             XValues[0, 0, 1] = XMin;
             YValues[0, 0, 1] = YMin;
             ZValues[0, 0, 1] = ZMax;
-            
+
             XValues[1, 1, 0] = XMax;
             YValues[1, 1, 0] = YMax;
             ZValues[1, 1, 0] = ZMin;
-            
+
             XValues[0, 1, 1] = XMin;
             YValues[0, 1, 1] = YMax;
             ZValues[0, 1, 1] = ZMax;
-            
+
             XValues[1, 0, 1] = XMax;
             YValues[1, 0, 1] = YMin;
             ZValues[1, 0, 1] = ZMax;
-            
+
             XValues[1, 1, 1] = XMax;
             YValues[1, 1, 1] = YMax;
             ZValues[1, 1, 1] = ZMax;
-            
+
             MinDist = double.MaxValue;
             MaxDist = double.MinValue;
-            
-            for (var z = 0; z < 2; ++z)
-            {
-                for (var y = 0; y < 2; ++y)
-                {
-                    for (var x = 0; x < 2; ++x)
-                    {
-                        var pos = new Vector3(
-                            (float) XValues[x, y, z],
-                            (float) YValues[x, y, z],
-                            (float) ZValues[x, y, z]);
-                        
-                        var dist = System.Math.Abs((pos - eyePoint).Length());
 
-                        if (dist < MinDist) MinDist = dist;
-                        if (dist > MaxDist) MaxDist = dist;
-                        
-                        Values[x, y, z] = dist;
-                        
-                    }
-                }
+            for (var z = 0; z < 2; ++z)
+            for (var y = 0; y < 2; ++y)
+            for (var x = 0; x < 2; ++x)
+            {
+                var pos = new Vector3(
+                    (float) XValues[x, y, z],
+                    (float) YValues[x, y, z],
+                    (float) ZValues[x, y, z]);
+
+                var dist = System.Math.Abs((pos - eyePoint).Length());
+
+                if (dist < MinDist) MinDist = dist;
+                if (dist > MaxDist) MaxDist = dist;
+
+                Values[x, y, z] = dist;
             }
+        }
+
+        public static ILevoyCabralLocator Create(IVoxelVolume voxelVolume)
+        {
+            return new LevoyCabralLocator(voxelVolume);
         }
     }
 }

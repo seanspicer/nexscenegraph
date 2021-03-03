@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
@@ -14,13 +13,13 @@ namespace Veldrid.SceneGraph.IO
         public Vector2 TexCoord;
         public Vector3 Color;
         public Vector3 Normal;
-        
+
         public VertexPositionTextureColorNormal(Vector3 position, Vector2 texCoord, Vector3 color, Vector3 normal)
         {
             Position = position;
             TexCoord = texCoord;
-            Color    = color;
-            Normal   = normal;
+            Color = color;
+            Normal = normal;
         }
 
         public Vector3 VertexPosition
@@ -29,30 +28,34 @@ namespace Veldrid.SceneGraph.IO
             set => Position = value;
         }
     }
-    
+
     public class Import
     {
         private const PostProcessSteps DefaultPostProcessSteps =
             PostProcessSteps.FlipWindingOrder | PostProcessSteps.Triangulate | PostProcessSteps.PreTransformVertices
             | PostProcessSteps.CalculateTangentSpace | PostProcessSteps.GenerateSmoothNormals;
-        
-        public IndexFormat IndexFormat { get; private set; } = IndexFormat.UInt32;
-        
+
+        public Dimension dim = new Dimension(new Vector3(float.MaxValue), new Vector3(float.MinValue));
+
+        private readonly RawList<ModelPart> parts = new RawList<ModelPart>();
+
+        public IndexFormat IndexFormat { get; } = IndexFormat.UInt32;
+
         public uint IndexCount { get; private set; }
         public uint VertexCount { get; private set; }
-        
+
         public IGeode LoadColladaModel(Stream stream)
         {
-            AssimpContext assimpContext = new AssimpContext();
-            Scene pScene = assimpContext.ImportFileFromStream(stream, DefaultPostProcessSteps, "dae");
-            
-            parts.Clear();
-            parts.Count = (uint)pScene.Meshes.Count;
+            var assimpContext = new AssimpContext();
+            var pScene = assimpContext.ImportFileFromStream(stream, DefaultPostProcessSteps, "dae");
 
-            Vector3 scale = new Vector3(1.0f, 1.0f, 1.0f);
-            Vector2 uvscale = new Vector2(1.0f);
-            Vector3 center = new Vector3(0.0f);
-            
+            parts.Clear();
+            parts.Count = (uint) pScene.Meshes.Count;
+
+            var scale = new Vector3(1.0f, 1.0f, 1.0f);
+            var uvscale = new Vector2(1.0f);
+            var center = new Vector3(0.0f);
+
             var vertices = new List<VertexPositionTextureColorNormal>();
             var indices = new List<uint>();
 
@@ -60,9 +63,9 @@ namespace Veldrid.SceneGraph.IO
             IndexCount = 0;
 
             var geometry = Geometry<VertexPositionTextureColorNormal>.Create();
-            
+
             // Load meshes
-            for (int i = 0; i < pScene.Meshes.Count; i++)
+            for (var i = 0; i < pScene.Meshes.Count; i++)
             {
                 var paiMesh = pScene.Meshes[i];
 
@@ -70,56 +73,55 @@ namespace Veldrid.SceneGraph.IO
                 parts[i].vertexBase = VertexCount;
                 parts[i].indexBase = IndexCount;
 
-                VertexCount += (uint)paiMesh.VertexCount;
+                VertexCount += (uint) paiMesh.VertexCount;
 
                 var pColor = pScene.Materials[paiMesh.MaterialIndex].ColorDiffuse;
 
-                Vector3D Zero3D = new Vector3D(0.0f, 0.0f, 0.0f);
+                var Zero3D = new Vector3D(0.0f, 0.0f, 0.0f);
 
-                for (int j = 0; j < paiMesh.VertexCount; j++)
+                for (var j = 0; j < paiMesh.VertexCount; j++)
                 {
-                    Vector3D pPos = paiMesh.Vertices[j];
-                    Vector3D pNormal = paiMesh.Normals[j];
-                    Vector3D pTexCoord = paiMesh.HasTextureCoords(0) ? paiMesh.TextureCoordinateChannels[0][j] : Zero3D;
-                    Vector3D pTangent = paiMesh.HasTangentBasis ? paiMesh.Tangents[j] : Zero3D;
-                    Vector3D pBiTangent = paiMesh.HasTangentBasis ? paiMesh.BiTangents[j] : Zero3D;
+                    var pPos = paiMesh.Vertices[j];
+                    var pNormal = paiMesh.Normals[j];
+                    var pTexCoord = paiMesh.HasTextureCoords(0) ? paiMesh.TextureCoordinateChannels[0][j] : Zero3D;
+                    var pTangent = paiMesh.HasTangentBasis ? paiMesh.Tangents[j] : Zero3D;
+                    var pBiTangent = paiMesh.HasTangentBasis ? paiMesh.BiTangents[j] : Zero3D;
 
                     var vertex = new VertexPositionTextureColorNormal(
                         new Vector3(
-                        
                             pPos.X * scale.X + center.X,
                             pPos.Y * scale.Y + center.Y,
                             pPos.Z * scale.Z + center.Z
-                        ), 
-                        new Vector2(pTexCoord.X * uvscale.X,pTexCoord.Y * uvscale.Y),
+                        ),
+                        new Vector2(pTexCoord.X * uvscale.X, pTexCoord.Y * uvscale.Y),
                         new Vector3(pColor.R, pColor.G, pColor.B),
                         new Vector3(pNormal.X, pNormal.Y, pNormal.Z));
-                    
+
                     vertices.Add(vertex);
-                    
 
-                    dim.Max.X =  System.Math.Max(pPos.X, dim.Max.X);
-                    dim.Max.Y =  System.Math.Max(pPos.Y, dim.Max.Y);
-                    dim.Max.Z =  System.Math.Max(pPos.Z, dim.Max.Z);
 
-                    dim.Min.X =  System.Math.Min(pPos.X, dim.Min.X);
-                    dim.Min.Y =  System.Math.Min(pPos.Y, dim.Min.Y);
-                    dim.Min.Z =  System.Math.Min(pPos.Z, dim.Min.Z);
+                    dim.Max.X = System.Math.Max(pPos.X, dim.Max.X);
+                    dim.Max.Y = System.Math.Max(pPos.Y, dim.Max.Y);
+                    dim.Max.Z = System.Math.Max(pPos.Z, dim.Max.Z);
+
+                    dim.Min.X = System.Math.Min(pPos.X, dim.Min.X);
+                    dim.Min.Y = System.Math.Min(pPos.Y, dim.Min.Y);
+                    dim.Min.Z = System.Math.Min(pPos.Z, dim.Min.Z);
                 }
 
                 dim.Size = dim.Max - dim.Min;
 
-                parts[i].vertexCount = (uint)paiMesh.VertexCount;
+                parts[i].vertexCount = (uint) paiMesh.VertexCount;
 
-                uint indexBase = (uint)indices.Count;
+                var indexBase = (uint) indices.Count;
                 for (uint j = 0; j < paiMesh.FaceCount; j++)
                 {
-                    Face Face = paiMesh.Faces[(int)j];
+                    var Face = paiMesh.Faces[(int) j];
                     if (Face.IndexCount != 3)
                         continue;
-                    indices.Add((uint)(indexBase + Face.Indices[0]));
-                    indices.Add((uint)(indexBase + Face.Indices[1]));
-                    indices.Add((uint)(indexBase + Face.Indices[2]));
+                    indices.Add((uint) (indexBase + Face.Indices[0]));
+                    indices.Add((uint) (indexBase + Face.Indices[1]));
+                    indices.Add((uint) (indexBase + Face.Indices[2]));
                     parts[i].indexCount += 3;
                     IndexCount += 3;
                 }
@@ -128,21 +130,28 @@ namespace Veldrid.SceneGraph.IO
             geometry.VertexData = vertices.ToArray();
             geometry.IndexData = indices.ToArray();
 
-            geometry.VertexLayouts = new List<VertexLayoutDescription> {new VertexLayoutDescription(
-                new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
-                new VertexElementDescription("UV", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
-                new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
-                new VertexElementDescription("Normal", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3))};
-            
+            geometry.VertexLayouts = new List<VertexLayoutDescription>
+            {
+                new VertexLayoutDescription(
+                    new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate,
+                        VertexElementFormat.Float3),
+                    new VertexElementDescription("UV", VertexElementSemantic.TextureCoordinate,
+                        VertexElementFormat.Float2),
+                    new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate,
+                        VertexElementFormat.Float3),
+                    new VertexElementDescription("Normal", VertexElementSemantic.TextureCoordinate,
+                        VertexElementFormat.Float3))
+            };
+
             var pSet = DrawElements<VertexPositionTextureColorNormal>.Create(
-                geometry, 
+                geometry,
                 PrimitiveTopology.TriangleList,
-                (uint)geometry.IndexData.Length, 
-                1, 
-                0, 
-                0, 
+                (uint) geometry.IndexData.Length,
+                1,
+                0,
+                0,
                 0);
-            
+
             geometry.PrimitiveSets.Add(pSet);
 
             // TODO - Come back to this to handle transparency
@@ -162,15 +171,14 @@ namespace Veldrid.SceneGraph.IO
 //                
 //                geometry.PrimitiveSets.Add(pSet);
 //            }
-            
-            
-            
+
+
             var geode = Geode.Create();
             geode.AddDrawable(geometry);
 
             return geode;
         }
-        
+
         public struct ModelPart
         {
             public uint vertexBase;
@@ -179,17 +187,19 @@ namespace Veldrid.SceneGraph.IO
             public uint indexCount;
         }
 
-        RawList<ModelPart> parts = new RawList<ModelPart>();
-
         public struct Dimension
         {
             public Vector3 Min;
             public Vector3 Max;
             public Vector3 Size;
-            public Dimension(Vector3 min, Vector3 max) { Min = min; Max = max; Size = new Vector3(); }
-        }
 
-        public Dimension dim = new Dimension(new Vector3(float.MaxValue), new Vector3(float.MinValue));
+            public Dimension(Vector3 min, Vector3 max)
+            {
+                Min = min;
+                Max = max;
+                Size = new Vector3();
+            }
+        }
 
         public struct ModelCreateInfo
         {

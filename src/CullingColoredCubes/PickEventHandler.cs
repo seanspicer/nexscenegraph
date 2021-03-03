@@ -14,50 +14,48 @@
 // limitations under the License.
 //
 
-using System;
 using System.Linq;
 using System.Numerics;
 using Examples.Common;
 using Microsoft.Extensions.Logging;
-using Veldrid;
-using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Util;
+using Veldrid.SceneGraph.Viewer;
 
 namespace CullingColoredCubes
 {
     public class PickEventHandler : UiEventHandler
     {
         private readonly ILogger _logger;
-        
+
         public PickEventHandler()
         {
             _logger = Bootstrapper.LoggerFactory.CreateLogger("PickEventHandler");
         }
-        
+
         public override bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter uiActionAdapter)
         {
             switch (eventAdapter.Key)
             {
                 case IUiEventAdapter.KeySymbol.KeyP:
-                    DoPick(eventAdapter, uiActionAdapter as Veldrid.SceneGraph.Viewer.IView);;
+                    DoPick(eventAdapter, uiActionAdapter as IView);
+                    ;
                     return true;
                 default:
                     return false;
             }
-            
         }
 
-        private void DoPick(IUiEventAdapter eventAdapter, Veldrid.SceneGraph.Viewer.IView view)
+        private void DoPick(IUiEventAdapter eventAdapter, IView view)
         {
             var norm = new Vector2(eventAdapter.XNormalized, eventAdapter.YNormalized);
-            
+
             var startPos = view.Camera.NormalizedScreenToWorld(new Vector3(norm.X, norm.Y, 0.0f)); // Near plane
             var endPos = view.Camera.NormalizedScreenToWorld(new Vector3(norm.X, norm.Y, 1.0f)); // Far plane
             var intersector = LineSegmentIntersector.Create(startPos, endPos);
-            
+
             var intersectionVisitor = IntersectionVisitor.Create(intersector);
-            
+
             view.SceneData?.Accept(intersectionVisitor);
 
             if (intersector.Intersections.Any())
@@ -72,9 +70,9 @@ namespace CullingColoredCubes
                         _logger.LogInformation($"  Path[{jdx}]: {node.NameString}");
                         ++jdx;
                     }
+
                     ++idx;
                 }
-                
             }
             else
             {

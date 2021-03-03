@@ -1,25 +1,21 @@
-
 using System.Collections.Generic;
-using SharpDX.Direct3D11;
 
 namespace Veldrid.SceneGraph
 {
     public interface IGraphicsContext : IObject
     {
-        public interface ITraits {}
-
         void AddCamera(ICamera camera);
 
         void RemoveCamera(ICamera camera);
+
+        public interface ITraits
+        {
+        }
     }
 
     public abstract class GraphicsContext : Object, IGraphicsContext
     {
-        public class CameraList : List<ICamera> {}
-
         protected CameraList Cameras { get; set; } = new CameraList();
-
-        protected abstract IGraphicsContext CreateGraphicsContext(IGraphicsContext.ITraits traits);
 
         public void AddCamera(ICamera camera)
         {
@@ -31,6 +27,11 @@ namespace Veldrid.SceneGraph
             // TODO -- probably need to iterate the camera's children and release graphics resources
             Cameras.Remove(camera);
         }
-    }
 
+        protected abstract IGraphicsContext CreateGraphicsContext(IGraphicsContext.ITraits traits);
+
+        public class CameraList : List<ICamera>
+        {
+        }
+    }
 }

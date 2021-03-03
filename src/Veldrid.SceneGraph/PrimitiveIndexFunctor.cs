@@ -18,11 +18,9 @@ namespace Veldrid.SceneGraph
 {
     public interface IPrimitiveIndexFunctor
     {
-        
     }
-    
+
     public abstract class PrimitiveIndexFunctor : IPrimitiveIndexFunctor
     {
-        
     }
 }

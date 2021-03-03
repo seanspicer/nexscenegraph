@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+
 using System.IO;
 
 namespace Veldrid.SceneGraph.AssetProcessor
@@ -21,7 +22,7 @@ namespace Veldrid.SceneGraph.AssetProcessor
     {
         public override byte[] ProcessT(Stream stream, string extension)
         {
-            MemoryStream ms = new MemoryStream();
+            var ms = new MemoryStream();
             stream.CopyTo(ms);
             return ms.ToArray();
 

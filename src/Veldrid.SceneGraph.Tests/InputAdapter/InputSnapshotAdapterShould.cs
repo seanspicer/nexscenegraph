@@ -1,4 +1,3 @@
-
 using NUnit.Framework;
 using Veldrid.SceneGraph.InputAdapter;
 
@@ -10,7 +9,7 @@ namespace Veldrid.SceneGraph.Tests.InputAdapter
         [TestCase]
         public void PassCanaryTest()
         {
-            Assert.That(2+2, Is.EqualTo(4));
+            Assert.That(2 + 2, Is.EqualTo(4));
         }
 
         [TestCase]

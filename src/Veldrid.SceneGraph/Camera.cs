@@ -16,18 +16,14 @@
 
 using System;
 using System.Numerics;
-using Veldrid.SceneGraph.RenderGraph;
 using Veldrid.SceneGraph.Util;
-using Vulkan;
-using Math = System.Math;
 
 namespace Veldrid.SceneGraph
 {
-    
     public enum ProjectionResizePolicy
     {
-        Horizontal, 
-        Vertical, 
+        Horizontal,
+        Vertical,
         Fixed
     }
 
@@ -39,46 +35,45 @@ namespace Veldrid.SceneGraph
         ResizeProjectionMatrix = 4,
         ResizeDefault = ResizeViewport | ResizeAttachments
     }
-    
+
     public interface ICamera : ITransform
     {
         IView View { get; }
 
-        void SetView(IView view);
-        
         Matrix4x4 ProjectionMatrix { get; }
-        Matrix4x4 ViewMatrix { get;  }
-        
+        Matrix4x4 ViewMatrix { get; }
+
         ProjectionResizePolicy ProjectionResizePolicy { get; }
 
-        void SetProjectionResizePolicy(ProjectionResizePolicy policy);
-        
         IViewport Viewport { get; }
-        
-        void SetViewport(int x, int y, int width, int height);
-        
-        void SetViewport(IViewport viewport);
-        
+
         IGraphicsDeviceOperation Renderer { get; }
-        
+
+        RgbaFloat ClearColor { get; }
+
+        IGraphicsContext GraphicsContext { get; set; }
+
+        void SetView(IView view);
+
+        void SetProjectionResizePolicy(ProjectionResizePolicy policy);
+
+        void SetViewport(int x, int y, int width, int height);
+
+        void SetViewport(IViewport viewport);
+
         void SetRenderer(IGraphicsDeviceOperation renderer);
 
         void Resize(int width, int height, ResizeMask resizeMask = ResizeMask.ResizeDefault);
 
         void SetProjectionMatrix(Matrix4x4 matrix);
-        
+
         void SetViewMatrix(Matrix4x4 matrix);
-        
+
         void SetViewMatrixToLookAt(Vector3 position, Vector3 target, Vector3 upDirection);
-        
+
         Vector3 NormalizedScreenToWorld(Vector3 screenCoords);
-        
-        RgbaFloat ClearColor { get; }
 
         void SetClearColor(RgbaFloat color);
-        
-        IGraphicsContext GraphicsContext { get; set; }
-
     }
 
     public interface IPerspectiveCamera : ICamera
@@ -86,16 +81,16 @@ namespace Veldrid.SceneGraph
         float VerticalFov { get; }
 
         /// <summary>
-        /// Create a symmetrical perspective projection. 
+        ///     Create a symmetrical perspective projection.
         /// </summary>
         /// <param name="vfov"></param>
         /// <param name="aspectRatio"></param>
         /// <param name="zNear"></param>
         /// <param name="zFar"></param>
         void SetProjectionMatrixAsPerspective(float vfov, float aspectRatio, float zNear, float zFar);
-        
-        bool GetProjectionMatrixAsFrustum( 
-            ref float left, ref float right, 
+
+        bool GetProjectionMatrixAsFrustum(
+            ref float left, ref float right,
             ref float bottom, ref float top,
             ref float zNear, ref float zFar);
     }
@@ -115,20 +110,33 @@ namespace Veldrid.SceneGraph
             float height,
             float zNearPlane,
             float zFarPlane);
-        
-        bool GetProjectionMatrixAsOrtho( 
-            ref float left, ref float right, 
+
+        bool GetProjectionMatrixAsOrtho(
+            ref float left, ref float right,
             ref float bottom, ref float top,
             ref float zNear, ref float zFar);
     }
-    
+
     public abstract class Camera : Transform, ICamera
     {
+        private IGraphicsContext _graphicsContext;
+
+        protected Camera(uint width, uint height, float distance)
+        {
+            Width = width;
+            Height = height;
+            Distance = distance;
+
+            ClearColor = RgbaFloat.Grey;
+            Viewport = null;
+            ProjectionMatrix = Matrix4x4.Identity;
+            ViewMatrix = Matrix4x4.Identity;
+            ProjectionResizePolicy = ProjectionResizePolicy.Fixed;
+        }
+
         protected uint Width { get; set; }
         protected uint Height { get; set; }
         protected float Distance { get; set; }
-
-        private IGraphicsContext _graphicsContext;
 
         public IGraphicsContext GraphicsContext
         {
@@ -137,23 +145,17 @@ namespace Veldrid.SceneGraph
             {
                 if (value == GraphicsContext) return;
 
-                if (null != _graphicsContext)
-                {
-                    _graphicsContext.RemoveCamera(this);
-                }
+                if (null != _graphicsContext) _graphicsContext.RemoveCamera(this);
 
                 _graphicsContext = value;
 
-                if (null != _graphicsContext)
-                {
-                    _graphicsContext.AddCamera(this);
-                }
+                if (null != _graphicsContext) _graphicsContext.AddCamera(this);
             }
         }
-        
-        
+
+
         public IView View { get; private set; }
-        
+
         public void SetView(IView view)
         {
             View = view;
@@ -161,7 +163,7 @@ namespace Veldrid.SceneGraph
 
         public Matrix4x4 ProjectionMatrix { get; set; }
         public Matrix4x4 ViewMatrix { get; set; }
-        
+
         public ProjectionResizePolicy ProjectionResizePolicy { get; private set; }
 
         public void SetProjectionResizePolicy(ProjectionResizePolicy policy)
@@ -175,26 +177,13 @@ namespace Veldrid.SceneGraph
         {
             Viewport = SceneGraph.Viewport.Create(x, y, width, height);
         }
-        
+
         public void SetViewport(IViewport viewport)
         {
             Viewport = viewport;
         }
 
         public IGraphicsDeviceOperation Renderer { get; private set; }
-        
-        protected Camera(uint width, uint height, float distance)
-        {
-            Width = width;
-            Height = height;
-            Distance = distance;
-            
-            ClearColor = RgbaFloat.Grey;
-            Viewport = null;
-            ProjectionMatrix = Matrix4x4.Identity;
-            ViewMatrix = Matrix4x4.Identity;
-            ProjectionResizePolicy = ProjectionResizePolicy.Fixed;
-        }
 
 
         public void SetRenderer(IGraphicsDeviceOperation renderer)
@@ -202,19 +191,9 @@ namespace Veldrid.SceneGraph
             Renderer = renderer;
         }
 
-//        public void HandleResizeEvent(IResizedEvent resizedEvent)
-//        {
-//            Resize(resizedEvent.Width, resizedEvent.Height);
-//        }
-
-        protected abstract void ResizeProjection(int width, int height, ResizeMask resizeMask = ResizeMask.ResizeDefault);
-        
         public void Resize(int width, int height, ResizeMask resizeMask = ResizeMask.ResizeDefault)
         {
-            if (null != Viewport)
-            {
-                ResizeProjection(width, height, resizeMask);
-            }
+            if (null != Viewport) ResizeProjection(width, height, resizeMask);
 
             if ((resizeMask & ResizeMask.ResizeAttachments) != 0)
             {
@@ -226,7 +205,7 @@ namespace Veldrid.SceneGraph
         {
             ProjectionMatrix = matrix;
         }
-        
+
         // public bool IsOrthographicCamera()
         // {
         //     float left = 0, right = 0, bottom = 0, top = 0, zNear = 0, zFar = 0;
@@ -241,7 +220,7 @@ namespace Veldrid.SceneGraph
         {
             ViewMatrix = matrix;
         }
-        
+
         public void SetViewMatrixToLookAt(Vector3 position, Vector3 target, Vector3 upDirection)
         {
             SetViewMatrix(Matrix4x4.CreateLookAt(position, target, upDirection));
@@ -252,20 +231,16 @@ namespace Veldrid.SceneGraph
             var viewProjectionMatrix = ProjectionMatrix.PreMultiply(ViewMatrix);
 
             Matrix4x4 vpi;
-            
+
             if (Matrix4x4.Invert(viewProjectionMatrix, out vpi))
             {
                 var nc = new Vector3(screenCoords.X, screenCoords.Y, screenCoords.Z);
                 var pc = vpi.PreMultiply(nc);
 
                 return pc;
-                
             }
-            else
-            {
-                throw new Exception("Cannot invert view-projection matrix");
-            }
-            
+
+            throw new Exception("Cannot invert view-projection matrix");
         }
 
         public RgbaFloat ClearColor { get; private set; }
@@ -274,5 +249,13 @@ namespace Veldrid.SceneGraph
         {
             ClearColor = color;
         }
+
+//        public void HandleResizeEvent(IResizedEvent resizedEvent)
+//        {
+//            Resize(resizedEvent.Width, resizedEvent.Height);
+//        }
+
+        protected abstract void ResizeProjection(int width, int height,
+            ResizeMask resizeMask = ResizeMask.ResizeDefault);
     }
 }

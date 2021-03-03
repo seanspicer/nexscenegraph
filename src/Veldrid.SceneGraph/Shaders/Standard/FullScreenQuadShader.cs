@@ -15,21 +15,19 @@
 //
 
 using System;
-using System.Reflection;
-using Veldrid.SceneGraph.Text;
-using Veldrid.SceneGraph.Util;
 
 namespace Veldrid.SceneGraph.Shaders.Standard
 {
     public class FullScreenQuadShader : StandardShaderBase
     {
-        private static readonly Lazy<FullScreenQuadShader> lazy = new Lazy<FullScreenQuadShader>(() => new FullScreenQuadShader());
+        private static readonly Lazy<FullScreenQuadShader> lazy =
+            new Lazy<FullScreenQuadShader>(() => new FullScreenQuadShader());
+
+        private FullScreenQuadShader() : base(@"FullScreenQuadShader", @"FullScreenQuadShader-vertex.glsl",
+            @"FullScreenQuadShader-fragment.glsl")
+        {
+        }
 
         public static FullScreenQuadShader Instance => lazy.Value;
-        
-        private FullScreenQuadShader() : base(@"FullScreenQuadShader", @"FullScreenQuadShader-vertex.glsl", @"FullScreenQuadShader-fragment.glsl")
-        {
-
-        }
     }
 }

@@ -1,6 +1,4 @@
 using System.Numerics;
-using SharpDX.Mathematics.Interop;
-using Veldrid.Sdl2;
 
 namespace Veldrid.SceneGraph.Util.Shape
 {
@@ -8,27 +6,25 @@ namespace Veldrid.SceneGraph.Util.Shape
     {
         float Radius { get; }
     }
-    
+
     public class Sphere : Shape, ISphere
     {
+        internal Sphere(Vector3 center, float radius)
+        {
+            Center = center;
+            Radius = radius;
+        }
 
-        private float _radius;
-        public float Radius => _radius;
+        public float Radius { get; }
+
+        public override void Accept(IShapeVisitor shapeVisitor)
+        {
+            shapeVisitor.Apply(this);
+        }
 
         public static ISphere Create(Vector3 center, float radius)
         {
             return new Sphere(center, radius);
-        }
-
-        internal Sphere(Vector3 center, float radius)
-        {
-            Center = center;
-            _radius = radius;
-        }
-        
-        public override void Accept(IShapeVisitor shapeVisitor)
-        {
-            shapeVisitor.Apply(this);
         }
     }
 }

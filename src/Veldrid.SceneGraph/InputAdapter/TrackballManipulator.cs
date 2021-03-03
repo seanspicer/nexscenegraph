@@ -19,14 +19,14 @@ namespace Veldrid.SceneGraph.InputAdapter
 {
     public class TrackballManipulator : OrbitManipulator
     {
+        protected TrackballManipulator()
+        {
+            VerticalAxisFixed = false;
+        }
+
         public new static ICameraManipulator Create()
         {
             return new TrackballManipulator();
-        }
-        
-        protected TrackballManipulator() : base()
-        {
-            VerticalAxisFixed = false;
         }
     }
 }

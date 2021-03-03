@@ -3,8 +3,6 @@
 //     W.Lorensen, H.Cline. Marching Cubes: A High Resolution 3D Surface Construction Algorithm. Computer Graphics, 21 (4): 163-169, July 1987
 //
 
-using System.CodeDom.Compiler;
-using System.Numerics;
 using NUnit.Framework;
 using Veldrid.SceneGraph.Math.IsoSurface;
 
@@ -12,11 +10,6 @@ namespace Veldrid.SceneGraph.Tests
 {
     public class VoxelVolume : IVoxelVolume
     {
-        public double[,,] Values { get; }
-        public double[,,] XValues { get; }
-        public double[,,] YValues { get; }
-        public double[,,] ZValues { get; }
-
         public VoxelVolume()
         {
             Values = new double[2, 2, 2];
@@ -24,120 +17,103 @@ namespace Veldrid.SceneGraph.Tests
             YValues = new double[2, 2, 2];
             ZValues = new double[2, 2, 2];
         }
+
+        public double[,,] Values { get; }
+        public double[,,] XValues { get; }
+        public double[,,] YValues { get; }
+        public double[,,] ZValues { get; }
     }
 
     public class ZeroVoxelVolume : VoxelVolume
     {
-        public ZeroVoxelVolume() : base()
+        public ZeroVoxelVolume()
         {
             for (var z = 0; z < 2; ++z)
+            for (var y = 0; y < 2; ++y)
+            for (var x = 0; x < 2; ++x)
             {
-                for (var y = 0; y < 2; ++y)
-                {
-                    for (var x = 0; x < 2; ++x)
-                    {
-                        XValues[x, y, z] = x;
-                        YValues[x, y, z] = y;
-                        ZValues[x, y, z] = z;
-                        Values[x, y, z] = 0.0;
-                    }
-                }
+                XValues[x, y, z] = x;
+                YValues[x, y, z] = y;
+                ZValues[x, y, z] = z;
+                Values[x, y, z] = 0.0;
             }
         }
     }
-    
+
     public class CornerVoxelVolume : VoxelVolume
     {
-        
-        
-        public CornerVoxelVolume() : base()
+        public CornerVoxelVolume()
         {
             for (var z = 0; z < 2; ++z)
+            for (var y = 0; y < 2; ++y)
+            for (var x = 0; x < 2; ++x)
             {
-                for (var y = 0; y < 2; ++y)
-                {
-                    for (var x = 0; x < 2; ++x)
-                    {
-                        XValues[x, y, z] = x;
-                        YValues[x, y, z] = y;
-                        ZValues[x, y, z] = z;
-                        Values[x, y, z] = 0;
-                    }
-                }
+                XValues[x, y, z] = x;
+                YValues[x, y, z] = y;
+                ZValues[x, y, z] = z;
+                Values[x, y, z] = 0;
             }
 
             Values[0, 0, 0] = -1.0;
             Values[1, 1, 1] = 1.0;
         }
     }
-    
+
     public class ZPlaneVoxelVolume : VoxelVolume
     {
-        public ZPlaneVoxelVolume() : base()
+        public ZPlaneVoxelVolume()
         {
             for (var z = 0; z < 2; ++z)
+            for (var y = 0; y < 2; ++y)
+            for (var x = 0; x < 2; ++x)
             {
-                for (var y = 0; y < 2; ++y)
-                {
-                    for (var x = 0; x < 2; ++x)
-                    {
-                        XValues[x, y, z] = x;
-                        YValues[x, y, z] = y;
-                        ZValues[x, y, z] = z;
-                        Values[x, y, z] = z;
-                    }
-                }
+                XValues[x, y, z] = x;
+                YValues[x, y, z] = y;
+                ZValues[x, y, z] = z;
+                Values[x, y, z] = z;
             }
         }
     }
-    
+
     public class YPlaneVoxelVolume : VoxelVolume
     {
-        public YPlaneVoxelVolume() : base()
+        public YPlaneVoxelVolume()
         {
             for (var z = 0; z < 2; ++z)
+            for (var y = 0; y < 2; ++y)
+            for (var x = 0; x < 2; ++x)
             {
-                for (var y = 0; y < 2; ++y)
-                {
-                    for (var x = 0; x < 2; ++x)
-                    {
-                        XValues[x, y, z] = x;
-                        YValues[x, y, z] = y;
-                        ZValues[x, y, z] = z;
-                        Values[x, y, z] = y;
-                    }
-                }
+                XValues[x, y, z] = x;
+                YValues[x, y, z] = y;
+                ZValues[x, y, z] = z;
+                Values[x, y, z] = y;
             }
         }
     }
-    
+
     public class XPlaneVoxelVolume : VoxelVolume
     {
-        public XPlaneVoxelVolume() : base()
+        public XPlaneVoxelVolume()
         {
             for (var z = 0; z < 2; ++z)
+            for (var y = 0; y < 2; ++y)
+            for (var x = 0; x < 2; ++x)
             {
-                for (var y = 0; y < 2; ++y)
-                {
-                    for (var x = 0; x < 2; ++x)
-                    {
-                        XValues[x, y, z] = x;
-                        YValues[x, y, z] = y;
-                        ZValues[x, y, z] = z;
-                        Values[x, y, z] = x;
-                    }
-                }
+                XValues[x, y, z] = x;
+                YValues[x, y, z] = y;
+                ZValues[x, y, z] = z;
+                Values[x, y, z] = x;
             }
         }
     }
-    
+
     [TestFixture]
     public class MarchingCubesIsoSurfaceTests
     {
         [TestCase]
         public void PassCanaryTest()
         {
-            Assert.That(2+2, Is.EqualTo(4));
+            Assert.That(2 + 2, Is.EqualTo(4));
         }
 
         [TestCase]
@@ -151,12 +127,9 @@ namespace Veldrid.SceneGraph.Tests
 
             Assert.That(6, Is.EqualTo(isoSurface.IsoSurfaceVertices.Count));
 
-            foreach (var vtx in isoSurface.IsoSurfaceVertices)
-            {
-                Assert.That(vtx.Z, Is.EqualTo(0.5));
-            }
+            foreach (var vtx in isoSurface.IsoSurfaceVertices) Assert.That(vtx.Z, Is.EqualTo(0.5));
         }
-        
+
         [TestCase]
         public void ShouldGenerateYPlaneCorrectly()
         {
@@ -168,12 +141,9 @@ namespace Veldrid.SceneGraph.Tests
 
             Assert.That(6, Is.EqualTo(isoSurface.IsoSurfaceVertices.Count));
 
-            foreach (var vtx in isoSurface.IsoSurfaceVertices)
-            {
-                Assert.That(vtx.Y, Is.EqualTo(0.5));
-            }
+            foreach (var vtx in isoSurface.IsoSurfaceVertices) Assert.That(vtx.Y, Is.EqualTo(0.5));
         }
-        
+
         [TestCase]
         public void ShouldGenerateXPlaneCorrectly()
         {
@@ -185,12 +155,9 @@ namespace Veldrid.SceneGraph.Tests
 
             Assert.That(6, Is.EqualTo(isoSurface.IsoSurfaceVertices.Count));
 
-            foreach (var vtx in isoSurface.IsoSurfaceVertices)
-            {
-                Assert.That(vtx.X, Is.EqualTo(0.5));
-            }
+            foreach (var vtx in isoSurface.IsoSurfaceVertices) Assert.That(vtx.X, Is.EqualTo(0.5));
         }
-        
+
         [TestCase]
         public void ShouldGenerateOutsideCorrectly()
         {
@@ -202,7 +169,7 @@ namespace Veldrid.SceneGraph.Tests
 
             Assert.That(0, Is.EqualTo(isoSurface.IsoSurfaceVertices.Count));
         }
-        
+
         [TestCase]
         public void ShouldGenerateCornersCorrectly()
         {

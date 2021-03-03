@@ -22,16 +22,16 @@ namespace Veldrid.SceneGraph.Manipulators.Commands
     {
         Vector3 Translation { get; set; }
     }
-    
+
     public abstract class TranslateCommand : MotionCommand
     {
         public Vector3 Translation { get; set; }
-        
+
         public override Matrix4x4 GetMotionMatrix()
         {
             return Matrix4x4.CreateTranslation(Translation);
         }
-        
+
         protected void SetInverseProperties(ITranslateCommand inverse)
         {
             inverse.Translation = -Translation;

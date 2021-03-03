@@ -17,7 +17,6 @@
 using System.Linq;
 using System.Numerics;
 using Veldrid.SceneGraph.Util;
-using Math = System.Math;
 
 namespace Veldrid.SceneGraph
 {
@@ -25,23 +24,22 @@ namespace Veldrid.SceneGraph
     {
     }
 
-    
+
     /// <summary>
-    /// This node "un-transforms" everything below it making the scaling uniform along all axes
+    ///     This node "un-transforms" everything below it making the scaling uniform along all axes
     /// </summary>
     public class AntiSquish : Transform, IAntiSquish
     {
-        private bool _usePivot;
-        private Vector3 _pivot;
-        
-        private bool _usePosition;
-        private Vector3 _position;
-        
-        private bool _cacheDirty;
-        
         private Matrix4x4 _cache;
+
+        private bool _cacheDirty;
         private Matrix4x4 _cacheLocalToWorld;
-        
+        private readonly Vector3 _pivot;
+        private readonly Vector3 _position;
+        private readonly bool _usePivot;
+
+        private readonly bool _usePosition;
+
         protected AntiSquish()
         {
             _usePivot = false;
@@ -56,7 +54,7 @@ namespace Veldrid.SceneGraph
             _usePosition = false;
             _cacheDirty = true;
         }
-        
+
         protected AntiSquish(Vector3 pivot, Vector3 position)
         {
             _pivot = pivot;
@@ -64,10 +62,35 @@ namespace Veldrid.SceneGraph
 
             _position = position;
             _usePosition = true;
-            
+
             _cacheDirty = true;
         }
-        
+
+        public override bool ComputeLocalToWorldMatrix(ref Matrix4x4 matrix, NodeVisitor visitor)
+        {
+            var unsquishedMatrix = Matrix4x4.Identity;
+            if (false == ComputeUnsquishedMatrix(ref unsquishedMatrix)) return false;
+
+            matrix = ReferenceFrame == ReferenceFrameType.Relative
+                ? matrix.PreMultiply(unsquishedMatrix)
+                : unsquishedMatrix;
+
+            return true;
+        }
+
+        public override bool ComputeWorldToLocalMatrix(ref Matrix4x4 matrix, NodeVisitor visitor)
+        {
+            var unsquishedMatrix = Matrix4x4.Identity;
+            if (false == ComputeUnsquishedMatrix(ref unsquishedMatrix)) return false;
+
+            if (false == Matrix4x4.Invert(unsquishedMatrix, out var inverse)) return false;
+            ;
+
+            matrix = ReferenceFrame == ReferenceFrameType.Relative ? matrix.PostMultiply(inverse) : inverse;
+
+            return true;
+        }
+
 
         public new static IAntiSquish Create()
         {
@@ -84,37 +107,6 @@ namespace Veldrid.SceneGraph
             return new AntiSquish(pivot, position);
         }
 
-        public override bool ComputeLocalToWorldMatrix(ref Matrix4x4 matrix, NodeVisitor visitor)
-        {
-            var unsquishedMatrix = Matrix4x4.Identity;
-            if (false == ComputeUnsquishedMatrix(ref unsquishedMatrix))
-            {
-                return false;
-            }
-
-            matrix = ReferenceFrame == ReferenceFrameType.Relative ? matrix.PreMultiply(unsquishedMatrix) : unsquishedMatrix;
-            
-            return true;
-        }
-
-        public override bool ComputeWorldToLocalMatrix(ref Matrix4x4 matrix, NodeVisitor visitor)
-        {
-            var unsquishedMatrix = Matrix4x4.Identity;
-            if (false == ComputeUnsquishedMatrix(ref unsquishedMatrix))
-            {
-                return false;
-            }
-
-            if (false == Matrix4x4.Invert(unsquishedMatrix, out var inverse))
-            {
-                return false;
-            };
-
-            matrix = ReferenceFrame == ReferenceFrameType.Relative ? matrix.PostMultiply(inverse) : inverse;
-
-            return true;
-        }
-
         // This method is to enable unit testing
         protected virtual Matrix4x4 GetLocalToWorld(NodePath np)
         {
@@ -128,10 +120,10 @@ namespace Veldrid.SceneGraph
 
             var np = nodePaths.First();
             if (false == np.Any()) return false;
-            
+
             // Remove last node in the path, which is the AntiSquish itself.
             np.RemoveLast();
-            
+
             // Get the accululated modeling matrix
             var localToWorld = GetLocalToWorld(np);
 
@@ -141,7 +133,7 @@ namespace Veldrid.SceneGraph
                 unsquished = _cache;
                 return true;
             }
-            
+
             Matrix4x4.Decompose(localToWorld, out var s, out var r, out var t);
 
             var av = (s.X + s.Y + s.Z) / 3.0f;
@@ -149,7 +141,7 @@ namespace Veldrid.SceneGraph
             s.Y = av;
             s.Z = av;
 
-            if ( System.Math.Abs(av) < 1e-6) return false;
+            if (System.Math.Abs(av) < 1e-6) return false;
 
             // Pivot
             if (_usePivot)
@@ -158,22 +150,15 @@ namespace Veldrid.SceneGraph
                 unsquished = unsquished.PostMultiplyScale(s);
                 unsquished = unsquished.PostMultiplyRotate(r);
                 unsquished = unsquished.PostMultiplyTranslate(t);
-                
-                if(false == Matrix4x4.Invert(localToWorld, out var invltw))
-                {
-                    return false;
-                }
+
+                if (false == Matrix4x4.Invert(localToWorld, out var invltw)) return false;
 
                 unsquished = unsquished.PostMultiply(invltw);
 
                 if (_usePosition)
-                {
                     unsquished = unsquished.PostMultiplyTranslate(_position);
-                }
                 else
-                {
                     unsquished = unsquished.PostMultiplyTranslate(_pivot);
-                }
             }
             // No Pivot
             else
@@ -181,11 +166,8 @@ namespace Veldrid.SceneGraph
                 unsquished = unsquished.PostMultiplyScale(s);
                 unsquished = unsquished.PostMultiplyRotate(r);
                 unsquished = unsquished.PostMultiplyTranslate(t);
-                
-                if(false == Matrix4x4.Invert(localToWorld, out var invltw))
-                {
-                    return false;
-                }
+
+                if (false == Matrix4x4.Invert(localToWorld, out var invltw)) return false;
             }
 
             _cache = unsquished;

@@ -14,23 +14,18 @@
 // limitations under the License.
 //
 
-using System;
-
 namespace Veldrid.SceneGraph
 {
     public static class RenderDocManager
     {
-        internal static RenderDoc.RenderDoc Instance { get; private set; } = null;
-        
+        internal static RenderDoc.RenderDoc Instance { get; private set; }
+
         public static void Initialize(string renderDocCapturePath)
         {
             if (RenderDoc.RenderDoc.Load(out var renderDoc))
             {
                 Instance = renderDoc;
-                if (null != renderDocCapturePath)
-                {
-                    Instance.SetCaptureSavePath(renderDocCapturePath);
-                }
+                if (null != renderDocCapturePath) Instance.SetCaptureSavePath(renderDocCapturePath);
             }
         }
     }

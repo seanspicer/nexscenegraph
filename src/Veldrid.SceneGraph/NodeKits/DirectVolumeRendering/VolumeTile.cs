@@ -14,22 +14,13 @@
 // limitations under the License.
 //
 
-using System;
 using System.Linq;
-using System.Net.Security;
 using System.Numerics;
-using Newtonsoft.Json.Bson;
 
 namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 {
-
     public class VolumeTileId
     {
-        public int Level { get; private set; }
-        public int X { get; private set; }
-        public int Y { get; private set; }
-        public int Z { get; private set; }
-        
         public VolumeTileId(int level, int x, int y, int z)
         {
             Level = level;
@@ -38,15 +29,18 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             Z = z;
         }
 
+        public int Level { get; }
+        public int X { get; }
+        public int Y { get; }
+        public int Z { get; }
+
         public int CompareTo(VolumeTileId other)
         {
             if (Level == other.Level &&
                 X == other.X &&
                 Y == other.Y &&
                 Z == other.Z)
-            {
                 return 0;
-            }
 
             if (Level < other.Level) return -1;
             if (Level > other.Level) return 1;
@@ -62,24 +56,23 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         {
             return Level >= 0;
         }
-
     }
 
     public interface IVolumeTile : IGroup
     {
         IVolume Volume { get; }
-        void SetVolume(IVolume volume);
 
         VolumeTileId TileId { get; }
-        void SetTileId(VolumeTileId tileId);
 
         IVolumeTechnique VolumeTechnique { get; }
-        void SetVolumeTechnique(IVolumeTechnique volumeTechnique);
-        
+
         ILocator Locator { get; set; }
         ILayer Layer { get; set; }
-        
+
         bool Dirty { get; }
+        void SetVolume(IVolume volume);
+        void SetTileId(VolumeTileId tileId);
+        void SetVolumeTechnique(IVolumeTechnique volumeTechnique);
         void SetDirty(bool dirty);
 
         void Init();
@@ -89,22 +82,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
     public class VolumeTile : Group, IVolumeTile
     {
-        public ILocator Locator { get; set; }
-        
-        public ILayer Layer { get; set; }
-        
-        public VolumeTileId TileId { get; protected set; }
-        
-        public IVolume Volume { get; protected set; } 
-        
-        public IVolumeTechnique VolumeTechnique { get; protected set; }
-        
-        public bool Dirty { get; protected set; }
-
-        public new static IVolumeTile Create()
-        {
-            return new VolumeTile();
-        }
+        private bool _hasBeenTraversal;
 
         protected VolumeTile()
         {
@@ -112,7 +90,19 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             Dirty = false;
             _hasBeenTraversal = false;
         }
-        
+
+        public ILocator Locator { get; set; }
+
+        public ILayer Layer { get; set; }
+
+        public VolumeTileId TileId { get; protected set; }
+
+        public IVolume Volume { get; protected set; }
+
+        public IVolumeTechnique VolumeTechnique { get; protected set; }
+
+        public bool Dirty { get; protected set; }
+
         public void SetVolume(IVolume volume)
         {
             if (Volume == volume) return;
@@ -122,9 +112,8 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             Volume = volume;
 
             Volume?.RegisterVolumeTile(this);
-
         }
-        
+
         public void SetTileId(VolumeTileId tileId)
         {
             if (TileId.Equals(tileId)) return;
@@ -140,12 +129,9 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         {
             if (VolumeTechnique == volumeTechnique) return;
 
-            int dirtyDelta = Dirty ? -1 : 0;
+            var dirtyDelta = Dirty ? -1 : 0;
 
-            if (null != VolumeTechnique)
-            {
-                VolumeTechnique.VolumeTile = null;
-            }
+            if (null != VolumeTechnique) VolumeTechnique.VolumeTile = null;
 
             VolumeTechnique = volumeTechnique;
 
@@ -155,24 +141,20 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
                 ++dirtyDelta;
             }
 
-            if (dirtyDelta>0) SetDirty(true);
-            else if (dirtyDelta<0) SetDirty(false);
+            if (dirtyDelta > 0) SetDirty(true);
+            else if (dirtyDelta < 0) SetDirty(false);
         }
 
         public void SetDirty(bool dirty)
         {
-            if (Dirty==dirty) return;
+            if (Dirty == dirty) return;
 
             Dirty = dirty;
 
             if (Dirty)
-            {
-                SetNumChildrenRequiringUpdateTraversal(GetNumChildrenRequiringUpdateTraversal()+1);
-            }
-            else if (GetNumChildrenRequiringUpdateTraversal()>0)
-            {
-                SetNumChildrenRequiringUpdateTraversal(GetNumChildrenRequiringUpdateTraversal()-1);
-            }
+                SetNumChildrenRequiringUpdateTraversal(GetNumChildrenRequiringUpdateTraversal() + 1);
+            else if (GetNumChildrenRequiringUpdateTraversal() > 0)
+                SetNumChildrenRequiringUpdateTraversal(GetNumChildrenRequiringUpdateTraversal() - 1);
         }
 
         public void Init()
@@ -185,76 +167,60 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             }
         }
 
-        private bool _hasBeenTraversal = false;
-
         public void TraverseGroup(INodeVisitor nv)
         {
             base.Traverse(nv);
         }
-        
+
         public override void Traverse(INodeVisitor nv)
         {
             if (!_hasBeenTraversal)
             {
                 if (null != Volume)
                 {
-                    NodePath nodePath = nv.NodePath;
+                    var nodePath = nv.NodePath;
                     if (nodePath.Any())
-                    {
                         foreach (var node in nodePath.Reverse())
-                        {
                             if (node is IVolume volume)
-                            {
                                 SetVolume(volume);
-                            }
-                        }
-                    }
                 }
 
                 _hasBeenTraversal = true;
             }
-            
-            if (nv.Type==NodeVisitor.VisitorType.UpdateVisitor &&
+
+            if (nv.Type == NodeVisitor.VisitorType.UpdateVisitor &&
                 Layer.RequiresUpdateTraversal())
-            {
                 Layer.Update(nv);
-            }
 
             if (null != VolumeTechnique)
-            {
                 VolumeTechnique.Traverse(nv);
-            }
             else
-            {
                 base.Traverse(nv);
-            }
         }
 
         public override IBoundingSphere ComputeBound()
         {
             var masterLocator = Locator;
-            if (null != Layer && null != masterLocator)
-            {
-                masterLocator = Layer.Locator;
-            }
+            if (null != Layer && null != masterLocator) masterLocator = Layer.Locator;
 
             if (null != masterLocator)
             {
-                Vector3 left = Vector3.Zero;
-                Vector3 right = Vector3.Zero;
+                var left = Vector3.Zero;
+                var right = Vector3.Zero;
                 masterLocator.ComputeLocalBounds(ref left, ref right);
 
-                return BoundingSphere.Create((left+right)*0.5f, (right-left).Length()*0.5f);
+                return BoundingSphere.Create((left + right) * 0.5f, (right - left).Length() * 0.5f);
             }
-            else if (null != Layer)
-            {
+
+            if (null != Layer)
                 // we have a layer but no Locator defined so will assume a Identity Locator
-                return BoundingSphere.Create( new Vector3(0.5f,0.5f,0.5f), 0.867f);
-            }
-            else
-            {
-                return BoundingSphere.Create();
-            }
+                return BoundingSphere.Create(new Vector3(0.5f, 0.5f, 0.5f), 0.867f);
+            return BoundingSphere.Create();
+        }
+
+        public new static IVolumeTile Create()
+        {
+            return new VolumeTile();
         }
     }
 }

@@ -27,19 +27,14 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         internal void UnRegisterVolumeTile(IVolumeTile volumeTile);
         internal void RegisterVolumeTile(IVolumeTile volumeTile);
     }
-    
+
     public class Volume : Group, IVolume
     {
-        public IVolumeTechnique VolumeTechniquePrototype { get; set; }
-
         protected Dictionary<VolumeTileId, IVolumeTile> VolumeTileDict { get; } =
             new Dictionary<VolumeTileId, IVolumeTile>();
-        
-        public new static IVolume Create()
-        {
-            return new Volume();
-        }
-        
+
+        public IVolumeTechnique VolumeTechniquePrototype { get; set; }
+
         public IVolumeTile GetVolumeTile(VolumeTileId tileId)
         {
             return VolumeTileDict.TryGetValue(tileId, out var volumeTile) ? volumeTile : null;
@@ -49,28 +44,24 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         {
             if (null == volumeTile) return;
 
-            if (volumeTile.TileId.Valid())
-            {
-                VolumeTileDict.Remove(volumeTile.TileId);
-            }
+            if (volumeTile.TileId.Valid()) VolumeTileDict.Remove(volumeTile.TileId);
         }
 
         void IVolume.RegisterVolumeTile(IVolumeTile volumeTile)
         {
             if (null == volumeTile) return;
 
-            if (volumeTile.TileId.Valid())
-            {
-                VolumeTileDict[volumeTile.TileId] = volumeTile;
-            }
+            if (volumeTile.TileId.Valid()) VolumeTileDict[volumeTile.TileId] = volumeTile;
+        }
+
+        public new static IVolume Create()
+        {
+            return new Volume();
         }
 
         internal void DirtyRegisteredVolumeTiles()
         {
-            foreach (var tile in VolumeTileDict.Values)
-            {
-                tile.SetDirty(true);
-            }
+            foreach (var tile in VolumeTileDict.Values) tile.SetDirty(true);
         }
     }
 }

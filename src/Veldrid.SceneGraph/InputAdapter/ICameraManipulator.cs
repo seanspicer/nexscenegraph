@@ -14,11 +14,6 @@
 // limitations under the License.
 //
 
-using System;
-using System.Numerics;
-using System.Reactive.Concurrency;
-
 namespace Veldrid.SceneGraph.InputAdapter
 {
-
 }

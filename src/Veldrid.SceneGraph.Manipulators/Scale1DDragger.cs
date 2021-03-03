@@ -1,10 +1,5 @@
-
-using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Net.Http.Headers;
 using System.Numerics;
-using SharpDX.Direct3D11;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Manipulators.Commands;
 using Veldrid.SceneGraph.PipelineStates;
@@ -21,19 +16,41 @@ namespace Veldrid.SceneGraph.Manipulators
             ScaleWithOriginAsPivot,
             ScaleWithOppositeHandleAsPivot
         }
-        
+
         float MinScale { get; set; }
-        
+
         float LeftHandlePosition { get; set; }
         float RightHandlePosition { get; set; }
-        
-        INode LeftHandleNode     { get; set; }
-        INode RightHandleNode  { get; set; }
-        
+
+        INode LeftHandleNode { get; set; }
+        INode RightHandleNode { get; set; }
     }
-    
-    public class Scale1DDragger : Base1DDragger, IScale1DDragger 
+
+    public class Scale1DDragger : Base1DDragger, IScale1DDragger
     {
+        private readonly IPhongMaterial _leftHandleMaterial;
+
+        private INode _leftHandleNode;
+
+        private IPhongMaterial _pickedHandleMaterial;
+        private readonly IPhongMaterial _rightHandleMaterial;
+
+        private INode _rightHandleNode;
+
+        protected Scale1DDragger(IScale1DDragger.ScaleMode scaleMode, Matrix4x4 matrix, bool usePhongShading) : base(
+            matrix, usePhongShading)
+        {
+            ScaleMode = scaleMode;
+            _leftHandleMaterial = CreateMaterial();
+            _rightHandleMaterial = CreateMaterial();
+        }
+
+        public IScale1DDragger.ScaleMode ScaleMode { get; set; }
+
+        protected double ScaleCenter { get; set; }
+
+        protected Vector3 StartProjectedPoint { get; set; }
+
         public float LeftHandlePosition
         {
             get => LineProjector.LineStart.X;
@@ -48,7 +65,6 @@ namespace Veldrid.SceneGraph.Manipulators
 
         public float MinScale { get; set; } = 0.001f;
 
-        private INode _leftHandleNode;
         public INode LeftHandleNode
         {
             get => _leftHandleNode;
@@ -58,8 +74,6 @@ namespace Veldrid.SceneGraph.Manipulators
                 _leftHandleNode.PipelineState = _leftHandleMaterial.CreatePipelineState();
             }
         }
-
-        private INode _rightHandleNode;
 
         public INode RightHandleNode
         {
@@ -71,32 +85,11 @@ namespace Veldrid.SceneGraph.Manipulators
             }
         }
 
-        public IScale1DDragger.ScaleMode ScaleMode { get; set; }
-        
-        protected double ScaleCenter { get; set; }
-        
-        protected Vector3 StartProjectedPoint { get; set; }
-
-        private IPhongMaterial _leftHandleMaterial;
-        private IPhongMaterial _rightHandleMaterial;
-        
-        public static IScale1DDragger Create(IScale1DDragger.ScaleMode scaleMode = IScale1DDragger.ScaleMode.ScaleWithOriginAsPivot, bool usePhongShading=true)
-        {
-            return new Scale1DDragger(scaleMode, Matrix4x4.Identity, usePhongShading);
-        }
-        
-        protected Scale1DDragger(IScale1DDragger.ScaleMode scaleMode, Matrix4x4 matrix, bool usePhongShading) : base(matrix, usePhongShading)
-        {
-            ScaleMode = scaleMode;
-            _leftHandleMaterial = CreateMaterial();
-            _rightHandleMaterial = CreateMaterial();
-        }
-
         public override void SetupDefaultGeometry()
         {
             var lineDir = LineProjector.LineEnd - LineProjector.LineStart;
-            float lineLength = lineDir.Length();
-            
+            var lineLength = lineDir.Length();
+
             // Create a Line
             var lineGeode = Geode.Create();
             {
@@ -111,11 +104,11 @@ namespace Veldrid.SceneGraph.Manipulators
 
                 geometry.IndexData = indexArray;
                 geometry.VertexData = vertexArray;
-                geometry.VertexLayouts = new List<VertexLayoutDescription>()
+                geometry.VertexLayouts = new List<VertexLayoutDescription>
                 {
                     Position3Color3.VertexLayoutDescription
                 };
-                
+
                 var pSet = DrawElements<Position3Color3>.Create(
                     geometry,
                     PrimitiveTopology.LineStrip,
@@ -124,7 +117,7 @@ namespace Veldrid.SceneGraph.Manipulators
                     0,
                     0,
                     0);
-                
+
                 geometry.PrimitiveSets.Add(pSet);
 
                 geometry.PipelineState.ShaderSet = Position3Color3Shader.Instance.ShaderSet;
@@ -136,58 +129,55 @@ namespace Veldrid.SceneGraph.Manipulators
             var hints = TessellationHints.Create();
             hints.ColorsType = ColorsType.ColorOverall;
             hints.NormalsType = NormalsType.PerFace;
-            
+
             // Create a left box
             {
                 var geode = Geode.Create();
-                
-                geode.AddDrawable(ShapeDrawable<Position3Texture2Color3Normal3>.Create(
-                    Box.Create(LineProjector.LineStart, 0.5f*lineLength),
-                    hints,
-                    new [] {new Vector3(0.0f, 1.0f, 0.0f)}));
 
-                
+                geode.AddDrawable(ShapeDrawable<Position3Texture2Color3Normal3>.Create(
+                    Box.Create(LineProjector.LineStart, 0.5f * lineLength),
+                    hints,
+                    new[] {new Vector3(0.0f, 1.0f, 0.0f)}));
+
 
                 var autoTransform = AutoTransform.Create();
                 autoTransform.Position = LineProjector.LineStart;
                 autoTransform.PivotPoint = LineProjector.LineStart;
                 autoTransform.AutoScaleToScreen = true;
                 autoTransform.AddChild(geode);
-                
+
                 var antiSquish = AntiSquish.Create(LineProjector.LineStart);
                 antiSquish.AddChild(autoTransform);
                 AddChild(antiSquish);
                 LeftHandleNode = antiSquish;
-
             }
-            
+
             // Create a right box
             {
                 var geode = Geode.Create();
-                
-                geode.AddDrawable(ShapeDrawable<Position3Texture2Color3Normal3>.Create(
-                    Box.Create(LineProjector.LineEnd, 0.5f*lineLength),
-                    hints,
-                    new [] {new Vector3(0.0f, 1.0f, 0.0f)}));
 
-                
-                
+                geode.AddDrawable(ShapeDrawable<Position3Texture2Color3Normal3>.Create(
+                    Box.Create(LineProjector.LineEnd, 0.5f * lineLength),
+                    hints,
+                    new[] {new Vector3(0.0f, 1.0f, 0.0f)}));
+
+
                 var autoTransform = AutoTransform.Create();
                 autoTransform.Position = LineProjector.LineEnd;
                 autoTransform.PivotPoint = LineProjector.LineEnd;
                 autoTransform.AutoScaleToScreen = true;
                 autoTransform.AddChild(geode);
-                
+
                 var antiSquish = AntiSquish.Create(LineProjector.LineEnd);
                 antiSquish.AddChild(autoTransform);
-                
+
                 AddChild(antiSquish);
                 RightHandleNode = antiSquish;
             }
         }
 
-        private IPhongMaterial _pickedHandleMaterial;
-        public override bool Handle(IPointerInfo pointerInfo, IUiEventAdapter eventAdapter, IUiActionAdapter actionAdapter)
+        public override bool Handle(IPointerInfo pointerInfo, IUiEventAdapter eventAdapter,
+            IUiActionAdapter actionAdapter)
         {
             // Check if the pointer is in the nodepath.
             if (!pointerInfo.Contains(RightHandleNode) && !pointerInfo.Contains(LeftHandleNode)) return false;
@@ -219,20 +209,20 @@ namespace Veldrid.SceneGraph.Manipulators
                                 _pickedHandleMaterial = _rightHandleMaterial;
                             }
                         }
-                        
+
                         // Create the motion command
                         var cmd = Scale1DCommand.Create();
                         cmd.Stage = IMotionCommand.MotionStage.Start;
                         cmd.SetLocalToWorldAndWorldToLocal(LineProjector.LocalToWorld, LineProjector.WorldToLocal);
-                        
+
                         Dispatch(cmd);
 
                         var pickColor = GetColorVector(PickColor);
-                        
+
                         _pickedHandleMaterial?.SetMaterial(pickColor, pickColor, Vector3.One, 1);
-                        
+
                         // TODO -- Set material color
-                        
+
                         actionAdapter.RequestRedraw();
                     }
 
@@ -245,22 +235,18 @@ namespace Veldrid.SceneGraph.Manipulators
                     {
                         // Create the motion command
                         var cmd = Scale1DCommand.Create();
-                        
+
                         // Calculate scale
                         var scale = ComputeScale(StartProjectedPoint, projectedPoint, ScaleCenter);
                         if (scale < MinScale) scale = MinScale;
-                        
+
                         // Step the reference point to the line start or end depending on which is closer
                         var referencePoint = StartProjectedPoint.X;
                         if (System.Math.Abs(LineProjector.LineStart.X - referencePoint) <
                             System.Math.Abs(LineProjector.LineEnd.X) - referencePoint)
-                        {
                             referencePoint = LineProjector.LineStart.X;
-                        }
                         else
-                        {
                             referencePoint = LineProjector.LineEnd.X;
-                        }
 
                         cmd.Stage = IMotionCommand.MotionStage.Move;
                         cmd.SetLocalToWorldAndWorldToLocal(LineProjector.LocalToWorld, LineProjector.WorldToLocal);
@@ -268,12 +254,12 @@ namespace Veldrid.SceneGraph.Manipulators
                         cmd.ScaleCenter = ScaleCenter;
                         cmd.ReferencePoint = referencePoint;
                         cmd.MinScale = MinScale;
-                        
+
                         Dispatch(cmd);
-                        
+
                         actionAdapter.RequestRedraw();
-                        
                     }
+
                     return true;
                 }
                 case IUiEventAdapter.EventTypeValue.Release:
@@ -282,12 +268,12 @@ namespace Veldrid.SceneGraph.Manipulators
                     var cmd = Scale1DCommand.Create();
                     cmd.Stage = IMotionCommand.MotionStage.Finish;
                     cmd.SetLocalToWorldAndWorldToLocal(LineProjector.LocalToWorld, LineProjector.WorldToLocal);
-                    
+
                     Dispatch(cmd);
-                    
+
                     var normalColor = GetColorVector(Color);
                     _pickedHandleMaterial?.SetMaterial(normalColor, normalColor, Vector3.One, 1);
-                    
+
                     actionAdapter.RequestRedraw();
 
                     return true;
@@ -296,11 +282,18 @@ namespace Veldrid.SceneGraph.Manipulators
                     return false;
             }
         }
-        
+
+        public static IScale1DDragger Create(
+            IScale1DDragger.ScaleMode scaleMode = IScale1DDragger.ScaleMode.ScaleWithOriginAsPivot,
+            bool usePhongShading = true)
+        {
+            return new Scale1DDragger(scaleMode, Matrix4x4.Identity, usePhongShading);
+        }
+
         internal static double ComputeScale(Vector3 startProjectedPoint, Vector3 projectedPoint, double scaleCenter)
         {
             var denom = startProjectedPoint.X - scaleCenter;
-            var scale = (0 != denom) ? (projectedPoint.X - scaleCenter)/denom : 1.0;
+            var scale = 0 != denom ? (projectedPoint.X - scaleCenter) / denom : 1.0;
             return scale;
         }
     }

@@ -23,43 +23,29 @@ namespace Veldrid.SceneGraph.Util.Shape
 {
     public interface IShapeDrawable<T> : IGeometry<T> where T : struct, ISettablePrimitiveElement
     {
-        
     }
-    
+
     public class ShapeDrawable<T> : Geometry<T>, IShapeDrawable<T> where T : struct, ISettablePrimitiveElement
     {
-        private IShape _shape;
-        private Vector3 [] _colors;
+        private Vector3[] _colors;
         private ITessellationHints _hints;
         private uint _instanceCount;
-        
-        public static IShapeDrawable<T> Create(IShape shape, ITessellationHints hints, uint instanceCount=1)
-        {
-            return new ShapeDrawable<T>(shape, hints, instanceCount);
-        }
-        
-        public static IShapeDrawable<T> Create(IShape shape, ITessellationHints hints, Vector3 [] colors, uint instanceCount=1)
-        {
-            return new ShapeDrawable<T>(shape, hints, colors, instanceCount);
-        }
-        
+        private IShape _shape;
+
         protected ShapeDrawable(IShape shape, ITessellationHints hints, uint instanceCount)
         {
             SetInstanceCount(instanceCount);
-            
+
             if (hints.ColorsType == ColorsType.ColorOverall)
             {
-                SetColors(new [] {Vector3.One} );
-            } 
+                SetColors(new[] {Vector3.One});
+            }
             else if (hints.ColorsType == ColorsType.ColorPerFace)
             {
                 var colors = new List<Vector3>();
                 if (shape is IBox)
                 {
-                    for (var f = 0; f < 6; ++f)
-                    {
-                        colors.Append(Vector3.One);
-                    }
+                    for (var f = 0; f < 6; ++f) colors.Append(Vector3.One);
                     SetColors(colors.ToArray());
                 }
                 else
@@ -72,10 +58,7 @@ namespace Veldrid.SceneGraph.Util.Shape
                 var colors = new List<Vector3>();
                 if (shape is IBox)
                 {
-                    for (var f = 0; f < 24; ++f)
-                    {
-                        colors.Append(Vector3.One);
-                    }
+                    for (var f = 0; f < 24; ++f) colors.Append(Vector3.One);
                     SetColors(colors.ToArray());
                 }
                 else
@@ -83,13 +66,13 @@ namespace Veldrid.SceneGraph.Util.Shape
                     throw new NotImplementedException();
                 }
             }
-            
+
             SetShape(shape);
             SetTessellationHints(hints);
             Build();
         }
-        
-        protected ShapeDrawable(IShape shape, ITessellationHints hints, Vector3 [] colors, uint instanceCount)
+
+        protected ShapeDrawable(IShape shape, ITessellationHints hints, Vector3[] colors, uint instanceCount)
         {
             SetInstanceCount(instanceCount);
             SetColors(colors);
@@ -98,12 +81,23 @@ namespace Veldrid.SceneGraph.Util.Shape
             Build();
         }
 
+        public static IShapeDrawable<T> Create(IShape shape, ITessellationHints hints, uint instanceCount = 1)
+        {
+            return new ShapeDrawable<T>(shape, hints, instanceCount);
+        }
+
+        public static IShapeDrawable<T> Create(IShape shape, ITessellationHints hints, Vector3[] colors,
+            uint instanceCount = 1)
+        {
+            return new ShapeDrawable<T>(shape, hints, colors, instanceCount);
+        }
+
         private void SetShape(IShape shape)
         {
             _shape = shape;
         }
 
-        private void SetColors(Vector3 [] colors)
+        private void SetColors(Vector3[] colors)
         {
             _colors = colors;
         }
@@ -117,7 +111,7 @@ namespace Veldrid.SceneGraph.Util.Shape
         {
             _instanceCount = instanceCount;
         }
-        
+
         private void Build()
         {
             var shapeGeometryVisitor = new BuildShapeGeometryVisitor<T>(this, _hints, _colors, _instanceCount);

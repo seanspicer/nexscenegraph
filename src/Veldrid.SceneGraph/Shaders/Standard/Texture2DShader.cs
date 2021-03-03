@@ -15,9 +15,6 @@
 //
 
 using System;
-using System.Reflection;
-using Veldrid.SceneGraph.Text;
-using Veldrid.SceneGraph.Util;
 
 namespace Veldrid.SceneGraph.Shaders.Standard
 {
@@ -25,11 +22,11 @@ namespace Veldrid.SceneGraph.Shaders.Standard
     {
         private static readonly Lazy<Texture2DShader> lazy = new Lazy<Texture2DShader>(() => new Texture2DShader());
 
-        public static Texture2DShader Instance => lazy.Value;
-        
-        private Texture2DShader() : base(@"BasicTextureShader", @"BasicTextureShader-vertex.glsl", "BasicTextureShader-fragment.glsl")
+        private Texture2DShader() : base(@"BasicTextureShader", @"BasicTextureShader-vertex.glsl",
+            "BasicTextureShader-fragment.glsl")
         {
-
         }
+
+        public static Texture2DShader Instance => lazy.Value;
     }
 }

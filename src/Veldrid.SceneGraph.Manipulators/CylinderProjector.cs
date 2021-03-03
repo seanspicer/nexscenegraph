@@ -16,8 +16,6 @@
 
 using System;
 using System.Numerics;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Security.Cryptography;
 using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Util.Shape;
 
@@ -26,31 +24,19 @@ namespace Veldrid.SceneGraph.Manipulators
     public interface ICylinderProjector : IProjector
     {
         ICylinder Cylinder { get; }
-        
+
         bool IsPointInFront(IPointerInfo pi, Matrix4x4 localToWorld);
     }
-    
+
     public class CylinderProjector : Projector, ICylinderProjector
     {
         protected ICylinder _cylinder;
         protected Vector3 _cylinderAxis;
         protected bool _front;
 
-        public ICylinder Cylinder => _cylinder;
-        
-        public static ICylinderProjector Create()
-        {
-            return new CylinderProjector();
-        }
-        
-        public static ICylinderProjector Create(ICylinder cylinder)
-        {
-            return new CylinderProjector(cylinder);
-        }
-
         protected CylinderProjector()
         {
-            _cylinder = Veldrid.SceneGraph.Util.Shape.Cylinder.Create();
+            _cylinder = SceneGraph.Util.Shape.Cylinder.Create();
             _cylinderAxis = Vector3.UnitZ;
             _front = true;
         }
@@ -60,26 +46,18 @@ namespace Veldrid.SceneGraph.Manipulators
             SetCylinder(cylinder);
             _front = true;
         }
-        
-        public void SetCylinder(ICylinder cylinder)
-        {
-            _cylinder = cylinder;
-            _cylinderAxis = Vector3.Normalize(Matrix4x4.CreateFromQuaternion(cylinder.Rotation).PreMultiply(Vector3.UnitZ));
-        }
-        
+
+        public ICylinder Cylinder => _cylinder;
+
         public override bool Project(IPointerInfo pi, out Vector3 projectedPoint)
         {
             projectedPoint = Vector3.Zero;
-            if (null == _cylinder)
-            {
-                
-                return false;
-            }
+            if (null == _cylinder) return false;
 
             var objectNearPoint = WorldToLocal.PreMultiply(pi.NearPoint);
             var objectFarPoint = WorldToLocal.PreMultiply(pi.FarPoint);
 
-            if(GetCylinderLineIntersection(_cylinder, objectNearPoint, objectFarPoint, out var pp,
+            if (GetCylinderLineIntersection(_cylinder, objectNearPoint, objectFarPoint, out var pp,
                 out var dontCare))
             {
                 projectedPoint = pp;
@@ -87,6 +65,36 @@ namespace Veldrid.SceneGraph.Manipulators
             }
 
             return false;
+        }
+
+        public bool IsPointInFront(IPointerInfo pi, Matrix4x4 localToWorld)
+        {
+            if (ComputeClosestPointOnLine(_cylinder.Center, _cylinder.Center + _cylinderAxis,
+                pi.GetLocalIntersectionPoint(), out var closestPointOnAxis))
+            {
+                var perpPoint = pi.GetLocalIntersectionPoint() - closestPointOnAxis;
+                if (Vector3.Dot(perpPoint, GetLocalEyeDirection(pi.EyeDir, localToWorld)) < 0.0) return false;
+                return true;
+            }
+
+            throw new Exception("Cannot compute closest point on line in CylinderProjector.IsPointInFront(...)");
+        }
+
+        public static ICylinderProjector Create()
+        {
+            return new CylinderProjector();
+        }
+
+        public static ICylinderProjector Create(ICylinder cylinder)
+        {
+            return new CylinderProjector(cylinder);
+        }
+
+        public void SetCylinder(ICylinder cylinder)
+        {
+            _cylinder = cylinder;
+            _cylinderAxis =
+                Vector3.Normalize(Matrix4x4.CreateFromQuaternion(cylinder.Rotation).PreMultiply(Vector3.UnitZ));
         }
 
         protected bool GetUnitCylinderLineIntersection(
@@ -101,7 +109,7 @@ namespace Veldrid.SceneGraph.Manipulators
             double b = 2.0f * (lineStart.X * dir.X + lineStart.Y * dir.Y);
             double c = lineStart.X * lineStart.X + lineStart.Y * lineStart.Y - 1;
 
-            var d = b*b - 4*a*c;
+            var d = b * b - 4 * a * c;
             if (d < 0.0)
             {
                 isectFront = Vector3.Zero;
@@ -118,29 +126,13 @@ namespace Veldrid.SceneGraph.Manipulators
             }
             else
             {
-                t0 = (2.0f * c) / (dSqroot - b);
+                t0 = 2.0f * c / (dSqroot - b);
                 t1 = (dSqroot - b) / (2.0 * a);
             }
 
-            isectFront = lineStart + dir * (float)t0;
-            isectBack = lineStart + dir * (float)t1;
+            isectFront = lineStart + dir * (float) t0;
+            isectBack = lineStart + dir * (float) t1;
             return true;
-        }
-
-        public bool IsPointInFront(IPointerInfo pi, Matrix4x4 localToWorld)
-        {
-            if(ComputeClosestPointOnLine(_cylinder.Center, _cylinder.Center + _cylinderAxis,
-                pi.GetLocalIntersectionPoint(), out var closestPointOnAxis))
-            {
-                var perpPoint = pi.GetLocalIntersectionPoint() - closestPointOnAxis;
-                if (Vector3.Dot(perpPoint, GetLocalEyeDirection(pi.EyeDir, localToWorld)) < 0.0)
-                {
-                    return false;
-                }
-                return true;
-            }
-
-            throw new Exception("Cannot compute closest point on line in CylinderProjector.IsPointInFront(...)");
         }
 
         protected bool ComputeClosestPointOnLine(Vector3 lineStart, Vector3 lineEnd, Vector3 fromPoint,
@@ -164,12 +156,12 @@ namespace Veldrid.SceneGraph.Manipulators
 
             return true;
         }
-        
+
         protected bool GetCylinderLineIntersection(
-            ICylinder cylinder, 
-            Vector3 lineStart, 
+            ICylinder cylinder,
+            Vector3 lineStart,
             Vector3 lineEnd,
-            out Vector3 isectFront, 
+            out Vector3 isectFront,
             out Vector3 isectBack)
         {
             // Compute matrix transformation that takes the cylinder to a unit cylinder with Z-axis as it's axis and
@@ -178,16 +170,14 @@ namespace Veldrid.SceneGraph.Manipulators
             var toUnitCylInZ = Matrix4x4.CreateTranslation(-cylinder.Center)
                 .PostMultiply(Matrix4x4.CreateScale(oneOverRadius, oneOverRadius, oneOverRadius))
                 .PostMultiply(Matrix4x4.CreateFromQuaternion(Quaternion.Inverse(cylinder.Rotation)));
-            
+
             // Transform the lineStart and lineEnd into the unit cylinder space
             var unitCylLineStart = toUnitCylInZ.PreMultiply(lineStart);
             var unitCylLineEnd = toUnitCylInZ.PreMultiply(lineEnd);
-            
+
             // Intersect with unit cylinder
             if (GetUnitCylinderLineIntersection(unitCylLineStart, unitCylLineEnd, out var unitCylIsectFront,
-                out var unitCylIsectBack))
-            {
-                
+                    out var unitCylIsectBack))
                 // Transform back from unit cylinder space
                 if (Matrix4x4.Invert(toUnitCylInZ, out var invToUnitCylInZ))
                 {
@@ -195,12 +185,10 @@ namespace Veldrid.SceneGraph.Manipulators
                     isectBack = invToUnitCylInZ.PreMultiply(unitCylIsectBack);
                     return true;
                 }
-            }
 
             isectFront = Vector3.Zero;
             isectBack = Vector3.Zero;
             return false;
         }
-        
     }
 }

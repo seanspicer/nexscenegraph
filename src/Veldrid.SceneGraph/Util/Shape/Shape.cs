@@ -1,4 +1,3 @@
-
 using System.Numerics;
 
 namespace Veldrid.SceneGraph.Util.Shape
@@ -10,7 +9,7 @@ namespace Veldrid.SceneGraph.Util.Shape
         }
 
         public Vector3 Center { get; set; } = Vector3.Zero;
-        
+
         public Quaternion Rotation { get; set; } = Quaternion.Identity;
     }
 }

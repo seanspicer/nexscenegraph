@@ -8,7 +8,7 @@ namespace Veldrid.SceneGraph.Tests
         [TestCase]
         public void PassCanaryTest()
         {
-            Assert.That(2+2, Is.EqualTo(4));
+            Assert.That(2 + 2, Is.EqualTo(4));
         }
 
         [TestCase]
@@ -25,7 +25,7 @@ namespace Veldrid.SceneGraph.Tests
             Assert.That(vec[2], Is.EqualTo(3.0d));
             Assert.That(vec[3], Is.EqualTo(4.0d));
         }
-        
+
         [TestCase]
         public void SetValueWithIndexerCorrectly()
         {

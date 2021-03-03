@@ -30,83 +30,86 @@ namespace Veldrid.SceneGraph.AssetProcessor
 {
     public class ImageSharpProcessor : BinaryAssetProcessor<ProcessedTexture>
     {
-        public unsafe ProcessedTexture ProcessT(Image<Rgba32> image)
-        {
-            
-            Image<Rgba32>[] mipmaps = GenerateMipmaps(image, out int totalSize);
-
-            byte[] allTexData = new byte[totalSize];
-            long offset = 0;
-            fixed (byte* allTexDataPtr = allTexData)
-            {
-                foreach (Image<Rgba32> mipmap in mipmaps)
-                {
-                    long mipSize = mipmap.Width * mipmap.Height * sizeof(Rgba32);
-                    fixed (Rgba32* pixelPtr = &MemoryMarshal.GetReference(mipmap.GetPixelSpan())) //&mipmap.DangerousGetPinnableReferenceToPixelBuffer()))
-                    {
-                        Buffer.MemoryCopy(pixelPtr, allTexDataPtr + offset, mipSize, mipSize);
-                    }
-
-                    offset += mipSize;
-                }
-            }
-
-            ProcessedTexture texData = new ProcessedTexture(
-                PixelFormat.R8_G8_B8_A8_UNorm, TextureType.Texture2D,
-                (uint)image.Width, (uint)image.Height, 1,
-                (uint)mipmaps.Length, 1,
-                allTexData);
-            return texData;
-        }
-        
-        public unsafe override ProcessedTexture ProcessT(Stream stream, string extension)
-        {
-            Image<Rgba32> image = (Image<Rgba32>)Image.Load(stream);
-            Image<Rgba32>[] mipmaps = GenerateMipmaps(image, out int totalSize);
-
-            byte[] allTexData = new byte[totalSize];
-            long offset = 0;
-            fixed (byte* allTexDataPtr = allTexData)
-            {
-                foreach (Image<Rgba32> mipmap in mipmaps)
-                {
-                    long mipSize = mipmap.Width * mipmap.Height * sizeof(Rgba32);
-                    fixed (Rgba32* pixelPtr = &MemoryMarshal.GetReference(mipmap.GetPixelSpan())) //&mipmap.DangerousGetPinnableReferenceToPixelBuffer())
-                    {
-                        Buffer.MemoryCopy(pixelPtr, allTexDataPtr + offset, mipSize, mipSize);
-                    }
-
-                    offset += mipSize;
-                }
-            }
-
-            ProcessedTexture texData = new ProcessedTexture(
-                    PixelFormat.R8_G8_B8_A8_UNorm, TextureType.Texture2D,
-                    (uint)image.Width, (uint)image.Height, 1,
-                    (uint)mipmaps.Length, 1,
-                    allTexData);
-            return texData;
-        }
-
         // Taken from Veldrid.ImageSharp
 
         private static readonly IResampler s_resampler = new Lanczos3Resampler();
 
+        public unsafe ProcessedTexture ProcessT(Image<Rgba32> image)
+        {
+            var mipmaps = GenerateMipmaps(image, out var totalSize);
+
+            var allTexData = new byte[totalSize];
+            long offset = 0;
+            fixed (byte* allTexDataPtr = allTexData)
+            {
+                foreach (var mipmap in mipmaps)
+                {
+                    long mipSize = mipmap.Width * mipmap.Height * sizeof(Rgba32);
+                    fixed (Rgba32* pixelPtr =
+                        &MemoryMarshal.GetReference(mipmap.GetPixelSpan())
+                    ) //&mipmap.DangerousGetPinnableReferenceToPixelBuffer()))
+                    {
+                        Buffer.MemoryCopy(pixelPtr, allTexDataPtr + offset, mipSize, mipSize);
+                    }
+
+                    offset += mipSize;
+                }
+            }
+
+            var texData = new ProcessedTexture(
+                PixelFormat.R8_G8_B8_A8_UNorm, TextureType.Texture2D,
+                (uint) image.Width, (uint) image.Height, 1,
+                (uint) mipmaps.Length, 1,
+                allTexData);
+            return texData;
+        }
+
+        public override unsafe ProcessedTexture ProcessT(Stream stream, string extension)
+        {
+            var image = (Image<Rgba32>) Image.Load(stream);
+            var mipmaps = GenerateMipmaps(image, out var totalSize);
+
+            var allTexData = new byte[totalSize];
+            long offset = 0;
+            fixed (byte* allTexDataPtr = allTexData)
+            {
+                foreach (var mipmap in mipmaps)
+                {
+                    long mipSize = mipmap.Width * mipmap.Height * sizeof(Rgba32);
+                    fixed (Rgba32* pixelPtr =
+                        &MemoryMarshal.GetReference(mipmap.GetPixelSpan())
+                    ) //&mipmap.DangerousGetPinnableReferenceToPixelBuffer())
+                    {
+                        Buffer.MemoryCopy(pixelPtr, allTexDataPtr + offset, mipSize, mipSize);
+                    }
+
+                    offset += mipSize;
+                }
+            }
+
+            var texData = new ProcessedTexture(
+                PixelFormat.R8_G8_B8_A8_UNorm, TextureType.Texture2D,
+                (uint) image.Width, (uint) image.Height, 1,
+                (uint) mipmaps.Length, 1,
+                allTexData);
+            return texData;
+        }
+
         private static Image<T>[] GenerateMipmaps<T>(Image<T> baseImage, out int totalSize) where T : struct, IPixel<T>
         {
-            int mipLevelCount = ComputeMipLevels(baseImage.Width, baseImage.Height);
-            Image<T>[] mipLevels = new Image<T>[mipLevelCount];
+            var mipLevelCount = ComputeMipLevels(baseImage.Width, baseImage.Height);
+            var mipLevels = new Image<T>[mipLevelCount];
             mipLevels[0] = baseImage;
             totalSize = baseImage.Width * baseImage.Height * Unsafe.SizeOf<T>();
-            int i = 1;
+            var i = 1;
 
-            int currentWidth = baseImage.Width;
-            int currentHeight = baseImage.Height;
+            var currentWidth = baseImage.Width;
+            var currentHeight = baseImage.Height;
             while (currentWidth != 1 || currentHeight != 1)
             {
-                int newWidth =  System.Math.Max(1, currentWidth / 2);
-                int newHeight =  System.Math.Max(1, currentHeight / 2);
-                Image<T> newImage = baseImage.Clone(context => context.Resize(newWidth, newHeight, s_resampler));
+                var newWidth = System.Math.Max(1, currentWidth / 2);
+                var newHeight = System.Math.Max(1, currentHeight / 2);
+                var newImage = baseImage.Clone(context => context.Resize(newWidth, newHeight, s_resampler));
                 Debug.Assert(i < mipLevelCount);
                 mipLevels[i] = newImage;
 
@@ -123,7 +126,7 @@ namespace Veldrid.SceneGraph.AssetProcessor
 
         public static int ComputeMipLevels(int width, int height)
         {
-            return 1 + (int) System.Math.Floor( System.Math.Log( System.Math.Max(width, height), 2));
+            return 1 + (int) System.Math.Floor(System.Math.Log(System.Math.Max(width, height), 2));
         }
     }
 }

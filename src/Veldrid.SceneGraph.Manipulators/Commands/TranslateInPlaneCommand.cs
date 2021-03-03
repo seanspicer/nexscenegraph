@@ -1,4 +1,3 @@
-
 using System.Numerics;
 
 namespace Veldrid.SceneGraph.Manipulators.Commands
@@ -11,20 +10,15 @@ namespace Veldrid.SceneGraph.Manipulators.Commands
 
     public class TranslateInPlaneCommand : TranslateCommand, ITranslateInPlaneCommand
     {
-        public IPlane Plane { get; set; }
-        
-        public Vector3 ReferencePoint { get; set; }
-        
-        public static ITranslateInPlaneCommand Create(IPlane plane)
-        {
-            return new TranslateInPlaneCommand(plane);
-        }
-
         protected TranslateInPlaneCommand(IPlane plane)
         {
             Plane = plane;
         }
-        
+
+        public IPlane Plane { get; set; }
+
+        public Vector3 ReferencePoint { get; set; }
+
         public override void Accept(IConstraint constraint)
         {
             constraint.Constrain(this);
@@ -34,12 +28,17 @@ namespace Veldrid.SceneGraph.Manipulators.Commands
         {
             callback.Receive(this);
         }
-        
+
         public override IMotionCommand CreateCommandInverse()
         {
-            var inverse = TranslateInPlaneCommand.Create(Plane);
+            var inverse = Create(Plane);
             SetInverseProperties(inverse);
             return inverse;
+        }
+
+        public static ITranslateInPlaneCommand Create(IPlane plane)
+        {
+            return new TranslateInPlaneCommand(plane);
         }
     }
 }

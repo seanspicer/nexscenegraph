@@ -14,28 +14,44 @@
 // limitations under the License.
 //
 
-using System;
 using System.Numerics;
 
 namespace Veldrid.SceneGraph
 {
     public class DrawElements<T> : PrimitiveSet where T : struct, IPrimitiveElement
     {
-        private readonly uint _indexCount = 0;
-        private readonly uint _instanceCount = 0;
-        private readonly uint _indexStart = 0;
-        private readonly int _vertexOffset = 0;
-        private readonly uint _instanceStart = 0;
-
         private readonly IGeometry<T> _geometry;
+        private readonly uint _indexCount;
+        private readonly uint _indexStart;
+        private readonly uint _instanceCount;
+        private readonly uint _instanceStart;
+        private readonly int _vertexOffset;
+
+        protected DrawElements(
+            IGeometry<T> geometry,
+            PrimitiveTopology primitiveTopology,
+            uint indexCount,
+            uint instanceCount,
+            uint indexStart,
+            int vertexOffset,
+            uint instanceStart)
+            : base(geometry, primitiveTopology)
+        {
+            _geometry = geometry;
+            _indexCount = indexCount;
+            _instanceCount = instanceCount;
+            _indexStart = indexStart;
+            _vertexOffset = vertexOffset;
+            _instanceStart = instanceStart;
+        }
 
         public static IPrimitiveSet Create(
-            IGeometry<T> geometry, 
-            PrimitiveTopology primitiveTopology, 
-            uint indexCount, 
-            uint instanceCount, 
-            uint indexStart, 
-            int vertexOffset, 
+            IGeometry<T> geometry,
+            PrimitiveTopology primitiveTopology,
+            uint indexCount,
+            uint instanceCount,
+            uint indexStart,
+            int vertexOffset,
             uint instanceStart)
         {
             return new DrawElements<T>(
@@ -43,55 +59,35 @@ namespace Veldrid.SceneGraph
                 primitiveTopology,
                 indexCount,
                 instanceCount,
-                indexStart, 
-                vertexOffset, 
+                indexStart,
+                vertexOffset,
                 instanceStart);
         }
-         
-        protected DrawElements(
-            IGeometry<T> geometry, 
-            PrimitiveTopology primitiveTopology, 
-            uint indexCount, 
-            uint instanceCount, 
-            uint indexStart, 
-            int vertexOffset, 
-            uint instanceStart)
-            : base(geometry, primitiveTopology) 
-        {
-            _geometry = geometry;
-            _indexCount    = indexCount;
-            _instanceCount = instanceCount;
-            _indexStart    = indexStart;
-            _vertexOffset  = vertexOffset;
-            _instanceStart = instanceStart;
-        }
-        
+
         public override void Draw(CommandList commandList)
         {
             commandList.DrawIndexed(
-                indexCount:    _indexCount,
-                instanceCount: _instanceCount,
-                indexStart:    _indexStart,
-                vertexOffset:  _vertexOffset,
-                instanceStart: _instanceStart);
+                _indexCount,
+                _instanceCount,
+                _indexStart,
+                _vertexOffset,
+                _instanceStart);
         }
-        
+
         protected override IBoundingBox ComputeBoundingBox()
         {
             var bb = BoundingBox.Create();
-            for(var idx = _indexStart; idx < (_indexStart+_indexCount); ++idx)
-            {
+            for (var idx = _indexStart; idx < _indexStart + _indexCount; ++idx)
                 bb.ExpandBy(_geometry.VertexData[_geometry.IndexData[idx]].VertexPosition);
-            }
 
             return bb;
         }
 
         protected override float ComputeDistance(Vector3 point)
         {
-            float dist = 0.0f;
-            float count = 0f;
-            for(var idx = _indexStart; idx < (_indexStart+_indexCount); ++idx)
+            var dist = 0.0f;
+            var count = 0f;
+            for (var idx = _indexStart; idx < _indexStart + _indexCount; ++idx)
             {
                 dist += Vector3.Distance(_geometry.VertexData[_geometry.IndexData[idx]].VertexPosition, point);
                 count += 1.0f;
@@ -102,11 +98,11 @@ namespace Veldrid.SceneGraph
 
         public override void Accept(IPrimitiveFunctor functor)
         {
-            functor.Draw(PrimitiveTopology, 
-                _indexCount, 
-                _instanceCount, 
-                _indexStart, 
-                _vertexOffset, 
+            functor.Draw(PrimitiveTopology,
+                _indexCount,
+                _instanceCount,
+                _indexStart,
+                _vertexOffset,
                 _instanceStart);
         }
     }

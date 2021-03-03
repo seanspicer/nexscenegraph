@@ -22,11 +22,10 @@ namespace Veldrid.SceneGraph
     public interface ITransformVisitor
     {
         Matrix4x4 Matrix { get; }
-        
+
         void Accumulate(NodePath nodePath);
-        
     }
-    
+
     public class TransformVisitor : NodeVisitor, ITransformVisitor
     {
         public enum CoordMode
@@ -35,18 +34,11 @@ namespace Veldrid.SceneGraph
             LocalToWorld
         }
 
-        public Matrix4x4 Matrix => _matrix;
-        
         private readonly CoordMode _coordMode;
-        private Matrix4x4 _matrix;
         private readonly bool _ignoreCameras;
+        private Matrix4x4 _matrix;
 
-        public static ITransformVisitor Create(Matrix4x4 matrix, CoordMode coordMode, bool ignoreCameras)
-        {
-            return new TransformVisitor(matrix, coordMode, ignoreCameras);
-        }
-        
-        protected TransformVisitor(Matrix4x4 matrix, CoordMode coordMode, bool ignoreCameras) 
+        protected TransformVisitor(Matrix4x4 matrix, CoordMode coordMode, bool ignoreCameras)
             : base(VisitorType.NodeVisitor)
         {
             _matrix = matrix;
@@ -54,17 +46,7 @@ namespace Veldrid.SceneGraph
             _ignoreCameras = ignoreCameras;
         }
 
-        public override void Apply(ITransform transform)
-        {
-            if (_coordMode==CoordMode.LocalToWorld)
-            {
-                transform.ComputeLocalToWorldMatrix(ref _matrix, this);
-            }
-            else // WorldToLocal
-            {
-                transform.ComputeWorldToLocalMatrix(ref _matrix, this);
-            }
-        }
+        public Matrix4x4 Matrix => _matrix;
 
         public void Accumulate(NodePath nodePath)
         {
@@ -82,19 +64,27 @@ namespace Veldrid.SceneGraph
                 {
                     if (elt.Value is Camera camera &&
                         (camera.ReferenceFrame != Transform.ReferenceFrameType.Relative || camera.NumParents == 0))
-                    {
                         break;
-                    }
 
                     elt = elt.Previous;
                     --i;
                 }
             }
 
-            for (; i < nodePath.Count; ++i)
-            {
-                nodePath.ElementAt(i).Accept(this);
-            }
+            for (; i < nodePath.Count; ++i) nodePath.ElementAt(i).Accept(this);
+        }
+
+        public static ITransformVisitor Create(Matrix4x4 matrix, CoordMode coordMode, bool ignoreCameras)
+        {
+            return new TransformVisitor(matrix, coordMode, ignoreCameras);
+        }
+
+        public override void Apply(ITransform transform)
+        {
+            if (_coordMode == CoordMode.LocalToWorld)
+                transform.ComputeLocalToWorldMatrix(ref _matrix, this);
+            else // WorldToLocal
+                transform.ComputeWorldToLocalMatrix(ref _matrix, this);
         }
     }
 }

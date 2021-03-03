@@ -15,22 +15,19 @@
 //
 
 using System;
-using System.Reflection;
-using Veldrid.SceneGraph.Util;
-using Veldrid.SceneGraph.VertexTypes;
 
 namespace Veldrid.SceneGraph.Shaders.Standard
 {
     public class Position3Color3Shader : StandardShaderBase
     {
-        private static readonly Lazy<Position3Color3Shader> Lazy = new Lazy<Position3Color3Shader>(() => new Position3Color3Shader());
+        private static readonly Lazy<Position3Color3Shader> Lazy =
+            new Lazy<Position3Color3Shader>(() => new Position3Color3Shader());
+
+        private Position3Color3Shader() : base(@"Position3Color3", @"Position3Color3-vertex.glsl",
+            @"Position3Color3-fragment.glsl")
+        {
+        }
 
         public static Position3Color3Shader Instance => Lazy.Value;
-
-        private Position3Color3Shader() : base(@"Position3Color3",@"Position3Color3-vertex.glsl", @"Position3Color3-fragment.glsl")
-        {
-
-
-        }
     }
 }

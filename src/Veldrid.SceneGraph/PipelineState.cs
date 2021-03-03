@@ -32,24 +32,27 @@ namespace Veldrid.SceneGraph
         void AddUniform(IUniform uniform);
         void AddUniform(IDrawable drawable, IUniform uniform);
         void AddVertexBuffer(IVertexBuffer vertexBuffer);
-
     }
-    
+
     public class PipelineState : IPipelineState
     {
-        public IShaderSet ShaderSet { get; set; }
-        
         private readonly List<ITexture2D> _textureList = new List<ITexture2D>();
-        public IReadOnlyList<ITexture2D> TextureList => _textureList;
 
         private readonly List<IUniform> _uniformList = new List<IUniform>();
-        public IReadOnlyList<IUniform> UniformList => _uniformList;
-        
-        private readonly List<IVertexBuffer> _vertexBufferList = new List<IVertexBuffer>();
-        public IReadOnlyList<IVertexBuffer> VertexBufferList => _vertexBufferList;
 
-        private readonly Dictionary<IDrawable, IUniform> _uniformDictionary = new Dictionary<IDrawable, IUniform>();
-        public Dictionary<IDrawable, IUniform> UniformDictionary => _uniformDictionary;
+        private readonly List<IVertexBuffer> _vertexBufferList = new List<IVertexBuffer>();
+
+        private PipelineState()
+        {
+            // Nothing to see here.
+        }
+
+        public Dictionary<IDrawable, IUniform> UniformDictionary { get; } = new Dictionary<IDrawable, IUniform>();
+
+        public IShaderSet ShaderSet { get; set; }
+        public IReadOnlyList<ITexture2D> TextureList => _textureList;
+        public IReadOnlyList<IUniform> UniformList => _uniformList;
+        public IReadOnlyList<IVertexBuffer> VertexBufferList => _vertexBufferList;
 
         public BlendStateDescription BlendStateDescription { get; set; } = BlendStateDescription.SingleOverrideBlend;
 
@@ -58,21 +61,11 @@ namespace Veldrid.SceneGraph
 
         public RasterizerStateDescription RasterizerStateDescription { get; set; } = RasterizerStateDescription.Default;
 
-        public static IPipelineState Create()
-        {
-            return new PipelineState();
-        }
-        
-        private PipelineState()
-        {
-            // Nothing to see here.
-        }
-
         public void AddTexture(ITexture2D texture)
         {
             _textureList.Add(texture);
         }
-        
+
         public void AddUniform(IUniform uniform)
         {
             _uniformList.Add(uniform);
@@ -80,7 +73,7 @@ namespace Veldrid.SceneGraph
 
         public void AddUniform(IDrawable drawable, IUniform uniform)
         {
-            _uniformDictionary.Add(drawable, uniform);
+            UniformDictionary.Add(drawable, uniform);
         }
 
         public void AddVertexBuffer(IVertexBuffer vertexBuffer)
@@ -88,6 +81,9 @@ namespace Veldrid.SceneGraph
             _vertexBufferList.Add(vertexBuffer);
         }
 
-        
+        public static IPipelineState Create()
+        {
+            return new PipelineState();
+        }
     }
 }

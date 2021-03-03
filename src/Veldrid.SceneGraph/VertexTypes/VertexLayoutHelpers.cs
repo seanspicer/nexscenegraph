@@ -23,18 +23,11 @@ namespace Veldrid.SceneGraph.VertexTypes
         public static VertexLayoutDescription GetLayoutDescription(Type type)
         {
             if (type == typeof(Position3Texture2Color3Normal3))
-            {
                 return Position3Texture2Color3Normal3.VertexLayoutDescription;
-            }
-            else if (type == typeof(Position3Color3))
-            {
+            if (type == typeof(Position3Color3))
                 return Position3Color3.VertexLayoutDescription;
-            }
-            else if (type == typeof(Position3TexCoord2))
-            {
-                return Position3TexCoord2.VertexLayoutDescription;
-            }
-            
+            if (type == typeof(Position3TexCoord2)) return Position3TexCoord2.VertexLayoutDescription;
+
             throw new ArgumentException($"Invalid type {type}.  Cannot get vertex layout description");
         }
     }

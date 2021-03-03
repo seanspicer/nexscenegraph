@@ -22,59 +22,109 @@ namespace Veldrid.SceneGraph.Util
 {
     public interface IIntersectionVisitor : INodeVisitor
     {
-        Matrix4x4 GetModelMatrix();
-
         bool UseKdTreeWhenAvailable { get; }
+        Matrix4x4 GetModelMatrix();
     }
-    
+
     public class IntersectionVisitor : NodeVisitor, IIntersectionVisitor
     {
-        private Stack<IIntersector> _intersectorStack = new Stack<IIntersector>();
-        private Stack<Matrix4x4> _viewMatrixStack = new Stack<Matrix4x4>();
-        private Stack<Matrix4x4> _modelMatrixStack = new Stack<Matrix4x4>();
+        private readonly Stack<IIntersector> _intersectorStack = new Stack<IIntersector>();
+        private readonly Stack<Matrix4x4> _modelMatrixStack = new Stack<Matrix4x4>();
+        private readonly Stack<Matrix4x4> _viewMatrixStack = new Stack<Matrix4x4>();
 
-        public bool UseKdTreeWhenAvailable { get; set; } = false;
-        
-        public static IIntersectionVisitor Create(
-                IIntersector intersector,
-                VisitorType type = VisitorType.IntersectionVisitor, 
-                TraversalModeType traversalMode = TraversalModeType.TraverseActiveChildren) 
-            
-        {
-            return new IntersectionVisitor(intersector, type, traversalMode);
-        }
-        
         protected IntersectionVisitor(
             IIntersector intersector,
-            VisitorType type = VisitorType.IntersectionVisitor, 
-            TraversalModeType traversalMode = TraversalModeType.TraverseActiveChildren) 
+            VisitorType type = VisitorType.IntersectionVisitor,
+            TraversalModeType traversalMode = TraversalModeType.TraverseActiveChildren)
             : base(type, traversalMode)
         {
             SetIntersector(intersector);
         }
 
-        public void SetIntersector(IIntersector intersector)
-        {
-            _intersectorStack.Clear();
-            
-            if (null != intersector)
-            {
-                _intersectorStack.Push(intersector);
-            }
-        }
-        
+        public bool UseKdTreeWhenAvailable { get; set; } = false;
+
         public Matrix4x4 GetModelMatrix()
         {
             return _modelMatrixStack.Any() ? _modelMatrixStack.Peek() : Matrix4x4.Identity;
         }
 
-        
+        public override void Apply(INode node)
+        {
+            if (false == Enter(node)) return;
+
+            Traverse(node);
+
+            Leave();
+        }
+
+        public override void Apply(IGeode geode)
+        {
+            if (false == Enter(geode)) return;
+
+            Traverse(geode);
+
+            Leave();
+        }
+
+        public override void Apply(IDrawable drawable)
+        {
+            Intersect(drawable);
+        }
+
+        public override void Apply(ITransform transform)
+        {
+            if (false == Enter(transform)) return;
+
+            var curModel = _modelMatrixStack.Any() ? _modelMatrixStack.Peek() : Matrix4x4.Identity;
+
+
+            transform.ComputeLocalToWorldMatrix(ref curModel, this);
+
+            if (transform.ReferenceFrame != Transform.ReferenceFrameType.Relative) PushViewMatrix(Matrix4x4.Identity);
+
+            PushModelMatrix(curModel);
+
+            PushClone();
+
+            Traverse(transform);
+
+            PopClone();
+
+            PopModelmatrix();
+
+            if (transform.ReferenceFrame != Transform.ReferenceFrameType.Relative) PopViewMatrix();
+
+            Leave();
+        }
+
+        public override void Apply(IBillboard billboard)
+        {
+            // TODO IMPLEMENT FOR BILLBOARDS
+            base.Apply(billboard);
+        }
+
+        public static IIntersectionVisitor Create(
+            IIntersector intersector,
+            VisitorType type = VisitorType.IntersectionVisitor,
+            TraversalModeType traversalMode = TraversalModeType.TraverseActiveChildren)
+
+        {
+            return new IntersectionVisitor(intersector, type, traversalMode);
+        }
+
+        public void SetIntersector(IIntersector intersector)
+        {
+            _intersectorStack.Clear();
+
+            if (null != intersector) _intersectorStack.Push(intersector);
+        }
+
 
         public Matrix4x4 GetViewMatrix()
         {
             return _viewMatrixStack.Any() ? _viewMatrixStack.Peek() : Matrix4x4.Identity;
         }
-        
+
         protected void Intersect(IDrawable drawable)
         {
             _intersectorStack.Peek().Intersect(this, drawable);
@@ -97,12 +147,9 @@ namespace Veldrid.SceneGraph.Util
 
         protected void PopClone()
         {
-            if (_intersectorStack.Count >= 2)
-            {
-                _intersectorStack.Pop();
-            }
+            if (_intersectorStack.Count >= 2) _intersectorStack.Pop();
         }
-        
+
         protected void PushViewMatrix(Matrix4x4 viewMatrix)
         {
             PushMatrix(viewMatrix, _viewMatrixStack);
@@ -138,67 +185,6 @@ namespace Veldrid.SceneGraph.Util
             var intersector = _intersectorStack.First();
             intersector.Reset();
             SetIntersector(intersector);
-        }
-        
-        public override void Apply(INode node)
-        {
-            if (false == Enter(node)) return;
-
-            Traverse(node);
-
-            Leave();
-        }
-
-        public override void Apply(IGeode geode)
-        {
-            if (false == Enter(geode)) return;
-
-            Traverse(geode);
-            
-            Leave();
-        }
-
-        public override void Apply(IDrawable drawable)
-        {
-            Intersect(drawable);
-        }
-
-        public override void Apply(ITransform transform)
-        {
-            if (false == Enter(transform)) return;
-
-            var curModel = _modelMatrixStack.Any() ? _modelMatrixStack.Peek() : Matrix4x4.Identity;
-            
-            
-            transform.ComputeLocalToWorldMatrix(ref curModel, this);
-
-            if (transform.ReferenceFrame != Transform.ReferenceFrameType.Relative)
-            {
-                PushViewMatrix(Matrix4x4.Identity);
-            }
-            
-            PushModelMatrix(curModel);
-            
-            PushClone();
-            
-            Traverse(transform);
-            
-            PopClone();
-            
-            PopModelmatrix();
-            
-            if (transform.ReferenceFrame != Transform.ReferenceFrameType.Relative)
-            {
-                PopViewMatrix();
-            }
-
-            Leave();
-        }
-
-        public override void Apply(IBillboard billboard)
-        {
-            // TODO IMPLEMENT FOR BILLBOARDS
-            base.Apply(billboard);
         }
     }
 }

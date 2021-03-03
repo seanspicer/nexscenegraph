@@ -14,16 +14,13 @@
 // limitations under the License.
 //
 
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Numerics;
 using Examples.Common;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Shaders.Standard;
-using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Viewer;
 
 namespace HelloNsg
@@ -31,29 +28,29 @@ namespace HelloNsg
     public struct VertexPositionColor : IPrimitiveElement
     {
         public const uint SizeInBytes = 24;
-        
+
         public Vector2 Position;
         public Vector4 Color;
-        
+
         public VertexPositionColor(Vector2 position, Vector4 color)
         {
             Position = position;
             Color = color;
         }
-        
+
         public Vector3 VertexPosition
         {
             get => new Vector3(Position, 0.0f);
             set => Position = new Vector2(value.X, value.Y);
         }
     }
-    
-    class Program
+
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             Bootstrapper.Configure();
-            
+
             var viewer = SimpleViewer.Create("Hello Veldrid Scene Graph", TextureSampleCount.Count32);
             var trackball = TrackballManipulator.Create();
             trackball.SetHomePosition(-Vector3.UnitZ, Vector3.Zero, Vector3.UnitY);
@@ -61,20 +58,20 @@ namespace HelloNsg
             viewer.SetBackgroundColor(RgbaFloat.Black);
 
             var root = Group.Create();
-            
+
             var geometry = Geometry<VertexPositionColor>.Create();
-            
+
             VertexPositionColor[] quadVertices =
             {
-                new VertexPositionColor(new Vector2(-.75f, .75f),  new Vector4(1.0f, 0.0f, 0.0f, 1.0f)),
-                new VertexPositionColor(new Vector2(.75f, .75f),   new Vector4(0.0f, 1.0f, 0.0f, 1.0f)),
+                new VertexPositionColor(new Vector2(-.75f, .75f), new Vector4(1.0f, 0.0f, 0.0f, 1.0f)),
+                new VertexPositionColor(new Vector2(.75f, .75f), new Vector4(0.0f, 1.0f, 0.0f, 1.0f)),
                 new VertexPositionColor(new Vector2(-.75f, -.75f), new Vector4(0.0f, 0.0f, 1.0f, 1.0f)),
-                new VertexPositionColor(new Vector2(.75f, -.75f),  new Vector4(1.0f, 1.0f, 0.0f, 1.0f))
+                new VertexPositionColor(new Vector2(.75f, -.75f), new Vector4(1.0f, 1.0f, 0.0f, 1.0f))
             };
 
             geometry.VertexData = quadVertices;
-            
-            uint[] quadIndices = { 0, 1, 2, 3 };
+
+            uint[] quadIndices = {0, 1, 2, 3};
             geometry.IndexData = quadIndices;
 
             geometry.VertexLayouts = new List<VertexLayoutDescription>
@@ -87,29 +84,28 @@ namespace HelloNsg
             };
 
             var pSet = DrawElements<VertexPositionColor>.Create(
-                geometry, 
+                geometry,
                 PrimitiveTopology.TriangleStrip,
-                (uint)geometry.IndexData.Length, 
-                1, 
-                0, 
-                0, 
+                (uint) geometry.IndexData.Length,
+                1,
+                0,
+                0,
                 0);
-            
+
             geometry.PrimitiveSets.Add(pSet);
 
             geometry.PipelineState.ShaderSet = Vertex2Color4Shader.Instance.ShaderSet;
 
             var geode = Geode.Create();
             geode.AddDrawable(geometry);
-            
+
             root.AddChild(geode);
 
             viewer.SetSceneData(root);
 
             viewer.ViewAll();
-            
-            viewer.Run();
 
+            viewer.Run();
         }
     }
 }

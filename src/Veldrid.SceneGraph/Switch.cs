@@ -16,7 +16,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace Veldrid.SceneGraph
 {
@@ -31,25 +30,16 @@ namespace Veldrid.SceneGraph
         void SetAllChildrenOff();
         void SetAllChildrenOn();
     }
-    
+
     public class Switch : Group, ISwitch
     {
         private List<bool> switchVals = new List<bool>();
-        
-        public new static ISwitch Create()
-        {
-            return new Switch();
-        }
 
         public override void Traverse(INodeVisitor nv)
         {
             foreach (var child in _children)
-            {
                 if (child.Item2)
-                {
                     child.Item1.Accept(nv);
-                }
-            }
         }
 
         public void SetValue(int pos, bool value)
@@ -65,41 +55,32 @@ namespace Veldrid.SceneGraph
         public void SetChildValue(INode child, bool value)
         {
             for (var i = 0; i < _children.Count; ++i)
-            {
                 if (_children[i].Item1.Id == child.Id)
-                {
                     SetValue(i, value);
-                }
-            }
         }
 
         public bool GetChildValue(INode child, bool value)
         {
             foreach (var c in _children)
-            {
                 if (c.Item1.Id == child.Id)
-                {
                     return c.Item2;
-                }
-            }
 
             return false;
         }
 
         public void SetAllChildrenOff()
         {
-            for (var i = 0; i < _children.Count; ++i)
-            {
-                SetValue(i, false);
-            }
+            for (var i = 0; i < _children.Count; ++i) SetValue(i, false);
         }
 
         public void SetAllChildrenOn()
         {
-            for (var i = 0; i < _children.Count; ++i)
-            {
-                SetValue(i, true);
-            }
+            for (var i = 0; i < _children.Count; ++i) SetValue(i, true);
+        }
+
+        public new static ISwitch Create()
+        {
+            return new Switch();
         }
     }
 }

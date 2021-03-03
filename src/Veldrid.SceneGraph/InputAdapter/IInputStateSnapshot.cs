@@ -21,7 +21,6 @@ namespace Veldrid.SceneGraph.InputAdapter
 {
     public interface IInputStateSnapshot
     {
-        bool IsMouseDown(MouseButton button);
         IReadOnlyList<KeyEvent> KeyEvents { get; }
         IReadOnlyList<MouseEvent> MouseEvents { get; }
         IReadOnlyList<char> KeyCharPresses { get; }
@@ -32,6 +31,6 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         Matrix4x4 ProjectionMatrix { get; }
         Matrix4x4 ViewMatrix { get; }
-
+        bool IsMouseDown(MouseButton button);
     }
 }

@@ -19,14 +19,15 @@ using Veldrid.SceneGraph.PipelineStates;
 
 namespace Veldrid.SceneGraph.Manipulators
 {
-
-    
     internal class DraggerMaterial : PhongMaterial
     {
+        protected DraggerMaterial(IPhongMaterialParameters m, PhongLight l) : base(m, l, true)
+        {
+        }
+
         internal static IPhongMaterial Create(bool usePhongShading = true)
         {
             if (usePhongShading)
-            {
                 return new DraggerMaterial(PhongMaterialParameters.Create(
                         new Vector3(0.0f, 1.0f, 0.0f),
                         new Vector3(0.0f, 1.0f, 0.0f),
@@ -38,28 +39,19 @@ namespace Veldrid.SceneGraph.Manipulators
                         new Vector3(0.0f, 0.0f, 0.0f),
                         5f,
                         0)));
-            }
-            else
-            {
-                return new DraggerMaterial(PhongMaterialParameters.Create(
-                        new Vector3(0.0f, 1.0f, 0.0f),
-                        new Vector3(0.0f, 1.0f, 0.0f),
-                        new Vector3(0.0f, 0.0f, 0.0f),
-                        1f),
-                    PhongHeadlight.Create(PhongLightParameters.Create(
-                        new Vector3(1f, 1f, 1f),
-                        new Vector3(0f, 0f, 0f),
-                        new Vector3(0.0f, 0.0f, 0.0f),
-                        5f,
-                        0)));
-            }
+            return new DraggerMaterial(PhongMaterialParameters.Create(
+                    new Vector3(0.0f, 1.0f, 0.0f),
+                    new Vector3(0.0f, 1.0f, 0.0f),
+                    new Vector3(0.0f, 0.0f, 0.0f),
+                    1f),
+                PhongHeadlight.Create(PhongLightParameters.Create(
+                    new Vector3(1f, 1f, 1f),
+                    new Vector3(0f, 0f, 0f),
+                    new Vector3(0.0f, 0.0f, 0.0f),
+                    5f,
+                    0)));
         }
 
-        protected DraggerMaterial(IPhongMaterialParameters m, PhongLight l) : base(m, l, true)
-        {
-            
-        }
-        
         public override IPipelineState CreatePipelineState()
         {
             var state = base.CreatePipelineState();

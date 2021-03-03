@@ -23,45 +23,30 @@ namespace Veldrid.SceneGraph.Manipulators
 {
     public interface ICylinderPlaneProjector : ICylinderProjector
     {
-        
     }
-    
+
     public class CylinderPlaneProjector : CylinderProjector, ICylinderPlaneProjector
     {
-        protected IPlane _plane;
-        protected Vector3 _planeLineStart;
-        protected Vector3 _planeLineEnd;
         protected bool _parallelPlane;
-        
-        public new static ICylinderPlaneProjector Create()
-        {
-            return new CylinderPlaneProjector();
-        }
-        
-        public new static ICylinderPlaneProjector Create(ICylinder cylinder)
-        {
-            return new CylinderPlaneProjector(cylinder);
-        }
+        protected IPlane _plane;
+        protected Vector3 _planeLineEnd;
+        protected Vector3 _planeLineStart;
 
         protected CylinderPlaneProjector()
         {
             _parallelPlane = false;
         }
-        
-        
+
+
         protected CylinderPlaneProjector(ICylinder cylinder) : base(cylinder)
         {
             _parallelPlane = false;
         }
-        
+
         public override bool Project(IPointerInfo pi, out Vector3 projectedPoint)
         {
             projectedPoint = Vector3.Zero;
-            if (null == _cylinder)
-            {
-                
-                return false;
-            }
+            if (null == _cylinder) return false;
 
             var objectNearPoint = WorldToLocal.PreMultiply(pi.NearPoint);
             var objectFarPoint = WorldToLocal.PreMultiply(pi.FarPoint);
@@ -73,13 +58,23 @@ namespace Veldrid.SceneGraph.Manipulators
                 ref _parallelPlane);
 
             // Now find the point of intersection on our newly-calculated plane.
-            if(GetPlaneLineIntersection(_plane.AsVector4(), objectNearPoint, objectFarPoint, out var pp))
+            if (GetPlaneLineIntersection(_plane.AsVector4(), objectNearPoint, objectFarPoint, out var pp))
             {
                 projectedPoint = pp;
                 return true;
             }
 
             throw new Exception("Cannot project point in CylinderPlaneProjector.Project(...)");
+        }
+
+        public new static ICylinderPlaneProjector Create()
+        {
+            return new CylinderPlaneProjector();
+        }
+
+        public new static ICylinderPlaneProjector Create(ICylinder cylinder)
+        {
+            return new CylinderPlaneProjector(cylinder);
         }
     }
 }

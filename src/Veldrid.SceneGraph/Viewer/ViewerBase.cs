@@ -1,14 +1,9 @@
-
 using System.Collections.Generic;
 
 namespace Veldrid.SceneGraph.Viewer
 {
     public abstract class ViewerBase : Object
     {
-        public class ContextList : List<IGraphicsContext> {}
-
-        public class WindowList : List<IGraphicsWindow>{}
-
         protected abstract ContextList GetContexts(bool onlyValid);
 
         protected virtual WindowList GetWindows(bool onlyValid)
@@ -16,14 +11,18 @@ namespace Veldrid.SceneGraph.Viewer
             var windowList = new WindowList();
             var contextList = GetContexts(onlyValid);
             foreach (var context in contextList)
-            {
                 if (context is IGraphicsWindow window)
-                {
                     windowList.Add(window);
-                }
-            }
 
             return windowList;
+        }
+
+        public class ContextList : List<IGraphicsContext>
+        {
+        }
+
+        public class WindowList : List<IGraphicsWindow>
+        {
         }
     }
 }

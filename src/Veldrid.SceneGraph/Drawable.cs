@@ -39,23 +39,27 @@ namespace Veldrid.SceneGraph
         public void UpdateDeviceBuffers(GraphicsDevice device);
 
         IPrimitiveFunctor CreateTemplatePrimitiveFunctor(IPrimitiveFunctorDelegate pfd);
-        
+
         bool Supports(IPrimitiveFunctor functor);
         void Accept(IPrimitiveFunctor functor);
         bool Supports(IPrimitiveIndexFunctor functor);
         void Accept(IPrimitiveIndexFunctor functor);
     }
-    
+
     public abstract class Drawable : Node, IDrawable
     {
+        private IBoundingBox _boundingBox;
+
+        private IBoundingBox _fixedBoundingBox;
+        private IBoundingBox _initialBoundingBox = BoundingBox.Create();
+
+        private List<VertexLayoutDescription> _vertexLayouts;
         public string Name { get; set; } = string.Empty;
 
         public Type VertexType => GetVertexType();
-        
+
         public IShape Shape { get; protected set; }
-        
-        private IBoundingBox _boundingBox;
-        private IBoundingBox _initialBoundingBox = BoundingBox.Create();
+
         public IBoundingBox InitialBoundingBox
         {
             get => _initialBoundingBox;
@@ -66,12 +70,6 @@ namespace Veldrid.SceneGraph
             }
         }
 
-        private IBoundingBox _fixedBoundingBox = null;
-        public void SetFixedBoundingBox(IBoundingBox boundingBox)
-        {
-            _fixedBoundingBox = boundingBox;
-        }
-
         public override void Accept(INodeVisitor nv)
         {
             if (nv.ValidNodeMask(this))
@@ -79,10 +77,11 @@ namespace Veldrid.SceneGraph
                 nv.PushOntoNodePath(this);
                 nv.Apply(this);
                 nv.PopFromNodePath(this);
-            };
+            }
+
+            ;
         }
-        
-        private List<VertexLayoutDescription> _vertexLayouts;
+
         public List<VertexLayoutDescription> VertexLayouts
         {
             get => _vertexLayouts;
@@ -96,33 +95,8 @@ namespace Veldrid.SceneGraph
         public string VertexLayoutsDescription { get; private set; }
 
         public List<IPrimitiveSet> PrimitiveSets { get; } = new List<IPrimitiveSet>();
-        
-        public event Func<Drawable, BoundingBox> ComputeBoundingBoxCallback;
-        public event Action<CommandList, Drawable> DrawImplementationCallback;
-        
-        protected abstract Type GetVertexType();
-        
-        public void Draw(GraphicsDevice device, List<Tuple<uint, ResourceSet>> resourceSets, CommandList commandList)
-        {
-            if (null != DrawImplementationCallback)
-            {
-                DrawImplementationCallback(commandList, this);
-            }
-            else
-            {
-                DrawImplementation(device, resourceSets, commandList);
-            }
-        }
-
-        protected abstract void DrawImplementation(GraphicsDevice device, List<Tuple<uint, ResourceSet>> resourceSets, CommandList commandList);
 
         public virtual void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory)
-        {
-            // Nothing by default
-        }
-
-        public virtual void ConfigurePipelinesForDevice(GraphicsDevice device, ResourceFactory factory,
-            ResourceLayout parentLayout)
         {
             // Nothing by default
         }
@@ -135,7 +109,7 @@ namespace Veldrid.SceneGraph
         public IBoundingBox GetBoundingBox()
         {
             if (_boundingSphereComputed) return _boundingBox;
-            
+
             _boundingBox = _initialBoundingBox;
 
             _boundingBox.ExpandBy(null != ComputeBoundingBoxCallback
@@ -143,13 +117,9 @@ namespace Veldrid.SceneGraph
                 : ComputeBoundingBox());
 
             if (_boundingBox.Valid())
-            {
                 _boundingSphere.Set(_boundingBox.Center, _boundingBox.Radius);
-            }
             else
-            {
                 _boundingSphere.Init();
-            }
 
             _boundingSphereComputed = true;
 
@@ -161,8 +131,6 @@ namespace Veldrid.SceneGraph
             return false;
         }
 
-        protected abstract IBoundingBox ComputeBoundingBox();
-
         public abstract List<DeviceBuffer> GetVertexBufferForDevice(GraphicsDevice device);
 
         public abstract DeviceBuffer GetIndexBufferForDevice(GraphicsDevice device);
@@ -170,28 +138,62 @@ namespace Veldrid.SceneGraph
         public abstract void UpdateDeviceBuffers(GraphicsDevice device);
 
         public abstract IPrimitiveFunctor CreateTemplatePrimitiveFunctor(IPrimitiveFunctorDelegate pfd);
-        
-        public virtual bool Supports(IPrimitiveFunctor functor) { return false; }
+
+        public virtual bool Supports(IPrimitiveFunctor functor)
+        {
+            return false;
+        }
 
         public virtual void Accept(IPrimitiveFunctor functor)
         {
             if (functor.Drawable != this)
-            {
                 throw new NotSupportedException("This functor is not supported for this drawable");
-            }
         }
-        public virtual bool Supports(IPrimitiveIndexFunctor functor) { return false; }
-        public virtual void Accept(IPrimitiveIndexFunctor functor) {}
-        
+
+        public virtual bool Supports(IPrimitiveIndexFunctor functor)
+        {
+            return false;
+        }
+
+        public virtual void Accept(IPrimitiveIndexFunctor functor)
+        {
+        }
+
+        public void SetFixedBoundingBox(IBoundingBox boundingBox)
+        {
+            _fixedBoundingBox = boundingBox;
+        }
+
+        public event Func<Drawable, BoundingBox> ComputeBoundingBoxCallback;
+        public event Action<CommandList, Drawable> DrawImplementationCallback;
+
+        protected abstract Type GetVertexType();
+
+        public void Draw(GraphicsDevice device, List<Tuple<uint, ResourceSet>> resourceSets, CommandList commandList)
+        {
+            if (null != DrawImplementationCallback)
+                DrawImplementationCallback(commandList, this);
+            else
+                DrawImplementation(device, resourceSets, commandList);
+        }
+
+        protected abstract void DrawImplementation(GraphicsDevice device, List<Tuple<uint, ResourceSet>> resourceSets,
+            CommandList commandList);
+
+        public virtual void ConfigurePipelinesForDevice(GraphicsDevice device, ResourceFactory factory,
+            ResourceLayout parentLayout)
+        {
+            // Nothing by default
+        }
+
+        protected abstract IBoundingBox ComputeBoundingBox();
+
         private string VertexLayoutDescriptionListString(IList<VertexLayoutDescription> vertexLayoutDescriptions)
         {
             var sb = new StringBuilder();
             foreach (var vld in vertexLayoutDescriptions)
             {
-                foreach (var elt in vld.Elements)
-                {
-                    sb.Append($"{elt.Name}-");
-                }
+                foreach (var elt in vld.Elements) sb.Append($"{elt.Name}-");
 
                 sb.Append("|");
             }

@@ -1,4 +1,3 @@
-
 using Veldrid.SceneGraph.Manipulators.Commands;
 
 namespace Veldrid.SceneGraph.Manipulators
@@ -13,14 +12,14 @@ namespace Veldrid.SceneGraph.Manipulators
         bool Receive(IScaleUniformCommand command);
         bool Receive(IRotate3DCommand command);
     }
-    
+
     public class DraggerCallback : IDraggerCallback
     {
         public virtual bool Receive(IMotionCommand command)
         {
             return false;
         }
-        
+
         public virtual bool Receive(ITranslateInLineCommand command)
         {
             return Receive(command as IMotionCommand);

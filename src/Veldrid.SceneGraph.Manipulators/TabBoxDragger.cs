@@ -1,27 +1,16 @@
-
-
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Util;
 
 namespace Veldrid.SceneGraph.Manipulators
 {
     public interface ITabBoxDragger : ICompositeDragger
     {
-        
     }
-    
+
     public class TabBoxDragger : CompositeDragger, ITabBoxDragger
     {
-        protected List<ITabPlaneDragger> PlaneDraggers { get; set; } = new List<ITabPlaneDragger>();
-        
-        public new static ITabBoxDragger Create()
-        {
-            return new TabBoxDragger(Matrix4x4.Identity);
-        }
-        
         protected TabBoxDragger(Matrix4x4 matrix) : base(matrix)
         {
             for (var i = 0; i < 6; ++i)
@@ -38,7 +27,7 @@ namespace Veldrid.SceneGraph.Manipulators
                 dragger.Matrix = Matrix4x4.CreateTranslation(0.0f, 0.5f, 0.0f);
             }
             {
-                var quat = QuaternionExtensions.MakeRotate(-1*Vector3.UnitY, Vector3.UnitY);
+                var quat = QuaternionExtensions.MakeRotate(-1 * Vector3.UnitY, Vector3.UnitY);
                 var dragger = PlaneDraggers.ElementAt(1);
                 dragger.NameString = "Back Tab Plane Dragger";
                 dragger.Matrix = Matrix4x4.CreateFromQuaternion(quat)
@@ -72,21 +61,20 @@ namespace Veldrid.SceneGraph.Manipulators
                 dragger.Matrix = Matrix4x4.CreateFromQuaternion(quat)
                     .PostMultiply(Matrix4x4.CreateTranslation(0.5f, 0.0f, 0.0f));
             }
-            
-            foreach (var dragger in DraggerList)
-            {
-                dragger.ParentDragger = this;
-            }
+
+            foreach (var dragger in DraggerList) dragger.ParentDragger = this;
         }
+
+        protected List<ITabPlaneDragger> PlaneDraggers { get; set; } = new List<ITabPlaneDragger>();
 
         public override void SetupDefaultGeometry()
         {
-            foreach (var dragger in PlaneDraggers)
-            {
-                dragger.SetupDefaultGeometry();
-            }
+            foreach (var dragger in PlaneDraggers) dragger.SetupDefaultGeometry();
         }
 
-
+        public new static ITabBoxDragger Create()
+        {
+            return new TabBoxDragger(Matrix4x4.Identity);
+        }
     }
 }

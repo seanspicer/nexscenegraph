@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 
-using System;
 using System.Collections.Generic;
 using System.Numerics;
 using Veldrid.SceneGraph.PipelineStates;
@@ -25,26 +24,19 @@ namespace Veldrid.SceneGraph.Manipulators
 {
     public interface IRotateCylinderDragger : IDragger
     {
-        
     }
-    
+
     public class RotateCylinderDragger : Dragger, IRotateCylinderDragger
     {
-        protected ICylinderPlaneProjector _projector;
-
-        protected Vector3 _prevWorldProjPt;
-        protected Matrix4x4 _startLocalToWorld;
-        protected Matrix4x4 _startWorldToLocal;
+        private readonly IPhongMaterial _material;
+        private IPhongMaterial _pickedMaterial;
         protected Quaternion _prevRotation;
 
-        private IPhongMaterial _material;
-        private IPhongMaterial _pickedMaterial;
-        
-        public new static IRotateCylinderDragger Create()
-        {
-            return new RotateCylinderDragger(Matrix4x4.Identity);
-        }
-        
+        protected Vector3 _prevWorldProjPt;
+        protected ICylinderPlaneProjector _projector;
+        protected Matrix4x4 _startLocalToWorld;
+        protected Matrix4x4 _startWorldToLocal;
+
         protected RotateCylinderDragger(Matrix4x4 matrix, bool usePhongShading = true) : base(matrix, usePhongShading)
         {
             _projector = CylinderPlaneProjector.Create();
@@ -70,17 +62,17 @@ namespace Veldrid.SceneGraph.Manipulators
                 var cylinderDrawable = ShapeDrawable<Position3Texture2Color3Normal3>.Create(cylinder, hints);
                 cylinderDrawable.NameString = "Outer Cylinder";
                 geode.AddDrawable(cylinderDrawable);
-                
 
-                var innerCylinder = Cylinder.Create(_projector.Cylinder.Center, radius-thickness, height);
+
+                var innerCylinder = Cylinder.Create(_projector.Cylinder.Center, radius - thickness, height);
                 var innerCylinderDrawable = ShapeDrawable<Position3Texture2Color3Normal3>.Create(innerCylinder, hints);
                 innerCylinderDrawable.NameString = "Inner Cylinder";
                 geode.AddDrawable(innerCylinderDrawable);
-                
+
                 // Top
                 var topGeom = CreateDiskGeometry(radius, thickness, height / 2, Vector3.UnitZ, 100);
                 geode.AddDrawable(topGeom);
-                
+
                 // Bottom
                 var bottomGeom = CreateDiskGeometry(radius, thickness, -height / 2, -Vector3.UnitZ, 100);
                 geode.AddDrawable(bottomGeom);
@@ -88,37 +80,44 @@ namespace Veldrid.SceneGraph.Manipulators
 
             var pso = _material.CreatePipelineState();
             geode.PipelineState = pso;
-            
+
             AddChild(geode);
         }
 
-        public IGeometry<Position3Texture2Color3Normal3> CreateDiskGeometry(float radius, float offset, float z, Vector3 normal, uint numSegments)
+        public new static IRotateCylinderDragger Create()
         {
-            var angleDelta = 2.0f*(float)System.Math.PI/(float)(numSegments);
-            var numPoints = (numSegments+1) * 2;
+            return new RotateCylinderDragger(Matrix4x4.Identity);
+        }
+
+        public IGeometry<Position3Texture2Color3Normal3> CreateDiskGeometry(float radius, float offset, float z,
+            Vector3 normal, uint numSegments)
+        {
+            var angleDelta = 2.0f * (float) System.Math.PI / numSegments;
+            var numPoints = (numSegments + 1) * 2;
             var angle = 0.0f;
-            
+
             var vertexArray = new Position3Texture2Color3Normal3[numPoints];
             var indexArray = new uint[numPoints];
             var p = 0u;
-            for(var i = 0; i < numSegments; ++i,angle+=angleDelta)
+            for (var i = 0; i < numSegments; ++i, angle += angleDelta)
             {
                 var c = System.Math.Cos(angle);
                 var s = System.Math.Sin(angle);
                 // Outer point
                 vertexArray[p] = new Position3Texture2Color3Normal3(
-                    new Vector3((float) (radius * c), (float) (radius * s), (float) z),
+                    new Vector3((float) (radius * c), (float) (radius * s), z),
                     Vector2.Zero, Vector3.One,
                     normal);
                 indexArray[p] = p;
                 ++p;
                 // Inner point
                 vertexArray[p] = new Position3Texture2Color3Normal3(
-                    new Vector3((float)((radius-offset)*c), (float)((radius-offset)*s), z),
+                    new Vector3((float) ((radius - offset) * c), (float) ((radius - offset) * s), z),
                     Vector2.Zero, Vector3.One, normal);
                 indexArray[p] = p;
                 ++p;
             }
+
             // do last points by hand to ensure no round off errors.
             vertexArray[p] = vertexArray[0];
             indexArray[p] = p;
@@ -129,7 +128,7 @@ namespace Veldrid.SceneGraph.Manipulators
             var geometry = Geometry<Position3Texture2Color3Normal3>.Create();
             geometry.IndexData = indexArray;
             geometry.VertexData = vertexArray;
-            geometry.VertexLayouts = new List<VertexLayoutDescription>()
+            geometry.VertexLayouts = new List<VertexLayoutDescription>
             {
                 Position3Texture2Color3Normal3.VertexLayoutDescription
             };
@@ -139,14 +138,13 @@ namespace Veldrid.SceneGraph.Manipulators
                 PrimitiveTopology.TriangleStrip,
                 (uint) indexArray.Length,
                 1,
-                0, 
-                0, 
+                0,
+                0,
                 0);
-            
+
             geometry.PrimitiveSets.Add(pSet);
 
             return geometry;
         }
-        
     }
 }

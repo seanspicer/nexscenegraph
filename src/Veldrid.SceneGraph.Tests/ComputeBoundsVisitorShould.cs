@@ -27,14 +27,14 @@ namespace Veldrid.SceneGraph.Tests
         public void SetBoundingBoxForDrawableCorrectly()
         {
             var drawableMock = new Mock<IDrawable>();
-            drawableMock.Setup(x => x.GetBoundingBox()).Returns(BoundingBox.Create(-4*Vector3.One, 4*Vector3.One));
+            drawableMock.Setup(x => x.GetBoundingBox()).Returns(BoundingBox.Create(-4 * Vector3.One, 4 * Vector3.One));
 
             var sut = ComputeBoundsVisitor.Create();
             sut.Apply(drawableMock.Object);
-            
+
             Assert.That(sut.GetBoundingBox().Center, Is.EqualTo(Vector3.Zero));
-            Assert.That(sut.GetBoundingBox().Min, Is.EqualTo(-4*Vector3.One));
-            Assert.That(sut.GetBoundingBox().Max, Is.EqualTo(4*Vector3.One));
+            Assert.That(sut.GetBoundingBox().Min, Is.EqualTo(-4 * Vector3.One));
+            Assert.That(sut.GetBoundingBox().Max, Is.EqualTo(4 * Vector3.One));
         }
     }
 }

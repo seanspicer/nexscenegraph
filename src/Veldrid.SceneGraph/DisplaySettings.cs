@@ -23,41 +23,33 @@ namespace Veldrid.SceneGraph
     public interface IDisplaySettings
     {
         uint ScreenWidth { get; }
-        void SetScreenWidth(uint width);
-        
+
         uint ScreenHeight { get; }
-        void SetScreenHeight(uint height);
-        
+
         float ScreenDistance { get; }
-        void SetScreenDistance(float distance);
-        
+
         GraphicsBackend GraphicsBackend { get; }
+        void SetScreenWidth(uint width);
+        void SetScreenHeight(uint height);
+        void SetScreenDistance(float distance);
     }
-    
+
     /// <summary>
-    /// Singleton class to capture information required for rendering
+    ///     Singleton class to capture information required for rendering
     /// </summary>
     public class DisplaySettings : IDisplaySettings
     {
-        //private static readonly Lazy<IDisplaySettings> lazy = new Lazy<IDisplaySettings>(() => new DisplaySettings());
+        private static readonly Dictionary<IView, DisplaySettings> _displaySettingsCache =
+            new Dictionary<IView, DisplaySettings>();
 
-        public static IDisplaySettings Instance(IView view)
+        private DisplaySettings()
         {
-            if(null == view) throw new ArgumentNullException("view cannot be null");
-            
-            if (_displaySettingsCache.TryGetValue(view, out var displaySettings))
-            {
-                return displaySettings;
-            }
-            
-            displaySettings = new DisplaySettings();
-            _displaySettingsCache.Add(view, displaySettings);
-            return displaySettings;
+            SetDefaults();
+            ReadEnvironmentVariables();
         }
 
-        private static Dictionary<IView, DisplaySettings> _displaySettingsCache = new Dictionary<IView, DisplaySettings>();
-        
         public uint ScreenWidth { get; private set; }
+
         public void SetScreenWidth(uint width)
         {
             ScreenWidth = width;
@@ -78,11 +70,17 @@ namespace Veldrid.SceneGraph
         }
 
         public GraphicsBackend GraphicsBackend { get; private set; }
-        
-        private DisplaySettings()
+        //private static readonly Lazy<IDisplaySettings> lazy = new Lazy<IDisplaySettings>(() => new DisplaySettings());
+
+        public static IDisplaySettings Instance(IView view)
         {
-            SetDefaults();
-            ReadEnvironmentVariables();
+            if (null == view) throw new ArgumentNullException("view cannot be null");
+
+            if (_displaySettingsCache.TryGetValue(view, out var displaySettings)) return displaySettings;
+
+            displaySettings = new DisplaySettings();
+            _displaySettingsCache.Add(view, displaySettings);
+            return displaySettings;
         }
 
         private void ReadEnvironmentVariables()
@@ -94,16 +92,12 @@ namespace Veldrid.SceneGraph
             //SetScreenWidth(0.325f);
             //SetScreenHeight(0.26f);
             //SetScreenDistance(0.5f);
-            
-            bool isMacOS = RuntimeInformation.OSDescription.Contains("Darwin");
+
+            var isMacOS = RuntimeInformation.OSDescription.Contains("Darwin");
             if (isMacOS)
-            {
                 GraphicsBackend = GraphicsBackend.Metal;
-            }
             else
-            {
                 GraphicsBackend = GraphicsBackend.Direct3D11;
-            }
         }
     }
 }

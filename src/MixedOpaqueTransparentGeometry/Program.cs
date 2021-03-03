@@ -14,33 +14,26 @@
 // limitations under the License.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Numerics;
 using Examples.Common;
-using SharpDX.Mathematics.Interop;
 using Veldrid;
-using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
-using Veldrid.SceneGraph.Shaders.Standard;
-using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Viewer;
 
 namespace MixedOpaqueTransparentGeometry
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             Bootstrapper.Configure();
-            
+
             var viewer = SimpleViewer.Create("Transparancy Sorting Demo", TextureSampleCount.Count8);
             viewer.SetCameraManipulator(TrackballManipulator.Create());
 
             var root = MixedOpaqueTransparentGeometryScene.Build();
 
             viewer.SetSceneData(root);
-            viewer.ViewAll();            
+            viewer.ViewAll();
             viewer.Run();
         }
     }

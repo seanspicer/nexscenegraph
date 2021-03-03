@@ -23,10 +23,10 @@ namespace Veldrid.SceneGraph
             Dynamic,
             Static,
             Unspecified
-        };
+        }
 
         public DataVarianceType DataVariance { get; set; } = DataVarianceType.Unspecified;
-        
+
         public object UserData { get; set; }
     }
 }

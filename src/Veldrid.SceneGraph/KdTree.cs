@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 
+using System;
 using System.Numerics;
 using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Util.Shape;
@@ -22,30 +23,33 @@ namespace Veldrid.SceneGraph
 {
     public interface IKdTree : IShape
     {
-        public interface INode {}
-
         INode GetNode(int nodeNum);
-        
+
         internal void Intersect(IIntersectFunctor functor, INode node);
+
+        public interface INode
+        {
+        }
     }
-    
+
     public class KdTree : IKdTree
     {
         public void Accept(IShapeVisitor shapeVisitor)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public Vector3 Center { get; set; }
         public Quaternion Rotation { get; set; }
+
         public IKdTree.INode GetNode(int nodeNum)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         void IKdTree.Intersect(IIntersectFunctor functor, IKdTree.INode node)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

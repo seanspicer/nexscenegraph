@@ -14,34 +14,32 @@
 // limitations under the License.
 //
 
-using System;
-
 namespace Veldrid.SceneGraph.Util
 {
     public interface IIntersector
     {
         enum CoordinateFrameMode
         {
-            Window, 
+            Window,
             Projection,
-            View, 
+            View,
             Model
         }
-        
+
         enum IntersectionLimitModes
         {
             NoLimit,
             LimitOnePerDrawable,
             LimitOne,
             LimitNearest
-        };
-        
+        }
+
         enum PrecisionHintTypes
         {
             UseDoubleCalculations,
             UseFloatCalculations
-        };
-        
+        }
+
         IntersectionLimitModes IntersectionLimit { get; }
         PrecisionHintTypes PrecisionHint { get; }
         CoordinateFrameMode CoordinateFrame { get; }
@@ -52,28 +50,28 @@ namespace Veldrid.SceneGraph.Util
         void Reset();
         bool ReachedLimit();
     }
-    
+
     /// <summary>
-    /// Base class for all intersectors
+    ///     Base class for all intersectors
     /// </summary>
     public abstract class Intersector : IIntersector
     {
-        public IIntersector.PrecisionHintTypes PrecisionHint { get; set; } =
-            IIntersector.PrecisionHintTypes.UseFloatCalculations;
-        
-        public IIntersector.IntersectionLimitModes IntersectionLimit { get; protected set; }
-
-        public IIntersector.CoordinateFrameMode CoordinateFrame { get; protected set; } 
-        
         protected Intersector(IIntersector.CoordinateFrameMode coordinateFrame = IIntersector.CoordinateFrameMode.Model,
-            IIntersector.IntersectionLimitModes intersectionLimit=IIntersector.IntersectionLimitModes.NoLimit)
+            IIntersector.IntersectionLimitModes intersectionLimit = IIntersector.IntersectionLimitModes.NoLimit)
         {
             CoordinateFrame = coordinateFrame;
             IntersectionLimit = intersectionLimit;
         }
-        
+
+        public IIntersector.PrecisionHintTypes PrecisionHint { get; set; } =
+            IIntersector.PrecisionHintTypes.UseFloatCalculations;
+
+        public IIntersector.IntersectionLimitModes IntersectionLimit { get; protected set; }
+
+        public IIntersector.CoordinateFrameMode CoordinateFrame { get; protected set; }
+
         public abstract IIntersector Clone(IIntersectionVisitor iv);
-        
+
         public abstract void Intersect(IIntersectionVisitor iv, IDrawable drawable);
 
         public abstract bool Enter(INode node);
@@ -88,6 +86,5 @@ namespace Veldrid.SceneGraph.Util
         }
 
         protected abstract bool ContainsIntersections();
-
     }
 }

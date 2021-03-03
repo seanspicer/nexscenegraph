@@ -1,5 +1,4 @@
-
-
+using System;
 using System.Numerics;
 
 namespace Veldrid.SceneGraph.VertexTypes
@@ -8,11 +7,11 @@ namespace Veldrid.SceneGraph.VertexTypes
     {
         public Vector3 Position;
         public Vector4 Color;
-        
+
         public Position3Color4(Vector3 position, Vector4 color)
         {
             Position = position;
-            Color    = color;
+            Color = color;
         }
 
         public Vector3 VertexPosition
@@ -22,7 +21,6 @@ namespace Veldrid.SceneGraph.VertexTypes
         }
 
         public static VertexLayoutDescription VertexLayoutDescription =>
-            
             new VertexLayoutDescription(
                 new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate,
                     VertexElementFormat.Float3),
@@ -40,6 +38,7 @@ namespace Veldrid.SceneGraph.VertexTypes
         public bool HasTexCoord3 => false;
         public bool HasColor3 => false;
         public bool HasColor4 => true;
+
         public void SetPosition(Vector3 position)
         {
             Position = position;
@@ -47,24 +46,24 @@ namespace Veldrid.SceneGraph.VertexTypes
 
         public void SetNormal(Vector3 normal)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public void SetTexCoord2(Vector2 texCoord)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
-        
+
         public void SetTexCoord3(Vector3 texCoord)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
-        
+
         public void SetColor3(Vector3 color)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
-        
+
         public void SetColor4(Vector4 color)
         {
             Color = color;

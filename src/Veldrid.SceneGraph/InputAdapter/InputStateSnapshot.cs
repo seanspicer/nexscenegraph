@@ -32,23 +32,13 @@ namespace Veldrid.SceneGraph.InputAdapter
         public Vector2 MousePosition { get; } = Vector2.Zero;
         public float WheelDelta { get; } = 0;
     }
-    
+
     public class InputStateSnapshot : InputSnapshot, IInputStateSnapshot
     {
-        private InputSnapshot _snapshot;
+        private readonly InputSnapshot _snapshot;
 
-        public static InputStateSnapshot CreateEmpty(int width = 0, int height = 0)
-        {
-            return new InputStateSnapshot(new EmptyInputSnapshot(), width, height, Matrix4x4.Identity,
-                Matrix4x4.Identity);
-        }
-        
-        public static IInputStateSnapshot Create(InputSnapshot snapshot, int width, int height, Matrix4x4 projectionMatrix, Matrix4x4 viewMatrix)
-        {
-            return new InputStateSnapshot(snapshot, width, height, projectionMatrix, viewMatrix);
-        }
-        
-        protected InputStateSnapshot(InputSnapshot snapshot, int width, int height, Matrix4x4 projectionMatrix, Matrix4x4 viewMatrix)
+        protected InputStateSnapshot(InputSnapshot snapshot, int width, int height, Matrix4x4 projectionMatrix,
+            Matrix4x4 viewMatrix)
         {
             WindowWidth = width;
             WindowHeight = height;
@@ -56,6 +46,11 @@ namespace Veldrid.SceneGraph.InputAdapter
             ViewMatrix = viewMatrix;
             _snapshot = snapshot;
         }
+
+        public int WindowWidth { get; }
+        public int WindowHeight { get; }
+        public Matrix4x4 ProjectionMatrix { get; }
+        public Matrix4x4 ViewMatrix { get; }
 
         public bool IsMouseDown(MouseButton button)
         {
@@ -67,10 +62,17 @@ namespace Veldrid.SceneGraph.InputAdapter
         public IReadOnlyList<char> KeyCharPresses => _snapshot.KeyCharPresses;
         public Vector2 MousePosition => _snapshot.MousePosition;
         public float WheelDelta => _snapshot.WheelDelta;
-        
-        public int WindowWidth { get; private set; }
-        public int WindowHeight { get; private set; }
-        public Matrix4x4 ProjectionMatrix { get; private set; }
-        public Matrix4x4 ViewMatrix { get; private set; }
+
+        public static InputStateSnapshot CreateEmpty(int width = 0, int height = 0)
+        {
+            return new InputStateSnapshot(new EmptyInputSnapshot(), width, height, Matrix4x4.Identity,
+                Matrix4x4.Identity);
+        }
+
+        public static IInputStateSnapshot Create(InputSnapshot snapshot, int width, int height,
+            Matrix4x4 projectionMatrix, Matrix4x4 viewMatrix)
+        {
+            return new InputStateSnapshot(snapshot, width, height, projectionMatrix, viewMatrix);
+        }
     }
 }

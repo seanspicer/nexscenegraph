@@ -1,5 +1,3 @@
-
-
 namespace Veldrid.SceneGraph.Math.IsoSurface
 {
     public interface IVoxelVolume

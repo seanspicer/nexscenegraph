@@ -20,9 +20,8 @@ namespace Veldrid.SceneGraph.Util.Shape
 {
     public interface IShape
     {
-        void Accept(IShapeVisitor shapeVisitor);
-        
         Vector3 Center { get; set; }
         Quaternion Rotation { get; set; }
+        void Accept(IShapeVisitor shapeVisitor);
     }
 }

@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 
-using System;
 using System.Collections.Generic;
 using System.Numerics;
 using Examples.Common;
@@ -32,7 +31,7 @@ namespace BillboardExample
 
         public Vector3 Position;
         public Vector4 Color;
-        
+
         public VertexPositionColor(Vector3 position, Vector4 color)
         {
             Position = position;
@@ -45,42 +44,42 @@ namespace BillboardExample
             set => Position = value;
         }
     }
-    
-    class Program
+
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             Bootstrapper.Configure();
-            
+
             var viewer = SimpleViewer.Create("Hello Veldrid Scene Graph");
             viewer.SetCameraManipulator(TrackballManipulator.Create());
 
             var root = Group.Create();
-            
+
             var geometry = Geometry<VertexPositionColor>.Create();
-            
+
             VertexPositionColor[] quadVertices =
             {
-                new VertexPositionColor(new Vector3(-.75f, .75f, 0),  new Vector4(1.0f, 0.0f, 0.0f, 1.0f)),
-                new VertexPositionColor(new Vector3(.75f, .75f, 0),   new Vector4(0.0f, 1.0f, 0.0f, 1.0f)),
+                new VertexPositionColor(new Vector3(-.75f, .75f, 0), new Vector4(1.0f, 0.0f, 0.0f, 1.0f)),
+                new VertexPositionColor(new Vector3(.75f, .75f, 0), new Vector4(0.0f, 1.0f, 0.0f, 1.0f)),
                 new VertexPositionColor(new Vector3(-.75f, -.75f, 0), new Vector4(0.0f, 0.0f, 1.0f, 1.0f)),
-                new VertexPositionColor(new Vector3(.75f, -.75f, 0),  new Vector4(1.0f, 1.0f, 0.0f, 1.0f))
+                new VertexPositionColor(new Vector3(.75f, -.75f, 0), new Vector4(1.0f, 1.0f, 0.0f, 1.0f))
             };
 
             geometry.VertexData = quadVertices;
-            
-            uint[] quadIndices = { 0, 1, 2, 3 };
+
+            uint[] quadIndices = {0, 1, 2, 3};
             geometry.IndexData = quadIndices;
-            
+
             var pSet = DrawElements<VertexPositionColor>.Create(
-                geometry, 
+                geometry,
                 PrimitiveTopology.TriangleStrip,
-                (uint)quadIndices.Length, 
-                1, 
-                0, 
-                0, 
+                (uint) quadIndices.Length,
+                1,
+                0,
+                0,
                 0);
-            
+
             geometry.PrimitiveSets.Add(pSet);
             geometry.PrimitiveSets.Add(pSet);
 
@@ -92,30 +91,29 @@ namespace BillboardExample
                     new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate,
                         VertexElementFormat.Float4))
             };
-                        
+
             var geode = Geode.Create();
             geode.AddDrawable(geometry);
-            
+
             var billboard = Billboard.Create();
             //billboard.SizeMode = Billboard.SizeModes.ScreenCoords;
             billboard.AddDrawable(geometry);
-            
+
             var leftXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(1, 0, 0));
             leftXForm.AddChild(geode);
-            
+
             var rightXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(-1, 0, 0));
             rightXForm.AddChild(billboard);
-            
+
             root.AddChild(leftXForm);
             root.AddChild(rightXForm);
             root.PipelineState = CreateSharedState();
 
             viewer.SetSceneData(root);
-            viewer.ViewAll();            
+            viewer.ViewAll();
             viewer.Run();
-
         }
-        
+
         private static IPipelineState CreateSharedState()
         {
             var pso = PipelineState.Create();
