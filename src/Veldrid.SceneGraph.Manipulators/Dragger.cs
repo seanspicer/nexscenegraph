@@ -1,5 +1,20 @@
+//
+// Copyright 2018-2019 Sean Spicer 
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using Veldrid.SceneGraph.InputAdapter;
@@ -61,7 +76,7 @@ namespace Veldrid.SceneGraph.Manipulators
 
         protected IPointerInfo PointerInfo { get; set; } = Manipulators.PointerInfo.Create();
 
-        public Color Color { get; protected set; } = Color.FromArgb(255, 0, 255, 0);
+        public Color Color { get; protected set; } = Color.Green;
         public Color PickColor { get; protected set; } = Color.Magenta;
 
         public bool HandleEvents
@@ -287,15 +302,7 @@ namespace Veldrid.SceneGraph.Manipulators
             // Pass along movement to any callbacks
             foreach (var callback in ParentDragger.DraggerCallbacks) command.Accept(callback);
         }
-
-        protected Vector3 GetColorVector(Color color)
-        {
-            return new Vector3(
-                (float) (color.R / 255.0),
-                (float) (color.G / 255.0),
-                (float) (color.B / 255.0));
-        }
-
+        
         /**
          * Return true if the axis of the Locator are inverted requiring the faces of any cubes used from
          * rendering to be flipped to ensure the correct front/back face is used.

@@ -9,8 +9,4 @@
       <ProjectReference Include="..\Veldrid.SceneGraph\Veldrid.SceneGraph.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Assets\Shaders" />
-    </ItemGroup>
-
 </Project>
