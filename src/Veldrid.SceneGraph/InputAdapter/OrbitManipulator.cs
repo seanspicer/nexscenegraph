@@ -37,8 +37,8 @@ namespace Veldrid.SceneGraph.InputAdapter
         {
         }
 
-        protected float MinimumDistance { get; set; } = 0.05f;
-        protected float WheelZoomFactor { get; set; } = 0.01f;
+        public float MinimumDistance { get; set; } = 0.05f;
+        public float WheelZoomFactor { get; set; } = 0.01f;
 
         public float Distance { get; private set; } = 5.0f;
 
