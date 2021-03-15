@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 //using Common.Logging;
 
@@ -162,6 +163,8 @@ namespace Veldrid.SceneGraph
 
         public bool InsertChild(int index, INode child, bool value)
         {
+            ThreadInfo.Instance.AssertRenderingThread();
+            
             if (null == child) return false;
 
             if (_children.Exists(x => x.Item1.Id == child.Id))
