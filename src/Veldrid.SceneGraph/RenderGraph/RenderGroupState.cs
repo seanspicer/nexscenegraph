@@ -125,7 +125,8 @@ namespace Veldrid.SceneGraph.RenderGraph
                     ResourceLayoutElementOptions.DynamicBinding));
 
             //bindableResourceList.Add(ri.ModelViewBuffer);
-            bindableResourceList.Add(new DeviceBufferRange(ri.ModelViewBuffer, 0, modelViewMatrixObjSizeInBytes));
+            bindableResourceList.Add(
+                new DeviceBufferRange(ri.ModelViewBuffer, 0, modelViewMatrixObjSizeInBytes*nDrawables));
 
 
             // Process Attached Textures
