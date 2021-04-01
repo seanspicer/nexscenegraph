@@ -50,9 +50,14 @@ namespace Veldrid.SceneGraph
 
         public SizeModes SizeMode { get; set; }
 
-        public override void Accept(INodeVisitor visitor)
+        public override void Accept(INodeVisitor nv)
         {
-            visitor.Apply(this);
+            if (nv.ValidNodeMask(this))
+            {
+                nv.PushOntoNodePath(this);
+                nv.Apply(this);
+                nv.PopFromNodePath(this);
+            };
         }
 
 

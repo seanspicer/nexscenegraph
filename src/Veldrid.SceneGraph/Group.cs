@@ -45,6 +45,16 @@ namespace Veldrid.SceneGraph
         {
             //_logger = LogManager.GetLogger<Group>();
         }
+        
+        public override void Accept(INodeVisitor nv)
+        {
+            if (nv.ValidNodeMask(this))
+            {
+                nv.PushOntoNodePath(this);
+                nv.Apply(this);
+                nv.PopFromNodePath(this);
+            };
+        }
 
         public bool AddChild(INode child)
         {
