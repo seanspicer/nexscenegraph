@@ -30,8 +30,12 @@ namespace Veldrid.SceneGraph.Wpf.Element
             m_surface.IsFrontBufferAvailableChanged += delegate
             {
                 UpdateReallyLoopRendering();
-                if (!m_isReallyLoopRendering && m_surface.IsFrontBufferAvailable)
+
+                if (null != m_surface && !m_isReallyLoopRendering && m_surface.IsFrontBufferAvailable)
+                {
                     Render();
+                }
+                    
             };
             IsVisibleChanged += delegate { UpdateReallyLoopRendering(); };
             
@@ -181,6 +185,11 @@ namespace Veldrid.SceneGraph.Wpf.Element
         private void UpdateReallyLoopRendering()
         {
             // Check to make sure surface is not null.
+
+            if (null == Surface)
+            {
+                return;
+            }
             
             var newValue =
                 !IsInDesignMode
@@ -188,21 +197,20 @@ namespace Veldrid.SceneGraph.Wpf.Element
                 && Renderer != null
                 && Surface.IsFrontBufferAvailable
                 && VisualParent != null
-                && IsVisible
-                ;
+                && IsVisible;
 
             if (newValue != m_isReallyLoopRendering)
             {
                 m_isReallyLoopRendering = newValue;
                 if (m_isReallyLoopRendering)
                 {
-                    m_renderTimer.Start();
+                    m_renderTimer?.Start();
                     CompositionTarget.Rendering += OnLoopRendering;
                 }
                 else
                 {
                     CompositionTarget.Rendering -= OnLoopRendering;
-                    m_renderTimer.Stop();
+                    m_renderTimer?.Stop();
                 }
             }
         }
