@@ -13,6 +13,7 @@
             SceneRoot="{Binding SceneRoot}"
             CameraManipulator="{Binding CameraManipulator}"
             EventHandler="{Binding EventHandler}"
+            ClearColor="{Binding ClearColor}"
             FsaaCount="{Binding FsaaCount}">
         </wpf1:VeldridSceneGraphControl>
         

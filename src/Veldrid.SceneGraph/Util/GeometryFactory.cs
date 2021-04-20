@@ -1,5 +1,5 @@
 //
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,38 +22,35 @@ namespace Veldrid.SceneGraph.Util
     {
         Position3Texture2Color3Normal3
     }
-        
+
     public enum TopologyType
     {
         IndexedTriangleList
     }
-    
+
     public interface IGeometryFactory
     {
         IGeode CreateCube(VertexType vertexType, TopologyType topologyType);
     }
-    
+
     public class GeometryFactory : IGeometryFactory
     {
-        public static IGeometryFactory Create()
-        {
-            return new GeometryFactory();
-        }
-        
         internal GeometryFactory()
         {
-            
         }
-        
+
         public IGeode CreateCube(VertexType vertexType, TopologyType topologyType)
         {
             if (vertexType == VertexType.Position3Texture2Color3Normal3 &&
                 topologyType == TopologyType.IndexedTriangleList)
-            {
                 return CubeGeometry.CreatePosition3Texture2Color3Normal3_IndexedTriangleList();
-            }
-            
+
             throw new ArgumentException("Invalid arguments");
+        }
+
+        public static IGeometryFactory Create()
+        {
+            return new GeometryFactory();
         }
     }
 }

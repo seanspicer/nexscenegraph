@@ -1,5 +1,5 @@
 //
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,19 +19,17 @@ using System.Collections.Generic;
 
 namespace Veldrid.SceneGraph.Viewer
 {
-
     internal class SceneSingleton
     {
         private static readonly Lazy<SceneSingleton> Lazy = new Lazy<SceneSingleton>(() => new SceneSingleton());
 
-        public static SceneSingleton Instance => Lazy.Value;
+        private readonly List<Scene> _sceneCache = new List<Scene>();
 
-        private List<Scene> _sceneCache = new List<Scene>();
-        
         private SceneSingleton()
         {
-            
         }
+
+        public static SceneSingleton Instance => Lazy.Value;
 
         // TODO use timed lock here
         public void Add(Scene scene)
@@ -47,48 +45,42 @@ namespace Veldrid.SceneGraph.Viewer
         public Scene GetScene(INode node)
         {
             foreach (var scene in _sceneCache)
-            {
                 if (null != scene && scene.SceneData == node)
-                {
                     return scene;
-                }
-            }
             return null;
         }
     }
-    
+
     public class Scene
     {
-        public INode SceneData { get; private set; }
-        
         internal Scene()
         {
             SceneSingleton.Instance.Add(this);
         }
 
+        public INode SceneData { get; private set; }
+
         public static Scene GetScene(INode node)
         {
             return SceneSingleton.Instance.GetScene(node);
         }
-        
+
         protected static Scene GetOrCreateScene(INode node)
         {
             var scene = GetScene(node);
-            
+
             if (null != scene) return scene;
-            
+
             scene = new Scene();
             scene.SetSceneData(node);
 
             return scene;
         }
-        
-        
+
+
         public void SetSceneData(INode node)
         {
             SceneData = node;
         }
-        
-        
     }
 }

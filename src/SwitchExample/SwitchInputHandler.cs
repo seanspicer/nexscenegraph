@@ -1,5 +1,5 @@
 //
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,67 +14,51 @@
 // limitations under the License.
 //
 
-using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
 
 namespace SwitchExample
 {
-    public class SwitchInputHandler : InputEventHandler
+    public class SwitchInputHandler : UiEventHandler
     {
-        private ISwitch _switch;
         private int _pos;
+
+        private readonly ISwitch _switch;
 //
-        
+
         public SwitchInputHandler(ISwitch switchNode)
         {
             //_logger = LogManager.GetLogger<SwitchInputHandler>();
             _switch = switchNode;
             _pos = -1;
         }
-        
-        public override void HandleInput(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter)
+
+        public override bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter uiActionAdapter)
         {
-            base.HandleInput(snapshot,uiActionAdapter);
-            
-            foreach (var keyEvent in snapshot.KeyEvents)
+            switch (eventAdapter.Key)
             {
-                if (keyEvent.Down)
-                {
-                    switch (keyEvent.Key)
-                    {
-                        case Key.S:
-                            DoSwitch(snapshot);
-                            break;
-                    }
-                }
+                case IUiEventAdapter.KeySymbol.KeyS:
+                    DoSwitch();
+                    return true;
+                default:
+                    return false;
             }
         }
 
-        private void DoSwitch(IInputStateSnapshot snapshot)
+        private void DoSwitch()
         {
             if (_pos == -1)
-            {
                 _switch.SetAllChildrenOff();
-               // _logger.Info(m => m("All Children Off"));
-                
-            }
+            // _logger.Info(m => m("All Children Off"));
             else if (_pos == _switch.GetNumChildren())
-            {
                 _switch.SetAllChildrenOn();
-                //_logger.Info(m => m("All Children On"));
-            }
+            //_logger.Info(m => m("All Children On"));
             else
-            {
                 _switch.SetValue(_pos, true);
-                //_logger.Info(m => m($"Enabled Child At => {_pos}"));
-            }
+            //_logger.Info(m => m($"Enabled Child At => {_pos}"));
 
             _pos++;
-            if (_pos == _switch.GetNumChildren())
-            {
-                _pos = -1;
-            }
+            if (_pos == _switch.GetNumChildren()) _pos = -1;
         }
     }
 }

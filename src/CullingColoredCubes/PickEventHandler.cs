@@ -1,5 +1,5 @@
 //
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,55 +14,48 @@
 // limitations under the License.
 //
 
-using System;
 using System.Linq;
 using System.Numerics;
-using Serilog;
-using Veldrid;
-using Veldrid.SceneGraph;
+using Examples.Common;
+using Microsoft.Extensions.Logging;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Util;
+using Veldrid.SceneGraph.Viewer;
 
 namespace CullingColoredCubes
 {
-    public class PickEventHandler : InputEventHandler
+    public class PickEventHandler : UiEventHandler
     {
         private readonly ILogger _logger;
-        
-        public PickEventHandler(Veldrid.SceneGraph.Viewer.IView view)
+
+        public PickEventHandler()
         {
-            _logger = Log.Logger.ForContext("Source", "CullingColoredCubes");
+            _logger = Bootstrapper.LoggerFactory.CreateLogger("PickEventHandler");
         }
-        
-        public override void HandleInput(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter)
+
+        public override bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter uiActionAdapter)
         {
-            base.HandleInput(snapshot, uiActionAdapter);
-            
-            foreach (var keyEvent in snapshot.KeyEvents)
+            switch (eventAdapter.Key)
             {
-                if (keyEvent.Down)
-                {
-                    switch (keyEvent.Key)
-                    {
-                        case Key.P:
-                            DoPick(snapshot, uiActionAdapter as Veldrid.SceneGraph.Viewer.IView);
-                            break;
-                    }
-                    
-                }
+                case IUiEventAdapter.KeySymbol.KeyP:
+                    DoPick(eventAdapter, uiActionAdapter as IView);
+                    ;
+                    return true;
+                default:
+                    return false;
             }
         }
 
-        private void DoPick(IInputStateSnapshot snapshot, Veldrid.SceneGraph.Viewer.IView view)
+        private void DoPick(IUiEventAdapter eventAdapter, IView view)
         {
-            var norm = GetNormalizedMousePosition();
-            
+            var norm = new Vector2(eventAdapter.XNormalized, eventAdapter.YNormalized);
+
             var startPos = view.Camera.NormalizedScreenToWorld(new Vector3(norm.X, norm.Y, 0.0f)); // Near plane
             var endPos = view.Camera.NormalizedScreenToWorld(new Vector3(norm.X, norm.Y, 1.0f)); // Far plane
             var intersector = LineSegmentIntersector.Create(startPos, endPos);
-            
+
             var intersectionVisitor = IntersectionVisitor.Create(intersector);
-            
+
             view.SceneData?.Accept(intersectionVisitor);
 
             if (intersector.Intersections.Any())
@@ -70,20 +63,20 @@ namespace CullingColoredCubes
                 var idx = 0;
                 foreach (var intersection in intersector.Intersections)
                 {
-                    _logger.Information($"Intersected [{idx}]: {intersection.Drawable.Name}");
+                    _logger.LogInformation($"Intersected [{idx}]: {intersection.Drawable.Name}");
                     var jdx = 0;
                     foreach (var node in intersection.NodePath)
                     {
-                        _logger.Information($"  Path[{jdx}]: {node.NameString}");
+                        _logger.LogInformation($"  Path[{jdx}]: {node.NameString}");
                         ++jdx;
                     }
+
                     ++idx;
                 }
-                
             }
             else
             {
-                _logger.Information("No Intersections");
+                _logger.LogInformation("No Intersections");
             }
         }
     }

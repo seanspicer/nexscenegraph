@@ -1,5 +1,5 @@
 //
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,21 +15,19 @@
 //
 
 using System;
-using System.Reflection;
-using Veldrid.SceneGraph.Text;
-using Veldrid.SceneGraph.Util;
 
 namespace Veldrid.SceneGraph.Shaders.Standard
 {
     public class FullScreenQuadShader : StandardShaderBase
     {
-        private static readonly Lazy<FullScreenQuadShader> lazy = new Lazy<FullScreenQuadShader>(() => new FullScreenQuadShader());
+        private static readonly Lazy<FullScreenQuadShader> lazy =
+            new Lazy<FullScreenQuadShader>(() => new FullScreenQuadShader());
+
+        private FullScreenQuadShader() : base(@"FullScreenQuadShader", @"FullScreenQuadShader-vertex.glsl",
+            @"FullScreenQuadShader-fragment.glsl")
+        {
+        }
 
         public static FullScreenQuadShader Instance => lazy.Value;
-        
-        private FullScreenQuadShader() : base(@"FullScreenQuadShader", @"FullScreenQuadShader-vertex.glsl", @"FullScreenQuadShader-fragment.glsl")
-        {
-
-        }
     }
 }

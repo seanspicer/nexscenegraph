@@ -1,5 +1,5 @@
 //
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,39 +33,42 @@ namespace Examples.Common
             // Left Justified Text 
             {
                 var leftJustifiedXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(0f, 60f, 0f));
-                var leftJustifiedText = TextNode.Create(text, 20f,Rgba32.White, Rgba32.Red, VerticalAlignment.Top, HorizontalAlignment.Left, 4, 0.75f);
+                var leftJustifiedText = TextNode.Create(text, 20f, Rgba32.White, Rgba32.Red, VerticalAlignment.Top,
+                    HorizontalAlignment.Left, 4, 0.75f);
                 leftJustifiedText.AutoRotateToScreen = true;
                 leftJustifiedText.CharacterSizeMode = CharacterSizeModes.ObjectCoords;
                 var leftJustifiedGeode = Geode.Create();
                 leftJustifiedGeode.AddDrawable(leftJustifiedText);
                 leftJustifiedXForm.AddChild(leftJustifiedGeode);
-                root.AddChild(leftJustifiedXForm);  
+                root.AddChild(leftJustifiedXForm);
             }
-            
+
             // Center Justified Text 
             {
                 var centerJustifiedXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(0f, 0f, 0f));
-                var centerJustifiedText = TextNode.Create(text, 40f,Rgba32.Yellow, Rgba32.Blue, VerticalAlignment.Center, HorizontalAlignment.Center, 4, 1.5f);
+                var centerJustifiedText = TextNode.Create(text, 40f, Rgba32.Yellow, Rgba32.Blue,
+                    VerticalAlignment.Center, HorizontalAlignment.Center, 4, 1.5f);
                 centerJustifiedText.AutoRotateToScreen = false;
                 centerJustifiedText.CharacterSizeMode = CharacterSizeModes.ObjectCoords;
                 var centerJustifiedGeode = Geode.Create();
                 centerJustifiedGeode.AddDrawable(centerJustifiedText);
                 centerJustifiedXForm.AddChild(centerJustifiedGeode);
-                root.AddChild(centerJustifiedXForm);  
+                root.AddChild(centerJustifiedXForm);
             }
-            
+
             // Right Justified, Screen coordinate scaled Text 
             {
                 var rightJustifiedXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(0f, -60f, 0f));
-                var rightJustifiedText = TextNode.Create(text, 20f,Rgba32.Black, Rgba32.Green, VerticalAlignment.Bottom, HorizontalAlignment.Right, 4, 3);
+                var rightJustifiedText = TextNode.Create(text, 20f, Rgba32.Black, Rgba32.Green,
+                    VerticalAlignment.Bottom, HorizontalAlignment.Right, 4, 3);
                 rightJustifiedText.AutoRotateToScreen = true;
                 rightJustifiedText.CharacterSizeMode = CharacterSizeModes.ScreenCoords;
                 var rightJustifiedGeode = Geode.Create();
                 rightJustifiedGeode.AddDrawable(rightJustifiedText);
                 rightJustifiedXForm.AddChild(rightJustifiedGeode);
-                root.AddChild(rightJustifiedXForm);  
+                root.AddChild(rightJustifiedXForm);
             }
-            
+
             return root;
         }
     }

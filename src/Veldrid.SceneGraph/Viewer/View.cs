@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,86 +15,138 @@
 //
 
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Numerics;
-using System.Reactive.Subjects;
-using System.Xml.Serialization;
 using Veldrid.SceneGraph.InputAdapter;
+using Veldrid.SceneGraph.Util;
 
 namespace Veldrid.SceneGraph.Viewer
 {
-    public interface IView : IUiActionAdapter, Veldrid.SceneGraph.IView
+    public interface IView : IUiActionAdapter, SceneGraph.IView
     {
         INode SceneData { get; }
         ICameraManipulator CameraManipulator { get; }
         ICamera Camera { get; }
-        IObservable<IInputStateSnapshot> InputEvents { get; set; }
+        IObservable<IEvent> InputEvents { get; set; }
 
         SceneContext SceneContext { get; set; }
-        
-        void AddInputEventHandler(IInputEventHandler handler);
+
+        // Probably should be a mixin
+        void EventTraversal();
+
+        void AddInputEventHandler(IEventHandler handler);
 
         void SetSceneData(INode node);
-        
-        void SetCameraManipulator(ICameraManipulator manipulator, bool resetPosition=true);
+
+        void SetCameraManipulator(ICameraManipulator manipulator, bool resetPosition = true);
+
+        bool ComputeIntersections(
+            IUiEventAdapter eventAdapter,
+            ref SortedMultiSet<ILineSegmentIntersector.IIntersection> intersections,
+            uint traversalMask);
     }
-    
-    public class View : Veldrid.SceneGraph.View, IView
+
+    public class View : SceneGraph.View, IView
     {
+        private IDisposable _eventSubscriptionDisposable;
+
+        private IObservable<IEvent> _inputEvents;
         private Scene _scene;
 
-        public INode SceneData => _scene.SceneData;
+        protected View(uint width, uint height, float distance) : base(width, height, distance)
+        {
+            _scene = new Scene();
+
+            Camera.SetRenderer(CreateRenderer(Camera));
+        }
 
         private Renderer Renderer { get; set; }
-        
+        public EventHandlerList EventHandlers { get; set; } = new EventHandlerList();
 
+        protected ConcurrentEventQueue EventQueue { get; set; } = new ConcurrentEventQueue();
+
+        protected IEventVisitor EventVisitor { get; set; } = InputAdapter.EventVisitor.Create();
+
+        public INode SceneData => _scene.SceneData;
 
         public SceneContext SceneContext
         {
             get => Renderer.SceneContext;
             set => Renderer.SceneContext = value;
         }
-        
-        public IObservable<IInputStateSnapshot> InputEvents { get; set; }
 
-        private ICameraManipulator _cameraManipulator = null;
-        public ICameraManipulator CameraManipulator
+        public IObservable<IEvent> InputEvents
         {
-            get => _cameraManipulator;
+            get => _inputEvents;
+            set
+            {
+                _eventSubscriptionDisposable?.Dispose();
+
+                _inputEvents = value;
+                _eventSubscriptionDisposable = _inputEvents.Subscribe(x => { EventQueue.Enqueue(x); });
+            }
         }
+
+        public ICameraManipulator CameraManipulator { get; private set; }
 
         public override void SetCamera(ICamera camera)
         {
             camera.SetRenderer(CreateRenderer(camera));
             base.SetCamera(camera);
         }
-        
+
+        // TODO - Do this as a mixin?
+        public void EventTraversal()
+        {
+            if (null != EventVisitor && null != SceneData)
+                lock (EventVisitor)
+                {
+                    EventVisitor.ActionAdapter = this;
+                    while (EventQueue.TryDequeue(out var inputEvent))
+                        if (inputEvent is IUiEventAdapter eventAdapter)
+                        {
+                            eventAdapter.PointerDataList.Add(new PointerData(
+                                Camera,
+                                eventAdapter.X,
+                                eventAdapter.XMin,
+                                eventAdapter.XMax,
+                                eventAdapter.Y,
+                                eventAdapter.YMin,
+                                eventAdapter.YMax));
+
+                            EventVisitor.Reset();
+                            EventVisitor.AddEvent(eventAdapter);
+                            SceneData.Accept(EventVisitor);
+
+                            if (false == inputEvent.Handled)
+                                foreach (var handler in EventHandlers)
+                                    if (handler is IUiEventHandler uiEventHandler)
+                                        uiEventHandler.Handle(eventAdapter, this);
+                        }
+                }
+        }
+
         public void SetCameraManipulator(ICameraManipulator manipulator, bool resetPosition)
         {
             // TODO this is probably temporary now.
-            if (null != _cameraManipulator)
-            {
-                throw new Exception("Setting camera manipulator twice.  Don't do that.");
-            }
-            
-            _cameraManipulator = manipulator;
+            if (null != CameraManipulator) throw new Exception("Setting camera manipulator twice.  Don't do that.");
 
-            if (null != _cameraManipulator)
+            CameraManipulator = manipulator;
+
+            if (null != CameraManipulator)
             {
-                AddInputEventHandler(_cameraManipulator);
-                
+                AddInputEventHandler(CameraManipulator);
+
                 // TODO - need to set a coordinate frame callback
-                if (null != SceneData)
-                {
-                    _cameraManipulator.SetNode(SceneData);
-                }
+                if (null != SceneData) CameraManipulator.SetNode(SceneData);
 
-                if (resetPosition)
-                {
-                    _cameraManipulator.Home(this);
-                }
+                if (resetPosition) CameraManipulator.Home(this);
             }
         }
-        
+
         public void SetSceneData(INode node)
         {
             if (node == _scene.SceneData) return;
@@ -103,7 +155,7 @@ namespace Veldrid.SceneGraph.Viewer
 
             if (null != scene)
             {
-                System.Diagnostics.Trace.WriteLine($"View.SetSceneData() Sharing scene {scene.GetHashCode()}"); 
+                Trace.WriteLine($"View.SetSceneData() Sharing scene {scene.GetHashCode()}");
                 _scene = scene;
             }
             else
@@ -111,10 +163,52 @@ namespace Veldrid.SceneGraph.Viewer
                 _scene = new Scene();
                 _scene.SetSceneData(node);
             }
-            
-            
+
+
             // TODO Assign scene to cameras
             AssignSceneDataToCameras();
+        }
+
+        public void AddInputEventHandler(IEventHandler handler)
+        {
+            // InputEvents.Subscribe(x =>
+            // {
+            //     handler.Handle(x, this);
+            // });
+
+            EventHandlers.Add(handler);
+        }
+
+        public virtual void RequestRedraw()
+        {
+        }
+
+        public void RequestContinuousUpdate(bool flag)
+        {
+        }
+
+        public void RequestWarpPointer(float x, float y)
+        {
+        }
+
+        public bool ComputeIntersections(
+            IUiEventAdapter eventAdapter,
+            ref SortedMultiSet<ILineSegmentIntersector.IIntersection> intersections,
+            uint traversalMask)
+        {
+            if (eventAdapter.PointerDataList.Count > 0)
+            {
+                var pd = eventAdapter.PointerDataList.Last();
+                if (pd.Object is ICamera camera)
+                    return ComputeIntersections(camera,
+                        IIntersector.CoordinateFrameMode.Projection,
+                        pd.GetXNormalized(),
+                        pd.GetYNormalized(),
+                        ref intersections, traversalMask);
+            }
+
+            intersections = null;
+            return false;
         }
 
         private void AssignSceneDataToCameras()
@@ -138,43 +232,54 @@ namespace Veldrid.SceneGraph.Viewer
         {
             return new View(width, height, distance);
         }
-        
-        protected View(uint width, uint height, float distance) : base(width, height, distance)
-        {
-            _scene = new Scene();
-            
-            Camera.SetRenderer(CreateRenderer(Camera));
-        }
 
         private IGraphicsDeviceOperation CreateRenderer(ICamera camera)
         {
             SceneContext currentSceneContext = null;
-            if (null != Renderer)
-            {
-                currentSceneContext = Renderer.SceneContext;
-            }
-            
+            if (null != Renderer) currentSceneContext = Renderer.SceneContext;
+
             Renderer = new Renderer(camera);
             Renderer.SceneContext = currentSceneContext;
             return Renderer;
         }
-        
-        public void AddInputEventHandler(IInputEventHandler handler)
+
+        public bool ComputeIntersections(
+            ICamera camera,
+            IIntersector.CoordinateFrameMode cf,
+            float x,
+            float y,
+            ref SortedMultiSet<ILineSegmentIntersector.IIntersection> intersections,
+            uint traversalMask)
         {
-            InputEvents.Subscribe(x =>
+            if (null == camera) return false;
+
+            var startPos = Camera.NormalizedScreenToWorld(new Vector3(x, y, 0.0f)); // Near plane
+            var endPos = Camera.NormalizedScreenToWorld(new Vector3(x, y, 1.0f)); // Far plane
+            var picker = LineSegmentIntersector.Create(startPos, endPos);
+
+            //var picker = LineSegmentIntersector.Create(cf, x, y);
+            var intersectionVisitor = IntersectionVisitor.Create(picker);
+
+            intersectionVisitor.TraversalMask = traversalMask;
+
+            SceneData.Accept(intersectionVisitor);
+
+            if (picker.Intersections.Any())
             {
-                handler.HandleInput(x, this);
-            });
+                intersections = picker.Intersections;
+                return true;
+            }
+
+            intersections.Clear();
+            return false;
         }
 
-        public virtual void RequestRedraw()
+        public class EventHandlerList : List<IEventHandler>
         {
         }
 
-        public void RequestContinuousUpdate(bool flag)
+        public class ConcurrentEventQueue : ConcurrentQueue<IEvent>
         {
-            //throw new NotImplementedException();
         }
-        
     }
 }

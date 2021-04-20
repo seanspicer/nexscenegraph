@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 
-using System;
 using System.Numerics;
 
 namespace Veldrid.SceneGraph
@@ -25,9 +24,9 @@ namespace Veldrid.SceneGraph
         bool ComputeLocalToWorldMatrix(ref Matrix4x4 matrix, NodeVisitor visitor);
         bool ComputeWorldToLocalMatrix(ref Matrix4x4 matrix, NodeVisitor visitor);
     }
-    
+
     /// <summary>
-    /// A Transform is a node which transforms all children
+    ///     A Transform is a node which transforms all children
     /// </summary>
     public class Transform : Group, ITransform
     {
@@ -36,42 +35,14 @@ namespace Veldrid.SceneGraph
             Relative,
             Absolute
         }
-        
-        public ReferenceFrameType ReferenceFrame { get; set; }
 
         protected Transform()
         {
             ReferenceFrame = ReferenceFrameType.Relative;
         }
 
-        public static Matrix4x4 ComputeLocalToWorld(NodePath nodePath, bool ignoreCameras=true)
-        {
-            var tv = TransformVisitor.Create(Matrix4x4.Identity, TransformVisitor.CoordMode.LocalToWorld, ignoreCameras);
-            tv.Accumulate(nodePath);
-            return tv.Matrix;
-        }
-        
-        public static Matrix4x4 ComputeWorldToLocal(NodePath nodePath, bool ignoreCameras=true)
-        {
-            var tv = TransformVisitor.Create(Matrix4x4.Identity, TransformVisitor.CoordMode.WorldToLocal, ignoreCameras);
-            tv.Accumulate(nodePath);
-            return tv.Matrix;
-        }
-        
-        public static Matrix4x4 ComputeLocalToEye(Matrix4x4 modelView, NodePath nodePath, bool ignoreCameras=true)
-        {
-            var tv = TransformVisitor.Create(modelView, TransformVisitor.CoordMode.LocalToWorld, ignoreCameras);
-            tv.Accumulate(nodePath);
-            return tv.Matrix;
-        }
-        
-        public static Matrix4x4 ComputeEyeToLocal(Matrix4x4 modelView, NodePath nodePath, bool ignoreCameras=true)
-        {
-            var tv = TransformVisitor.Create(modelView, TransformVisitor.CoordMode.WorldToLocal, ignoreCameras);
-            tv.Accumulate(nodePath);
-            return tv.Matrix;
-        }
-        
+        public ReferenceFrameType ReferenceFrame { get; set; }
+
         // Required for double-dispatch
         public override void Accept(INodeVisitor nv)
         {
@@ -80,26 +51,22 @@ namespace Veldrid.SceneGraph
                 nv.PushOntoNodePath(this);
                 nv.Apply(this);
                 nv.PopFromNodePath(this);
-            };
+            }
+
+            ;
         }
 
         public virtual bool ComputeLocalToWorldMatrix(ref Matrix4x4 matrix, NodeVisitor visitor)
         {
-            if (ReferenceFrameType.Relative == ReferenceFrame)
-            {
-                return false;
-            }
+            if (ReferenceFrameType.Relative == ReferenceFrame) return false;
 
             matrix = Matrix4x4.Identity;
             return true;
         }
-        
+
         public virtual bool ComputeWorldToLocalMatrix(ref Matrix4x4 matrix, NodeVisitor visitor)
         {
-            if (ReferenceFrameType.Relative == ReferenceFrame)
-            {
-                return false;
-            }
+            if (ReferenceFrameType.Relative == ReferenceFrame) return false;
 
             matrix = Matrix4x4.Identity;
             return true;
@@ -112,18 +79,18 @@ namespace Veldrid.SceneGraph
 
             var localToWorld = Matrix4x4.Identity;
             ComputeLocalToWorldMatrix(ref localToWorld, null);
-           
+
             var xdash = bsphere.Center;
             xdash.X += bsphere.Radius;
-            xdash = Vector3.Transform(xdash,localToWorld);
+            xdash = Vector3.Transform(xdash, localToWorld);
 
             var ydash = bsphere.Center;
             ydash.Y += bsphere.Radius;
-            ydash = Vector3.Transform(ydash,localToWorld);
+            ydash = Vector3.Transform(ydash, localToWorld);
 
             var zdash = bsphere.Center;
             zdash.Z += bsphere.Radius;
-            zdash = Vector3.Transform(zdash,localToWorld);
+            zdash = Vector3.Transform(zdash, localToWorld);
 
             bsphere.Center = Vector3.Transform(bsphere.Center, localToWorld);
 
@@ -137,12 +104,41 @@ namespace Veldrid.SceneGraph
             var sqrlen_zdash = zdash.LengthSquared();
 
             bsphere.Radius = sqrlen_xdash;
-            if (bsphere.Radius<sqrlen_ydash) bsphere.Radius = sqrlen_ydash;
-            if (bsphere.Radius<sqrlen_zdash) bsphere.Radius = sqrlen_zdash;
-            bsphere.Radius = (float)Math.Sqrt(bsphere.Radius);
+            if (bsphere.Radius < sqrlen_ydash) bsphere.Radius = sqrlen_ydash;
+            if (bsphere.Radius < sqrlen_zdash) bsphere.Radius = sqrlen_zdash;
+            bsphere.Radius = (float) System.Math.Sqrt(bsphere.Radius);
 
             return bsphere;
-            
+        }
+
+        public static Matrix4x4 ComputeLocalToWorld(NodePath nodePath, bool ignoreCameras = true)
+        {
+            var tv = TransformVisitor.Create(Matrix4x4.Identity, TransformVisitor.CoordMode.LocalToWorld,
+                ignoreCameras);
+            tv.Accumulate(nodePath);
+            return tv.Matrix;
+        }
+
+        public static Matrix4x4 ComputeWorldToLocal(NodePath nodePath, bool ignoreCameras = true)
+        {
+            var tv = TransformVisitor.Create(Matrix4x4.Identity, TransformVisitor.CoordMode.WorldToLocal,
+                ignoreCameras);
+            tv.Accumulate(nodePath);
+            return tv.Matrix;
+        }
+
+        public static Matrix4x4 ComputeLocalToEye(Matrix4x4 modelView, NodePath nodePath, bool ignoreCameras = true)
+        {
+            var tv = TransformVisitor.Create(modelView, TransformVisitor.CoordMode.LocalToWorld, ignoreCameras);
+            tv.Accumulate(nodePath);
+            return tv.Matrix;
+        }
+
+        public static Matrix4x4 ComputeEyeToLocal(Matrix4x4 modelView, NodePath nodePath, bool ignoreCameras = true)
+        {
+            var tv = TransformVisitor.Create(modelView, TransformVisitor.CoordMode.WorldToLocal, ignoreCameras);
+            tv.Accumulate(nodePath);
+            return tv.Matrix;
         }
     }
 }

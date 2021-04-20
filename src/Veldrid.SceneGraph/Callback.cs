@@ -1,5 +1,5 @@
 //
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,26 +14,19 @@
 // limitations under the License.
 //
 
-using Veldrid.SceneGraph.RenderGraph;
-
 namespace Veldrid.SceneGraph
 {
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
     public interface ICallback
     {
+        ICallback NestedCallback { get; set; }
         bool Run(IObject obj, IObject data);
     }
 
-    public interface INodeCallback : ICallback
+    public abstract class Callback : ICallback
     {
-    }
+        public ICallback NestedCallback { get; set; } = null;
 
-    public interface IDrawableCullCallback : INodeCallback
-    {
-        bool Cull(ICullVisitor cv, IDrawable drawable);
-    }
-    
-    public class Callback : ICallback
-    {
         public virtual bool Run(IObject obj, IObject data)
         {
             return Traverse(obj, data);
@@ -41,6 +34,8 @@ namespace Veldrid.SceneGraph
 
         public bool Traverse(IObject obj, IObject data)
         {
+            if (null != NestedCallback) return NestedCallback.Run(obj, data);
+
             if (obj is INode node && data is INodeVisitor nodeVisitor)
             {
                 nodeVisitor.Traverse(node);
@@ -48,6 +43,69 @@ namespace Veldrid.SceneGraph
             }
 
             return false;
+        }
+    }
+
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
+    public interface INodeCallback : ICallback
+    {
+        void Execute(INode node, INodeVisitor nodeVisitor);
+    }
+
+    public abstract class NodeCallback : Callback, INodeCallback
+    {
+        public override bool Run(IObject obj, IObject data)
+        {
+            if (obj is INode node && data is INodeVisitor nodeVisitor)
+            {
+                Execute(node, nodeVisitor);
+                return true;
+            }
+
+            return Traverse(obj, data);
+        }
+
+        public virtual void Execute(INode node, INodeVisitor nodeVisitor)
+        {
+            Traverse(node, nodeVisitor);
+        }
+    }
+
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
+    public interface IDrawableCullCallback : ICallback
+    {
+        bool Cull(INodeVisitor nodeVisitor, IDrawable drawable);
+    }
+
+    public abstract class DrawableCullCallback : Callback, IDrawableCullCallback
+    {
+        public virtual bool Cull(INodeVisitor nodeVisitor, IDrawable drawable)
+        {
+            return false;
+        }
+    }
+
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
+    public interface IDrawableEventCallback : INodeCallback
+    {
+        void Event(INodeVisitor nodeVisitor, IDrawable drawable);
+    }
+
+    public abstract class DrawableEventCallback : NodeCallback, IDrawableEventCallback
+    {
+        public override bool Run(IObject obj, IObject data)
+        {
+            if (obj is IDrawable drawable && data is INodeVisitor nodeVisitor)
+            {
+                Event(nodeVisitor, drawable);
+                return true;
+            }
+
+            return Traverse(obj, data);
+        }
+
+        public void Event(INodeVisitor nodeVisitor, IDrawable drawable)
+        {
         }
     }
 }

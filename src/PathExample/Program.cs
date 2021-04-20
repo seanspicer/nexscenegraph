@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,30 +14,28 @@
 // limitations under the License.
 //
 
-using System;
 using Examples.Common;
-using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Viewer;
 
 namespace PathExample
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             Bootstrapper.Configure();
 
             //var logger = Veldrid.SceneGraph.Logging.LogManager.CreateLogger<Program>();
-            
+
             var viewer = SimpleViewer.Create("Path Shape Example");
             viewer.SetCameraManipulator(TrackballManipulator.Create());
 
             // Build the path scene
             var root = PathExampleScene.Build();
-            
+
             viewer.SetSceneData(root);
-            viewer.ViewAll();            
+            viewer.ViewAll();
             viewer.Run();
         }
     }

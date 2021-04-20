@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,56 +16,50 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
-using Newtonsoft.Json.Bson;
-using Veldrid.SceneGraph.Text;
 
 namespace Veldrid.SceneGraph
 {
-  
-    
     public class NodePath : LinkedList<INode>
     {
         public NodePath Copy()
         {
             var result = new NodePath();
-            foreach (var node in this)
-            {
-                result.AddLast(node);
-            }
+            foreach (var node in this) result.AddLast(node);
 
             return result;
         }
     }
-    
-    public class NodePathList : List<NodePath> {}
+
+    public class NodePathList : List<NodePath>
+    {
+    }
 
     public class NodeVisitorEventArgs : EventArgs
     {
         public NodeVisitor NodeVisitor { get; set; }
     }
 
-        public interface INodeVisitor : IObject
+    public interface INodeVisitor : IObject
     {
         /// <summary>
-        /// Set the TraversalMask of this NodeVisitor.
-        /// The TraversalMask is used by the NodeVisitor.ValidNodeMask() method
-        /// to determine whether to operate on a node and its subgraph.
-        /// ValidNodeMask() is called automatically in the Node.Accept() method before
-        /// any call to NodeVisitor.Apply(), Apply() is only ever called if ValidNodeMask
-        /// returns true. Note, if NodeVisitor.TraversalMask is 0 then all operations
-        /// will be switched off for all nodes.  Whereas setting both TraversalMask and
-        /// NodeMaskOverride to 0xffffffff will allow a visitor to work on all nodes
-        /// regardless of their own Node.NodeMask state.
+        ///     Set the TraversalMask of this NodeVisitor.
+        ///     The TraversalMask is used by the NodeVisitor.ValidNodeMask() method
+        ///     to determine whether to operate on a node and its subgraph.
+        ///     ValidNodeMask() is called automatically in the Node.Accept() method before
+        ///     any call to NodeVisitor.Apply(), Apply() is only ever called if ValidNodeMask
+        ///     returns true. Note, if NodeVisitor.TraversalMask is 0 then all operations
+        ///     will be switched off for all nodes.  Whereas setting both TraversalMask and
+        ///     NodeMaskOverride to 0xffffffff will allow a visitor to work on all nodes
+        ///     regardless of their own Node.NodeMask state.
         /// </summary>
         uint TraversalMask { get; set; }
 
         /// <summary>
-        /// Set the NodeMaskOverride mask.
-        /// Used in ValidNodeMask() to determine whether to operate on a node or its
-        /// subgraph, by OR'ing NodeVisitor.NodeMaskOverride with the Node's own Node.NodeMask.
-        /// Typically used to force on nodes which may have
-        /// been switched off by their own Node.NodeMask.*/
+        ///     Set the NodeMaskOverride mask.
+        ///     Used in ValidNodeMask() to determine whether to operate on a node or its
+        ///     subgraph, by OR'ing NodeVisitor.NodeMaskOverride with the Node's own Node.NodeMask.
+        ///     Typically used to force on nodes which may have
+        ///     been switched off by their own Node.NodeMask.*/
         /// </summary>
         uint NodeMaskOverride { get; set; }
 
@@ -76,13 +70,12 @@ namespace Veldrid.SceneGraph
         void PopFromNodePath(INode node);
 
         /// <summary>
-        /// Method called by Node and its subclass' Node.Accept() method, if the result is true
-        /// it is used to cull operations of nodes and their subgraphs.
-        /// 
-        /// Return true if the result of a bit wise and of the NodeVisitor.TraversalMask
-        /// with the bit or between NodeVistor.NodeMaskOverride and the Node.NodeMask.
-        /// default values for TraversalMask is 0xffffffff, NodeMaskOverride is 0x0,
-        /// and Node.NodeMask is 0xffffffff.
+        ///     Method called by Node and its subclass' Node.Accept() method, if the result is true
+        ///     it is used to cull operations of nodes and their subgraphs.
+        ///     Return true if the result of a bit wise and of the NodeVisitor.TraversalMask
+        ///     with the bit or between NodeVistor.NodeMaskOverride and the Node.NodeMask.
+        ///     default values for TraversalMask is 0xffffffff, NodeMaskOverride is 0x0,
+        ///     and Node.NodeMask is 0xffffffff.
         /// </summary>
         /// <param name="node"></param>
         /// <returns></returns>
@@ -90,117 +83,111 @@ namespace Veldrid.SceneGraph
 
         void Apply(INode node);
         void Apply(IGeode geode);
+        void Apply(IGroup group);
 
         /// <summary>
-        /// Default Implementation for Billboard
+        ///     Default Implementation for Billboard
         /// </summary>
         /// <param name="billboard"></param>
         void Apply(IBillboard billboard);
 
         void Apply(ITransform transform);
 
+        void Apply(ISwitch switchNode);
+
         void Apply(IDrawable drawable);
 
         void Traverse(INode node);
     }
-    
+
     /// <summary>
-    /// Base class for all visitors
+    ///     Base class for all visitors
     /// </summary>
-    public class NodeVisitor : INodeVisitor
+    public class NodeVisitor : Object, INodeVisitor
     {
-        
         public enum TraversalModeType
         {
             TraverseNone,
             TraverseParents,
             TraverseAllChildren,
             TraverseActiveChildren
-        };
-        
+        }
+
         [Flags]
         public enum VisitorType
         {
             NodeVisitor,
             UpdateVisitor,
+            EventVisitor,
             IntersectionVisitor,
             CullVisitor,
             AssembleVisitor,
             CullAndAssembleVisitor = CullVisitor | AssembleVisitor
-        };
-
-        /// <summary>
-        /// Set the TraversalMask of this NodeVisitor.
-        /// The TraversalMask is used by the NodeVisitor.ValidNodeMask() method
-        /// to determine whether to operate on a node and its subgraph.
-        /// ValidNodeMask() is called automatically in the Node.Accept() method before
-        /// any call to NodeVisitor.Apply(), Apply() is only ever called if ValidNodeMask
-        /// returns true. Note, if NodeVisitor.TraversalMask is 0 then all operations
-        /// will be switched off for all nodes.  Whereas setting both TraversalMask and
-        /// NodeMaskOverride to 0xffffffff will allow a visitor to work on all nodes
-        /// regardless of their own Node.NodeMask state.
-        /// </summary>
-        public uint TraversalMask { get; set; } = 0xffffffff;
-        
-        /// <summary>
-        /// Set the NodeMaskOverride mask.
-        /// Used in ValidNodeMask() to determine whether to operate on a node or its
-        /// subgraph, by OR'ing NodeVisitor.NodeMaskOverride with the Node's own Node.NodeMask.
-        /// Typically used to force on nodes which may have
-        /// been switched off by their own Node.NodeMask.*/
-        /// </summary>
-        public uint NodeMaskOverride { get; set; } = 0x0;
-
-        public VisitorType Type { get; set; }
-        
-        public TraversalModeType TraversalMode { get; set; }
-        
-        public NodePath NodePath { get; } = new NodePath();
+        }
 
         protected NodeVisitor(TraversalModeType traversalModeType = TraversalModeType.TraverseNone)
         {
             Type = VisitorType.NodeVisitor;
             TraversalMode = traversalModeType;
         }
-        
+
         protected NodeVisitor(VisitorType type, TraversalModeType traversalMode = TraversalModeType.TraverseNone)
         {
             Type = type;
             TraversalMode = traversalMode;
         }
 
+        /// <summary>
+        ///     Set the TraversalMask of this NodeVisitor.
+        ///     The TraversalMask is used by the NodeVisitor.ValidNodeMask() method
+        ///     to determine whether to operate on a node and its subgraph.
+        ///     ValidNodeMask() is called automatically in the Node.Accept() method before
+        ///     any call to NodeVisitor.Apply(), Apply() is only ever called if ValidNodeMask
+        ///     returns true. Note, if NodeVisitor.TraversalMask is 0 then all operations
+        ///     will be switched off for all nodes.  Whereas setting both TraversalMask and
+        ///     NodeMaskOverride to 0xffffffff will allow a visitor to work on all nodes
+        ///     regardless of their own Node.NodeMask state.
+        /// </summary>
+        public uint TraversalMask { get; set; } = 0xffffffff;
+
+        /// <summary>
+        ///     Set the NodeMaskOverride mask.
+        ///     Used in ValidNodeMask() to determine whether to operate on a node or its
+        ///     subgraph, by OR'ing NodeVisitor.NodeMaskOverride with the Node's own Node.NodeMask.
+        ///     Typically used to force on nodes which may have
+        ///     been switched off by their own Node.NodeMask.*/
+        /// </summary>
+        public uint NodeMaskOverride { get; set; } = 0x0;
+
+        public VisitorType Type { get; set; }
+
+        public TraversalModeType TraversalMode { get; set; }
+
+        public NodePath NodePath { get; } = new NodePath();
+
         public void PushOntoNodePath(INode node)
         {
             if (TraversalMode != TraversalModeType.TraverseParents)
-            {
                 NodePath.AddLast(node);
-            }
             else
-            {
                 NodePath.AddFirst(node);
-            }
         }
 
         public void PopFromNodePath(INode node)
         {
             if (TraversalMode != TraversalModeType.TraverseParents)
-            {
                 NodePath.RemoveLast();
-            }
             else
-            {
                 NodePath.RemoveFirst();
-            }
         }
 
         /// <summary>
-        /// Method called by Node and its subclass' Node.Accept() method, if the result is true
-        /// it is used to cull operations of nodes and their subgraphs.
-        /// 
-        /// Return true if the result of a bit wise and of the NodeVisitor.TraversalMask
-        /// with the bit or between NodeVistor.NodeMaskOverride and the Node.NodeMask.
-        /// default values for TraversalMask is 0xffffffff, NodeMaskOverride is 0x0,
-        /// and Node.NodeMask is 0xffffffff.
+        ///     Method called by Node and its subclass' Node.Accept() method, if the result is true
+        ///     it is used to cull operations of nodes and their subgraphs.
+        ///     Return true if the result of a bit wise and of the NodeVisitor.TraversalMask
+        ///     with the bit or between NodeVistor.NodeMaskOverride and the Node.NodeMask.
+        ///     default values for TraversalMask is 0xffffffff, NodeMaskOverride is 0x0,
+        ///     and Node.NodeMask is 0xffffffff.
         /// </summary>
         /// <param name="node"></param>
         /// <returns></returns>
@@ -208,13 +195,13 @@ namespace Veldrid.SceneGraph
         {
             return (TraversalMask & (NodeMaskOverride | node.NodeMask)) != 0;
         }
-        
+
         public void Traverse(INode node)
         {
             if (TraversalMode == TraversalModeType.TraverseParents) node.Ascend(this);
-            else if(TraversalMode != TraversalModeType.TraverseNone) node.Traverse(this);
+            else if (TraversalMode != TraversalModeType.TraverseNone) node.Traverse(this);
         }
-        
+
         //
         // Default implementation for Generic Node
         //
@@ -222,22 +209,30 @@ namespace Veldrid.SceneGraph
         {
             Traverse(node);
         }
-        
+
+        //
+        // Default implementation for Geometry Node
+        // 
+        public virtual void Apply(IGroup group)
+        {
+            Apply((INode) group);
+        }
+
         //
         // Default implementation for Geometry Node
         // 
         public virtual void Apply(IGeode geode)
         {
-            Apply((INode)geode);
+            Apply((INode) geode);
         }
 
         /// <summary>
-        /// Default Implementation for Billboard
+        ///     Default Implementation for Billboard
         /// </summary>
         /// <param name="billboard"></param>
         public virtual void Apply(IBillboard billboard)
         {
-            Apply((IGeode)billboard);
+            Apply((IGeode) billboard);
         }
 
         // 
@@ -245,7 +240,15 @@ namespace Veldrid.SceneGraph
         // 
         public virtual void Apply(ITransform transform)
         {
-            Apply((INode)transform);
+            Apply((INode) transform);
+        }
+
+        // 
+        // Default implementation for Transform node
+        // 
+        public virtual void Apply(ISwitch switchNode)
+        {
+            Apply((INode) switchNode);
         }
 
         public virtual void Apply(IDrawable drawable)

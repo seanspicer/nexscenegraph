@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 
-using System;
 using System.Collections.Generic;
 using System.Numerics;
 using Examples.Common;
@@ -28,34 +27,34 @@ using Veldrid.SceneGraph.Viewer;
 
 namespace TexturedCube
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             Bootstrapper.Configure();
-            
+
             var viewer = SimpleViewer.Create("Textured Cube Scene Graph");
             viewer.SetCameraManipulator(TrackballManipulator.Create());
 
             var root = Group.Create();
-            
+
             var scaleXform = MatrixTransform.Create(Matrix4x4.CreateScale(0.75f));
- 
+
             var cube = CreateCube();
             scaleXform.AddChild(cube);
-            
+
             root.AddChild(scaleXform);
 
             viewer.SetSceneData(root);
-            viewer.ViewAll();            
+            viewer.ViewAll();
             viewer.Run();
         }
 
-        static IGeode CreateCube()
+        private static IGeode CreateCube()
         {
             var geometry = Geometry<Position3TexCoord2>.Create();
 
-            var vertices = new Position3TexCoord2[]
+            var vertices = new[]
             {
                 // Top
                 new Position3TexCoord2(new Vector3(-1.0f, +1.0f, -1.0f), new Vector2(0, 0)),
@@ -63,10 +62,10 @@ namespace TexturedCube
                 new Position3TexCoord2(new Vector3(+1.0f, +1.0f, +1.0f), new Vector2(1, 1)),
                 new Position3TexCoord2(new Vector3(-1.0f, +1.0f, +1.0f), new Vector2(0, 1)),
                 // Bottom                                                             
-                new Position3TexCoord2(new Vector3(-1.0f,-1.0f, +1.0f),  new Vector2(0, 0)),
-                new Position3TexCoord2(new Vector3(+1.0f,-1.0f, +1.0f),  new Vector2(1, 0)),
-                new Position3TexCoord2(new Vector3(+1.0f,-1.0f, -1.0f),  new Vector2(1, 1)),
-                new Position3TexCoord2(new Vector3(-1.0f,-1.0f, -1.0f),  new Vector2(0, 1)),
+                new Position3TexCoord2(new Vector3(-1.0f, -1.0f, +1.0f), new Vector2(0, 0)),
+                new Position3TexCoord2(new Vector3(+1.0f, -1.0f, +1.0f), new Vector2(1, 0)),
+                new Position3TexCoord2(new Vector3(+1.0f, -1.0f, -1.0f), new Vector2(1, 1)),
+                new Position3TexCoord2(new Vector3(-1.0f, -1.0f, -1.0f), new Vector2(0, 1)),
                 // Left                                                               
                 new Position3TexCoord2(new Vector3(-1.0f, +1.0f, -1.0f), new Vector2(0, 0)),
                 new Position3TexCoord2(new Vector3(-1.0f, +1.0f, +1.0f), new Vector2(1, 0)),
@@ -86,45 +85,48 @@ namespace TexturedCube
                 new Position3TexCoord2(new Vector3(-1.0f, +1.0f, +1.0f), new Vector2(0, 0)),
                 new Position3TexCoord2(new Vector3(+1.0f, +1.0f, +1.0f), new Vector2(1, 0)),
                 new Position3TexCoord2(new Vector3(+1.0f, -1.0f, +1.0f), new Vector2(1, 1)),
-                new Position3TexCoord2(new Vector3(-1.0f, -1.0f, +1.0f), new Vector2(0, 1)),
+                new Position3TexCoord2(new Vector3(-1.0f, -1.0f, +1.0f), new Vector2(0, 1))
             };
-            
+
             uint[] indices =
             {
-                0,1,2, 0,2,3,
-                4,5,6, 4,6,7,
-                8,9,10, 8,10,11,
-                12,13,14, 12,14,15,
-                16,17,18, 16,18,19,
-                20,21,22, 20,22,23,
+                0, 1, 2, 0, 2, 3,
+                4, 5, 6, 4, 6, 7,
+                8, 9, 10, 8, 10, 11,
+                12, 13, 14, 12, 14, 15,
+                16, 17, 18, 16, 18, 19,
+                20, 21, 22, 20, 22, 23
             };
-            
+
             geometry.VertexData = vertices;
             geometry.IndexData = indices;
 
-            geometry.VertexLayout = Position3TexCoord2.VertexLayoutDescription;
-            
+            geometry.VertexLayouts = new List<VertexLayoutDescription>
+            {
+                Position3TexCoord2.VertexLayoutDescription
+            };
+
             var pSet = DrawElements<Position3TexCoord2>.Create(
-                geometry, 
+                geometry,
                 PrimitiveTopology.TriangleList,
-                (uint)geometry.IndexData.Length, 
-                1, 
-                0, 
-                0, 
+                (uint) geometry.IndexData.Length,
+                1,
+                0,
+                0,
                 0);
-            
+
             geometry.PrimitiveSets.Add(pSet);
 
             geometry.PipelineState.ShaderSet = Texture2DShader.Instance.ShaderSet;
-            
+
             geometry.PipelineState.AddTexture(
                 Texture2D.Create(Texture2D.ImageFormatType.Png,
-                ShaderTools.ReadEmbeddedAssetBytes(
-                    "TexturedCube.Textures.spnza_bricks_a_diff.png",
-                    typeof(Program).Assembly),
-                1,
-                "SurfaceTexture", 
-                "SurfaceSampler"));
+                    ShaderTools.ReadEmbeddedAssetBytes(
+                        "TexturedCube.Textures.spnza_bricks_a_diff.png",
+                        typeof(Program).Assembly),
+                    1,
+                    "SurfaceTexture",
+                    "SurfaceSampler"));
 
             var geode = Geode.Create();
             geode.AddDrawable(geometry);

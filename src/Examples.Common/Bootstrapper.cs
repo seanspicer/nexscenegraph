@@ -1,5 +1,5 @@
 //
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,25 +15,21 @@
 //
 
 using Microsoft.Extensions.Logging;
-using Serilog;
-using SharpDX.Win32;
 
 namespace Examples.Common
 {
     public static class Bootstrapper
     {
-        private static ILoggerFactory _Factory = null;
-        
+        public static ILoggerFactory LoggerFactory { get; private set; }
+
         public static void Configure()
         {
             BuildLogger();
         }
 
-        public static ILoggerFactory LoggerFactory => _Factory;
-
         private static void BuildLogger()
         {
-            _Factory = Microsoft.Extensions.Logging.LoggerFactory.Create(builder =>
+            LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(builder =>
             {
                 builder.AddConsole();
                 builder.AddFilter(level => level >= LogLevel.Trace);

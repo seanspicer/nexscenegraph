@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,14 +29,6 @@ namespace Veldrid.SceneGraph.AssetPrimitives
 
     public class ProcessedMeshPart
     {
-        public byte[] VertexData { get; set; }
-        public VertexElementDescription[] VertexElements { get; set; }
-        public byte[] IndexData { get; set; }
-        public IndexFormat IndexFormat { get; set; }
-        public uint IndexCount { get; set; }
-        public Dictionary<string, uint> BoneIDsByName { get; set; }
-        public Matrix4x4[] BoneOffsets { get; set; }
-
         public ProcessedMeshPart(
             byte[] vertexData,
             VertexElementDescription[] vertexElements,
@@ -55,16 +47,24 @@ namespace Veldrid.SceneGraph.AssetPrimitives
             BoneOffsets = boneOffsets;
         }
 
+        public byte[] VertexData { get; set; }
+        public VertexElementDescription[] VertexElements { get; set; }
+        public byte[] IndexData { get; set; }
+        public IndexFormat IndexFormat { get; set; }
+        public uint IndexCount { get; set; }
+        public Dictionary<string, uint> BoneIDsByName { get; set; }
+        public Matrix4x4[] BoneOffsets { get; set; }
+
         public ModelResources CreateDeviceResources(
             GraphicsDevice gd,
             ResourceFactory factory)
         {
-            DeviceBuffer vertexBuffer = factory.CreateBuffer(new BufferDescription(
-                (uint)VertexData.Length, BufferUsage.VertexBuffer));
+            var vertexBuffer = factory.CreateBuffer(new BufferDescription(
+                (uint) VertexData.Length, BufferUsage.VertexBuffer));
             gd.UpdateBuffer(vertexBuffer, 0, VertexData);
 
-            DeviceBuffer indexBuffer = factory.CreateBuffer(new BufferDescription(
-                (uint)IndexData.Length, BufferUsage.IndexBuffer));
+            var indexBuffer = factory.CreateBuffer(new BufferDescription(
+                (uint) IndexData.Length, BufferUsage.IndexBuffer));
             gd.UpdateBuffer(indexBuffer, 0, IndexData);
 
             return new ModelResources(vertexBuffer, indexBuffer, IndexFormat, IndexCount);
@@ -95,7 +95,8 @@ namespace Veldrid.SceneGraph.AssetPrimitives
 
     public class ProcessedAnimationChannel
     {
-        public ProcessedAnimationChannel(string nodeName, VectorKey[] positions, VectorKey[] scales, QuaternionKey[] rotations)
+        public ProcessedAnimationChannel(string nodeName, VectorKey[] positions, VectorKey[] scales,
+            QuaternionKey[] rotations)
         {
             NodeName = nodeName;
             Positions = positions;
@@ -170,7 +171,8 @@ namespace Veldrid.SceneGraph.AssetPrimitives
         public readonly IndexFormat IndexFormat;
         public readonly uint IndexCount;
 
-        public ModelResources(DeviceBuffer vertexBuffer, DeviceBuffer indexBuffer, IndexFormat indexFormat, uint indexCount)
+        public ModelResources(DeviceBuffer vertexBuffer, DeviceBuffer indexBuffer, IndexFormat indexFormat,
+            uint indexCount)
         {
             VertexBuffer = vertexBuffer;
             IndexBuffer = indexBuffer;
@@ -183,9 +185,9 @@ namespace Veldrid.SceneGraph.AssetPrimitives
     {
         public override ProcessedModel ReadT(BinaryReader reader)
         {
-            ProcessedMeshPart[] parts = reader.ReadObjectArray(ReadMeshPart);
+            var parts = reader.ReadObjectArray(ReadMeshPart);
 
-            return new ProcessedModel()
+            return new ProcessedModel
             {
                 MeshParts = parts
             };
@@ -209,13 +211,13 @@ namespace Veldrid.SceneGraph.AssetPrimitives
 
         private ProcessedMeshPart ReadMeshPart(BinaryReader reader)
         {
-            byte[] vertexData = reader.ReadByteArray();
-            VertexElementDescription[] vertexDescs = reader.ReadObjectArray(ReadVertexElementDesc);
-            byte[] indexData = reader.ReadByteArray();
-            IndexFormat format = reader.ReadEnum<IndexFormat>();
-            uint indexCount = reader.ReadUInt32();
+            var vertexData = reader.ReadByteArray();
+            var vertexDescs = reader.ReadObjectArray(ReadVertexElementDesc);
+            var indexData = reader.ReadByteArray();
+            var format = reader.ReadEnum<IndexFormat>();
+            var indexCount = reader.ReadUInt32();
             //Dictionary<string, uint> dict = reader.ReadDictionary<string, uint>();
-            Matrix4x4[] boneOffsets = reader.ReadBlittableArray<Matrix4x4>();
+            var boneOffsets = reader.ReadBlittableArray<Matrix4x4>();
 
             return new ProcessedMeshPart(
                 vertexData,
@@ -237,9 +239,9 @@ namespace Veldrid.SceneGraph.AssetPrimitives
 
         public VertexElementDescription ReadVertexElementDesc(BinaryReader reader)
         {
-            string name = reader.ReadString();
-            VertexElementSemantic semantic = reader.ReadEnum<VertexElementSemantic>();
-            VertexElementFormat format = reader.ReadEnum<VertexElementFormat>();
+            var name = reader.ReadString();
+            var semantic = reader.ReadEnum<VertexElementSemantic>();
+            var format = reader.ReadEnum<VertexElementFormat>();
             return new VertexElementDescription(name, format, semantic);
         }
     }

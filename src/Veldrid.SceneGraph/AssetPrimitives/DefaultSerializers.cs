@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,11 +23,11 @@ namespace Veldrid.SceneGraph.AssetPrimitives
     {
         public static Dictionary<Type, BinaryAssetSerializer> Get()
         {
-            return new Dictionary<Type, BinaryAssetSerializer>()
+            return new Dictionary<Type, BinaryAssetSerializer>
             {
-                { typeof(ProcessedTexture), new ProcessedTextureDataSerializer() },
-                { typeof(ProcessedModel), new ProcessedModelSerializer() },
-                { typeof(byte[]), new ByteArraySerializer() }
+                {typeof(ProcessedTexture), new ProcessedTextureDataSerializer()},
+                {typeof(ProcessedModel), new ProcessedModelSerializer()},
+                {typeof(byte[]), new ByteArraySerializer()}
             };
         }
     }

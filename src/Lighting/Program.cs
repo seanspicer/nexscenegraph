@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,37 +14,20 @@
 // limitations under the License.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Numerics;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using Examples.Common;
-using Microsoft.Extensions.Logging;
-using Serilog.Core;
-using SixLabors.ImageSharp;
 using Veldrid;
-using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
+using Veldrid.SceneGraph.Logging;
 using Veldrid.SceneGraph.Viewer;
-using Veldrid.SceneGraph.IO;
-using Veldrid.SceneGraph.PipelineStates;
-using Veldrid.SceneGraph.Util;
-using Veldrid.SceneGraph.Util.Shape;
-using Veldrid.SceneGraph.VertexTypes;
 
 namespace Lighting
 {
-    
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             Bootstrapper.Configure();
-            Veldrid.SceneGraph.Logging.LogManager.SetLogger(Bootstrapper.LoggerFactory);
+            LogManager.SetLogger(Bootstrapper.LoggerFactory);
 
             var viewer = SimpleViewer.Create("Phong Shaded Dragon Scene Graph", TextureSampleCount.Count8);
             //viewer.SetCameraOrthographic();
@@ -53,7 +36,7 @@ namespace Lighting
             var root = LightingExampleScene.Build();
 
             viewer.SetSceneData(root);
-            viewer.ViewAll();            
+            viewer.ViewAll();
             viewer.Run();
         }
     }

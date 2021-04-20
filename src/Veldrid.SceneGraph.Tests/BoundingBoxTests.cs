@@ -1,5 +1,5 @@
 //
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,10 +14,8 @@
 // limitations under the License.
 //
 
-using System;
 using System.Numerics;
 using NUnit.Framework;
-using Veldrid.SceneGraph;
 
 namespace Veldrid.SceneGraph.Tests
 {
@@ -30,14 +28,14 @@ namespace Veldrid.SceneGraph.Tests
             // Construct a bounding box above the plane
             var bb = BoundingBox.Create();
             bb.ExpandBy(new Vector3(-1, -1, 1));
-            bb.ExpandBy(new Vector3( 1,  1, 2));
-            
+            bb.ExpandBy(new Vector3(1, 1, 2));
+
             Assert.That(-1, Is.EqualTo(bb.XMin));
-            Assert.That( 1, Is.EqualTo(bb.XMax));
+            Assert.That(1, Is.EqualTo(bb.XMax));
             Assert.That(-1, Is.EqualTo(bb.YMin));
-            Assert.That( 1, Is.EqualTo(bb.YMax));
-            Assert.That( 1, Is.EqualTo(bb.ZMin));
-            Assert.That( 2, Is.EqualTo(bb.ZMax));
+            Assert.That(1, Is.EqualTo(bb.YMax));
+            Assert.That(1, Is.EqualTo(bb.ZMin));
+            Assert.That(2, Is.EqualTo(bb.ZMax));
         }
     }
 }

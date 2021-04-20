@@ -1,5 +1,5 @@
 //
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,18 +16,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using Veldrid.SceneGraph.VertexTypes;
 
 namespace Veldrid.SceneGraph.Util.Shape
 {
     internal class Face
     {
-        public List<uint> VertexIndices;
+        public List<uint> ColorIndices;
         public List<uint> NormalIndices;
         public List<uint> TexCoordIndices;
-        public List<uint> ColorIndices;
+        public List<uint> VertexIndices;
 
         internal Face()
         {
@@ -37,44 +35,38 @@ namespace Veldrid.SceneGraph.Util.Shape
             ColorIndices = new List<uint>();
         }
     }
-    
+
     public class BuildShapeGeometryVisitor<T> : IShapeVisitor where T : struct, ISettablePrimitiveElement
     {
-        private IGeometry<T> _geometry;
-        private ITessellationHints _tessellationHints;
-        private Vector3 [] _colors;
-        
-        internal IShapeVisitor Create(IGeometry<T> geometry, ITessellationHints tessellationHints, Vector3 [] colors)
-        {
-            return new BuildShapeGeometryVisitor<T>(geometry, tessellationHints, colors);
-        }
+        private readonly Vector3[] _colors;
+        private readonly IGeometry<T> _geometry;
+        private readonly uint _instanceCount;
+        private readonly ITessellationHints _tessellationHints;
 
-        internal BuildShapeGeometryVisitor(IGeometry<T> geometry, ITessellationHints tessellationHints, Vector3 [] colors)
+        internal BuildShapeGeometryVisitor(IGeometry<T> geometry, ITessellationHints tessellationHints,
+            Vector3[] colors, uint instanceCount)
         {
             _geometry = geometry;
             _tessellationHints = tessellationHints;
             _colors = colors;
+            _instanceCount = instanceCount;
         }
 
-        void SetMatrix(Matrix4x4 m)
-        {
-            throw new System.NotImplementedException();
-        }
-        
         public void Apply(IShape shape)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public void Apply(IBox box)
         {
-            BuildBoxGeometry<T>.Build(_geometry, _tessellationHints, _colors, box);
+            var builder = new BuildBoxGeometry<T>();
+            builder.Build(_geometry, _tessellationHints, _colors, _instanceCount, box);
         }
-        
+
         public void Apply(ISphere sphere)
         {
-            var builder = new BuildSphereGeometry<T>(); 
-            builder.Build(_geometry, _tessellationHints, _colors, sphere);
+            var builder = new BuildSphereGeometry<T>();
+            builder.Build(_geometry, _tessellationHints, _colors, _instanceCount, sphere);
         }
 
         public void Apply(ICone cone)
@@ -82,7 +74,7 @@ namespace Veldrid.SceneGraph.Util.Shape
             var builder = new BuildConeGeometry<T>();
             builder.Build(_geometry, _tessellationHints, _colors, cone);
         }
-        
+
         public void Apply(ICylinder cylinder)
         {
             var builder = new BuildCylinderGeometry<T>();
@@ -93,6 +85,17 @@ namespace Veldrid.SceneGraph.Util.Shape
         {
             var builder = new PathGeometryBuilder<T>();
             builder.Build(_geometry, _tessellationHints, _colors, path);
+        }
+
+        internal IShapeVisitor Create(IGeometry<T> geometry, ITessellationHints tessellationHints, Vector3[] colors,
+            uint instanceCount)
+        {
+            return new BuildShapeGeometryVisitor<T>(geometry, tessellationHints, colors, instanceCount);
+        }
+
+        private void SetMatrix(Matrix4x4 m)
+        {
+            throw new NotImplementedException();
         }
     }
 }

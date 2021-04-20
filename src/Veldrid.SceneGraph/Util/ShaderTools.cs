@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,10 +27,7 @@ namespace Veldrid.SceneGraph.Util
         {
             var allNames = assembly.GetManifestResourceNames();
             var stream = assembly.GetManifestResourceStream(name);
-            if (stream == null)
-            {
-                throw new InvalidOperationException("No embedded asset with the name " + name);
-            }
+            if (stream == null) throw new InvalidOperationException("No embedded asset with the name " + name);
             return stream;
         }
 
@@ -39,20 +36,20 @@ namespace Veldrid.SceneGraph.Util
 //            var name = $"{set}-{stage.ToString().ToLower()}.{GetExtension(factory.BackendType)}";
 //            return factory.CreateShader(new ShaderDescription(stage, ReadEmbeddedAssetBytes(name), entryPoint));
 //        }
-        
+
         public static byte[] LoadShaderBytes(GraphicsBackend backend, Assembly assembly, string set, ShaderStages stage)
         {
             var allNames = assembly.GetManifestResourceNames();
             var name = $"{set}-{stage.ToString().ToLower()}.{GetExtension(backend)}";
             return ReadEmbeddedAssetBytes(name, assembly);
         }
-        
+
         public static byte[] ReadEmbeddedAssetBytes(string name, Assembly assembly)
         {
-            using (Stream stream = OpenEmbeddedAssetStream(name, assembly))
+            using (var stream = OpenEmbeddedAssetStream(name, assembly))
             {
                 var bytes = new byte[stream.Length];
-                using (MemoryStream ms = new MemoryStream(bytes))
+                using (var ms = new MemoryStream(bytes))
                 {
                     stream.CopyTo(ms);
                     return bytes;
@@ -62,36 +59,33 @@ namespace Veldrid.SceneGraph.Util
 
         private static string GetExtension(GraphicsBackend backendType)
         {
-			bool isMacOS = RuntimeInformation.OSDescription.Contains("Darwin");
+            var isMacOS = RuntimeInformation.OSDescription.Contains("Darwin");
 
-            return (backendType == GraphicsBackend.Direct3D11)
+            return backendType == GraphicsBackend.Direct3D11
                 ? "hlsl.bytes"
-                : (backendType == GraphicsBackend.Vulkan)
+                : backendType == GraphicsBackend.Vulkan
                     ? "450.glsl.spv"
-                    : (backendType == GraphicsBackend.Metal)
-					    ? isMacOS ? "metal" : "ios.metallib"
-                        : (backendType == GraphicsBackend.OpenGL)
+                    : backendType == GraphicsBackend.Metal
+                        ? isMacOS ? "metal" : "ios.metallib"
+                        : backendType == GraphicsBackend.OpenGL
                             ? "330.glsl"
                             : "300.glsles";
         }
 
         public static byte[] LoadBytecode(GraphicsBackend backend, string setName, ShaderStages stage)
         {
-            string stageExt = stage == ShaderStages.Vertex ? "vert" : "frag";
-            string name = setName + "." + stageExt;
+            var stageExt = stage == ShaderStages.Vertex ? "vert" : "frag";
+            var name = setName + "." + stageExt;
 
             if (backend == GraphicsBackend.Vulkan || backend == GraphicsBackend.Direct3D11)
             {
-                string bytecodeExtension = GetBytecodeExtension(backend);
-                string bytecodePath = AssetHelper.GetPath(Path.Combine("Shaders", name + bytecodeExtension));
-                if (File.Exists(bytecodePath))
-                {
-                    return File.ReadAllBytes(bytecodePath);
-                }
+                var bytecodeExtension = GetBytecodeExtension(backend);
+                var bytecodePath = AssetHelper.GetPath(Path.Combine("Shaders", name + bytecodeExtension));
+                if (File.Exists(bytecodePath)) return File.ReadAllBytes(bytecodePath);
             }
 
-            string extension = GetSourceExtension(backend);
-            string path = AssetHelper.GetPath(Path.Combine("Shaders.Generated", name + extension));
+            var extension = GetSourceExtension(backend);
+            var path = AssetHelper.GetPath(Path.Combine("Shaders.Generated", name + extension));
             return File.ReadAllBytes(path);
         }
 
@@ -122,6 +116,5 @@ namespace Veldrid.SceneGraph.Util
                 default: throw new InvalidOperationException("Invalid Graphics backend: " + backend);
             }
         }
-        
     }
 }

@@ -1,5 +1,5 @@
 //
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using Veldrid.SceneGraph.Util;
-using Vulkan;
 
 namespace Veldrid.SceneGraph
 {
@@ -27,25 +26,20 @@ namespace Veldrid.SceneGraph
         void Reset();
 
         IBoundingBox GetBoundingBox();
-        
-        void GetPolytope(ref IPolytope polytope, float margin=0.1f);
 
-        void GetBase(ref IPolytope polytope, float margin=0.1f);
+        void GetPolytope(ref IPolytope polytope, float margin = 0.1f);
+
+        void GetBase(ref IPolytope polytope, float margin = 0.1f);
     }
-    
+
     public class ComputeBoundsVisitor : NodeVisitor, IComputeBoundsVisitor
     {
         protected IBoundingBox _bb;
 
         protected Stack<Matrix4x4> _matrixStack = new Stack<Matrix4x4>();
 
-        public static IComputeBoundsVisitor Create()
-        {
-            return new ComputeBoundsVisitor();
-        }
-        
-        protected ComputeBoundsVisitor( 
-            TraversalModeType traversalMode = TraversalModeType.TraverseAllChildren) 
+        protected ComputeBoundsVisitor(
+            TraversalModeType traversalMode = TraversalModeType.TraverseAllChildren)
             : base(traversalMode)
         {
             _bb = BoundingBox.Create();
@@ -66,42 +60,44 @@ namespace Veldrid.SceneGraph
         public void GetPolytope(ref IPolytope polytope, float margin)
         {
             var delta = _bb.Radius * margin;
-            polytope.Add( Plane.Create(0.0f, 0.0f, 1.0f, -(_bb.ZMin-delta)) );
-            polytope.Add( Plane.Create(0.0f, 0.0f, -1.0f, (_bb.ZMax+delta)) );
+            polytope.Add(Plane.Create(0.0f, 0.0f, 1.0f, -(_bb.ZMin - delta)));
+            polytope.Add(Plane.Create(0.0f, 0.0f, -1.0f, _bb.ZMax + delta));
 
-            polytope.Add( Plane.Create(1.0f, 0.0f, 0.0f, -(_bb.XMin-delta)) );
-            polytope.Add( Plane.Create(-1.0f, 0.0f, 0.0f, (_bb.XMax+delta)) );
+            polytope.Add(Plane.Create(1.0f, 0.0f, 0.0f, -(_bb.XMin - delta)));
+            polytope.Add(Plane.Create(-1.0f, 0.0f, 0.0f, _bb.XMax + delta));
 
-            polytope.Add( Plane.Create(0.0f, 1.0f, 0.0f, -(_bb.YMin-delta)) );
-            polytope.Add( Plane.Create(0.0f, -1.0f, 0.0f, (_bb.YMax+delta)) );
+            polytope.Add(Plane.Create(0.0f, 1.0f, 0.0f, -(_bb.YMin - delta)));
+            polytope.Add(Plane.Create(0.0f, -1.0f, 0.0f, _bb.YMax + delta));
         }
 
         public void GetBase(ref IPolytope polytope, float margin)
         {
             var delta = _bb.Radius * margin;
-            polytope.Add( Plane.Create(0.0f, 0.0f, 1.0f, -(_bb.ZMin-delta)) );
+            polytope.Add(Plane.Create(0.0f, 0.0f, 1.0f, -(_bb.ZMin - delta)));
         }
 
         public override void Apply(IDrawable drawable)
         {
             ApplyBoundingBox(drawable.GetBoundingBox());
         }
-        
+
         public override void Apply(ITransform transform)
         {
             var matrix = Matrix4x4.Identity;
-            if (_matrixStack.Count > 0)
-            {
-                matrix = _matrixStack.Peek();
-            }
+            if (_matrixStack.Count > 0) matrix = _matrixStack.Peek();
 
             transform.ComputeLocalToWorldMatrix(ref matrix, this);
-            
+
             PushMatrix(matrix);
-            
+
             Traverse(transform);
-            
+
             PopMatrix();
+        }
+
+        public static IComputeBoundsVisitor Create()
+        {
+            return new ComputeBoundsVisitor();
         }
 
         public void PushMatrix(Matrix4x4 matrix)

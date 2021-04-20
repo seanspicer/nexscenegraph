@@ -1,5 +1,5 @@
 //
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,35 +14,31 @@
 // limitations under the License.
 //
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 
 namespace Veldrid.SceneGraph.InputAdapter
 {
     public class InputStateTracker
     {
-        private HashSet<Key> _currentlyPressedKeys = new HashSet<Key>();
-        private HashSet<Key> _newKeysThisFrame = new HashSet<Key>();
+        private readonly HashSet<Key> _currentlyPressedKeys = new HashSet<Key>();
 
-        private HashSet<MouseButton> _currentlyPressedMouseButtons = new HashSet<MouseButton>();
-        private HashSet<MouseButton> _pushedMouseButtonsThisFrame = new HashSet<MouseButton>();
-        private HashSet<MouseButton> _releasedMouseButtonsThisFrame = new HashSet<MouseButton>();
+        private readonly HashSet<MouseButton> _currentlyPressedMouseButtons = new HashSet<MouseButton>();
+        private readonly HashSet<Key> _newKeysThisFrame = new HashSet<Key>();
+        private readonly HashSet<MouseButton> _pushedMouseButtonsThisFrame = new HashSet<MouseButton>();
+        private readonly HashSet<MouseButton> _releasedMouseButtonsThisFrame = new HashSet<MouseButton>();
+        public Vector2? LastMousePosition;
 
-        public System.Nullable<Vector2> MousePosition = null;
-        public System.Nullable<Vector2> LastMousePosition = null;
-        
-        
-        
-        public IInputStateSnapshot FrameSnapshot { get; private set; }
-        
+        public Vector2? MousePosition;
+
 
         internal InputStateTracker()
         {
-            
         }
-        
+
+
+        public IInputStateSnapshot FrameSnapshot { get; private set; }
+
         public bool GetKey(Key key)
         {
             return _currentlyPressedKeys.Contains(key);
@@ -72,7 +68,7 @@ namespace Veldrid.SceneGraph.InputAdapter
         {
             return _releasedMouseButtonsThisFrame.Count > 0;
         }
-        
+
         public bool IsMouseButtonDown()
         {
             return _currentlyPressedMouseButtons.Count > 0;
@@ -81,16 +77,15 @@ namespace Veldrid.SceneGraph.InputAdapter
         public bool IsMouseMove()
         {
             if (null == MousePosition || null == LastMousePosition) return false;
-            
-            if (Math.Abs(MousePosition.Value.X - LastMousePosition.Value.X) > 1e-2) return true;
-            
-            else if (Math.Abs(MousePosition.Value.Y - LastMousePosition.Value.Y) > 1e-2) return true;
+
+            if (System.Math.Abs(MousePosition.Value.X - LastMousePosition.Value.X) > 1e-2) return true;
+
+            if (System.Math.Abs(MousePosition.Value.Y - LastMousePosition.Value.Y) > 1e-2) return true;
 
             return false;
-
         }
-        
-        
+
+
         public void UpdateFrameInput(IInputStateSnapshot snapshot)
         {
             FrameSnapshot = snapshot;
@@ -101,29 +96,22 @@ namespace Veldrid.SceneGraph.InputAdapter
             LastMousePosition = MousePosition;
             MousePosition = snapshot.MousePosition;
 
-            for (int i = 0; i < snapshot.KeyEvents.Count; i++)
+            for (var i = 0; i < snapshot.KeyEvents.Count; i++)
             {
-                KeyEvent ke = snapshot.KeyEvents[i];
+                var ke = snapshot.KeyEvents[i];
                 if (ke.Down)
-                {
                     KeyDown(ke.Key);
-                }
                 else
-                {
                     KeyUp(ke.Key);
-                }
             }
-            for (int i = 0; i < snapshot.MouseEvents.Count; i++)
+
+            for (var i = 0; i < snapshot.MouseEvents.Count; i++)
             {
-                MouseEvent me = snapshot.MouseEvents[i];
+                var me = snapshot.MouseEvents[i];
                 if (me.Down)
-                {
                     MouseDown(me.MouseButton);
-                }
                 else
-                {
                     MouseUp(me.MouseButton);
-                }
             }
         }
 
@@ -131,16 +119,13 @@ namespace Veldrid.SceneGraph.InputAdapter
         {
             _currentlyPressedMouseButtons.Remove(mouseButton);
             _pushedMouseButtonsThisFrame.Remove(mouseButton);
-            
+
             _releasedMouseButtonsThisFrame.Add(mouseButton);
         }
 
         private void MouseDown(MouseButton mouseButton)
         {
-            if (_currentlyPressedMouseButtons.Add(mouseButton))
-            {
-                _pushedMouseButtonsThisFrame.Add(mouseButton);
-            }
+            if (_currentlyPressedMouseButtons.Add(mouseButton)) _pushedMouseButtonsThisFrame.Add(mouseButton);
         }
 
         private void KeyUp(Key key)
@@ -151,10 +136,7 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         private void KeyDown(Key key)
         {
-            if (_currentlyPressedKeys.Add(key))
-            {
-                _newKeysThisFrame.Add(key);
-            }
+            if (_currentlyPressedKeys.Add(key)) _newKeysThisFrame.Add(key);
         }
     }
 }

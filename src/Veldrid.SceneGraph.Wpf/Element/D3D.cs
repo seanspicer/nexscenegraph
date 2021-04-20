@@ -53,8 +53,8 @@ namespace Veldrid.SceneGraph.Wpf.Element
         /// <param name="args"></param>
         public virtual void Reset(DrawEventArgs args)
         {
-            int w = (int)Math.Ceiling(args.RenderSize.Width);
-            int h = (int)Math.Ceiling(args.RenderSize.Height);
+            int w = (int) System.Math.Ceiling(args.RenderSize.Width);
+            int h = (int) System.Math.Ceiling(args.RenderSize.Height);
             if (w < 1 || h < 1)
                 return;
 
@@ -69,7 +69,10 @@ namespace Veldrid.SceneGraph.Wpf.Element
             Render(args);
 
             if (args.Target != null)
+            {
                 SetBackBuffer(args.Target);
+            }
+                
         }
 
         /// <summary>

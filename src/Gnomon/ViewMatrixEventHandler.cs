@@ -1,22 +1,14 @@
-//
-// This file is part of IMAGEFrac (R) and related technologies.
-//
-// Copyright (c) 2017-2020 Reveal Energy Services.  All Rights Reserved.
-//
-// LEGAL NOTICE:
-// IMAGEFrac contains trade secrets and otherwise confidential information
-// owned by Reveal Energy Services. Access to and use of this information is 
-// strictly limited and controlled by the Company. This file may not be copied,
-// distributed, or otherwise disclosed outside of the Company's facilities 
-// except under appropriate precautions to maintain the confidentiality hereof, 
-// and may not be used in any way not expressly authorized by the Company.
-//
 
+
+using System.Numerics;
+using Examples.Common.Wpf;
+using Veldrid;
 using Veldrid.SceneGraph.InputAdapter;
+using Veldrid.SceneGraph.Viewer;
 
 namespace Gnomon
 {
-    public class ViewMatrixEventHandler : InputEventHandler
+    public class ViewMatrixEventHandler : FrameCaptureEventHandler
     {
         
         private readonly SceneViewModel _viewModel;
@@ -26,9 +18,20 @@ namespace Gnomon
             _viewModel = viewModel;
         }
 
-        public override void HandleInput(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter)
+        public override bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter uiActionAdapter)
         {
-            _viewModel.MainViewMatrix = snapshot.ViewMatrix;
+            if (base.Handle(eventAdapter, uiActionAdapter))
+            {
+                return true;
+            }
+            
+            if(uiActionAdapter is IView view)
+            {
+                _viewModel.MainViewMatrix = view.Camera.ViewMatrix;
+                return true;
+            }
+
+            return false;
         }
     }
 }

@@ -1,5 +1,5 @@
 //
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,12 +14,19 @@
 // limitations under the License.
 //
 
-using System.Numerics;
-
-namespace Veldrid.SceneGraph.Util
+namespace Veldrid.SceneGraph
 {
-    public interface IIntersectionVisitor : INodeVisitor
+    public static class RenderDocManager
     {
-        Matrix4x4 GetModelMatrix();
+        internal static RenderDoc.RenderDoc Instance { get; private set; }
+
+        public static void Initialize(string renderDocCapturePath)
+        {
+            if (RenderDoc.RenderDoc.Load(out var renderDoc))
+            {
+                Instance = renderDoc;
+                if (null != renderDocCapturePath) Instance.SetCaptureSavePath(renderDocCapturePath);
+            }
+        }
     }
 }

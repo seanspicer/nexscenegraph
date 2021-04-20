@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,8 +26,15 @@ namespace Veldrid.SceneGraph.AssetPrimitives
 
     public abstract class BinaryAssetSerializer<T> : BinaryAssetSerializer
     {
-        public override void Write(BinaryWriter writer, object value) => WriteT(writer, (T)value);
-        public override object Read(BinaryReader reader) => ReadT(reader);
+        public override void Write(BinaryWriter writer, object value)
+        {
+            WriteT(writer, (T) value);
+        }
+
+        public override object Read(BinaryReader reader)
+        {
+            return ReadT(reader);
+        }
 
         public abstract T ReadT(BinaryReader reader);
         public abstract void WriteT(BinaryWriter writer, T value);

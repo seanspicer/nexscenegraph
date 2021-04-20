@@ -27,6 +27,7 @@ namespace Lighting.Wpf
         {
             SceneRoot = Examples.Common.LightingExampleScene.Build();
             CameraManipulator = TrackballManipulator.Create();
+            ClearColor = RgbaFloat.Grey;
             FsaaCount = TextureSampleCount.Count8; // 8x FSAA
         }
     }

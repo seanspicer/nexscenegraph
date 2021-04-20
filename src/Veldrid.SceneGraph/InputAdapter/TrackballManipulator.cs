@@ -1,5 +1,5 @@
 //
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,14 +19,14 @@ namespace Veldrid.SceneGraph.InputAdapter
 {
     public class TrackballManipulator : OrbitManipulator
     {
+        protected TrackballManipulator()
+        {
+            VerticalAxisFixed = false;
+        }
+
         public new static ICameraManipulator Create()
         {
             return new TrackballManipulator();
-        }
-        
-        protected TrackballManipulator() : base()
-        {
-            VerticalAxisFixed = false;
         }
     }
 }

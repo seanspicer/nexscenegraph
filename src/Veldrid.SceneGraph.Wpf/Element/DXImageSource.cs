@@ -32,7 +32,10 @@ namespace Veldrid.SceneGraph.Wpf.Element
 
 			if (disposing)
 			{
-				SetBackBuffer((SharpDX.Direct3D9.Texture)null);
+				// This is thread-safe, because SharpDX dispose actually 
+				// decrements the reference count on a COM object, which 
+				// is then deleted.
+				m_backBuffer?.Dispose();
 				GC.SuppressFinalize(this);
 			}
 			EndD3D9();

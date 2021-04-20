@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,69 +15,84 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Threading;
-//using Common.Logging;
-using Veldrid;
-using Veldrid.OpenGLBinding;
 using Veldrid.SceneGraph.InputAdapter;
-using Veldrid.SceneGraph.Util;
 using Veldrid.Sdl2;
-using Veldrid.Utilities;
 using Veldrid.StartupUtilities;
+using Veldrid.Utilities;
 using static Veldrid.Sdl2.Sdl2Native;
 
 namespace Veldrid.SceneGraph.Viewer
 {
     internal class EndFrameEvent : IEndFrameEvent
     {
-        public float FrameTime { get; }
-
         internal EndFrameEvent(float frameTime)
         {
             FrameTime = frameTime;
         }
+
+        public float FrameTime { get; }
     }
-    
+
     internal class ResizedEvent : IResizedEvent
     {
-        public int Width { get; }
-        public int Height { get; }
-        
         internal ResizedEvent(int width, int height)
         {
             Width = width;
             Height = height;
         }
 
+        public int Width { get; }
+        public int Height { get; }
     }
-    
+
+    internal class FrameCaptureEventHandler : UiEventHandler
+    {
+        public override bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter actionAdapter)
+        {
+            if (actionAdapter is IView view)
+                if (eventAdapter.Key == IUiEventAdapter.KeySymbol.KeyC &&
+                    (eventAdapter.EventType & IUiEventAdapter.EventTypeValue.KeyDown) != 0 &&
+                    (eventAdapter.ModKeyMask & IUiEventAdapter.ModKeyMaskType.ModKeyShift) != 0 &&
+                    (eventAdapter.ModKeyMask & IUiEventAdapter.ModKeyMaskType.ModKeyCtl) != 0)
+                {
+                    view?.Camera?.Renderer.CaptureNextFrame();
+                    return true;
+                }
+
+            return false;
+        }
+    }
+
     public class SimpleViewer : View, IViewer
     {
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        //
-        // PUBLIC Properties
-        //
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        private const uint NFramesInBuffer = 30;
+        private readonly double[] _frameTimeBuff = new double[NFramesInBuffer];
+        private readonly Sdl2Window _window;
+        private DisposeCollectorResourceFactory _factory;
+        private bool _firstFrame = true;
+        private double _fpsDrawTimeAccumulator;
+        private ulong _frameCounter;
+        private double _frameTimeAccumulator;
+        private ulong _globalFrameCounter;
 
-        public uint Width => (uint) _window.Width;
-        public uint Height => (uint) _window.Height;
+        private readonly GraphicsBackend _preferredBackend;
+        private double _previousElapsed;
 
-        public ResourceFactory ResourceFactory => _factory;
-        public GraphicsDevice GraphicsDevice => _graphicsDevice;
-        public GraphicsBackend Backend => GraphicsDevice.ResourceFactory.BackendType;
-        public Platform PlatformType { get; }
+        private readonly SceneContext _sceneContext;
+        private Stopwatch _stopwatch;
+
+        private readonly ISubject<IEvent> _viewerInputEvents;
+        private bool _windowResized = true;
 
         //public IObservable<IInputStateSnapshot> ViewerInputEvents => _viewerInputEvents;
 
-        
-        
+
         //public IObservable<
-        
+
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         //
         // PRIVATE Properties
@@ -86,70 +101,32 @@ namespace Veldrid.SceneGraph.Viewer
 
         private string _windowTitle = string.Empty;
 
-        private ISubject<IInputStateSnapshot> _viewerInputEvents;
-        
-        private GraphicsDevice _graphicsDevice;
-        private DisposeCollectorResourceFactory _factory;
-        private readonly Sdl2Window _window;
-        private bool _windowResized = true;
-        private bool _firstFrame = true;
-        private Stopwatch _stopwatch = null;
-        private double _previousElapsed = 0;
-        private GraphicsBackend _preferredBackend;
+        private readonly SDL_EventFilter ResizeEventFilter;
 
-        private SceneContext _sceneContext;
-
-        private event Action<GraphicsDevice, ResourceFactory> GraphicsDeviceOperations;
-        private event Action<GraphicsDevice> GraphicsDeviceResize;
-        
-        
-        private const uint NFramesInBuffer = 30;
-        private ulong _frameCounter = 0;
-        private ulong _globalFrameCounter = 0;
-        private double _frameTimeAccumulator = 0.0;
-        private double _fpsDrawTimeAccumulator = 0.0;
-        private readonly double[] _frameTimeBuff = new double[NFramesInBuffer];
-
-        private SDL_EventFilter ResizeEventFilter = null;
-
-        private readonly IUpdateVisitor _updateVisitor;
-        
-        //private ILog _logger;
-        
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        //
-        // PUBLIC Methods
-        //
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-        public static IViewer Create(string title, TextureSampleCount fsaaCount=TextureSampleCount.Count1)
-        {
-            return new SimpleViewer(title, fsaaCount);
-        }
-        
         /// <summary>
-        /// Constructor
+        ///     Constructor
         /// </summary>
         /// <param name="title"></param>
         //
         // TODO: remove unsafe once Veldrid.SDL2 implements resize fix.
         //
-        protected unsafe SimpleViewer(string title, TextureSampleCount fsaaCount) : base(960, 540, 1000.0f)
+        protected unsafe SimpleViewer(string title, TextureSampleCount fsaaCount, GraphicsBackend? preferredBackend)
+            : base(960, 540, 1000.0f)
         {
             _preferredBackend = DisplaySettings.Instance(this).GraphicsBackend;
-            
+            if (preferredBackend.HasValue) _preferredBackend = preferredBackend.Value;
+
             //_logger = LogManager.GetLogger<SimpleViewer>();
-            
+
             // Create Subjects
-            _viewerInputEvents = new Subject<IInputStateSnapshot>();
-            
-            InputEvents = new Subject<IInputStateSnapshot>();
-            
-            _updateVisitor = UpdateVisitor.Create();
+            _viewerInputEvents = new Subject<IEvent>();
+
+            // TODO - Remove?
+            //InputEvents = new Subject<IUiEventAdapter>();
+
             _windowTitle = title;
-            
-            var wci = new WindowCreateInfo()
+
+            var wci = new WindowCreateInfo
             {
                 X = 100,
                 Y = 100,
@@ -159,8 +136,8 @@ namespace Veldrid.SceneGraph.Viewer
             };
 
             _window = VeldridStartup.CreateWindow(ref wci);
-            DisplaySettings.Instance(this).SetScreenWidth((uint)wci.WindowWidth);
-            DisplaySettings.Instance(this).SetScreenHeight((uint)wci.WindowHeight);
+            DisplaySettings.Instance(this).SetScreenWidth((uint) wci.WindowWidth);
+            DisplaySettings.Instance(this).SetScreenHeight((uint) wci.WindowHeight);
             DisplaySettings.Instance(this).SetScreenDistance(1000.0f);
 
             //
@@ -186,17 +163,35 @@ namespace Veldrid.SceneGraph.Viewer
             GraphicsDeviceResize += Camera.Renderer.HandleResize;
             InputEvents = _viewerInputEvents;
             SceneContext = _sceneContext;
-            
+
             Camera.SetProjectionResizePolicy(ProjectionResizePolicy.Fixed);
+
+            AddInputEventHandler(new FrameCaptureEventHandler());
         }
+
+        public ResourceFactory ResourceFactory => _factory;
+        public GraphicsDevice GraphicsDevice { get; private set; }
+
+        public GraphicsBackend Backend => GraphicsDevice.ResourceFactory.BackendType;
+
+        private InputSnapshotAdapter InputSnapshotAdapter { get; } = new InputSnapshotAdapter();
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //
+        // PUBLIC Properties
+        //
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        public uint Width => (uint) _window.Width;
+        public uint Height => (uint) _window.Height;
+        public Platform PlatformType { get; }
 
         public override void SetCamera(ICamera camera)
         {
             GraphicsDeviceOperations -= Camera.Renderer.HandleOperation;
             GraphicsDeviceResize -= Camera.Renderer.HandleResize;
-            
+
             base.SetCamera(camera);
-            
+
             GraphicsDeviceOperations += Camera.Renderer.HandleOperation;
             GraphicsDeviceResize += Camera.Renderer.HandleResize;
         }
@@ -219,22 +214,11 @@ namespace Veldrid.SceneGraph.Viewer
             SetCamera(camera);
         }
 
-        public ICamera GetCamera()
-        {
-            return Camera;
-        }
-        
         public void ViewAll()
         {
             CameraManipulator?.ViewAll(this);
         }
 
-        public void Home()
-        {
-            CameraManipulator?.Home(this);
-        }
-        
-        
 
         public void SetBackgroundColor(RgbaFloat color)
         {
@@ -242,49 +226,64 @@ namespace Veldrid.SceneGraph.Viewer
             Camera.SetClearColor(color);
         }
 
-        // public void AddInputEventHandler(IInputEventHandler handler)
-        // {
-        //     AddInputEventHandler(handler);
-        // }
-        
-        public void Run()
-        {
-            Run(null);
-        }
-
         /// <summary>
-        /// Run the viewer
+        ///     Run the viewer
         /// </summary>
         /// <param name="preferredBackend"></param>
         //
         // TODO: This runs continuously, probably should have a mode that runs one-frame-at-a-time.
         // 
-        public void Run(GraphicsBackend? preferredBackend = null)
+        public void Run()
         {
-            if (preferredBackend.HasValue)
-            {
-                _preferredBackend = preferredBackend.Value;
-            }
-
             _windowTitle = _windowTitle + " (" + _preferredBackend + ") ";
 
             while (_window.Exists)
             {
                 var inputSnapshot = _window.PumpEvents();
-                
-                // TODO: Can remove InputTracker?
-                //InputTracker.UpdateFrameInput(inputSnapshot);
 
-                var inputStateSnap = InputStateSnapshot.Create(inputSnapshot, _window.Width, _window.Height, Camera.ProjectionMatrix, Camera.ViewMatrix);
-                
-                _viewerInputEvents.OnNext(inputStateSnap);
-                
+                var events = InputSnapshotAdapter.Adapt(inputSnapshot, _window.Width, _window.Height);
+                foreach (var evt in events) _viewerInputEvents.OnNext(evt);
+
                 Frame();
             }
-            
+
             //_viewerInputEvents.OnCompleted();
 
             DisposeResources();
+        }
+
+        public override void RequestRedraw()
+        {
+            base.RequestRedraw();
+            Frame();
+        }
+
+        private event Action<GraphicsDevice, ResourceFactory> GraphicsDeviceOperations;
+        private event Action<GraphicsDevice> GraphicsDeviceResize;
+
+        //private ILog _logger;
+
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //
+        // PUBLIC Methods
+        //
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        public static IViewer Create(string title, TextureSampleCount fsaaCount = TextureSampleCount.Count1,
+            GraphicsBackend? preferredBackend = null)
+        {
+            return new SimpleViewer(title, fsaaCount, preferredBackend);
+        }
+
+        public ICamera GetCamera()
+        {
+            return Camera;
+        }
+
+        public void Home()
+        {
+            CameraManipulator?.Home(this);
         }
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -298,10 +297,10 @@ namespace Veldrid.SceneGraph.Viewer
         // 
         protected void DisposeResources()
         {
-            _graphicsDevice.WaitForIdle();
+            GraphicsDevice.WaitForIdle();
             _factory.DisposeCollector.DisposeAll();
-            _graphicsDevice.Dispose();
-            _graphicsDevice = null;
+            GraphicsDevice.Dispose();
+            GraphicsDevice = null;
         }
 
         // 
@@ -326,12 +325,9 @@ namespace Veldrid.SceneGraph.Viewer
         private unsafe int ResizingEventWatcher(void* data, SDL_Event* @event)
         {
             if (@event->type != SDL_EventType.WindowEvent) return 0;
-            
+
             var windowEvent = Unsafe.Read<SDL_WindowEvent>(@event);
-            if (windowEvent.@event == SDL_WindowEventID.Resized)
-            {
-                _window.PumpEvents();
-            }
+            if (windowEvent.@event == SDL_WindowEventID.Resized) _window.PumpEvents();
 
             return 0;
         }
@@ -343,35 +339,28 @@ namespace Veldrid.SceneGraph.Viewer
         private void ViewerInit()
         {
             var options = new GraphicsDeviceOptions(
-                debug: false,
-                swapchainDepthFormat: PixelFormat.R32_Float,
-                syncToVerticalBlank: true,
-                resourceBindingModel: ResourceBindingModel.Improved,
-                preferDepthRangeZeroToOne: true,
-                preferStandardClipSpaceYDirection: true,
-                swapchainSrgbFormat: false);
-            
+                false,
+                PixelFormat.R32_Float,
+                true,
+                ResourceBindingModel.Improved,
+                true,
+                true,
+                false);
+
 #if DEBUG
             options.Debug = true;
 #endif
             //_logger.Info(m => m($"Creating Graphics Device with {_preferredBackend} Backend"));
-            
-            _graphicsDevice = VeldridStartup.CreateGraphicsDevice(_window, options, _preferredBackend);
 
-            bool isDirect3DSupported = GraphicsDevice.IsBackendSupported(GraphicsBackend.Direct3D11);
-            _factory = new DisposeCollectorResourceFactory(_graphicsDevice.ResourceFactory);
+            GraphicsDevice = VeldridStartup.CreateGraphicsDevice(_window, options, _preferredBackend);
+
+            var isDirect3DSupported = GraphicsDevice.IsBackendSupported(GraphicsBackend.Direct3D11);
+            _factory = new DisposeCollectorResourceFactory(GraphicsDevice.ResourceFactory);
             _stopwatch = Stopwatch.StartNew();
             _previousElapsed = _stopwatch.Elapsed.TotalSeconds;
-            
-            _sceneContext.SetOutputFramebufffer(_graphicsDevice.SwapchainFramebuffer);
-            _sceneContext.CreateDeviceObjects(_graphicsDevice, _factory);
-            
-        }
 
-        public override void RequestRedraw()
-        {
-            base.RequestRedraw();
-            Frame();
+            _sceneContext.SetOutputFramebufffer(GraphicsDevice.SwapchainFramebuffer);
+            _sceneContext.CreateDeviceObjects(GraphicsDevice, _factory);
         }
 
         // 
@@ -389,12 +378,11 @@ namespace Veldrid.SceneGraph.Viewer
 
             var newElapsed = _stopwatch.Elapsed.TotalSeconds;
             var deltaSeconds = (float) (newElapsed - _previousElapsed);
-            
+
             //
             // Rudimentary FPS Calc
             // 
             {
-
                 _frameTimeAccumulator -= _frameTimeBuff[_frameCounter];
                 _frameTimeBuff[_frameCounter] = deltaSeconds;
                 _frameTimeAccumulator += deltaSeconds;
@@ -402,48 +390,25 @@ namespace Veldrid.SceneGraph.Viewer
                 _fpsDrawTimeAccumulator += deltaSeconds;
                 if (_fpsDrawTimeAccumulator > 0.03333)
                 {
-                    var avgFps = (NFramesInBuffer/_frameTimeAccumulator);
-                
+                    var avgFps = NFramesInBuffer / _frameTimeAccumulator;
+
                     _window.Title = _windowTitle + ": FPS: " + avgFps.ToString("#.0");
                     _fpsDrawTimeAccumulator = 0.0;
                 }
-                
+
                 // RingBuffer
                 if (_frameCounter == NFramesInBuffer - 1)
-                {
                     _frameCounter = 0;
-                    
-                }
                 else
-                {
                     _frameCounter++;
-                }
             }
 
             _globalFrameCounter++;
             _previousElapsed = newElapsed;
 
-            if (null == _graphicsDevice) return;
+            if (null == GraphicsDevice) return;
 
-            UpdateTraversal();
-            
             RenderingTraversals();
-
-            //_endFrameEvents.OnNext(new EndFrameEvent(deltaSeconds));
-        }
-
-        private void UpdateTraversal()
-        {
-            //_updateVisitor.Reset();
-            //_updateVisitor.SetFrameStamp(GetFrameStamp());
-            //_updateVisitor.SetTraversalNumber(GetFrameStamp().GetFrameNumber());
-            
-            SceneData?.Accept(_updateVisitor);
-
-            if (null != CameraManipulator)
-            {
-                CameraManipulator.UpdateCamera(Camera);
-            }
         }
 
         //
@@ -454,26 +419,25 @@ namespace Veldrid.SceneGraph.Viewer
             if (_windowResized)
             {
                 _windowResized = false;
-                _graphicsDevice.ResizeMainWindow((uint) _window.Width, (uint) _window.Height);
-                DisplaySettings.Instance(this).SetScreenWidth((uint)_window.Width);
-                DisplaySettings.Instance(this).SetScreenHeight((uint)_window.Height);
-                
+                GraphicsDevice.ResizeMainWindow((uint) _window.Width, (uint) _window.Height);
+                DisplaySettings.Instance(this).SetScreenWidth((uint) _window.Width);
+                DisplaySettings.Instance(this).SetScreenHeight((uint) _window.Height);
+
                 Camera.Resize(
-                    _window.Width, 
+                    _window.Width,
                     _window.Height,
                     ResizeMask.ResizeDefault | ResizeMask.ResizeProjectionMatrix);
 
-                _sceneContext.SetOutputFramebufffer(_graphicsDevice.SwapchainFramebuffer);
-                
-                _sceneContext.RecreateWindowSizedResources(
-                    _graphicsDevice, 
-                    _factory);
-                
-                GraphicsDeviceResize?.Invoke(_graphicsDevice);
-            }
-            
-            GraphicsDeviceOperations?.Invoke(_graphicsDevice, _factory);
-        }
+                _sceneContext.SetOutputFramebufffer(GraphicsDevice.SwapchainFramebuffer);
 
+                _sceneContext.RecreateWindowSizedResources(
+                    GraphicsDevice,
+                    _factory);
+
+                GraphicsDeviceResize?.Invoke(GraphicsDevice);
+            }
+
+            GraphicsDeviceOperations?.Invoke(GraphicsDevice, _factory);
+        }
     }
 }

@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+
 using System.IO;
 
 namespace Veldrid.SceneGraph.AssetProcessor
@@ -21,7 +22,7 @@ namespace Veldrid.SceneGraph.AssetProcessor
     {
         public override byte[] ProcessT(Stream stream, string extension)
         {
-            MemoryStream ms = new MemoryStream();
+            var ms = new MemoryStream();
             stream.CopyTo(ms);
             return ms.ToArray();
 
@@ -31,8 +32,8 @@ namespace Veldrid.SceneGraph.AssetProcessor
             //uint height = ktx.Header.PixelHeight;
             //if (height == 0) height = width;
 
-            //uint arrayLayers = Math.Max(1, ktx.Header.NumberOfArrayElements);
-            //uint mipLevels = Math.Max(1, ktx.Header.NumberOfMipmapLevels);
+            //uint arrayLayers =  System.Math.Max(1, ktx.Header.NumberOfArrayElements);
+            //uint mipLevels =  System.Math.Max(1, ktx.Header.NumberOfMipmapLevels);
 
             //// Copy texture data into single array
             //List<byte> bytes = new List<byte>();

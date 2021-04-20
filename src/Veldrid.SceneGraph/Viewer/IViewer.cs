@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,24 +14,19 @@
 // limitations under the License.
 //
 
-using System;
-using System.Dynamic;
-using Veldrid;
-using Veldrid.SceneGraph.InputAdapter;
-
 namespace Veldrid.SceneGraph.Viewer
 {
     public interface IEndFrameEvent
     {
         float FrameTime { get; }
     }
-    
+
     public interface IResizedEvent
     {
         int Width { get; }
         int Height { get; }
     }
-    
+
     public interface IViewer : IView
     {
         Platform PlatformType { get; }
@@ -43,9 +38,8 @@ namespace Veldrid.SceneGraph.Viewer
         uint Height { get; }
         void SetBackgroundColor(RgbaFloat color);
         void ViewAll();
-        
+
         void Run();
-        void Run(GraphicsBackend? preferredBackend);
         void SetCameraOrthographic();
         void SetCameraPerspective();
     }

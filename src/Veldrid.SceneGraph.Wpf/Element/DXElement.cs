@@ -14,7 +14,7 @@ namespace Veldrid.SceneGraph.Wpf.Element
     /// It does no Direct3D work, which is delegated to
     /// the <see cref="IDirect3D"/> <see cref="Renderer"/> object.
     /// </summary>
-    public class DXElement : UserControl, INotifyPropertyChanged
+    public class DXElement : UserControl, INotifyPropertyChanged, IDisposable
     {
         #region Init
 
@@ -30,14 +30,29 @@ namespace Veldrid.SceneGraph.Wpf.Element
             m_surface.IsFrontBufferAvailableChanged += delegate
             {
                 UpdateReallyLoopRendering();
-                if (!m_isReallyLoopRendering && m_surface.IsFrontBufferAvailable)
+
+                if (null != m_surface && !m_isReallyLoopRendering && m_surface.IsFrontBufferAvailable)
+                {
                     Render();
+                }
+                    
             };
             IsVisibleChanged += delegate { UpdateReallyLoopRendering(); };
+            
+            
         }
 
         #endregion
 
+        #region Finalizer
+
+        ~DXElement()
+        {
+            Dispose(false);
+        }
+        
+        #endregion
+        
         #region Dependency Property
 
         /// <summary>
@@ -134,8 +149,8 @@ namespace Veldrid.SceneGraph.Wpf.Element
         /// </summary>
         protected override System.Windows.Size MeasureOverride(System.Windows.Size availableSize)
         {
-            int w = (int)Math.Ceiling(availableSize.Width);
-            int h = (int)Math.Ceiling(availableSize.Height);
+            int w = (int)System.Math.Ceiling(availableSize.Width);
+            int h = (int)System.Math.Ceiling(availableSize.Height);
             return new System.Windows.Size(w, h);
         }
 
@@ -169,27 +184,33 @@ namespace Veldrid.SceneGraph.Wpf.Element
         /// </summary>
         private void UpdateReallyLoopRendering()
         {
+            // Check to make sure surface is not null.
+
+            if (null == Surface)
+            {
+                return;
+            }
+            
             var newValue =
                 !IsInDesignMode
                 && IsLoopRendering
                 && Renderer != null
                 && Surface.IsFrontBufferAvailable
                 && VisualParent != null
-                && IsVisible
-                ;
+                && IsVisible;
 
             if (newValue != m_isReallyLoopRendering)
             {
                 m_isReallyLoopRendering = newValue;
                 if (m_isReallyLoopRendering)
                 {
-                    m_renderTimer.Start();
+                    m_renderTimer?.Start();
                     CompositionTarget.Rendering += OnLoopRendering;
                 }
                 else
                 {
                     CompositionTarget.Rendering -= OnLoopRendering;
-                    m_renderTimer.Stop();
+                    m_renderTimer?.Stop();
                 }
             }
         }
@@ -308,6 +329,13 @@ namespace Veldrid.SceneGraph.Wpf.Element
                 ((IInteractiveDirect3D)Renderer).OnKeyDown(this, e);
         }
 
+        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        {
+            base.OnPreviewKeyDown(e);
+            if (Renderer is IInteractiveDirect3D)
+                ((IInteractiveDirect3D)Renderer).OnKeyDown(this, e);
+        }
+        
         /// <summary>
         /// 
         /// </summary>
@@ -318,7 +346,14 @@ namespace Veldrid.SceneGraph.Wpf.Element
             if (Renderer is IInteractiveDirect3D)
                 ((IInteractiveDirect3D)Renderer).OnKeyUp(this, e);
         }
-
+        
+        protected override void OnPreviewKeyUp(KeyEventArgs e)
+        {
+            base.OnPreviewKeyDown(e);
+            if (Renderer is IInteractiveDirect3D)
+                ((IInteractiveDirect3D)Renderer).OnKeyUp(this, e);
+        }
+        
         #endregion
 
         #region INotifyPropertyChanged Members
@@ -350,5 +385,25 @@ namespace Veldrid.SceneGraph.Wpf.Element
         private DXImageSource m_surface;
         private Stopwatch m_renderTimer;
         #endregion
+
+        protected virtual void ReleaseUnmanagedResources()
+        {
+            m_surface?.Dispose();
+            m_surface = null;
+        }
+
+        private void Dispose(bool disposing)
+        {
+            ReleaseUnmanagedResources();
+            if (disposing)
+            {
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
     }
 }

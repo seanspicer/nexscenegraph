@@ -6,7 +6,7 @@ namespace Veldrid.SceneGraph.RenderGraph
     {
         public string Name { get; }
         public SpecializationConstant[] Specializations { get; }
-        
+
         public GraphicsDevice Device { get; }
 
         public ShaderSetCacheKey(GraphicsDevice device, string name, SpecializationConstant[] specializations) : this()
@@ -18,16 +18,14 @@ namespace Veldrid.SceneGraph.RenderGraph
 
         public bool Equals(ShaderSetCacheKey other)
         {
-            return Device.Equals(other.Device) && Name.Equals(other.Name) && ArraysEqual(Specializations, other.Specializations);
+            return Device.Equals(other.Device) && Name.Equals(other.Name) &&
+                   ArraysEqual(Specializations, other.Specializations);
         }
 
         public override int GetHashCode()
         {
-            int hash = Name.GetHashCode();
-            foreach (var specConst in Specializations)
-            {
-                hash ^= specConst.GetHashCode();
-            }
+            var hash = Name.GetHashCode();
+            foreach (var specConst in Specializations) hash ^= specConst.GetHashCode();
 
             hash ^= Device.GetHashCode();
             return hash;
@@ -35,12 +33,11 @@ namespace Veldrid.SceneGraph.RenderGraph
 
         private bool ArraysEqual<T>(T[] a, T[] b) where T : IEquatable<T>
         {
-            if (a.Length != b.Length) { return false; }
+            if (a.Length != b.Length) return false;
 
-            for (int i = 0; i < a.Length; i++)
-            {
-                if (!a[i].Equals(b[i])) { return false; }
-            }
+            for (var i = 0; i < a.Length; i++)
+                if (!a[i].Equals(b[i]))
+                    return false;
 
             return true;
         }

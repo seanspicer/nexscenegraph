@@ -1,5 +1,5 @@
 //
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,18 +23,11 @@ namespace Veldrid.SceneGraph.VertexTypes
         public static VertexLayoutDescription GetLayoutDescription(Type type)
         {
             if (type == typeof(Position3Texture2Color3Normal3))
-            {
                 return Position3Texture2Color3Normal3.VertexLayoutDescription;
-            }
-            else if (type == typeof(Position3Color3))
-            {
+            if (type == typeof(Position3Color3))
                 return Position3Color3.VertexLayoutDescription;
-            }
-            else if (type == typeof(Position3TexCoord2))
-            {
-                return Position3TexCoord2.VertexLayoutDescription;
-            }
-            
+            if (type == typeof(Position3TexCoord2)) return Position3TexCoord2.VertexLayoutDescription;
+
             throw new ArgumentException($"Invalid type {type}.  Cannot get vertex layout description");
         }
     }

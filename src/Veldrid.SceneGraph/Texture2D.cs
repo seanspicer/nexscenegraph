@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 using System;
 using System.ComponentModel;
-using System.Dynamic;
 using System.IO;
 using Veldrid.SceneGraph.AssetPrimitives;
 using Veldrid.SceneGraph.AssetProcessor;
@@ -30,56 +29,27 @@ namespace Veldrid.SceneGraph
         string TextureName { get; set; }
         string SamplerName { get; set; }
     }
-    
+
     public class Texture2D : ITexture2D
     {
         public enum ImageFormatType
         {
-            Jpeg, 
+            Jpeg,
             Png
-        };
-
-        private ImageFormatType ImageFormat { get; set; }
-        private byte[] ImageBytes { get; set; } = null;
-        
-        public ProcessedTexture ProcessedTexture { get; private set; } = null;
-
-        public uint ResourceSetNo { get; set; } = 1;
-        public string TextureName { get; set; } = string.Empty;
-        public string SamplerName { get; set; } = string.Empty;
-
-        public static ITexture2D Create(
-            ImageFormatType imageFormat, 
-            byte[] imageBytes, 
-            uint resourceSetNo,
-            string textureName, 
-            string samplerName)
-        {
-            return new Texture2D(imageFormat, imageBytes, resourceSetNo, textureName, samplerName);
         }
 
-        public static ITexture2D Create(
-            ProcessedTexture processedTexture, 
-            uint resourceSetNo, 
-            string textureName,
+        private Texture2D(ImageFormatType imageFormat, byte[] imageBytes, uint resourceSetNo, string textureName,
             string samplerName)
-        {
-            return new Texture2D(processedTexture, resourceSetNo, textureName, samplerName);
-        }
-        
-        private Texture2D(ImageFormatType imageFormat, byte[] imageBytes, uint resourceSetNo, string textureName, string samplerName)
         {
             if (null == textureName || null == samplerName)
-            {
                 throw new ArgumentException("Must provide valid texture and sampler name");
-            }
 
             ResourceSetNo = resourceSetNo;
             TextureName = textureName;
             SamplerName = samplerName;
             ImageFormat = imageFormat;
             ImageBytes = imageBytes;
-            
+
             if (null != ImageBytes)
             {
                 var texProcessor = new ImageSharpProcessor();
@@ -106,6 +76,34 @@ namespace Veldrid.SceneGraph
             TextureName = textureName;
             SamplerName = samplerName;
             ProcessedTexture = processedTexture;
+        }
+
+        private ImageFormatType ImageFormat { get; }
+        private byte[] ImageBytes { get; }
+
+        public ProcessedTexture ProcessedTexture { get; }
+
+        public uint ResourceSetNo { get; set; } = 1;
+        public string TextureName { get; set; } = string.Empty;
+        public string SamplerName { get; set; } = string.Empty;
+
+        public static ITexture2D Create(
+            ImageFormatType imageFormat,
+            byte[] imageBytes,
+            uint resourceSetNo,
+            string textureName,
+            string samplerName)
+        {
+            return new Texture2D(imageFormat, imageBytes, resourceSetNo, textureName, samplerName);
+        }
+
+        public static ITexture2D Create(
+            ProcessedTexture processedTexture,
+            uint resourceSetNo,
+            string textureName,
+            string samplerName)
+        {
+            return new Texture2D(processedTexture, resourceSetNo, textureName, samplerName);
         }
     }
 }

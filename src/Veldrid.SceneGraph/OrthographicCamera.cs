@@ -1,5 +1,5 @@
 //
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 
-using System;
 using System.Numerics;
 using Veldrid.SceneGraph.Util;
 
@@ -22,17 +21,13 @@ namespace Veldrid.SceneGraph
 {
     public class OrthographicCamera : Camera, IOrthographicCamera
     {
-        public static IOrthographicCamera Create(uint width, uint height, float distance)
-        {
-            return new OrthographicCamera(width, height, distance);
-        }
-
         protected OrthographicCamera(uint width, uint height, float distance) : base(width, height, distance)
         {
             SetProjectionMatrixAsOrthographic(width, height, distance, -distance);
         }
-        
-        public void SetProjectionMatrixAsOrthographicOffCenter(float left, float right, float bottom, float top, float zNear, float zFar)
+
+        public void SetProjectionMatrixAsOrthographicOffCenter(float left, float right, float bottom, float top,
+            float zNear, float zFar)
         {
             SetProjectionMatrix(Matrix4x4.CreateOrthographicOffCenter(left, right, bottom, top, zFar, zNear));
         }
@@ -43,39 +38,42 @@ namespace Veldrid.SceneGraph
             var right = width / 2.0f;
             var top = height / 2.0f;
             var bottom = -height / 2.0f;
-            
+
             SetProjectionMatrixAsOrthographicOffCenter(left, right, bottom, top, zNear, zFar);
         }
-        
-        public bool GetProjectionMatrixAsOrtho(ref float left, ref float right, ref float bottom, ref float top, ref float zNear,
+
+        public bool GetProjectionMatrixAsOrtho(ref float left, ref float right, ref float bottom, ref float top,
+            ref float zNear,
             ref float zFar)
         {
             return ProjectionMatrix.GetOrtho(ref left, ref right, ref bottom, ref top, ref zNear, ref zFar);
         }
-        
-        protected override void ResizeProjection(int width, int height, ResizeMask resizeMask = ResizeMask.ResizeDefault)
+
+        public static IOrthographicCamera Create(uint width, uint height, float distance)
+        {
+            return new OrthographicCamera(width, height, distance);
+        }
+
+        protected override void ResizeProjection(int width, int height,
+            ResizeMask resizeMask = ResizeMask.ResizeDefault)
         {
             double previousWidth = Viewport.Width;
             double previousHeight = Viewport.Height;
             double newWidth = width;
             double newHeight = height;
 
-            
+
             // TODO -- THIS NEEDS TO BE MOVED, it shouldn't be necessary.
             if (System.Math.Abs(previousWidth) < 1e-6 && System.Math.Abs(previousHeight) < 1e-6)
             {
-                
-                SetProjectionMatrixAsOrthographic(width/(Distance/10), height/(Distance/10), Distance/10, -Distance/10);
-                
-                if((resizeMask & ResizeMask.ResizeViewport) != 0)
-                {
-                    SetViewport(0, 0, width, height);
-                }
+                SetProjectionMatrixAsOrthographic(width / (Distance / 10), height / (Distance / 10), Distance / 10,
+                    -Distance / 10);
+
+                if ((resizeMask & ResizeMask.ResizeViewport) != 0) SetViewport(0, 0, width, height);
             }
 
             if (previousWidth > 1e-6 && System.Math.Abs(previousWidth - newWidth) > 1e-6 ||
                 previousHeight > 1e-6 && System.Math.Abs(previousHeight - newHeight) > 1e-6)
-            {
                 if ((resizeMask & ResizeMask.ResizeProjectionMatrix) != 0)
                 {
                     var widthChangeRatio = newWidth / previousWidth;
@@ -83,7 +81,6 @@ namespace Veldrid.SceneGraph
                     var aspectRatioChange = widthChangeRatio / heightChangeRatio;
 
                     if (System.Math.Abs(aspectRatioChange - 1.0) > 1e-6)
-                    {
                         switch (ProjectionResizePolicy)
                         {
                             case ProjectionResizePolicy.Horizontal:
@@ -102,9 +99,7 @@ namespace Veldrid.SceneGraph
                                                         1.0f / (float) heightChangeRatio, 1.0f));
                                 break;
                         }
-                    }
                 }
-            }
         }
     }
 }

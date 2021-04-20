@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,25 +14,23 @@
 // limitations under the License.
 //
 
-using System;
-
 namespace Veldrid.SceneGraph
 {
     public interface IView
     {
         void SetCamera(ICamera camera);
     }
-    
+
     public abstract class View : IView
     {
-        public ICamera Camera { get; private set; }
-
         protected View(uint width, uint height, float distance)
         {
             Camera = PerspectiveCamera.Create(width, height, distance);
-            Camera.SetViewport(0, 0, (int)width, (int)height);
+            Camera.SetViewport(0, 0, (int) width, (int) height);
             Camera.SetView(this);
         }
+
+        public ICamera Camera { get; private set; }
 
         public virtual void SetCamera(ICamera newCamera)
         {
@@ -43,9 +41,10 @@ namespace Veldrid.SceneGraph
             }
             else
             {
-                newCamera.SetViewport(0, 0, (int)DisplaySettings.Instance(this).ScreenWidth, (int)DisplaySettings.Instance(this).ScreenHeight);
+                newCamera.SetViewport(0, 0, (int) DisplaySettings.Instance(this).ScreenWidth,
+                    (int) DisplaySettings.Instance(this).ScreenHeight);
             }
-            
+
             newCamera.SetView(this);
             Camera = newCamera;
         }

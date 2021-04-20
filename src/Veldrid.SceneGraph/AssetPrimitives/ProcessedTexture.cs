@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,15 +21,6 @@ namespace Veldrid.SceneGraph.AssetPrimitives
 {
     public class ProcessedTexture
     {
-        public PixelFormat Format { get; set; }
-        public TextureType Type { get; set; }
-        public uint Width { get; set; }
-        public uint Height { get; set; }
-        public uint Depth { get; set; }
-        public uint MipLevels { get; set; }
-        public uint ArrayLayers { get; set; }
-        public byte[] TextureData { get; set; }
-
         public ProcessedTexture(
             PixelFormat format,
             TextureType type,
@@ -50,12 +41,21 @@ namespace Veldrid.SceneGraph.AssetPrimitives
             TextureData = textureData;
         }
 
+        public PixelFormat Format { get; set; }
+        public TextureType Type { get; set; }
+        public uint Width { get; set; }
+        public uint Height { get; set; }
+        public uint Depth { get; set; }
+        public uint MipLevels { get; set; }
+        public uint ArrayLayers { get; set; }
+        public byte[] TextureData { get; set; }
+
         public unsafe Texture CreateDeviceTexture(GraphicsDevice gd, ResourceFactory rf, TextureUsage usage)
         {
-            Texture texture = rf.CreateTexture(new TextureDescription(
+            var texture = rf.CreateTexture(new TextureDescription(
                 Width, Height, Depth, MipLevels, ArrayLayers, Format, usage, Type));
 
-            Texture staging = rf.CreateTexture(new TextureDescription(
+            var staging = rf.CreateTexture(new TextureDescription(
                 Width, Height, Depth, MipLevels, ArrayLayers, Format, TextureUsage.Staging, Type));
 
             ulong offset = 0;
@@ -63,15 +63,15 @@ namespace Veldrid.SceneGraph.AssetPrimitives
             {
                 for (uint level = 0; level < MipLevels; level++)
                 {
-                    uint mipWidth = GetDimension(Width, level);
-                    uint mipHeight = GetDimension(Height, level);
-                    uint mipDepth = GetDimension(Depth, level);
-                    uint subresourceSize = mipWidth * mipHeight * mipDepth * GetFormatSize(Format);
+                    var mipWidth = GetDimension(Width, level);
+                    var mipHeight = GetDimension(Height, level);
+                    var mipDepth = GetDimension(Depth, level);
+                    var subresourceSize = mipWidth * mipHeight * mipDepth * GetFormatSize(Format);
 
                     for (uint layer = 0; layer < ArrayLayers; layer++)
                     {
                         gd.UpdateTexture(
-                            staging, (IntPtr)(texDataPtr + offset), subresourceSize,
+                            staging, (IntPtr) (texDataPtr + offset), subresourceSize,
                             0, 0, 0, mipWidth, mipHeight, mipDepth,
                             level, layer);
                         offset += subresourceSize;
@@ -79,7 +79,7 @@ namespace Veldrid.SceneGraph.AssetPrimitives
                 }
             }
 
-            CommandList cl = rf.CreateCommandList();
+            var cl = rf.CreateCommandList();
             cl.Begin();
             cl.CopyTexture(staging, texture);
             cl.End();
@@ -100,13 +100,10 @@ namespace Veldrid.SceneGraph.AssetPrimitives
 
         public static uint GetDimension(uint largestLevelDimension, uint mipLevel)
         {
-            uint ret = largestLevelDimension;
-            for (uint i = 0; i < mipLevel; i++)
-            {
-                ret /= 2;
-            }
+            var ret = largestLevelDimension;
+            for (uint i = 0; i < mipLevel; i++) ret /= 2;
 
-            return Math.Max(1, ret);
+            return System.Math.Max(1, ret);
         }
     }
 

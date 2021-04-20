@@ -4,13 +4,8 @@ namespace Veldrid.SceneGraph.Logging
 {
     public class LogManager
     {
-        private static ILoggerFactory _Factory = null;
-        
-        public static void SetLogger(ILoggerFactory factory)
-        {
-            _Factory = factory;
-        }
-        
+        private static ILoggerFactory _Factory;
+
         public static ILoggerFactory LoggerFactory
         {
             get
@@ -23,11 +18,25 @@ namespace Veldrid.SceneGraph.Logging
                     });
                     SetLogger(factory);
                 }
+
                 return _Factory;
             }
             //set { _Factory = value; }
         }
-        public static ILogger CreateLogger<T>() => LoggerFactory.CreateLogger<T>();
-        public static ILogger CreateLogger(string type) => LoggerFactory.CreateLogger(type);
+
+        public static void SetLogger(ILoggerFactory factory)
+        {
+            _Factory = factory;
+        }
+
+        public static ILogger CreateLogger<T>()
+        {
+            return LoggerFactory.CreateLogger<T>();
+        }
+
+        public static ILogger CreateLogger(string type)
+        {
+            return LoggerFactory.CreateLogger(type);
+        }
     }
 }

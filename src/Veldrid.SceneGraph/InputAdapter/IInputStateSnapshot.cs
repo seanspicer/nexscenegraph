@@ -1,5 +1,5 @@
 //
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ namespace Veldrid.SceneGraph.InputAdapter
 {
     public interface IInputStateSnapshot
     {
-        bool IsMouseDown(MouseButton button);
         IReadOnlyList<KeyEvent> KeyEvents { get; }
         IReadOnlyList<MouseEvent> MouseEvents { get; }
         IReadOnlyList<char> KeyCharPresses { get; }
@@ -32,6 +31,6 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         Matrix4x4 ProjectionMatrix { get; }
         Matrix4x4 ViewMatrix { get; }
-
+        bool IsMouseDown(MouseButton button);
     }
 }

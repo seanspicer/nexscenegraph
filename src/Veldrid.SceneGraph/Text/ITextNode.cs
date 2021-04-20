@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
 //
 
 using SixLabors.Fonts;
-using SixLabors.ImageSharp.ColorSpaces;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace Veldrid.SceneGraph.Text
@@ -25,27 +24,27 @@ namespace Veldrid.SceneGraph.Text
         ObjectCoords,
         ScreenCoords
     }
-    
+
     public interface ITextNode : IGeometry<VertexPositionTexture>
     {
         string Text { get; set; }
-        
+
         int Padding { get; set; }
-        
+
         float FontResolution { get; set; }
-        
+
         Rgba32 TextColor { get; set; }
-        
+
         Rgba32 BackgroundColor { get; set; }
-        
+
         VerticalAlignment VerticalAlignment { get; set; }
-        
+
         HorizontalAlignment HorizontalAlignment { get; set; }
-        
+
         float FontSize { get; set; }
-        
+
         bool AutoRotateToScreen { get; set; }
-        
+
         CharacterSizeModes CharacterSizeMode { get; set; }
     }
 }

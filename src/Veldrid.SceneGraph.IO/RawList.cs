@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+
 #if !VALIDATE
 
 #endif
@@ -10,18 +11,19 @@ using System.Runtime.CompilerServices;
 namespace Veldrid.SceneGraph.IO
 {
     /// <summary>
-    /// A resizable, generic list which exposes direct access to its underlying array.
+    ///     A resizable, generic list which exposes direct access to its underlying array.
     /// </summary>
     /// <typeparam name="T">The type of elements stored in the list.</typeparam>
     public class RawList<T> : IEnumerable<T>
     {
-        private T[] _items;
-        private uint _count;
-
         public const uint DefaultCapacity = 4;
         private const float GrowthFactor = 2f;
+        private uint _count;
+        private T[] _items;
 
-        public RawList() : this(DefaultCapacity) { }
+        public RawList() : this(DefaultCapacity)
+        {
+        }
 
         public RawList(uint capacity)
         {
@@ -39,16 +41,13 @@ namespace Veldrid.SceneGraph.IO
         public uint Count
         {
             get => _count;
-            set
-            {
-                Resize(value);
-            }
+            set => Resize(value);
         }
 
 
         public T[] Items => _items;
 
-        public ArraySegment<T> ArraySegment => new ArraySegment<T>(_items, 0, (int)_count);
+        public ArraySegment<T> ArraySegment => new ArraySegment<T>(_items, 0, (int) _count);
 
         public ref T this[uint index]
         {
@@ -68,12 +67,19 @@ namespace Veldrid.SceneGraph.IO
             }
         }
 
+        IEnumerator<T> IEnumerable<T>.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
         public void Add(ref T item)
         {
-            if (_count == _items.Length)
-            {
-                Array.Resize(ref _items, (int)(_items.Length * GrowthFactor));
-            }
+            if (_count == _items.Length) Array.Resize(ref _items, (int) (_items.Length * GrowthFactor));
 
             _items[_count] = item;
             _count += 1;
@@ -81,10 +87,7 @@ namespace Veldrid.SceneGraph.IO
 
         public void Add(T item)
         {
-            if (_count == _items.Length)
-            {
-                Array.Resize(ref _items, (int)(_items.Length * GrowthFactor));
-            }
+            if (_count == _items.Length) Array.Resize(ref _items, (int) (_items.Length * GrowthFactor));
 
             _items[_count] = item;
             _count += 1;
@@ -101,14 +104,11 @@ namespace Veldrid.SceneGraph.IO
             Debug.Assert(items != null);
 #endif
 
-            int requiredSize = (int)(_count + items.Length);
-            if (requiredSize > _items.Length)
-            {
-                Array.Resize(ref _items, (int)(requiredSize * GrowthFactor));
-            }
+            var requiredSize = (int) (_count + items.Length);
+            if (requiredSize > _items.Length) Array.Resize(ref _items, (int) (requiredSize * GrowthFactor));
 
-            Array.Copy(items, 0, _items, (int)_count, items.Length);
-            _count += (uint)items.Length;
+            Array.Copy(items, 0, _items, (int) _count, items.Length);
+            _count += (uint) items.Length;
         }
 
         public void AddRange(IEnumerable<T> items)
@@ -122,10 +122,7 @@ namespace Veldrid.SceneGraph.IO
             Debug.Assert(items != null);
 #endif
 
-            foreach (T item in items)
-            {
-                Add(item);
-            }
+            foreach (var item in items) Add(item);
         }
 
         public void Replace(uint index, ref T item)
@@ -136,19 +133,19 @@ namespace Veldrid.SceneGraph.IO
 
         public void Resize(uint count)
         {
-            Array.Resize(ref _items, (int)count);
+            Array.Resize(ref _items, (int) count);
             _count = count;
         }
 
-        public void Replace(uint index, T item) => Replace(index, ref item);
+        public void Replace(uint index, T item)
+        {
+            Replace(index, ref item);
+        }
 
         public bool Remove(ref T item)
         {
-            bool contained = GetIndex(item, out uint index);
-            if (contained)
-            {
-                CoreRemoveAt(index);
-            }
+            var contained = GetIndex(item, out var index);
+            if (contained) CoreRemoveAt(index);
 
             return contained;
         }
@@ -156,11 +153,8 @@ namespace Veldrid.SceneGraph.IO
 
         public bool Remove(T item)
         {
-            bool contained = GetIndex(item, out uint index);
-            if (contained)
-            {
-                CoreRemoveAt(index);
-            }
+            var contained = GetIndex(item, out var index);
+            if (contained) CoreRemoveAt(index);
 
             return contained;
         }
@@ -178,12 +172,15 @@ namespace Veldrid.SceneGraph.IO
 
         public bool GetIndex(T item, out uint index)
         {
-            int signedIndex = Array.IndexOf(_items, item);
-            index = (uint)signedIndex;
+            var signedIndex = Array.IndexOf(_items, item);
+            index = (uint) signedIndex;
             return signedIndex != -1;
         }
 
-        public void Sort() => Sort(null);
+        public void Sort()
+        {
+            Sort(null);
+        }
 
         public void Sort(IComparer<T> comparer)
         {
@@ -209,18 +206,15 @@ namespace Veldrid.SceneGraph.IO
             Debug.Assert(transformation != null);
 #endif
 
-            for (int i = 0; i < _count; i++)
-            {
-                _items[i] = transformation(_items[i]);
-            }
+            for (var i = 0; i < _count; i++) _items[i] = transformation(_items[i]);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void CoreRemoveAt(uint index)
         {
             _count -= 1;
-            Array.Copy(_items, (int)index + 1, _items, (int)index, (int)(_count - index));
-            _items[_count] = default(T);
+            Array.Copy(_items, (int) index + 1, _items, (int) index, (int) (_count - index));
+            _items[_count] = default;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -249,15 +243,14 @@ namespace Veldrid.SceneGraph.IO
 #endif
         }
 
-        public Enumerator GetEnumerator() => new Enumerator(this);
-
-        IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        public Enumerator GetEnumerator()
+        {
+            return new Enumerator(this);
+        }
 
         public struct Enumerator : IEnumerator<T>
         {
-            private RawList<T> _list;
+            private readonly RawList<T> _list;
             private int _currentIndex;
 
             public Enumerator(RawList<T> list)
@@ -285,7 +278,9 @@ namespace Veldrid.SceneGraph.IO
                 _currentIndex = 0;
             }
 
-            public void Dispose() { }
+            public void Dispose()
+            {
+            }
         }
     }
 }

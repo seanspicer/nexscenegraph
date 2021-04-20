@@ -16,13 +16,14 @@ namespace Veldrid.SceneGraph.Wpf
     {
         private ISubject<IGroup> _sceneDataSubject;
         private ISubject<ICameraManipulator> _cameraManipulatorSubject;
-        private ISubject<IInputEventHandler> _eventHandlerSubject;
+        private ISubject<IUiEventHandler> _eventHandlerSubject;
         private ISubject<RgbaFloat> _clearColorSubject;
         private ISubject<TextureSampleCount> _fsaaCountSubject;
 
         private VeldridSceneGraphRenderer _vsgRenderer;
         
         private WpfInputStateSnapshot _inputState;
+        private InputSnapshotAdapter _inputSnapshotAdapter = new InputSnapshotAdapter();
         private ModifierKeys _modifierKeys = ModifierKeys.None;
 
         private string _frameInfo = string.Empty;
@@ -37,12 +38,12 @@ namespace Veldrid.SceneGraph.Wpf
         }
         
         private bool ShouldHandleKeyEvents { get; set; }
-        
+
         public VeldridSceneGraphControl()
         {
             _sceneDataSubject = new ReplaySubject<IGroup>();
             _cameraManipulatorSubject = new ReplaySubject<ICameraManipulator>();
-            _eventHandlerSubject = new ReplaySubject<IInputEventHandler>();
+            _eventHandlerSubject = new ReplaySubject<IUiEventHandler>();
             _clearColorSubject = new ReplaySubject<RgbaFloat>();
             _fsaaCountSubject = new ReplaySubject<TextureSampleCount>();
             _inputState = new WpfInputStateSnapshot();
@@ -112,19 +113,28 @@ namespace Veldrid.SceneGraph.Wpf
         protected override void OnMouseEnter(MouseEventArgs e)
         {
             base.OnMouseEnter(e);
-            //Focus();
-            ShouldHandleKeyEvents = true;
         }
 
         protected override void OnMouseLeave(MouseEventArgs e)
         {
             base.OnMouseLeave(e);
-            ShouldHandleKeyEvents = false;
         }
 
+        protected override void OnGotFocus(RoutedEventArgs e)
+        {
+            ShouldHandleKeyEvents = true;
+        }
+        
+        protected override void OnLostFocus(RoutedEventArgs e)
+        {
+            ShouldHandleKeyEvents = false;
+        }
+        
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
             base.OnMouseLeftButtonDown(e);
+            
+            Keyboard.Focus(this);
             
             var pos = e.GetPosition(this);
             _inputState.MousePosition = new Vector2((float)pos.X, (float)pos.Y);
@@ -138,6 +148,8 @@ namespace Veldrid.SceneGraph.Wpf
         protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
         {
             base.OnMouseLeftButtonUp(e);
+            
+            
             var pos = e.GetPosition(this);
             _inputState.MousePosition = new Vector2((float)pos.X, (float)pos.Y);
             
@@ -149,7 +161,12 @@ namespace Veldrid.SceneGraph.Wpf
         
         protected override void OnMouseRightButtonDown(MouseButtonEventArgs e)
         {
+            base.OnMouseRightButtonDown(e);
+            Keyboard.Focus(this);
+            
             var pos = e.GetPosition(this);
+            
+            
             _inputState.MousePosition = new Vector2((float)pos.X, (float)pos.Y);
             
             var mouseEvent = new MouseEvent(MouseButton.Right, true);
@@ -195,23 +212,48 @@ namespace Veldrid.SceneGraph.Wpf
                 key = e.SystemKey;
             }
 
+            KeyEvent keyEvent;
             switch (key)
             {
                 case System.Windows.Input.Key.LeftShift:
-                case System.Windows.Input.Key.RightShift:
+                    keyEvent = new KeyEvent(Key.ShiftLeft, e.IsDown, _modifierKeys);
                     _modifierKeys |= ModifierKeys.Shift;
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
+                    break;
+                case System.Windows.Input.Key.RightShift:
+                    keyEvent = new KeyEvent(Key.ShiftRight, e.IsDown, _modifierKeys);
+                    _modifierKeys |= ModifierKeys.Shift;
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
                     break;
                 case System.Windows.Input.Key.LeftCtrl:
-                case System.Windows.Input.Key.RightCtrl:
+                    keyEvent = new KeyEvent(Key.ControlLeft, e.IsDown, _modifierKeys);
                     _modifierKeys |= ModifierKeys.Control;
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
+                    break;
+                case System.Windows.Input.Key.RightCtrl:
+                    keyEvent = new KeyEvent(Key.ControlRight, e.IsDown, _modifierKeys);
+                    _modifierKeys |= ModifierKeys.Control;
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
                     break;
                 case System.Windows.Input.Key.LeftAlt:
-                case System.Windows.Input.Key.RightAlt:
+                    keyEvent = new KeyEvent(Key.AltLeft, e.IsDown, _modifierKeys);
                     _modifierKeys |= ModifierKeys.Alt;
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
+                    break;
+                case System.Windows.Input.Key.RightAlt:
+                    keyEvent = new KeyEvent(Key.AltRight, e.IsDown, _modifierKeys);
+                    _modifierKeys |= ModifierKeys.Alt;
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
                     break;
                 default:
                 {
-                    var keyEvent = new KeyEvent(MapKey(e), e.IsDown, _modifierKeys);
+                    keyEvent = new KeyEvent(MapKey(e), e.IsDown, _modifierKeys);
                     _inputState.KeyEventList.Add(keyEvent);
                     ProcessEvents();
                     break;
@@ -230,24 +272,49 @@ namespace Veldrid.SceneGraph.Wpf
             {
                 key = e.SystemKey;
             }
-            
+
+            KeyEvent keyEvent;
             switch (key)
             {
                 case System.Windows.Input.Key.LeftShift:
-                case System.Windows.Input.Key.RightShift:
+                    keyEvent = new KeyEvent(Key.ShiftLeft, e.IsDown, _modifierKeys);
                     _modifierKeys &= ~ModifierKeys.Shift;
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
+                    break;
+                case System.Windows.Input.Key.RightShift:
+                    keyEvent = new KeyEvent(Key.ShiftRight, e.IsDown, _modifierKeys);
+                    _modifierKeys &= ~ModifierKeys.Shift;
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
                     break;
                 case System.Windows.Input.Key.LeftCtrl:
-                case System.Windows.Input.Key.RightCtrl:
+                    keyEvent = new KeyEvent(Key.ControlLeft, e.IsDown, _modifierKeys);
                     _modifierKeys &= ~ModifierKeys.Control;
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
+                    break;
+                case System.Windows.Input.Key.RightCtrl:
+                    keyEvent = new KeyEvent(Key.ControlRight, e.IsDown, _modifierKeys);
+                    _modifierKeys &= ~ModifierKeys.Control;
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
                     break;
                 case System.Windows.Input.Key.LeftAlt:
-                case System.Windows.Input.Key.RightAlt:
+                    keyEvent = new KeyEvent(Key.AltLeft, e.IsDown, _modifierKeys);
                     _modifierKeys &= ~ModifierKeys.Alt;
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
+                    break;
+                case System.Windows.Input.Key.RightAlt:
+                    keyEvent = new KeyEvent(Key.AltRight, e.IsDown, _modifierKeys);
+                    _modifierKeys &= ~ModifierKeys.Alt;
+                    _inputState.KeyEventList.Add(keyEvent);
+                    ProcessEvents();
                     break;
                 default:
                 {
-                    var keyEvent = new KeyEvent(MapKey(e), e.IsDown, _modifierKeys);
+                    keyEvent = new KeyEvent(MapKey(e), e.IsDown, _modifierKeys);
                     _inputState.KeyEventList.Add(keyEvent);
                     ProcessEvents();
                     break;
@@ -278,11 +345,18 @@ namespace Veldrid.SceneGraph.Wpf
 
         private void ProcessEvents()
         {
-            int width =  (ActualWidth < 0 ? 0 : (int)Math.Ceiling(ActualWidth));
-            int height = (ActualHeight < 0 ? 0 : (int)Math.Ceiling(ActualHeight));
+            int width =  (ActualWidth < 0 ? 0 : (int) System.Math.Ceiling(ActualWidth));
+            int height = (ActualHeight < 0 ? 0 : (int) System.Math.Ceiling(ActualHeight));
 
-            var inputStateSnap = InputStateSnapshot.Create(_inputState, width, height, _vsgRenderer.View.Camera.ProjectionMatrix, _vsgRenderer.View.Camera.ViewMatrix);
-            _vsgRenderer.HandleInput(inputStateSnap);
+            //var inputStateSnap = InputStateSnapshot.Create(_inputState, width, height, _vsgRenderer.View.Camera.ProjectionMatrix, _vsgRenderer.View.Camera.ViewMatrix);
+            
+            var eventList = _inputSnapshotAdapter.Adapt(_inputState, width, height);
+            foreach (var evt in eventList)
+            {
+                _vsgRenderer.HandleInput(evt);
+            }
+            
+            
             _inputState.MouseEventList.Clear();
             _inputState.KeyEventList.Clear();
             _inputState.WheelDelta = 0;
@@ -351,12 +425,12 @@ namespace Veldrid.SceneGraph.Wpf
         
         #region EventHandlerProperty
         public static readonly DependencyProperty EventHandlerProperty = 
-            DependencyProperty.Register("EventHandler", typeof(IInputEventHandler), typeof(VeldridSceneGraphControl), 
+            DependencyProperty.Register("EventHandler", typeof(IUiEventHandler), typeof(VeldridSceneGraphControl), 
                 new PropertyMetadata(null, new PropertyChangedCallback(OnEventHandlerChanged)));  
 
-        public IInputEventHandler EventHandler 
+        public IUiEventHandler EventHandler 
         {
-            get => (IInputEventHandler) GetValue(EventHandlerProperty);
+            get => (IUiEventHandler) GetValue(EventHandlerProperty);
             set => SetValue(EventHandlerProperty, value);
         }
         
@@ -366,7 +440,7 @@ namespace Veldrid.SceneGraph.Wpf
         } 
         
         private void SetEventHandler(DependencyPropertyChangedEventArgs e) {  
-            _eventHandlerSubject.OnNext((IInputEventHandler) e.NewValue); 
+            _eventHandlerSubject.OnNext((IUiEventHandler) e.NewValue); 
         }
         #endregion
         

@@ -1,5 +1,5 @@
 //
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,11 +15,9 @@
 //
 
 using System;
-using System.Collections.Generic;
 
 namespace Veldrid.SceneGraph
 {
-
     public interface IGeode : IGroup
     {
         IBoundingBox GetBoundingBox();
@@ -29,23 +27,16 @@ namespace Veldrid.SceneGraph
 
         IDrawable GetDrawable(int index);
     }
-    
+
     public class Geode : Group, IGeode
     {
-        
         protected IBoundingBox _boundingBox;
         protected IBoundingBox _initialBoundingBox = BoundingBox.Create();
 
-        public new static IGeode Create()
-        {
-            return new Geode();
-        }
-        
         protected Geode()
         {
-            
         }
-        
+
         public override void Accept(INodeVisitor nv)
         {
             if (nv.ValidNodeMask(this))
@@ -53,7 +44,9 @@ namespace Veldrid.SceneGraph
                 nv.PushOntoNodePath(this);
                 nv.Apply(this);
                 nv.PopFromNodePath(this);
-            };
+            }
+
+            ;
         }
 
         public virtual bool AddDrawable(IDrawable drawable)
@@ -68,27 +61,22 @@ namespace Veldrid.SceneGraph
 
         public IDrawable GetDrawable(int index)
         {
-            if (index < 0 || index > _children.Count)
-            {
-                throw new ArgumentException("Index out of bounds");
-            }
-            
-            return _children[(int)index].Item1 as IDrawable;
+            if (index < 0 || index > _children.Count) throw new ArgumentException("Index out of bounds");
+
+            return _children[index].Item1 as IDrawable;
         }
 
         public IBoundingBox GetBoundingBox()
         {
             if (!_boundingSphereComputed) GetBound();
             return _boundingBox;
-            
         }
 
         public override IBoundingSphere ComputeBound()
         {
-            var boundingSphere = SceneGraph.BoundingSphere.Create();
+            var boundingSphere = BoundingSphere.Create();
             var bb = BoundingBox.Create();
             foreach (var child in _children)
-            {
                 switch (child.Item1)
                 {
                     case Transform transform when transform.ReferenceFrame != Transform.ReferenceFrameType.Relative:
@@ -104,16 +92,17 @@ namespace Veldrid.SceneGraph
                         bb.ExpandBy(bs);
                         break;
                 }
-            }
 
             _boundingBox = bb;
 
-            if (_boundingBox.Valid())
-            {
-                boundingSphere.ExpandBy(_boundingBox);
-            }
+            if (_boundingBox.Valid()) boundingSphere.ExpandBy(_boundingBox);
 
             return boundingSphere;
+        }
+
+        public new static IGeode Create()
+        {
+            return new Geode();
         }
     }
 }

@@ -18,6 +18,7 @@ using System;
 using System.Linq;
 using System.Numerics;
 using System.Windows.Controls;
+using Examples.Common.Wpf;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
@@ -26,43 +27,33 @@ using IView = Veldrid.SceneGraph.Viewer.IView;
 
 namespace WpfDemo
 {
-    public class PickEventHandler : InputEventHandler
+    public class PickEventHandler : FrameCaptureEventHandler
     {
-        //private Veldrid.SceneGraph.Viewer.IView _view;
-
-        //private readonly ILogger _logger;
-        
         public PickEventHandler()
         {
-            //_logger = Log.Logger.ForContext("Source", "CullingColoredCubes");
-            //_view = view;
         }
-
-        public override void HandleInput(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter)
+        
+        public override bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter uiActionAdapter)
         {
-            base.HandleInput(snapshot, uiActionAdapter);
-            
-            foreach (var keyEvent in snapshot.KeyEvents)
+            if (true == base.Handle(eventAdapter, uiActionAdapter))
             {
-                if (keyEvent.Down)
-                {
-                    switch (keyEvent.Key)
-                    {
-                        case Key.P:
-                            DoPick(snapshot, uiActionAdapter as IView);
-                            break;
-                        // case Key.V:
-                        //     var view = uiActionAdapter as IView;
-                        //     view?.CameraManipulator.ViewAll();
-                        //     break;
-                    }
-                }
+                return true;
             }
+            
+            switch (eventAdapter.Key)
+            {
+                case IUiEventAdapter.KeySymbol.KeyP:
+                    DoPick(eventAdapter, uiActionAdapter as Veldrid.SceneGraph.Viewer.IView);;
+                    return true;
+                default:
+                    return false;
+            }
+            
         }
 
-        private void DoPick(IInputStateSnapshot snapshot, IView view)
+        private void DoPick(IUiEventAdapter eventAdapter, Veldrid.SceneGraph.Viewer.IView view)
         {
-            var norm = GetNormalizedMousePosition();
+            var norm = new Vector2(eventAdapter.XNormalized, eventAdapter.YNormalized);
             
             var startPos = view.Camera.NormalizedScreenToWorld(new Vector3(norm.X, norm.Y, 0.0f)); // Near plane
             var endPos = view.Camera.NormalizedScreenToWorld(new Vector3(norm.X, norm.Y, 1.0f)); // Far plane
@@ -94,4 +85,5 @@ namespace WpfDemo
             }
         }
     }
+    
 }

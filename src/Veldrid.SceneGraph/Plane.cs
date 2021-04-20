@@ -1,5 +1,5 @@
 //
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,9 +14,7 @@
 // limitations under the License.
 //
 
-using System;
 using System.Numerics;
-using System.Xml.Schema;
 
 namespace Veldrid.SceneGraph
 {
@@ -26,64 +24,55 @@ namespace Veldrid.SceneGraph
         float Ny { get; }
         float Nz { get; }
         float D { get; }
-          
-        
+
+        Vector3 Normal { get; }
+
         void Transform(Matrix4x4 matrix);
         float Distance(Vector3 v);
 
         /// <summary>
-        /// Intersection test between plane and bounding sphere.
+        ///     Intersection test between plane and bounding sphere.
         /// </summary>
         /// <param name="bb"></param>
         /// <returns>
-        /// return 1 if the bb is completely above plane,
-        /// return 0 if the bb intersects the plane,
-        /// return -1 if the bb is completely below the plane.
+        ///     return 1 if the bb is completely above plane,
+        ///     return 0 if the bb intersects the plane,
+        ///     return -1 if the bb is completely below the plane.
         /// </returns>
         int Intersect(IBoundingBox bb);
+
+        Vector4 AsVector4();
     }
-    
+
     public class Plane : IPlane
     {
         private System.Numerics.Plane _internalPlane;
-        private uint _upperBBCorner = 0;
-        private uint _lowerBBCorner = 0;
+        private uint _lowerBBCorner;
+        private uint _upperBBCorner;
+
+        protected Plane(float nX, float nY, float nZ, float D)
+        {
+            _internalPlane = System.Numerics.Plane.Normalize(new System.Numerics.Plane(nX, nY, nZ, D));
+
+            ComputeBBCorners();
+        }
 
         public float Nx => _internalPlane.Normal.X;
         public float Ny => _internalPlane.Normal.Y;
         public float Nz => _internalPlane.Normal.Z;
         public float D => _internalPlane.D;
-        
-        public static IPlane Create(float nX, float nY, float nZ, float D)
-        {
-            return new Plane(nX, nY, nZ, D);
-        }
 
-        public static IPlane Create(IPlane other)
-        {
-            return new Plane(other.Nx, other.Ny, other.Nz, other.D);
-        }
+        public Vector3 Normal => new Vector3(Nx, Ny, Nz);
 
-        protected Plane(float nX, float nY, float nZ, float D)
+        public Vector4 AsVector4()
         {
-            _internalPlane = System.Numerics.Plane.Normalize(new System.Numerics.Plane(nX, nY, nZ, D));
-            
-            ComputeBBCorners();
+            return new Vector4(Nx, Ny, Nz, D);
         }
 
         public void Transform(Matrix4x4 matrix)
         {
             _internalPlane = System.Numerics.Plane.Normalize(System.Numerics.Plane.Transform(_internalPlane, matrix));
             ComputeBBCorners();
-        }
-
-        private void ComputeBBCorners()
-        {
-            _upperBBCorner = (_internalPlane.Normal.X >= 0.0f ? 1 : (uint) 0) |
-                             (_internalPlane.Normal.Y >= 0.0f ? 2 : (uint) 0) |
-                             (_internalPlane.Normal.Z >= 0.0f ? 4 : (uint) 0);
-            
-            _lowerBBCorner = (~_upperBBCorner)&7;
         }
 
         public float Distance(Vector3 v)
@@ -95,30 +84,55 @@ namespace Veldrid.SceneGraph
         }
 
         /// <summary>
-        /// Intersection test between plane and bounding sphere.
+        ///     Intersection test between plane and bounding sphere.
         /// </summary>
         /// <param name="bb"></param>
         /// <returns>
-        /// return 1 if the bb is completely above plane,
-        /// return 0 if the bb intersects the plane,
-        /// return -1 if the bb is completely below the plane.
+        ///     return 1 if the bb is completely above plane,
+        ///     return 0 if the bb intersects the plane,
+        ///     return -1 if the bb is completely below the plane.
         /// </returns>
         public int Intersect(IBoundingBox bb)
         {
             var lowerBBCorner = bb.Corner(_lowerBBCorner);
             var distLower = Distance(lowerBBCorner);
-            
+
             // If lowest point above plane than all above.
             if (Distance(bb.Corner(_lowerBBCorner)) > 0.0f) return 1;
-            
+
             var upperBBCorner = bb.Corner(_upperBBCorner);
             var distUpper = Distance(upperBBCorner);
-            
+
             // If highest point is below plane then all below.
             if (Distance(bb.Corner(_upperBBCorner)) < 0.0f) return -1;
-            
+
             // Otherwise, must be crossing a plane
             return 0;
+        }
+
+        public static IPlane Create(float nX, float nY, float nZ, float D)
+        {
+            return new Plane(nX, nY, nZ, D);
+        }
+
+        public static IPlane Create(IPlane other)
+        {
+            return new Plane(other.Nx, other.Ny, other.Nz, other.D);
+        }
+
+        public static IPlane Create(Vector3 norm, Vector3 point)
+        {
+            var d = -norm.X * point.X - norm.Y * point.Y - norm.Z * point.Z;
+            return new Plane(norm.X, norm.Y, norm.Z, d);
+        }
+
+        private void ComputeBBCorners()
+        {
+            _upperBBCorner = (_internalPlane.Normal.X >= 0.0f ? 1 : (uint) 0) |
+                             (_internalPlane.Normal.Y >= 0.0f ? 2 : (uint) 0) |
+                             (_internalPlane.Normal.Z >= 0.0f ? 4 : (uint) 0);
+
+            _lowerBBCorner = ~_upperBBCorner & 7;
         }
     }
 }

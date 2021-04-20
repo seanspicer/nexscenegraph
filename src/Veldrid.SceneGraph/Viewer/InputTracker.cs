@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,17 +16,16 @@
 
 using System.Collections.Generic;
 using System.Numerics;
-using Veldrid;
 
 namespace Veldrid.SceneGraph.Viewer
 {
     internal static class InputTracker
     {
-        private static HashSet<Key> _currentlyPressedKeys = new HashSet<Key>();
-        private static HashSet<Key> _newKeysThisFrame = new HashSet<Key>();
+        private static readonly HashSet<Key> _currentlyPressedKeys = new HashSet<Key>();
+        private static readonly HashSet<Key> _newKeysThisFrame = new HashSet<Key>();
 
-        private static HashSet<MouseButton> _currentlyPressedMouseButtons = new HashSet<MouseButton>();
-        private static HashSet<MouseButton> _newMouseButtonsThisFrame = new HashSet<MouseButton>();
+        private static readonly HashSet<MouseButton> _currentlyPressedMouseButtons = new HashSet<MouseButton>();
+        private static readonly HashSet<MouseButton> _newMouseButtonsThisFrame = new HashSet<MouseButton>();
 
         public static Vector2 MousePosition;
         public static InputSnapshot FrameSnapshot { get; private set; }
@@ -58,29 +57,22 @@ namespace Veldrid.SceneGraph.Viewer
             _newMouseButtonsThisFrame.Clear();
 
             MousePosition = snapshot.MousePosition;
-            for (int i = 0; i < snapshot.KeyEvents.Count; i++)
+            for (var i = 0; i < snapshot.KeyEvents.Count; i++)
             {
-                KeyEvent ke = snapshot.KeyEvents[i];
+                var ke = snapshot.KeyEvents[i];
                 if (ke.Down)
-                {
                     KeyDown(ke.Key);
-                }
                 else
-                {
                     KeyUp(ke.Key);
-                }
             }
-            for (int i = 0; i < snapshot.MouseEvents.Count; i++)
+
+            for (var i = 0; i < snapshot.MouseEvents.Count; i++)
             {
-                MouseEvent me = snapshot.MouseEvents[i];
+                var me = snapshot.MouseEvents[i];
                 if (me.Down)
-                {
                     MouseDown(me.MouseButton);
-                }
                 else
-                {
                     MouseUp(me.MouseButton);
-                }
             }
         }
 
@@ -92,10 +84,7 @@ namespace Veldrid.SceneGraph.Viewer
 
         private static void MouseDown(MouseButton mouseButton)
         {
-            if (_currentlyPressedMouseButtons.Add(mouseButton))
-            {
-                _newMouseButtonsThisFrame.Add(mouseButton);
-            }
+            if (_currentlyPressedMouseButtons.Add(mouseButton)) _newMouseButtonsThisFrame.Add(mouseButton);
         }
 
         private static void KeyUp(Key key)
@@ -106,10 +95,7 @@ namespace Veldrid.SceneGraph.Viewer
 
         private static void KeyDown(Key key)
         {
-            if (_currentlyPressedKeys.Add(key))
-            {
-                _newKeysThisFrame.Add(key);
-            }
+            if (_currentlyPressedKeys.Add(key)) _newKeysThisFrame.Add(key);
         }
     }
 }

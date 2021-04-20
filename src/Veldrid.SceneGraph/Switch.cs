@@ -1,5 +1,5 @@
 //
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+using System.Linq;
 
 namespace Veldrid.SceneGraph
 {
@@ -31,24 +31,23 @@ namespace Veldrid.SceneGraph
         void SetAllChildrenOff();
         void SetAllChildrenOn();
     }
-    
+
     public class Switch : Group, ISwitch
     {
         private List<bool> switchVals = new List<bool>();
-        
-        public new static ISwitch Create()
-        {
-            return new Switch();
-        }
 
         public override void Traverse(INodeVisitor nv)
         {
-            foreach (var child in _children)
+            if (nv.TraversalMode == NodeVisitor.TraversalModeType.TraverseActiveChildren)
             {
-                if (child.Item2)
+                foreach (var child in _children.Where(child => child.Item2))
                 {
                     child.Item1.Accept(nv);
                 }
+            }
+            else
+            {
+                base.Traverse(nv);
             }
         }
 
@@ -65,41 +64,32 @@ namespace Veldrid.SceneGraph
         public void SetChildValue(INode child, bool value)
         {
             for (var i = 0; i < _children.Count; ++i)
-            {
                 if (_children[i].Item1.Id == child.Id)
-                {
                     SetValue(i, value);
-                }
-            }
         }
 
         public bool GetChildValue(INode child, bool value)
         {
             foreach (var c in _children)
-            {
                 if (c.Item1.Id == child.Id)
-                {
                     return c.Item2;
-                }
-            }
 
             return false;
         }
 
         public void SetAllChildrenOff()
         {
-            for (var i = 0; i < _children.Count; ++i)
-            {
-                SetValue(i, false);
-            }
+            for (var i = 0; i < _children.Count; ++i) SetValue(i, false);
         }
 
         public void SetAllChildrenOn()
         {
-            for (var i = 0; i < _children.Count; ++i)
-            {
-                SetValue(i, true);
-            }
+            for (var i = 0; i < _children.Count; ++i) SetValue(i, true);
+        }
+
+        public new static ISwitch Create()
+        {
+            return new Switch();
         }
     }
 }

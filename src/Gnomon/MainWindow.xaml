@@ -9,8 +9,18 @@
         Title="MainWindow" Height="350" Width="525"
         Activated="window_Activated">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Button
+            x:Name="ChangeCameraButton"
+            Grid.Row="0" 
+            Content="Change Camera"
+            Click="ChangeCameraButton_OnClick"/>
         <wpf:VeldridSceneGraphControl 
             x:Name="VSGElement"
+            Grid.Row="1"
             SceneRoot="{Binding SceneRoot}"
             CameraManipulator="{Binding CameraManipulator}"
             EventHandler="{Binding EventHandler}"
@@ -18,12 +28,14 @@
         </wpf:VeldridSceneGraphControl>
         
         <Border Height="100" Width="100"
+                Grid.Row="1"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Bottom">
             <wpf:VeldridSceneGraphControl 
                 x:Name="VsgElementGnomon" 
                 SceneRoot="{Binding GnomonRoot}"
-                FsaaCount = "{Binding FsaaCount}">
+                FsaaCount = "{Binding FsaaCount}"
+                ClearColor = "{Binding GnomonClearColor}">
             </wpf:VeldridSceneGraphControl>
         </Border>
         

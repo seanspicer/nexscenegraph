@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Numerics;
+using System.Windows;
 using Microsoft.Extensions.Logging;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
@@ -15,17 +16,24 @@ namespace Gnomon
     /// </summary>
     public partial class MainWindow
     {
+        private SceneViewModel _viewModel;
         private Matrix4x4 _gnomonStepBack = Matrix4x4.CreateTranslation(0, 0, -10.0f);
 
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new SceneViewModel();
+            _viewModel = new SceneViewModel();
+            DataContext = _viewModel;
         }
+
+        private void ChangeCameraButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            _viewModel.ChangeCamera(VSGElement.GetUiActionAdapter(), VSGElement.GetCamera());
+        }
+        
         private void window_Activated(object sender, EventArgs e)
         {
-            var vm = DataContext as SceneViewModel;
-            vm.PropertyChanged += VmPropertyHandler;
+            _viewModel.PropertyChanged += VmPropertyHandler;
             
             BackOff();
         }
@@ -33,9 +41,8 @@ namespace Gnomon
         {
             if (e.PropertyName == "MainViewMatrix")
             {
-                var vm = DataContext as SceneViewModel;
                 Matrix4x4 matrix;
-                var ok = Matrix4x4.Decompose(vm.MainViewMatrix, out var scale, out var rotation, out var translation);
+                var ok = Matrix4x4.Decompose(_viewModel.MainViewMatrix, out var scale, out var rotation, out var translation);
                 if (ok)
                 {
                     matrix = Matrix4x4.CreateFromQuaternion(rotation);
@@ -105,7 +112,7 @@ namespace Gnomon
 
                     // Compute the length to move the camera by examining
                     // the tangent to the bounding sphere
-                    var moveLen = radius + aspectRadius / (Math.Tan(perspectiveCamera.VerticalFov / 2.0));
+                    var moveLen = radius + aspectRadius / ( System.Math.Tan(perspectiveCamera.VerticalFov / 2.0));
 
                     // Compute the new camera position
                     var moveDirection = normDirection * (float) moveLen;
@@ -114,7 +121,7 @@ namespace Gnomon
                     // Compute the near and far plane locations
                     const double epsilon = 0.001;
                     var distToMid = (cameraPos - center).Length();
-                    var zNear = (float) Math.Max(distToMid * epsilon, distToMid - radius * slack);
+                    var zNear = (float)  System.Math.Max(distToMid * epsilon, distToMid - radius * slack);
                     var zFar = distToMid + radius * slack;
 
                     // _center = center;

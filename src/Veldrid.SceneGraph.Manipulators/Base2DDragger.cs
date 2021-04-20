@@ -1,5 +1,5 @@
 //
-// Copyright 2018-2019 Sean Spicer 
+// Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,10 +14,18 @@
 // limitations under the License.
 //
 
-namespace Veldrid.SceneGraph.InputAdapter
+using System.Numerics;
+
+namespace Veldrid.SceneGraph.Manipulators
 {
-    public interface IInputEventHandler
+    public abstract class Base2DDragger : Dragger
     {
-        void HandleInput(IInputStateSnapshot snapshot, IUiActionAdapter uiActionAdapter);
+        protected Base2DDragger(Matrix4x4 matrix, bool usePhongShading) : base(matrix, usePhongShading)
+        {
+            PlaneProjector = Manipulators.PlaneProjector.Create(
+                Plane.Create(0.0f, 1.0f, 0.0f, 0.0f));
+        }
+
+        protected IPlaneProjector PlaneProjector { get; set; }
     }
 }
