@@ -158,6 +158,7 @@ namespace TexturedSlice3D
             geometry.PrimitiveSets.Add(pSet);
 
             geometry.PipelineState.ShaderSet = Texture3DShader.Instance.ShaderSet;
+            geometry.PipelineState.RasterizerStateDescription = RasterizerStateDescription.CullNone;
 
             var testData = TestData();
             
