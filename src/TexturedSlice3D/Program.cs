@@ -111,7 +111,7 @@ namespace TexturedSlice3D
 #else
             var vertices = new[]
             {
-                // Left                                                               
+                // Y-Z Slice
                 new Position3TexCoord3Color4(new Vector3(0.0f, +1.0f, -1.0f), new Vector3(0.5f, 1,0),
                     new Vector4(0.0f, 0.0f, 1.0f, 1.0f)),
                 new Position3TexCoord3Color4(new Vector3(0.0f, +1.0f, +1.0f), new Vector3(0.5f, 1,1),
@@ -120,7 +120,16 @@ namespace TexturedSlice3D
                     new Vector4(0.0f, 0.0f, 1.0f, 1.0f)),
                 new Position3TexCoord3Color4(new Vector3(0.0f, -1.0f, -1.0f), new Vector3(0.5f, 0, 0),
                     new Vector4(0.0f, 0.0f, 1.0f, 1.0f)),
-                // Back                                                               
+                // X-Z Slice
+                new Position3TexCoord3Color4(new Vector3(+1.0f, 0.0f, -1.0f), new Vector3(1, 0.5f,0),
+                    new Vector4(0.0f, 0.0f, 1.0f, 1.0f)),
+                new Position3TexCoord3Color4(new Vector3(+1.0f, 0.0f, +1.0f), new Vector3(1, 0.5f,1),
+                    new Vector4(0.0f, 0.0f, 1.0f, 1.0f)),
+                new Position3TexCoord3Color4(new Vector3(-1.0f, 0.0f, +1.0f), new Vector3(0, 0.5f, 1),
+                    new Vector4(0.0f, 0.0f, 1.0f, 1.0f)),
+                new Position3TexCoord3Color4(new Vector3(-1.0f, 0.0f, -1.0f), new Vector3(0, 0.5f, 0),
+                    new Vector4(0.0f, 0.0f, 1.0f, 1.0f)),
+                // X-Y Slice
                 new Position3TexCoord3Color4(new Vector3(+1.0f, +1.0f, 0.0f), new Vector3(1, 1, 0.5f),
                     new Vector4(0.0f, 0.0f, 1.0f, 1.0f)),
                 new Position3TexCoord3Color4(new Vector3(-1.0f, +1.0f, 0.0f), new Vector3(0, 1, 0.5f),
@@ -134,7 +143,8 @@ namespace TexturedSlice3D
             uint[] indices =
             {
                 0, 1, 2, 0, 2, 3,
-                4, 5, 6, 4, 6, 7
+                4, 5, 6, 4, 6, 7,
+                8, 9, 10, 8, 10, 11
             };
 #endif
             

@@ -14,15 +14,11 @@
 // limitations under the License.
 //
 
-using System;
-using System.ComponentModel;
-using System.IO;
 using Veldrid.SceneGraph.AssetPrimitives;
-using Veldrid.SceneGraph.AssetProcessor;
 
 namespace Veldrid.SceneGraph
 {
-    public interface ITexture3D : ITexture2D {}
+    public interface ITexture3D : ITexture {}
     public class Texture3D : ITexture3D
     {
         
