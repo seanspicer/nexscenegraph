@@ -159,8 +159,22 @@ namespace Examples.Common
 
     public class SampledVolumeRenderingExampleScene
     {
-        public static IGroup Build()
+        public enum DataType
         {
+            Procedural,
+            Texture3D
+        }
+
+        public delegate IShaderSet ShaderSetBuilder();
+
+        public static IGroup Build(DataType dataType)
+        {
+            return Build(CreateShaderSet);
+        }
+
+        public static IGroup Build(ShaderSetBuilder builder)
+        {
+            
             var volume = Volume.Create();
             var tile1 = VolumeTile.Create();
             volume.AddChild(tile1);
@@ -168,7 +182,7 @@ namespace Examples.Common
             var layer = VoxelVolumeLayer.Create(new CornerVoxelVolume());
             tile1.Layer = layer;
             tile1.Locator = layer.GetLocator();
-            tile1.SetVolumeTechnique(LevoyCabralTechnique.Create(CreateShaderSet()));
+            tile1.SetVolumeTechnique(LevoyCabralTechnique.Create(builder()));
 
             var dragger1 = TabBoxDragger.Create();
             dragger1.SetupDefaultGeometry();
@@ -183,7 +197,7 @@ namespace Examples.Common
             var tile2 = VolumeTile.Create();
             tile2.Layer = layer;
             tile2.Locator = layer.GetLocator();
-            tile2.SetVolumeTechnique(LevoyCabralTechnique.Create(CreateShaderSet()));
+            tile2.SetVolumeTechnique(LevoyCabralTechnique.Create(builder()));
             volume.AddChild(tile2);
 
             var dragger2 = TabBoxDragger.Create();
@@ -202,6 +216,56 @@ namespace Examples.Common
             root.AddChild(dragger2);
             return root;
         }
+
+        public static IGroup Build()
+        {
+            return Build(CreateShaderSet);
+        }
+        
+        //
+        // public static IGroup Build()
+        // {
+        //     var volume = Volume.Create();
+        //     var tile1 = VolumeTile.Create();
+        //     volume.AddChild(tile1);
+        //
+        //     var layer = VoxelVolumeLayer.Create(new CornerVoxelVolume());
+        //     tile1.Layer = layer;
+        //     tile1.Locator = layer.GetLocator();
+        //     tile1.SetVolumeTechnique(LevoyCabralTechnique.Create(CreateShaderSet()));
+        //
+        //     var dragger1 = TabBoxDragger.Create();
+        //     dragger1.SetupDefaultGeometry();
+        //     dragger1.ActivationModKeyMask = IUiEventAdapter.ModKeyMaskType.ModKeyCtl;
+        //     dragger1.HandleEvents = true;
+        //     dragger1.DraggerCallbacks.Add(new DraggerVolumeTileCallback(tile1, tile1.Locator));
+        //     dragger1.Matrix = Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f)
+        //         .PostMultiply(tile1.Locator.Transform);
+        //
+        //     /////////////////
+        //
+        //     var tile2 = VolumeTile.Create();
+        //     tile2.Layer = layer;
+        //     tile2.Locator = layer.GetLocator();
+        //     tile2.SetVolumeTechnique(LevoyCabralTechnique.Create(CreateShaderSet()));
+        //     volume.AddChild(tile2);
+        //
+        //     var dragger2 = TabBoxDragger.Create();
+        //     dragger2.SetupDefaultGeometry();
+        //     dragger2.ActivationModKeyMask = IUiEventAdapter.ModKeyMaskType.ModKeyAlt;
+        //     dragger2.HandleEvents = true;
+        //     dragger2.DraggerCallbacks.Add(new DraggerVolumeTileCallback(tile2, tile2.Locator));
+        //     dragger2.Matrix = Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f)
+        //         .PostMultiply(tile2.Locator.Transform);
+        //
+        //     /////////////////
+        //
+        //     var root = Group.Create();
+        //     root.AddChild(volume);
+        //     root.AddChild(dragger1);
+        //     root.AddChild(dragger2);
+        //     return root;
+        // }
 
         public static IShaderSet CreateShaderSet()
         {
