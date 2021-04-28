@@ -62,8 +62,8 @@ namespace DirectVolRen3DTexture
         {
             TextureData = Texture3D.Create(processedTexture,
                 1,
-                "SurfaceTextureBar",
-                "SurfaceSamplerFoo");
+                "SurfaceTexture",
+                "SurfaceSampler");
 
             Values = new double[processedTexture.Width, processedTexture.Height, processedTexture.Depth];
             XValues = new double[processedTexture.Width, processedTexture.Height, processedTexture.Depth];

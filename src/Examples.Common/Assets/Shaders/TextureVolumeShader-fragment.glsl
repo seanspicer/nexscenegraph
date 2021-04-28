@@ -15,8 +15,8 @@ struct FragmentInput
 //    return texture(sampler3D(SurfaceTexture, SurfaceSampler), input_.TexCoord);
 //}
 
-layout(set = 1, binding = 1) uniform texture3D SurfaceTexture2;
-layout(set = 1, binding = 2) uniform sampler SurfaceSampler1;
+layout(set = 1, binding = 1) uniform texture3D SurfaceTexture;
+layout(set = 1, binding = 2) uniform sampler SurfaceSampler;
 
 layout(location = 0) in vec4 fsin_0;
 layout(location = 1) in vec3 fsin_1;
@@ -29,6 +29,6 @@ void main()
     input_.Color = fsin_0;
     input_.TexCoord = fsin_1;
 //    vec4 output_ = CalculateColor(input_);
-    vec4 output_ = texture(sampler3D(SurfaceTexture2, SurfaceSampler1), input_.TexCoord);
+    vec4 output_ = texture(sampler3D(SurfaceTexture, SurfaceSampler), input_.TexCoord);
     OutputColor = output_;
 }
