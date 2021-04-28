@@ -92,7 +92,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         public double MinDist { get; private set; }
         public double MaxDist { get; private set; }
 
-        public Vector3 TexGen(Vector3 point)
+        public virtual Vector3 TexGen(Vector3 point)
         {
             return point;
 
