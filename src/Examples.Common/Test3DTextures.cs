@@ -34,7 +34,7 @@ namespace Examples.Common
                     for (int k = 0; k < depth; k++)
                     {
                         var index = i + width * (j + depth * k);
-                        rgbaData[index] = 0xFF0000FF;
+                        rgbaData[index] = 0x10000FF;
 
                         var fromCenteri = i - centerWidth;
                         var fromCenterj = j - centerHeight;
@@ -43,12 +43,12 @@ namespace Examples.Common
                         if (fromCenteri * fromCenteri + fromCenterj * fromCenterj + fromCenterk * fromCenterk <
                             sphere2RadiusSq)
                         {
-                            rgbaData[index] = 0xFFFF00FF;
+                            rgbaData[index] = 0xFFFF0000;
                         }
                         else if (fromCenteri * fromCenteri + fromCenterj * fromCenterj + fromCenterk * fromCenterk <
                                  sphere1RadiusSq)
                         {
-                            rgbaData[index] = 0x0000FFFF;
+                            rgbaData[index] = 0x1000FFFF;
                         }
                     }
                 }

@@ -17,7 +17,6 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using Veldrid.SceneGraph.AssetPrimitives;
 using Veldrid.SceneGraph.Math.IsoSurface;
 using Veldrid.SceneGraph.RenderGraph;
 using Veldrid.SceneGraph.Shaders;

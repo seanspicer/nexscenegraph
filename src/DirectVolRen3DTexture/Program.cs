@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define USE_CORNER
+
+using System;
 using System.Reflection;
 using Examples.Common;
 using Veldrid;
@@ -50,6 +52,21 @@ namespace DirectVolRen3DTexture
         }
     }
     
+#if (USE_CORNER == true)
+    public class TextureVoxelVolume : CornerVoxelVolume, ITextureVoxelVolume
+    {
+        public ITexture3D TextureData { get; }
+        
+        public TextureVoxelVolume(ProcessedTexture processedTexture)
+        {
+            TextureData = Texture3D.Create(processedTexture,
+                1,
+                "SurfaceTexture",
+                "SurfaceSampler");
+        }
+
+    }
+#else
     public class TextureVoxelVolume : ITextureVoxelVolume
     {
         public double[,,] Values { get; }
@@ -80,4 +97,5 @@ namespace DirectVolRen3DTexture
             }
         }
     }
+#endif
 }
