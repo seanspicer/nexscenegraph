@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Veldrid.SceneGraph.AssetPrimitives;
 using Veldrid.SceneGraph.Math.IsoSurface;
 using Veldrid.SceneGraph.RenderGraph;
 using Veldrid.SceneGraph.Shaders;
@@ -52,6 +53,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         protected INode Node { get; set; }
 
         protected IVoxelVolume VoxelVolume { get; set; }
+        protected ITexture3D TextureData { get; set; }
         protected IGeometry<Position3TexCoord3Color4> Geometry { get; set; }
         protected IGeometry<Position3Color3> OutlinesGeometry { get; set; }
 
@@ -68,6 +70,11 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
                 _levoyCabralLocator = levoyCabralLocator;
                 _levoyCabralLocator.AddCallback(this);
 
+                if (VoxelVolume is ITextureVoxelVolume textureVoxelVolume)
+                {
+                    TextureData = textureVoxelVolume.TextureData;
+                }
+                
                 // Create the Geometry Placeholder
                 Node = CreateSlices();
             }
@@ -154,6 +161,11 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
                 DepthClipEnabled = false,
                 FrontFace = FrontFace.CounterClockwise
             };
+
+            if (null != TextureData)
+            {
+                Geometry.PipelineState.AddTexture(TextureData);
+            }
 
             OutlinesGeometry = Geometry<Position3Color3>.Create();
 
