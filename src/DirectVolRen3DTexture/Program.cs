@@ -1,4 +1,4 @@
-﻿#define USE_CORNER
+﻿// #define USE_CORNER
 
 using System;
 using System.Reflection;
