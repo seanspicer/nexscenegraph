@@ -41,6 +41,12 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         private Vector3 _lastEyePoint = Vector3.Zero;
 
         private readonly IVoxelVolume _source;
+        private double _sourceXMin;
+        private double _sourceYMin;
+        private double _sourceZMin;
+        private double _sourceXMax;
+        private double _sourceYMax;
+        private double _sourceZMax;
 
         protected LevoyCabralLocator(IVoxelVolume voxelVolume)
         {
@@ -57,12 +63,18 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
             XMin = _source.XValues[0, 0, 0];
             XMax = _source.XValues[xdim, 0, 0];
+            _sourceXMin = XMin;
+            _sourceXMax = XMax;
 
             YMin = _source.YValues[0, 0, 0];
             YMax = _source.YValues[0, ydim, 0];
+            _sourceYMin = YMin;
+            _sourceYMax = YMax;
 
             ZMin = _source.ZValues[0, 0, 0];
             ZMax = _source.ZValues[0, 0, zdim];
+            _sourceZMin = ZMin;
+            _sourceZMax = ZMax;
 
             UpdateDistances(Vector3.Zero);
 
@@ -94,22 +106,11 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
         public Vector3 TexGen(Vector3 point)
         {
-            // return point;
-            var xlen = _source.XValues.GetLength(0);
-            var ylen = _source.YValues.GetLength(1);
-            var zlen = _source.ZValues.GetLength(2);
-            var xmin = _source.XValues[0,0,0];
-            var xmax = _source.XValues[xlen - 1, ylen - 1, zlen - 1];
-            var ymin = _source.YValues[0,0,0];
-            var ymax = _source.YValues[xlen - 1, ylen - 1, zlen - 1];
-            var zmin = _source.ZValues[0,0,0];
-            var zmax = _source.ZValues[xlen - 1, ylen - 1, zlen - 1];
-
-            var s = (float) ((point.X - xmin) / (xmax - xmin));
-            var t = (float) ((point.Y - ymin) / (ymax - ymin));
-            var u = (float) ((point.Z - zmin) / (zmax - zmin));
-
-            return new Vector3(s, t, u);
+            return new Vector3(
+                (float) ((point.X - _sourceXMin) / (_sourceXMax - _sourceXMin)),
+                (float) ((point.Y - _sourceYMin) / (_sourceYMax - _sourceYMin)),
+                (float) ((point.Z - _sourceZMin) / (_sourceZMax - _sourceZMin))
+            );
         }
 
         public override void SetTransform(Matrix4x4 transform)
