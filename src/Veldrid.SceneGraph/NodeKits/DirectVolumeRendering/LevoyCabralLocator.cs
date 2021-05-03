@@ -94,13 +94,22 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
         public Vector3 TexGen(Vector3 point)
         {
-            return point;
+            // return point;
+            var xlen = _source.XValues.GetLength(0);
+            var ylen = _source.YValues.GetLength(1);
+            var zlen = _source.ZValues.GetLength(2);
+            var xmin = _source.XValues[0,0,0];
+            var xmax = _source.XValues[xlen - 1, ylen - 1, zlen - 1];
+            var ymin = _source.YValues[0,0,0];
+            var ymax = _source.YValues[xlen - 1, ylen - 1, zlen - 1];
+            var zmin = _source.ZValues[0,0,0];
+            var zmax = _source.ZValues[xlen - 1, ylen - 1, zlen - 1];
 
-            return new Vector3(
-                (float) ((point.X - XMin) / (XMax - XMin)),
-                (float) ((point.Y - YMin) / (YMax - YMin)),
-                (float) ((point.Z - ZMin) / (ZMax - ZMin))
-            );
+            var s = (float) ((point.X - xmin) / (xmax - xmin));
+            var t = (float) ((point.Y - ymin) / (ymax - ymin));
+            var u = (float) ((point.Z - zmin) / (zmax - zmin));
+
+            return new Vector3(s, t, u);
         }
 
         public override void SetTransform(Matrix4x4 transform)

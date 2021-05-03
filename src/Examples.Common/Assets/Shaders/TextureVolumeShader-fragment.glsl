@@ -30,5 +30,10 @@ void main()
     input_.TexCoord = fsin_1;
 //    vec4 output_ = CalculateColor(input_);
     vec4 output_ = texture(sampler3D(SurfaceTexture, SurfaceSampler), input_.TexCoord);
+    if (input_.TexCoord.x > 1.0 || input_.TexCoord.y > 1.0 || input_.TexCoord.z > 1.0
+    || input_.TexCoord.x < 0.0 || input_.TexCoord.y < 0.0 || input_.TexCoord.z < 0.0)
+    {
+        output_ = vec4(1.0, 1.0, 1.0, 0.0);
+    }
     OutputColor = output_;
 }

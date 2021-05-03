@@ -48,7 +48,7 @@ namespace Examples.Common
                         else if (fromCenteri * fromCenteri + fromCenterj * fromCenterj + fromCenterk * fromCenterk <
                                  sphere1RadiusSq)
                         {
-                            rgbaData[index] = 0x1000FFFF;
+                            rgbaData[index] = 0x1000FFFF;  // RGBA ... A is the 4th component
                         }
                     }
                 }
