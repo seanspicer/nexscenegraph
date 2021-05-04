@@ -23,7 +23,7 @@ namespace DirectVolRen3DTexture
             Bootstrapper.Configure();
             LogManager.SetLogger(Bootstrapper.LoggerFactory);
 
-            var viewer = SimpleViewer.Create("Direct Volume Rendering", TextureSampleCount.Count8);
+            var viewer = SimpleViewer.Create("Direct Volume Rendering w/ 3D Textures", TextureSampleCount.Count8);
             viewer.SetBackgroundColor(RgbaFloat.Black);
             viewer.SetCameraManipulator(TrackballManipulator.Create());
 
@@ -88,6 +88,18 @@ namespace DirectVolRen3DTexture
         public TestVoxelVolume(int width, int height, int depth)
         {
 
+            var centerWidth = width / 2;
+            var centerHeight = height / 2;
+            var centerDepth = depth / 2;
+
+            var outerRadius = 0.667;
+            var innerRadius = 0.333;
+
+            var outerSphereRadiusSq = (width / 2.0) * outerRadius;
+            outerSphereRadiusSq *= outerSphereRadiusSq;
+            var innerSphereRadiusSq = (width / 2.0) * innerRadius;
+            innerSphereRadiusSq *= innerSphereRadiusSq;
+            
             Values = new double[width, height, depth];
             XValues = new double[width, height, depth];
             YValues = new double[width, height, depth];
@@ -100,6 +112,20 @@ namespace DirectVolRen3DTexture
                 YValues[x, y, z] = y;
                 ZValues[x, y, z] = z;
                 Values[x, y, z] = 0;
+                
+                var fromCenteri = x - centerWidth;
+                var fromCenterj = y - centerHeight;
+                var fromCenterk = z - centerDepth;
+                if (fromCenteri * fromCenteri + fromCenterj * fromCenterj + fromCenterk * fromCenterk <
+                    innerSphereRadiusSq)
+                {
+                    Values[x, y, z] = 1.0;
+                }
+                else if (fromCenteri * fromCenteri + fromCenterj * fromCenterj + fromCenterk * fromCenterk <
+                         outerSphereRadiusSq)
+                {
+                    Values[x, y, z] = 0.5;
+                }
             }
         }
     }
