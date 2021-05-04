@@ -22,12 +22,12 @@ using Veldrid.SceneGraph.AssetProcessor;
 
 namespace Veldrid.SceneGraph
 {
-    public interface ITexture2D
+    public interface ITexture2D : ITexture
     {
-        ProcessedTexture ProcessedTexture { get; }
-        uint ResourceSetNo { get; set; }
-        string TextureName { get; set; }
-        string SamplerName { get; set; }
+        // ProcessedTexture ProcessedTexture { get; }
+        // uint ResourceSetNo { get; set; }
+        // string TextureName { get; set; }
+        // string SamplerName { get; set; }
     }
 
     public class Texture2D : ITexture2D

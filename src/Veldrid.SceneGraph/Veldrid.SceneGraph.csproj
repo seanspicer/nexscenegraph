@@ -29,6 +29,8 @@
     <PackageReference Include="Veldrid.Utilities" Version="4.8.0" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Assets\Shaders\BasicTexture3DShader-fragment.glsl" />
+    <EmbeddedResource Include="Assets\Shaders\BasicTexture3DShader-vertex.glsl" />
     <EmbeddedResource Include="Assets\Shaders\Phong-fragment.glsl" />
     <EmbeddedResource Include="Assets\Shaders\Phong-vertex.glsl" />
     <None Remove="Assets\Shaders\BasicTextureShader-fragment.glsl" />
