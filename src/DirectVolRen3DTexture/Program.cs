@@ -8,6 +8,7 @@ using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.AssetPrimitives;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Logging;
+using Veldrid.SceneGraph.Math.IsoSurface;
 using Veldrid.SceneGraph.NodeKits.DirectVolumeRendering;
 using Veldrid.SceneGraph.Shaders;
 using Veldrid.SceneGraph.Util;
@@ -27,7 +28,7 @@ namespace DirectVolRen3DTexture
             viewer.SetCameraManipulator(TrackballManipulator.Create());
 
             var root = SampledVolumeRenderingExampleScene.Build(CreateShaderSet, 
-                new TextureVoxelVolume(Test3DTextures.SimpleDoubleSphere()));
+                new TestVoxelVolume(256, 256, 256), Example3DTranslator);
 
             viewer.SetSceneData(root);
             viewer.ViewAll();
@@ -50,6 +51,16 @@ namespace DirectVolRen3DTexture
 
             return ShaderSet.Create("TextureVolumeShader", vtxShader, frgShader);
         }
+
+        private static ITexture3D Example3DTranslator(IVoxelVolume voxelVolume)
+        {
+            var xdim = voxelVolume.XValues.GetLength(0);
+            var ydim = voxelVolume.XValues.GetLength(1);
+            var zdim = voxelVolume.XValues.GetLength(2);
+            var processedTexture = Test3DTextures.SimpleDoubleSphere(xdim, ydim, zdim);
+            return Texture3D.Create(processedTexture, 1,
+                "SurfaceTexture", "SurfaceSampler");
+        }
     }
     
 #if (USE_CORNER == true)
@@ -67,28 +78,23 @@ namespace DirectVolRen3DTexture
 
     }
 #else
-    public class TextureVoxelVolume : ITextureVoxelVolume
+    public class TestVoxelVolume : IVoxelVolume
     {
         public double[,,] Values { get; }
         public double[,,] XValues { get; }
         public double[,,] YValues { get; }
         public double[,,] ZValues { get; }
-        public ITexture3D TextureData { get; }
 
-        public TextureVoxelVolume(ProcessedTexture processedTexture)
+        public TestVoxelVolume(int width, int height, int depth)
         {
-            TextureData = Texture3D.Create(processedTexture,
-                1,
-                "SurfaceTexture",
-                "SurfaceSampler");
 
-            Values = new double[processedTexture.Width, processedTexture.Height, processedTexture.Depth];
-            XValues = new double[processedTexture.Width, processedTexture.Height, processedTexture.Depth];
-            YValues = new double[processedTexture.Width, processedTexture.Height, processedTexture.Depth];
-            ZValues = new double[processedTexture.Width, processedTexture.Height, processedTexture.Depth];
-            for (var z = 0; z < processedTexture.Depth; ++z)
-            for (var y = 0; y < processedTexture.Height; ++y)
-            for (var x = 0; x < processedTexture.Width; ++x)
+            Values = new double[width, height, depth];
+            XValues = new double[width, height, depth];
+            YValues = new double[width, height, depth];
+            ZValues = new double[width, height, depth];
+            for (var z = 0; z < depth; ++z)
+            for (var y = 0; y < height; ++y)
+            for (var x = 0; x < width; ++x)
             {
                 XValues[x, y, z] = x;
                 YValues[x, y, z] = y;

@@ -32,6 +32,8 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
     public class LevoyCabralTechnique : VolumeTechnique, ILevoyCabralTechnique, ILocator.ILocatorCallback
     {
+        public delegate ITexture3D TextureTranslator(IVoxelVolume voxelVolume);
+        
         private bool _dirty = true;
 
         private readonly IIsoSurfaceGenerator _isoSurfaceGenerator;
@@ -40,9 +42,10 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         private bool _outlinesDirty = true;
         private bool _samplingPlanesDirty = true;
 
-        protected LevoyCabralTechnique(IShaderSet shaderSet)
+        protected LevoyCabralTechnique(IShaderSet shaderSet, TextureTranslator textureTranslator)
         {
             ShaderSet = shaderSet;
+            Texture3DTranslator = textureTranslator;
             _isoSurfaceGenerator = new MarchingCubesIsoSurfaceGenerator();
             _isoSurfaces = new List<IIsoSurface>();
         }
@@ -53,6 +56,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
         protected IVoxelVolume VoxelVolume { get; set; }
         protected ITexture3D TextureData { get; set; }
+        protected TextureTranslator Texture3DTranslator { get; set; }
         protected IGeometry<Position3TexCoord3Color4> Geometry { get; set; }
         protected IGeometry<Position3Color3> OutlinesGeometry { get; set; }
 
@@ -69,9 +73,9 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
                 _levoyCabralLocator = levoyCabralLocator;
                 _levoyCabralLocator.AddCallback(this);
 
-                if (VoxelVolume is ITextureVoxelVolume textureVoxelVolume)
+                if (null != Texture3DTranslator)
                 {
-                    TextureData = textureVoxelVolume.TextureData;
+                    TextureData = Texture3DTranslator(VoxelVolume);
                 }
                 
                 // Create the Geometry Placeholder
@@ -88,9 +92,10 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             _dirty = true;
         }
 
-        public static ILevoyCabralTechnique Create(IShaderSet shaderSet = null)
+        public static ILevoyCabralTechnique Create(IShaderSet shaderSet = null,
+            TextureTranslator textureTranslator = null)
         {
-            return new LevoyCabralTechnique(shaderSet);
+            return new LevoyCabralTechnique(shaderSet, textureTranslator);
         }
 
         public override void Update(IUpdateVisitor nv)

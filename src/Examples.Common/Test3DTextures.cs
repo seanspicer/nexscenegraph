@@ -8,11 +8,8 @@ namespace Examples.Common
     public class Test3DTextures
     {
         
-        public static ProcessedTexture SimpleDoubleSphere()
+        public static ProcessedTexture SimpleDoubleSphere(int width, int height, int depth)
         {
-            var width = 256;
-            var height = 256;
-            var depth = 256;
 
             var centerWidth = width / 2;
             var centerHeight = height / 2;
