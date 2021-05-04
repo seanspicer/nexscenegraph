@@ -16,7 +16,7 @@ namespace Veldrid.SceneGraph
         T[] UniformData { get; set; }
     }
 
-    internal class Uniform<T> : Object, IUniform<T> where T : struct
+    public class Uniform<T> : Object, IUniform<T> where T : struct
     {
         private uint _hostBufStride;
         private uint _modifiedCount;
