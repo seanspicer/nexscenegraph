@@ -30,7 +30,7 @@ namespace Examples.Common
                 {
                     for (int k = 0; k < depth; k++)
                     {
-                        var index = i + width * (j + depth * k);
+                        var index = i + height * (j + depth * k);
                         rgbaData[index] = 0x10000FF;
 
                         var fromCenteri = i - centerWidth;

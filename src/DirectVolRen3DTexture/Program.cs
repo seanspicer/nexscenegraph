@@ -57,27 +57,39 @@ namespace DirectVolRen3DTexture
             var xdim = voxelVolume.XValues.GetLength(0);
             var ydim = voxelVolume.XValues.GetLength(1);
             var zdim = voxelVolume.XValues.GetLength(2);
-            var processedTexture = Test3DTextures.SimpleDoubleSphere(xdim, ydim, zdim);
-            return Texture3D.Create(processedTexture, 1,
+            
+            var rgbaData = new UInt32[xdim * ydim * zdim];
+            
+            for (var x = 0; x < xdim; ++x)
+            for (var y = 0; y < ydim; ++y)
+            for (var z = 0; z < zdim; ++z)
+            {
+                var index = x + ydim * (y + zdim * z);
+                rgbaData[index] = 0x10000FF;
+                if (voxelVolume.Values[x, y, z] > 0.6) // inner sphere
+                {
+                    rgbaData[index] = 0xFFFF0000;  // RGBA ... A is the 4th component ... solid blue
+                }
+                else if (voxelVolume.Values[x, y, z] > 0.1)
+                {
+                    rgbaData[index] = 0x1000FFFF;  // RGBA ... A is the 4th component ... transparent yellow
+                }
+            }
+
+            var allTexData = new byte[xdim * xdim * xdim * 4]; // RGBA
+            Buffer.BlockCopy(rgbaData, 0, allTexData, 0, allTexData.Length);
+            
+            var texData = new ProcessedTexture(
+                PixelFormat.R8_G8_B8_A8_UNorm, TextureType.Texture3D,
+                (uint) xdim, (uint) ydim, (uint) zdim,
+                (uint) 1, 1,
+                allTexData);
+            
+            return Texture3D.Create(texData, 1,
                 "SurfaceTexture", "SurfaceSampler");
         }
     }
     
-#if (USE_CORNER == true)
-    public class TextureVoxelVolume : CornerVoxelVolume, ITextureVoxelVolume
-    {
-        public ITexture3D TextureData { get; }
-        
-        public TextureVoxelVolume(ProcessedTexture processedTexture)
-        {
-            TextureData = Texture3D.Create(processedTexture,
-                1,
-                "SurfaceTexture",
-                "SurfaceSampler");
-        }
-
-    }
-#else
     public class TestVoxelVolume : IVoxelVolume
     {
         public double[,,] Values { get; }
@@ -103,10 +115,10 @@ namespace DirectVolRen3DTexture
             Values = new double[width, height, depth];
             XValues = new double[width, height, depth];
             YValues = new double[width, height, depth];
-            ZValues = new double[width, height, depth];
-            for (var z = 0; z < depth; ++z)
-            for (var y = 0; y < height; ++y)
+            ZValues = new double[width, height, depth]; // row major
             for (var x = 0; x < width; ++x)
+            for (var y = 0; y < height; ++y)
+            for (var z = 0; z < depth; ++z)
             {
                 XValues[x, y, z] = x;
                 YValues[x, y, z] = y;
@@ -129,5 +141,4 @@ namespace DirectVolRen3DTexture
             }
         }
     }
-#endif
 }
