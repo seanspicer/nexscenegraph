@@ -58,26 +58,7 @@ namespace DirectVolRen3DTexture
             var ydim = voxelVolume.XValues.GetLength(1);
             var zdim = voxelVolume.XValues.GetLength(2);
             
-            var rgbaData = new UInt32[xdim * ydim * zdim];
-            
-            for (var x = 0; x < xdim; ++x)
-            for (var y = 0; y < ydim; ++y)
-            for (var z = 0; z < zdim; ++z)
-            {
-                var index = x + ydim * (y + zdim * z);
-                rgbaData[index] = 0x10000FF;
-                if (voxelVolume.Values[x, y, z] > 0.6) // inner sphere
-                {
-                    rgbaData[index] = 0xFFFF0000;  // RGBA ... A is the 4th component ... solid blue
-                }
-                else if (voxelVolume.Values[x, y, z] > 0.1)
-                {
-                    rgbaData[index] = 0x1000FFFF;  // RGBA ... A is the 4th component ... transparent yellow
-                }
-            }
-
-            var allTexData = new byte[xdim * xdim * xdim * 4]; // RGBA
-            Buffer.BlockCopy(rgbaData, 0, allTexData, 0, allTexData.Length);
+            var allTexData = RgbaData(voxelVolume, xdim, ydim, zdim);
             
             var texData = new ProcessedTexture(
                 PixelFormat.R8_G8_B8_A8_UNorm, TextureType.Texture3D,
@@ -87,6 +68,40 @@ namespace DirectVolRen3DTexture
             
             return Texture3D.Create(texData, 1,
                 "SurfaceTexture", "SurfaceSampler");
+        }
+
+        private static byte[] RgbaData(IVoxelVolume voxelVolume, int xdim, int ydim, int zdim)
+        {
+            var rgbaData = new byte[xdim * ydim * zdim * 4];
+
+            for (var x = 0; x < xdim; ++x)
+            for (var y = 0; y < ydim; ++y)
+            for (var z = 0; z < zdim; ++z)
+            {
+                var index = (z + ydim * (y + xdim * x)) * 4;
+                // rgbaData[index] = 0x10000FF;  // RGBA ... A is the 4th component ... solid blue
+                rgbaData[index + 0] = 0xFF; // R
+                rgbaData[index + 1] = 0x00; // G
+                rgbaData[index + 2] = 0x00; // B
+                rgbaData[index + 3] = 0x01; // A
+                if (voxelVolume.Values[x, y, z] > 0.6) // inner sphere
+                {
+                    // rgbaData[index] = 0xFFFF0000;  // RGBA ... A is the 4th component ... solid blue
+                    rgbaData[index + 0] = 0x00;
+                    rgbaData[index + 1] = 0x00;
+                    rgbaData[index + 2] = 0xFF;
+                    rgbaData[index + 3] = 0xFF;
+                }
+                else if (voxelVolume.Values[x, y, z] > 0.1)
+                {
+                    // rgbaData[index] = 0x1000FFFF;  // RGBA ... A is the 4th component ... transparent yellow
+                    rgbaData[index + 0] = 0xFF;
+                    rgbaData[index + 1] = 0xFF;
+                    rgbaData[index + 2] = 0x00;
+                    rgbaData[index + 3] = 0x10;
+                }
+            }
+            return rgbaData;
         }
     }
     
