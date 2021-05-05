@@ -187,7 +187,7 @@ namespace Examples.Common
             var tile2 = VolumeTile.Create();
             tile2.Layer = layer;
             tile2.Locator = layer.GetLocator();
-            tile2.SetVolumeTechnique(LevoyCabralTechnique.Create(builder()));
+            tile2.SetVolumeTechnique(LevoyCabralTechnique.Create(builder(), textureTranslator));
             volume.AddChild(tile2);
             
             var dragger2 = TabBoxDragger.Create();
