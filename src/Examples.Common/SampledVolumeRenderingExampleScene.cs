@@ -159,16 +159,20 @@ namespace Examples.Common
 
     public class SampledVolumeRenderingExampleScene
     {
-        public static IGroup Build()
+        public delegate IShaderSet ShaderSetBuilder();
+
+        public static IGroup Build(ShaderSetBuilder builder, IVoxelVolume voxelVolume,
+            LevoyCabralTechnique.TextureTranslator textureTranslator)
         {
+            
             var volume = Volume.Create();
             var tile1 = VolumeTile.Create();
             volume.AddChild(tile1);
 
-            var layer = VoxelVolumeLayer.Create(new CornerVoxelVolume());
+            var layer = VoxelVolumeLayer.Create(voxelVolume);
             tile1.Layer = layer;
             tile1.Locator = layer.GetLocator();
-            tile1.SetVolumeTechnique(LevoyCabralTechnique.Create(CreateShaderSet()));
+            tile1.SetVolumeTechnique(LevoyCabralTechnique.Create(builder(), textureTranslator));
 
             var dragger1 = TabBoxDragger.Create();
             dragger1.SetupDefaultGeometry();
@@ -183,9 +187,9 @@ namespace Examples.Common
             var tile2 = VolumeTile.Create();
             tile2.Layer = layer;
             tile2.Locator = layer.GetLocator();
-            tile2.SetVolumeTechnique(LevoyCabralTechnique.Create(CreateShaderSet()));
+            tile2.SetVolumeTechnique(LevoyCabralTechnique.Create(builder(), textureTranslator));
             volume.AddChild(tile2);
-
+            
             var dragger2 = TabBoxDragger.Create();
             dragger2.SetupDefaultGeometry();
             dragger2.ActivationModKeyMask = IUiEventAdapter.ModKeyMaskType.ModKeyAlt;
@@ -201,6 +205,11 @@ namespace Examples.Common
             root.AddChild(dragger1);
             root.AddChild(dragger2);
             return root;
+        }
+
+        public static IGroup Build()
+        {
+            return Build(CreateShaderSet, new CornerVoxelVolume(), null);
         }
 
         public static IShaderSet CreateShaderSet()
