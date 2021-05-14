@@ -41,7 +41,7 @@ namespace Veldrid.SceneGraph
     {
         public float[][] MakeHMatrix()
         {
-            mat = new float[4][];
+            var mat = new float[4][];
             mat[0] = new float[] {0,0,0,0};
             mat[1] = new float[] {0,0,0,0};
             mat[2] = new float[] {0,0,0,0};
@@ -245,7 +245,7 @@ namespace Veldrid.SceneGraph
             return (qu);
         }
         
-        static float[][] mat;
+        static float[][] mat_id;
 
         /** Compute either the 1 or infinity norm of M, depending on tpose **/
         float mat_norm(float[][] M, int tpose)
@@ -333,7 +333,7 @@ namespace Veldrid.SceneGraph
             col = find_max_col(M);
             if (col < 0)
             {
-                mat_copy(Q,mat,4); return;
+                mat_copy(Q,mat_id,4); return;
             } /* Rank is 0 */
             
             v1[0] = M[0][col]; v1[1] = M[1][col]; v1[2] = M[2][col];
@@ -343,7 +343,7 @@ namespace Veldrid.SceneGraph
             make_reflector(v2, v2); 
             reflect_rows(M, v2);
             s = M[2][2];
-            mat_copy(Q,mat,4);
+            mat_copy(Q,mat_id,4);
             if (s<0.0f) Q[2][2] = -1.0f;
             reflect_cols(Q, v1); 
             reflect_rows(Q, v2);
@@ -426,13 +426,80 @@ namespace Veldrid.SceneGraph
             return 1;
         }
         
+        /******* Spectral Decomposition *******/
+
+        /* Compute the spectral decomposition of symmetric positive semi-definite S.
+         * Returns rotation in U and scale factors in result, so that if K is a diagonal
+         * matrix of the scale factors, then S = U K (U transpose). Uses Jacobi method.
+         * See Gene H. Golub and Charles F. Van Loan. Matrix Computations. Hopkins 1983.
+         */
+        HVect spect_decomp(float[][] S, float[][] U)
+        {
+            HVect kv;
+            float[] Diag = new float[3];
+            float[] OffD = new float[3]; /* OffD is off-diag (by omitted index) */
+            float g,h,fabsh,fabsOffDi,t,theta,c,s,tau,ta,OffDq,a,b;
+            
+            char [] nxt = new char[3]
+            {
+                (char) QuatPart.Y, 
+                (char) QuatPart.Z, 
+                (char) QuatPart.X
+            };
+            
+            int sweep, i, j;
+            mat_copy(U,mat_id, 4);
+            Diag[(int)QuatPart.X] = S[(int)QuatPart.X][(int)QuatPart.X]; 
+            Diag[(int)QuatPart.Y] = S[(int)QuatPart.Y][(int)QuatPart.Y]; 
+            Diag[(int)QuatPart.Z] = S[(int)QuatPart.Z][(int)QuatPart.Z];
+            
+            OffD[(int)QuatPart.X] = S[(int)QuatPart.Y][(int)QuatPart.Z]; 
+            OffD[(int)QuatPart.Y] = S[(int)QuatPart.Z][(int)QuatPart.X]; 
+            OffD[(int)QuatPart.Z] = S[(int)QuatPart.X][(int)QuatPart.Y];
+            
+            for (sweep=20; sweep>0; sweep--) {
+                float sm = System.Math.Abs(OffD[(int)QuatPart.X])+System.Math.Abs(OffD[(int)QuatPart.Y])+System.Math.Abs(OffD[(int)QuatPart.Z]);
+                if (sm==0.0) break;
+                for (i=(int)QuatPart.Z; i>=(int)QuatPart.X; i--) {
+                    int p = nxt[i]; int q = nxt[p];
+                    fabsOffDi = System.Math.Abs(OffD[i]);
+                    g = 100.0f*fabsOffDi;
+                    if (fabsOffDi>0.0f) {
+                        h = Diag[q] - Diag[p];
+                        fabsh = System.Math.Abs(h);
+                        if (System.Math.Abs(fabsh+g - fabsh) < 1e-6) {
+                            t = OffD[i]/h;
+                        } else {
+                            theta = 0.5f*h/OffD[i];
+                            t = 1.0f/(float)(System.Math.Abs(theta)+System.Math.Sqrt(theta*theta+1.0f));
+                            if (theta<0.0f) t = -t;
+                        }
+                        c = 1.0f/(float) System.Math.Sqrt(t*t+1.0f); s = t*c;
+                        tau = s/(c+1.0f);
+                        ta = t*OffD[i]; OffD[i] = 0.0f;
+                        Diag[p] -= ta; Diag[q] += ta;
+                        OffDq = OffD[q];
+                        OffD[q] -= s*(OffD[p] + tau*OffD[q]);
+                        OffD[p] += s*(OffDq   - tau*OffD[p]);
+                        for (j=(int)QuatPart.Z; j>=(int)QuatPart.X; j--) {
+                            a = U[j][p]; b = U[j][q];
+                            U[j][p] -= s*(b + tau*a);
+                            U[j][q] += s*(a - tau*b);
+                        }
+                    }
+                }
+            }
+            kv.x = Diag[(int)QuatPart.X]; kv.y = Diag[(int)QuatPart.Y]; kv.z = Diag[(int)QuatPart.Z]; kv.w = 1.0f;
+            return (kv);
+        }
+        
         public MatrixDecomposition()
         {
-            mat = new float[4][];
-            mat[0] = new float[] {1,0,0,0};
-            mat[1] = new float[] {0,1,0,0};
-            mat[2] = new float[] {0,0,1,0};
-            mat[3] = new float[] {0,0,0,1};
+            mat_id = new float[4][];
+            mat_id[0] = new float[] {1,0,0,0};
+            mat_id[1] = new float[] {0,1,0,0};
+            mat_id[2] = new float[] {0,0,1,0};
+            mat_id[3] = new float[] {0,0,0,1};
 
         }
     }
