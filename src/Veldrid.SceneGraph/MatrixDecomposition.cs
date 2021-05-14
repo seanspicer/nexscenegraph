@@ -9,6 +9,14 @@ namespace Veldrid.SceneGraph
         public float y;
         public float z;
         public float w;
+
+        public Quat(float x, float y, float z, float w)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.w = w;
+        }
         
     }; /* Quaternion */
 
@@ -493,6 +501,164 @@ namespace Veldrid.SceneGraph
             return (kv);
         }
         
+        const float SQRTHALF  = 0.7071067811865475244f;
+            
+// #define sgn(n,v)    
+//         ((n)?-(v):(v))
+// #define swap(a,i,j) 
+//         {a[3]=a[i]; a[i]=a[j]; a[j]=a[3];}
+// #define cycle(a,p)  
+//             if (p) {a[3]=a[0]; a[0]=a[1]; a[1]=a[2]; a[2]=a[3];}\
+//             else   {a[3]=a[2]; a[2]=a[1]; a[1]=a[0]; a[0]=a[3];}
+        
+        /******* Spectral Axis Adjustment *******/
+
+        /* Given a unit quaternion, q, and a scale vector, k, find a unit quaternion, p,
+         * which permutes the axes and turns freely in the plane of duplicate scale
+         * factors, such that q p has the largest possible w component, i.e. the
+         * smallest possible angle. Permutes k's components to go with q p instead of q.
+         * See Ken Shoemake and Tom Duff. Matrix Animation and Polar Decomposition.
+         * Proceedings of Graphics Interface 1992. Details on p. 262-263.
+         */
+        Quat snuggle(Quat q, ref HVect k)
+        {
+            Quat p;
+            float []ka = new float[4];
+            int i, turn = -1;
+            ka[(int)QuatPart.X] = k->x; ka[(int)QuatPart.Y] = k->y; ka[(int)QuatPart.Z] = k.z;
+            if (ka[(int) QuatPart.X] == ka[(int) QuatPart.Y])
+            {
+                if (ka[(int) QuatPart.X] == ka[(int) QuatPart.Z])
+                {
+                    turn = (int)QuatPart.W;
+                }
+                else
+                {
+                    turn = (int)QuatPart.Z;
+                }
+            }
+            else
+            {
+                if (ka[(int) QuatPart.X] == ka[(int) QuatPart.Z])
+                {
+                    turn = (int)QuatPart.Y;
+                } 
+                else if (ka[(int) QuatPart.Y] == ka[(int) QuatPart.Z])
+                {
+                    turn = (int)QuatPart.X;
+                }
+            }
+            if (turn>=0) {
+	            Quat qtoz, qp;
+                uint[] neg = new uint[3];
+                uint win;
+                float[] mag = new float[3];
+                float t;
+	            Quat qxtoz = new Quat(0, SQRTHALF, 0, SQRTHALF);
+                Quat qytoz = new Quat(SQRTHALF,0,0,SQRTHALF);
+	            Quat qppmm = new Quat( 0.5f, 0.5f,-0.5f,-0.5f);
+	            Quat qpppp = new Quat( 0.5f, 0.5f, 0.5f, 0.5f);
+	            Quat qmpmm = new Quat(-0.5f, 0.5f,-0.5f,-0.5f);
+	            Quat qpppm = new Quat( 0.5f, 0.5f, 0.5f,-0.5f);
+	            Quat q0001 = new Quat( 0.0f, 0.0f, 0.0f, 1.0f);
+	            Quat q1000 = new Quat( 1.0f, 0.0f, 0.0f, 0.0f);
+	            switch (turn) {
+	                default: return (Qt_Conj(q));
+	                case (int)QuatPart.X: 
+                        q = Qt_Mul(q, qtoz = qxtoz); swap(ka,(int)QuatPart.X,(int)QuatPart.Z) 
+                        break;
+	                case (int)QuatPart.Y: 
+                        q = Qt_Mul(q, qtoz = qytoz); swap(ka,(int)QuatPart.Y, (int)QuatPart.Z) 
+                        break;
+	                case (int)QuatPart.Z: 
+                        qtoz = q0001; break;
+	            }
+	            q = Qt_Conj(q);
+	            mag[0] = (float)q.z*q.z+(float)q.w*q.w-0.5f;
+	            mag[1] = (float)q.x*q.z-(float)q.y*q.w;
+	            mag[2] = (float)q.y*q.z+(float)q.x*q.w;
+                for (i = 0; i < 3; i++)
+                {
+                    if ((neg[i] = (mag[i]<0.0f))) mag[i] = -mag[i];
+                }
+
+                if (mag[0] > mag[1])
+                {
+                    if (mag[0]>mag[2]) win = 0; 
+                    else win = 2;
+                }
+                else
+                {
+                    if (mag[1]>mag[2]) win = 1; 
+                    else win = 2;
+                }
+	            switch (win) 
+                {
+	                case 0: if (neg[0] > 0) p = q1000; else p = q0001; break;
+	                case 1: if (neg[1] > 0) p = qppmm; else p = qpppp; cycle(ka,0) break;
+	                case 2: if (neg[2] > 0) p = qmpmm; else p = qpppm; cycle(ka,1) break;
+	            }
+	            qp = Qt_Mul(q, p);
+	            t = (float)System.Math.Sqrt(mag[win]+0.5f);
+	            p = Qt_Mul(p, Qt_(0.0f,0.0f,-qp.z/t,qp.w/t));
+	            p = Qt_Mul(qtoz, Qt_Conj(p));
+            } 
+            else
+            {
+                float[] qa = new float[4];
+                float[] pa = new float[4];
+                uint lo, hi;
+                uint[] neg = new uint[4];
+                uint par = 0;
+    	        float all, big, two;
+	            qa[0] = q.x; qa[1] = q.y; qa[2] = q.z; qa[3] = q.w;
+	            for (i=0; i<4; i++) {
+	                pa[i] = 0.0f;
+	                if ((neg[i] = (qa[i]<0.0f))) qa[i] = -qa[i];
+	                par ^= neg[i];
+	            }
+	            /* Find two largest components, indices in hi and lo */
+	            if (qa[0]>qa[1]) lo = 0; else lo = 1;
+	            if (qa[2]>qa[3]) hi = 2; else hi = 3;
+	            if (qa[lo]>qa[hi]) {
+	                if (qa[lo^1]>qa[hi]) {hi = lo; lo ^= 1;}
+	                else {hi ^= lo; lo ^= hi; hi ^= lo;}
+	            }
+                else
+                {
+                    if (qa[hi^1]>qa[lo]) lo = hi^1;
+                }
+	            all = (qa[0]+qa[1]+qa[2]+qa[3])*0.5f;
+	            two = (qa[hi]+qa[lo])*SQRTHALF;
+	            big = qa[hi];
+	            if (all>two) {
+	                if (all>big) {/*all*/
+		            {int i; for (i=0; i<4; i++) pa[i] = sgn(neg[i], 0.5f);}
+		            cycle(ka,par)
+	                } else {/*big*/ pa[hi] = sgn(neg[hi],1.0f);}
+	            } else {
+	                if (two>big) {/*two*/
+		            pa[hi] = sgn(neg[hi],SQRTHALF); 
+                    pa[lo] = sgn(neg[lo], SQRTHALF);
+		            if (lo>hi) {hi ^= lo; lo ^= hi; hi ^= lo;}
+		            /* This wild code is simply defining a fixed array from a string.
+		            ** The code in the braces is equivalent to:
+		            ** hi = (lo+1)%3; lo = (lo+2)%3; */
+                    if (hi == (int) QuatPart.W)
+                    {
+                        hi = "\001\002\000"[lo]; lo = 3-hi-lo;
+                    }
+		            swap(ka,hi,lo)
+	                } else {/*big*/ pa[hi] = sgn(neg[hi],1.0f);}
+	            }
+	            p.x = -pa[0]; p.y = -pa[1]; p.z = -pa[2]; p.w = pa[3];
+            }
+            k.x = ka[(int)QuatPart.X]; 
+            k.y = ka[(int)QuatPart.Y]; 
+            k.z = ka[(int)QuatPart.Z];
+            return (p);
+        }
+
         public MatrixDecomposition()
         {
             mat_id = new float[4][];
