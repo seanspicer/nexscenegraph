@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace Veldrid.SceneGraph
 {
@@ -34,15 +35,24 @@ namespace Veldrid.SceneGraph
         public float y;
         public float z;
         public float w;
+
+        internal HVect(Quat q)
+        {
+            this.x = q.x;
+            this.y = q.y;
+            this.z = q.z;
+            this.w = q.w;
+        }
+        
     }; /* Homogeneous 3D vector */
     
     internal struct AffineParts
     {
-        HVect t;	/* Translation components */
-        Quat  q;	/* Essential rotation	  */
-        Quat  u;	/* Stretch rotation	  */
-        HVect k;	/* Stretch factors	  */
-        float f;	/* Sign of determinant	  */
+        public HVect t;	/* Translation components */
+        public Quat  q;	/* Essential rotation	  */
+        public Quat  u;	/* Stretch rotation	  */
+        public HVect k;	/* Stretch factors	  */
+        public float f;	/* Sign of determinant	  */
     };
 
     public class MatrixDecomposition
@@ -57,6 +67,8 @@ namespace Veldrid.SceneGraph
 
             return mat;
         }
+        
+        /******* Matrix Preliminaries *******/
         
         /** Fill out 3x3 matrix to 4x4 **/
         private void mat_pad(float[][] A)
@@ -77,6 +89,16 @@ namespace Veldrid.SceneGraph
                     C[i][j] = A[i][j];
             
         }
+        
+        private void mat_copy_neg(float[][]C, float[][]A, int n) 
+        {
+            int i,j; 
+            for(i=0;i<n;i++) 
+            for(j=0;j<n;j++)
+                C[i][j] = -A[i][j];
+            
+        }
+        
         private void mat_copy_minus_eq(float[][]C, float[][]A, int n) 
         {
             int i,j; 
@@ -502,7 +524,38 @@ namespace Veldrid.SceneGraph
         }
         
         const float SQRTHALF  = 0.7071067811865475244f;
-            
+
+        private float sgn(uint n, float v)
+        {
+            if (n > 0)
+            {
+                return -v;
+            }
+            else
+            {
+                return v;
+            }
+        }
+        
+        private void swap(float[] a, int i, int j)
+        {
+            a[3]=a[i]; 
+            a[i]=a[j]; 
+            a[j]=a[3];
+        }
+
+        private void cycle(float[] a, bool p)
+        {
+            if (p)
+            {
+                a[3]=a[0]; a[0]=a[1]; a[1]=a[2]; a[2]=a[3];
+            }
+            else
+            {
+                a[3]=a[2]; a[2]=a[1]; a[1]=a[0]; a[0]=a[3];
+            }
+        }
+        
 // #define sgn(n,v)    
 //         ((n)?-(v):(v))
 // #define swap(a,i,j) 
@@ -525,7 +578,7 @@ namespace Veldrid.SceneGraph
             Quat p;
             float []ka = new float[4];
             int i, turn = -1;
-            ka[(int)QuatPart.X] = k->x; ka[(int)QuatPart.Y] = k->y; ka[(int)QuatPart.Z] = k.z;
+            ka[(int)QuatPart.X] = k.x; ka[(int)QuatPart.Y] = k.y; ka[(int)QuatPart.Z] = k.z;
             if (ka[(int) QuatPart.X] == ka[(int) QuatPart.Y])
             {
                 if (ka[(int) QuatPart.X] == ka[(int) QuatPart.Z])
@@ -565,10 +618,12 @@ namespace Veldrid.SceneGraph
 	            switch (turn) {
 	                default: return (Qt_Conj(q));
 	                case (int)QuatPart.X: 
-                        q = Qt_Mul(q, qtoz = qxtoz); swap(ka,(int)QuatPart.X,(int)QuatPart.Z) 
+                        q = Qt_Mul(q, qtoz = qxtoz);
+                        swap(ka, (int) QuatPart.X, (int) QuatPart.Z);
                         break;
 	                case (int)QuatPart.Y: 
-                        q = Qt_Mul(q, qtoz = qytoz); swap(ka,(int)QuatPart.Y, (int)QuatPart.Z) 
+                        q = Qt_Mul(q, qtoz = qytoz);
+                        swap(ka, (int) QuatPart.Y, (int) QuatPart.Z);
                         break;
 	                case (int)QuatPart.Z: 
                         qtoz = q0001; break;
@@ -579,7 +634,11 @@ namespace Veldrid.SceneGraph
 	            mag[2] = (float)q.y*q.z+(float)q.x*q.w;
                 for (i = 0; i < 3; i++)
                 {
-                    if ((neg[i] = (mag[i]<0.0f))) mag[i] = -mag[i];
+                    neg[i] = mag[i] < 0.0 ? 1u : 0u;
+                    if (neg[i] > 0)
+                    {
+                        mag[i] = -mag[i];
+                    }
                 }
 
                 if (mag[0] > mag[1])
@@ -594,9 +653,18 @@ namespace Veldrid.SceneGraph
                 }
 	            switch (win) 
                 {
-	                case 0: if (neg[0] > 0) p = q1000; else p = q0001; break;
-	                case 1: if (neg[1] > 0) p = qppmm; else p = qpppp; cycle(ka,0) break;
-	                case 2: if (neg[2] > 0) p = qmpmm; else p = qpppm; cycle(ka,1) break;
+	                case 0: 
+                        if (neg[0] > 0) p = q1000; else p = q0001; 
+                        break;
+	                case 1: 
+                        if (neg[1] > 0) p = qppmm; else p = qpppp;
+                        cycle(ka, false);
+                        break;
+                    default:
+	                case 2: 
+                        if (neg[2] > 0) p = qmpmm; else p = qpppm;
+                        cycle(ka, true);
+                        break;
 	            }
 	            qp = Qt_Mul(q, p);
 	            t = (float)System.Math.Sqrt(mag[win]+0.5f);
@@ -614,7 +682,8 @@ namespace Veldrid.SceneGraph
 	            qa[0] = q.x; qa[1] = q.y; qa[2] = q.z; qa[3] = q.w;
 	            for (i=0; i<4; i++) {
 	                pa[i] = 0.0f;
-	                if ((neg[i] = (qa[i]<0.0f))) qa[i] = -qa[i];
+                    neg[i] = (qa[i]<0.0 ? 1u : 0u);
+                    if (neg[i] > 0) qa[i] = -qa[i];
 	                par ^= neg[i];
 	            }
 	            /* Find two largest components, indices in hi and lo */
@@ -633,9 +702,13 @@ namespace Veldrid.SceneGraph
 	            big = qa[hi];
 	            if (all>two) {
 	                if (all>big) {/*all*/
-		            {int i; for (i=0; i<4; i++) pa[i] = sgn(neg[i], 0.5f);}
-		            cycle(ka,par)
-	                } else {/*big*/ pa[hi] = sgn(neg[hi],1.0f);}
+                        {
+                            int ii; 
+                            for (ii=0; ii<4; ii++) 
+                                pa[ii] = sgn(neg[ii], 0.5f);
+                        }
+                        cycle(ka, par>0);
+                    } else {/*big*/ pa[hi] = sgn(neg[hi],1.0f);}
 	            } else {
 	                if (two>big) {/*two*/
 		            pa[hi] = sgn(neg[hi],SQRTHALF); 
@@ -646,10 +719,11 @@ namespace Veldrid.SceneGraph
 		            ** hi = (lo+1)%3; lo = (lo+2)%3; */
                     if (hi == (int) QuatPart.W)
                     {
-                        hi = "\001\002\000"[lo]; lo = 3-hi-lo;
+                        hi = "\001\002\000"[(int)lo]; lo = 3-hi-lo;
                     }
-		            swap(ka,hi,lo)
-	                } else {/*big*/ pa[hi] = sgn(neg[hi],1.0f);}
+
+                    swap(ka, (int) hi, (int) lo);
+                    } else {/*big*/ pa[hi] = sgn(neg[hi],1.0f);}
 	            }
 	            p.x = -pa[0]; p.y = -pa[1]; p.z = -pa[2]; p.w = pa[3];
             }
@@ -658,7 +732,58 @@ namespace Veldrid.SceneGraph
             k.z = ka[(int)QuatPart.Z];
             return (p);
         }
+        
+        /******* Decompose Affine Matrix *******/
 
+        /* Decompose 4x4 affine matrix A as TFRUK(U transpose), where t contains the
+         * translation components, q contains the rotation R, u contains U, k contains
+         * scale factors, and f contains the sign of the determinant.
+         * Assumes A transforms column vectors in right-handed coordinates.
+         * See Ken Shoemake and Tom Duff. Matrix Animation and Polar Decomposition.
+         * Proceedings of Graphics Interface 1992.
+         */
+        internal void decomp_affine(float[][] A, ref AffineParts parts)
+        {
+            float[][] Q = MakeHMatrix();
+            float[][] S = MakeHMatrix();
+            float[][] U = MakeHMatrix();
+            Quat p;
+            float det;
+            parts.t = new HVect(Qt_(A[(int) QuatPart.X][(int) QuatPart.W], A[(int) QuatPart.Y][(int) QuatPart.W], A[(int) QuatPart.Z][(int) QuatPart.W], 0));
+            det = polar_decomp(A, Q, S);
+            if (det<0.0f) {
+                mat_copy_neg(Q,Q,3);
+                parts.f = -1;
+            } else parts.f = 1;
+            parts.q = Qt_FromMatrix(Q);
+            parts.k = spect_decomp(S, U);
+            parts.u = Qt_FromMatrix(U);
+            p = snuggle(parts.u, ref parts.k);
+            parts.u = Qt_Mul(parts.u, p);
+        }
+
+        /******* Invert Affine Decomposition *******/
+
+        /* Compute inverse of affine decomposition.
+         */
+        void invert_affine(ref AffineParts parts, ref AffineParts inverse)
+        {
+            Quat t, p;
+            inverse.f = parts.f;
+            inverse.q = Qt_Conj(parts.q);
+            inverse.u = Qt_Mul(parts.q, parts.u);
+            inverse.k.x = (parts.k.x==0.0f) ? 0.0f : 1.0f/parts.k.x;
+            inverse.k.y = (parts.k.y==0.0f) ? 0.0f : 1.0f/parts.k.y;
+            inverse.k.z = (parts.k.z==0.0f) ? 0.0f : 1.0f/parts.k.z;
+            inverse.k.w = parts.k.w;
+            t = Qt_(-parts.t.x, -parts.t.y, -parts.t.z, 0);
+            t = Qt_Mul(Qt_Conj(inverse.u), Qt_Mul(t, inverse.u));
+            t = Qt_(inverse.k.x*t.x, inverse.k.y*t.y, inverse.k.z*t.z, 0);
+            p = Qt_Mul(inverse.q, inverse.u);
+            t = Qt_Mul(p, Qt_Mul(t, Qt_Conj(p)));
+            inverse.t = new HVect((inverse.f>0.0f) ? t : Qt_(-t.x, -t.y, -t.z, 0));
+        }
+        
         public MatrixDecomposition()
         {
             mat_id = new float[4][];
@@ -670,7 +795,9 @@ namespace Veldrid.SceneGraph
         }
     }
     
-    /******* Matrix Preliminaries *******/
+    
+    
+
 
 
 

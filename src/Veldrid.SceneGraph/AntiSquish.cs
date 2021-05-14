@@ -134,7 +134,7 @@ namespace Veldrid.SceneGraph
                 return true;
             }
 
-            Matrix4x4.Decompose(localToWorld, out var s, out var r, out var t);
+            localToWorld.DecomposeAffine(out var s, out var r, out var t, out var so);
 
             var av = (s.X + s.Y + s.Z) / 3.0f;
             s.X = av;
@@ -147,7 +147,17 @@ namespace Veldrid.SceneGraph
             if (_usePivot)
             {
                 unsquished = unsquished.PostMultiplyTranslate(-_pivot);
+
+                var tmps = Matrix4x4.CreateFromQuaternion(so);
+                if (!Matrix4x4.Invert(tmps, out var inv_tmps))
+                    return false;
+
+                unsquished = unsquished.PostMultiply(inv_tmps);
+                
                 unsquished = unsquished.PostMultiplyScale(s);
+
+                unsquished = unsquished.PostMultiply(tmps);
+                
                 unsquished = unsquished.PostMultiplyRotate(r);
                 unsquished = unsquished.PostMultiplyTranslate(t);
 
@@ -163,7 +173,18 @@ namespace Veldrid.SceneGraph
             // No Pivot
             else
             {
+                if (!Matrix4x4.Invert(Matrix4x4.CreateFromQuaternion(so), out var inv_so))
+                    return false;
+
+                var tmps = Matrix4x4.CreateFromQuaternion(so);
+                if (!Matrix4x4.Invert(tmps, out var inv_tmps))
+                    return false;
+
+                unsquished = unsquished.PostMultiply(inv_tmps);
+                
                 unsquished = unsquished.PostMultiplyScale(s);
+
+                unsquished = unsquished.PostMultiply(tmps);
                 unsquished = unsquished.PostMultiplyRotate(r);
                 unsquished = unsquished.PostMultiplyTranslate(t);
 
