@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 
+using System;
 using System.Numerics;
 
 namespace Veldrid.SceneGraph.Util
@@ -228,6 +229,83 @@ namespace Veldrid.SceneGraph.Util
             c = Vector3.Normalize(c);
 
             center = eye + c * lookDistance;
+        }
+
+        public static void DecomposeAffine(this Matrix4x4 mat, out Vector3 scale, out Quaternion rotation,
+            out Vector3 translation, out Quaternion so)
+        {
+            var decomp = new MatrixDecomposition();
+            var hmatrix = decomp.MakeHMatrix();
+            hmatrix[0][0] = mat.M11;
+            hmatrix[1][0] = mat.M12;
+            hmatrix[2][0] = mat.M13;
+            hmatrix[3][0] = mat.M14;
+            
+            hmatrix[0][1] = mat.M21;
+            hmatrix[1][1] = mat.M22;
+            hmatrix[2][1] = mat.M23;
+            hmatrix[3][1] = mat.M24;
+            
+            hmatrix[0][2] = mat.M31;
+            hmatrix[1][2] = mat.M32;
+            hmatrix[2][2] = mat.M33;
+            hmatrix[3][2] = mat.M34;
+            
+            hmatrix[0][3] = mat.M41;
+            hmatrix[1][3] = mat.M42;
+            hmatrix[2][3] = mat.M43;
+            hmatrix[3][3] = mat.M44;
+            
+            // hmatrix[0][0] = mat.M11;
+            // hmatrix[0][1] = mat.M12;
+            // hmatrix[0][2] = mat.M13;
+            // hmatrix[0][3] = mat.M14;
+            //
+            // hmatrix[1][0] = mat.M21;
+            // hmatrix[1][1] = mat.M22;
+            // hmatrix[1][2] = mat.M23;
+            // hmatrix[1][3] = mat.M24;
+            //
+            // hmatrix[2][0] = mat.M31;
+            // hmatrix[2][1] = mat.M32;
+            // hmatrix[2][2] = mat.M33;
+            // hmatrix[2][3] = mat.M34;
+            //
+            // hmatrix[3][0] = mat.M41;
+            // hmatrix[3][1] = mat.M42;
+            // hmatrix[3][2] = mat.M43;
+            // hmatrix[3][3] = mat.M44;
+            
+            var parts = new AffineParts();
+            
+            decomp.decomp_affine(hmatrix, ref parts);
+            
+            double mul = 1.0;
+            if (parts.t.w != 0.0)
+                mul = 1.0 / parts.t.w;
+
+            translation = new Vector3(
+                (float) (parts.t.x * mul),
+                (float) (parts.t.y * mul),
+                (float) (parts.t.z * mul));
+
+            rotation = new Quaternion(
+                parts.q.x,
+                parts.q.y,
+                parts.q.z,
+                parts.q.w);
+
+            mul *= parts.f;
+            scale = new Vector3(
+                (float) (parts.k.x * mul),
+                (float) (parts.k.y * mul),
+                (float) (parts.k.z * mul));
+
+            so = new Quaternion(
+                parts.u.x, 
+                parts.u.y, 
+                parts.u.z, 
+                parts.u.w);
         }
     }
 }
