@@ -148,7 +148,10 @@ namespace Veldrid.SceneGraph.RenderGraph
                 );
 
                 bindableResourceList.Add(textureView);
-                bindableResourceList.Add(graphicsDevice.Aniso4xSampler);
+                var sampler = resourceFactory.CreateSampler(tex2d.SamplerDescription);
+                bindableResourceList.Add(sampler);
+                
+                
             }
 
 

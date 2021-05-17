@@ -21,6 +21,8 @@ namespace Veldrid.SceneGraph
     public interface ITexture
     {
         ProcessedTexture ProcessedTexture { get; }
+        SamplerDescription SamplerDescription { get; }
+        
         uint ResourceSetNo { get; set; }
         string TextureName { get; set; }
         string SamplerName { get; set; }

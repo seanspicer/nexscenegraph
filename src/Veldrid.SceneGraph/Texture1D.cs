@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright 2018-2021 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,33 +18,39 @@ using Veldrid.SceneGraph.AssetPrimitives;
 
 namespace Veldrid.SceneGraph
 {
-    public interface ITexture3D : ITexture {}
-    public class Texture3D : TextureBase, ITexture3D
+    public interface ITexture1D : ITexture
     {
-        
-        private Texture3D(ProcessedTexture processedTexture, SamplerDescription samplerDescription, uint resourceSetNo, string textureName, string samplerName) 
-            : base(processedTexture, samplerDescription, resourceSetNo, textureName, samplerName)
-        {
+    }
 
-        }
-        
-        public static ITexture3D Create(
+    public class Texture1D : TextureBase, ITexture1D
+    {
+        public static ITexture1D Create(
             ProcessedTexture processedTexture,
             uint resourceSetNo,
             string textureName,
             string samplerName)
         {
-            return new Texture3D(processedTexture, SamplerDescription.Linear, resourceSetNo, textureName, samplerName);
+            return new Texture1D(processedTexture, SamplerDescription.Linear, resourceSetNo, textureName, samplerName);
         }
         
-        public static ITexture3D Create(
+        public static ITexture1D Create(
             ProcessedTexture processedTexture,
-            SamplerDescription samplerdescription,
+            SamplerDescription samplerDescription,
             uint resourceSetNo,
             string textureName,
             string samplerName)
         {
-            return new Texture3D(processedTexture, samplerdescription, resourceSetNo, textureName, samplerName);
+            return new Texture1D(processedTexture, samplerDescription, resourceSetNo, textureName, samplerName);
         }
+        
+        private Texture1D(ProcessedTexture processedTexture, SamplerDescription samplerDescription, uint resourceSetNo, string textureName, string samplerName)
+            :base(processedTexture, samplerDescription, resourceSetNo, textureName, samplerName)
+        {
+            ResourceSetNo = resourceSetNo;
+            TextureName = textureName;
+            SamplerName = samplerName;
+            ProcessedTexture = processedTexture;
+        }
+        
     }
 }

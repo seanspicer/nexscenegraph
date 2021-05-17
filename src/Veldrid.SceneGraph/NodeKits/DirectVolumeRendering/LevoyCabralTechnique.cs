@@ -34,7 +34,8 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
     public class LevoyCabralTechnique : VolumeTechnique, ILevoyCabralTechnique, ILocator.ILocatorCallback
     {
-        public delegate ITexture3D TextureTranslator(IVoxelVolume voxelVolume);
+        public delegate ITexture3D VolumeTextureGenerator(IVoxelVolume voxelVolume);
+        public delegate ITexture1D ColormapTextureGenerator(uint colormapSize);
         
         private bool _dirty = true;
 
@@ -44,10 +45,13 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         private bool _outlinesDirty = true;
         private bool _samplingPlanesDirty = true;
 
-        protected LevoyCabralTechnique(IShaderSet shaderSet, TextureTranslator textureTranslator)
+        protected LevoyCabralTechnique(IShaderSet shaderSet, 
+            VolumeTextureGenerator volumeTextureGenerator,
+            ColormapTextureGenerator colormapTextureGenerator)
         {
             ShaderSet = shaderSet;
-            Texture3DTranslator = textureTranslator ?? Default3DTranslator;
+            VolumeTexture3DGenerator = volumeTextureGenerator ?? DefaultVolumeTextureGenerator;
+            ColormapTexture3DGenerator = colormapTextureGenerator ?? DefaultColormapTextureGenerator;
             _isoSurfaceGenerator = new MarchingCubesIsoSurfaceGenerator();
             _isoSurfaces = new List<IIsoSurface>();
         }
@@ -58,7 +62,9 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
         protected IVoxelVolume VoxelVolume { get; set; }
         protected ITexture3D TextureData { get; set; }
-        protected TextureTranslator Texture3DTranslator { get; set; }
+        protected ITexture1D ColormapData { get; set; }
+        protected VolumeTextureGenerator VolumeTexture3DGenerator { get; set; }
+        protected ColormapTextureGenerator ColormapTexture3DGenerator { get; set; }
         protected IGeometry<Position3TexCoord3Color4> Geometry { get; set; }
         protected IGeometry<Position3Color3> OutlinesGeometry { get; set; }
 
@@ -75,7 +81,8 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
                 _levoyCabralLocator = levoyCabralLocator;
                 _levoyCabralLocator.AddCallback(this);
                 
-                TextureData = Texture3DTranslator(VoxelVolume);
+                TextureData = VolumeTexture3DGenerator(VoxelVolume);
+                ColormapData = ColormapTexture3DGenerator(1024u);
                 
                 // Create the Geometry Placeholder
                 Node = CreateSlices();
@@ -92,9 +99,10 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         }
 
         public static ILevoyCabralTechnique Create(IShaderSet shaderSet = null,
-            TextureTranslator textureTranslator = null)
+            VolumeTextureGenerator volumeTextureGenerator = null,
+            ColormapTextureGenerator colormapTextureGenerator = null)
         {
-            return new LevoyCabralTechnique(shaderSet, textureTranslator);
+            return new LevoyCabralTechnique(shaderSet, volumeTextureGenerator, colormapTextureGenerator);
         }
 
         public override void Update(IUpdateVisitor nv)
@@ -168,6 +176,11 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             if (null != TextureData)
             {
                 Geometry.PipelineState.AddTexture(TextureData);
+            }
+
+            if (null != ColormapData)
+            {
+                Geometry.PipelineState.AddTexture(ColormapData);
             }
 
             OutlinesGeometry = Geometry<Position3Color3>.Create();
@@ -381,40 +394,74 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             OutlinesGeometry.IndexData = indices.ToArray();
         }
         
-        private static ITexture3D Default3DTranslator(IVoxelVolume voxelVolume)
+        private static ITexture3D DefaultVolumeTextureGenerator(IVoxelVolume voxelVolume)
         {
             var xdim = voxelVolume.Values.GetLength(0);
             var ydim = voxelVolume.Values.GetLength(1);
             var zdim = voxelVolume.Values.GetLength(2);
             
-            var allTexData = RgbaData(voxelVolume, xdim, ydim, zdim);
+            var allTexData = VolumeData(voxelVolume, xdim, ydim, zdim);
             
             var texData = new ProcessedTexture(
-                PixelFormat.R8_G8_B8_A8_UNorm, TextureType.Texture3D,
+                PixelFormat.R8_UInt, TextureType.Texture3D,
                 (uint) xdim, (uint) ydim, (uint) zdim,
                 (uint) 1, 1,
                 allTexData);
             
             return Texture3D.Create(texData, 1,
-                "SurfaceTexture", "SurfaceSampler");
+                "VolumeTexture", "VolumeSampler");
         }
         
-        private static byte[] RgbaData(IVoxelVolume voxelVolume, int xdim, int ydim, int zdim)
+        private static ITexture1D DefaultColormapTextureGenerator(uint colormapSize)
         {
-            var rgbaData = new byte[xdim * ydim * zdim * 4];
+            
+            var allTexData = RgbaData(colormapSize);
+            
+            var texData = new ProcessedTexture(
+                PixelFormat.R8_UNorm, TextureType.Texture1D,
+                (uint) colormapSize, (uint) 1, (uint) 1,
+                (uint) 1, 1,
+                allTexData);
+            
+            return Texture1D.Create(texData, 1,
+                "ColormapTexture", "ColormapSampler");
+        }
+        
+        private static byte[] VolumeData(IVoxelVolume voxelVolume, int xdim, int ydim, int zdim)
+        {
+            var volumeData = new byte[xdim * ydim * zdim];
             var maxValue = voxelVolume.Values.Cast<double>().Max();
             var minValue = voxelVolume.Values.Cast<double>().Min();
             var normalizer = 1/(maxValue - minValue);
 
-            if (double.IsNaN(normalizer) || double.IsInfinity(normalizer) || !(normalizer > 0.0)) return rgbaData;
+            if (double.IsNaN(normalizer) || double.IsInfinity(normalizer) || !(normalizer > 0.0)) return volumeData;
             
             for (var x = 0; x < xdim; ++x)
             for (var y = 0; y < ydim; ++y)
             for (var z = 0; z < zdim; ++z)
             {
-                var index = (z + ydim * (y + xdim * x)) * 4;
+                var index = (z + ydim * (y + xdim * x));
 
-                var colorLookup = (voxelVolume.Values[x, y, z] - minValue) * normalizer;
+                var voxelValue = (byte)(255*System.Math.Floor((voxelVolume.Values[x, y, z] - minValue) * normalizer));
+
+                volumeData[index + 0] = voxelValue;
+            }
+            return volumeData;
+        }
+
+        private static byte[] RgbaData(uint colormapSize)
+        {
+            var rgbaData = new byte[colormapSize*4];
+            
+            var normalizer = 1/(colormapSize - 0);
+
+            if (double.IsNaN(normalizer) || double.IsInfinity(normalizer) || !(normalizer > 0.0)) return rgbaData;
+            
+            for (var i = 0; i < colormapSize; ++i)
+            {
+                var index = i * 4;
+
+                var colorLookup = i * normalizer;
                 System.Drawing.Color color = Rainbow(colorLookup);
 
                 rgbaData[index + 0] = color.R; // R
@@ -424,7 +471,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             }
             return rgbaData;
         }
-
+        
         private static System.Drawing.Color Rainbow(double normalizedValue)
         {
             // Convert into a value between 0 and 1023.

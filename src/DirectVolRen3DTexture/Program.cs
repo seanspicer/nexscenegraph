@@ -28,7 +28,8 @@ namespace DirectVolRen3DTexture
             viewer.SetCameraManipulator(TrackballManipulator.Create());
 
             var root = SampledVolumeRenderingExampleScene.Build(CreateShaderSet, 
-                new TestVoxelVolume(256, 256, 256), Example3DTranslator);
+                new TestVoxelVolume(256, 256, 256), GenerateVolume, 
+                GenerateColormap);
 
             viewer.SetSceneData(root);
             viewer.ViewAll();
@@ -42,66 +43,112 @@ namespace DirectVolRen3DTexture
             var vtxShader =
                 new ShaderDescription(ShaderStages.Vertex,
                     ShaderTools.ReadEmbeddedAssetBytes(
-                        @"Examples.Common.Assets.Shaders.ProceduralVolumeShader-vertex.glsl", asm), "main");
+                        @"Examples.Common.Assets.Shaders.ProceduralVolumeShader-vertex.glsl", asm), "main", true);
 
             var frgShader =
                 new ShaderDescription(ShaderStages.Fragment,
                     ShaderTools.ReadEmbeddedAssetBytes(
-                        @"Examples.Common.Assets.Shaders.TextureVolumeShader-fragment.glsl", asm), "main");
+                        @"Examples.Common.Assets.Shaders.TextureVolumeShader-fragment.glsl", asm), "main", true);
 
             return ShaderSet.Create("TextureVolumeShader", vtxShader, frgShader);
         }
 
-        private static ITexture3D Example3DTranslator(IVoxelVolume voxelVolume)
+        private static ITexture3D GenerateVolume(IVoxelVolume voxelVolume)
         {
             var xdim = voxelVolume.XValues.GetLength(0);
             var ydim = voxelVolume.XValues.GetLength(1);
             var zdim = voxelVolume.XValues.GetLength(2);
             
-            var allTexData = RgbaData(voxelVolume, xdim, ydim, zdim);
+            var allTexData = VolumeData(voxelVolume, xdim, ydim, zdim);
             
             var texData = new ProcessedTexture(
-                PixelFormat.R8_G8_B8_A8_UNorm, TextureType.Texture3D,
+                PixelFormat.R8_UNorm, TextureType.Texture3D,
                 (uint) xdim, (uint) ydim, (uint) zdim,
                 (uint) 1, 1,
                 allTexData);
             
             return Texture3D.Create(texData, 1,
-                "SurfaceTexture", "SurfaceSampler");
+                "VolumeTexture", "VolumeSampler");
         }
 
-        private static byte[] RgbaData(IVoxelVolume voxelVolume, int xdim, int ydim, int zdim)
+        private static ITexture1D GenerateColormap(uint colormapSize)
         {
-            var rgbaData = new byte[xdim * ydim * zdim * 4];
+            var rgbaData = new byte[colormapSize*4];
+
+            for (var i = 0; i<colormapSize; ++i)
+            {
+                var val = i / ((float)colormapSize-1);
+                
+                var index = 4 * i;
+                
+                rgbaData[index + 0] = 0; // R
+                rgbaData[index + 1] = 255; // G
+                rgbaData[index + 2] = 0; // B
+                rgbaData[index + 3] = 255; // A
+                
+                // rgbaData[index] = 0x10000FF;  // RGBA ... A is the 4th component ... solid blue
+                if (val > 0.9)
+                {
+                    rgbaData[index + 0] = 255; // R
+                    rgbaData[index + 1] = 0; // G
+                    rgbaData[index + 2] = 0; // B
+                    rgbaData[index + 3] = 0; // A
+                }
+                else if(val < 0.1)
+                {
+                    // rgbaData[index] = 0xFFFF0000;  // RGBA ... A is the 4th component ... solid blue
+                    rgbaData[index + 0] = 0;
+                    rgbaData[index + 1] = 0;
+                    rgbaData[index + 2] = 255;
+                    rgbaData[index + 3] = 255;
+                }
+                
+                // else if (i > 192)
+                // {
+                //     // rgbaData[index] = 0x1000FFFF;  // RGBA ... A is the 4th component ... transparent yellow
+                //     rgbaData[index + 0] = 0x00;
+                //     rgbaData[index + 1] = 0xFF;
+                //     rgbaData[index + 2] = 0x00;
+                //     rgbaData[index + 3] = 0xFF;
+                // }
+            }
+            
+            var texData = new ProcessedTexture(
+                PixelFormat.R8_G8_B8_A8_UNorm, TextureType.Texture1D,
+                (uint) colormapSize, 1, 1, 
+                (uint) 1, 1,
+                rgbaData);
+
+            var samplerDescription = SamplerDescription.Linear;
+            samplerDescription.AddressModeU = SamplerAddressMode.Clamp;
+            samplerDescription.AddressModeV = SamplerAddressMode.Clamp;
+            samplerDescription.AddressModeW = SamplerAddressMode.Clamp;
+            
+            return Texture1D.Create(texData, samplerDescription, 1,
+                "ColormapTexture", "ColormapSampler");
+        }
+        
+        private static byte[] VolumeData(IVoxelVolume voxelVolume, int xdim, int ydim, int zdim)
+        {
+            var volData = new byte[xdim * ydim * zdim];
 
             for (var x = 0; x < xdim; ++x)
             for (var y = 0; y < ydim; ++y)
             for (var z = 0; z < zdim; ++z)
             {
-                var index = (z + ydim * (y + xdim * x)) * 4;
-                // rgbaData[index] = 0x10000FF;  // RGBA ... A is the 4th component ... solid blue
-                rgbaData[index + 0] = 0xFF; // R
-                rgbaData[index + 1] = 0x00; // G
-                rgbaData[index + 2] = 0x00; // B
-                rgbaData[index + 3] = 0x01; // A
-                if (voxelVolume.Values[x, y, z] > 0.6) // inner sphere
-                {
-                    // rgbaData[index] = 0xFFFF0000;  // RGBA ... A is the 4th component ... solid blue
-                    rgbaData[index + 0] = 0x00;
-                    rgbaData[index + 1] = 0x00;
-                    rgbaData[index + 2] = 0xFF;
-                    rgbaData[index + 3] = 0xFF;
-                }
-                else if (voxelVolume.Values[x, y, z] > 0.1)
-                {
-                    // rgbaData[index] = 0x1000FFFF;  // RGBA ... A is the 4th component ... transparent yellow
-                    rgbaData[index + 0] = 0xFF;
-                    rgbaData[index + 1] = 0xFF;
-                    rgbaData[index + 2] = 0x00;
-                    rgbaData[index + 3] = 0x10;
-                }
+                var index = (z + ydim * (y + xdim * x));
+                volData[index] = (byte) (System.Math.Floor(voxelVolume.Values[x, y, z]*255.0));
+                
+                // if (voxelVolume.Values[x, y, z] > 0.6) // inner sphere
+                // {
+                //     rgbaData[index] = 68;
+                // }
+                // else if (voxelVolume.Values[x, y, z] > 0.1)
+                // {
+                //     rgbaData[index] = 200;
+                // }
             }
-            return rgbaData;
+            return volData;
         }
     }
     
@@ -143,10 +190,11 @@ namespace DirectVolRen3DTexture
                 var fromCenteri = x - centerWidth;
                 var fromCenterj = y - centerHeight;
                 var fromCenterk = z - centerDepth;
+                
                 if (fromCenteri * fromCenteri + fromCenterj * fromCenterj + fromCenterk * fromCenterk <
                     innerSphereRadiusSq)
                 {
-                    Values[x, y, z] = 1.0;
+                    Values[x, y, z] = 1;
                 }
                 else if (fromCenteri * fromCenteri + fromCenterj * fromCenterj + fromCenterk * fromCenterk <
                          outerSphereRadiusSq)

@@ -94,6 +94,7 @@ namespace Veldrid.SceneGraph.AssetPrimitives
             {
                 case PixelFormat.R8_G8_B8_A8_UNorm: return 4;
                 case PixelFormat.BC3_UNorm: return 1;
+                case PixelFormat.R8_UNorm: return 1;
                 default: throw new NotImplementedException();
             }
         }

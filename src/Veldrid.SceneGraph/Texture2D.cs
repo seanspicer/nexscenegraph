@@ -30,7 +30,7 @@ namespace Veldrid.SceneGraph
         // string SamplerName { get; set; }
     }
 
-    public class Texture2D : ITexture2D
+    public class Texture2D : TextureBase, ITexture2D
     {
         public enum ImageFormatType
         {
@@ -39,7 +39,7 @@ namespace Veldrid.SceneGraph
         }
 
         private Texture2D(ImageFormatType imageFormat, byte[] imageBytes, uint resourceSetNo, string textureName,
-            string samplerName)
+            string samplerName) : base(resourceSetNo, textureName, samplerName)
         {
             if (null == textureName || null == samplerName)
                 throw new ArgumentException("Must provide valid texture and sampler name");
@@ -70,23 +70,14 @@ namespace Veldrid.SceneGraph
             }
         }
 
-        private Texture2D(ProcessedTexture processedTexture, uint resourceSetNo, string textureName, string samplerName)
+        private Texture2D(ProcessedTexture processedTexture, SamplerDescription samplerDescription, uint resourceSetNo, string textureName, string samplerName)
+            :base(processedTexture, samplerDescription, resourceSetNo, textureName, samplerName)
         {
-            ResourceSetNo = resourceSetNo;
-            TextureName = textureName;
-            SamplerName = samplerName;
-            ProcessedTexture = processedTexture;
         }
 
         private ImageFormatType ImageFormat { get; }
         private byte[] ImageBytes { get; }
-
-        public ProcessedTexture ProcessedTexture { get; }
-
-        public uint ResourceSetNo { get; set; } = 1;
-        public string TextureName { get; set; } = string.Empty;
-        public string SamplerName { get; set; } = string.Empty;
-
+        
         public static ITexture2D Create(
             ImageFormatType imageFormat,
             byte[] imageBytes,
@@ -103,7 +94,17 @@ namespace Veldrid.SceneGraph
             string textureName,
             string samplerName)
         {
-            return new Texture2D(processedTexture, resourceSetNo, textureName, samplerName);
+            return new Texture2D(processedTexture, SamplerDescription.Linear, resourceSetNo, textureName, samplerName);
+        }
+        
+        public static ITexture2D Create(
+            ProcessedTexture processedTexture,
+            SamplerDescription samplerDescription, 
+            uint resourceSetNo,
+            string textureName,
+            string samplerName)
+        {
+            return new Texture2D(processedTexture, samplerDescription, resourceSetNo, textureName, samplerName);
         }
     }
 }
