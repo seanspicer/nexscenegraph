@@ -467,7 +467,30 @@ namespace Veldrid.SceneGraph.Viewer
             {
                 if (state.Elements.Count == 0) continue;
 
-                foreach (var uniform in state.PipelineState.UniformList) uniform.UpdateDeviceBuffers(device, factory);
+                foreach (var uniform in state.PipelineState.UniformList)
+                {
+                    uniform.UpdateDeviceBuffers(device, factory);
+                }
+
+                foreach (var texture in state.PipelineState.TextureList)
+                {
+                    texture.UpdateDeviceBuffers(device, factory);
+                }
+            }
+            
+            foreach (var state in _cullVisitor.TransparentRenderGroup.GetStateList())
+            {
+                if (state.Elements.Count == 0) continue;
+
+                foreach (var uniform in state.PipelineState.UniformList)
+                {
+                    uniform.UpdateDeviceBuffers(device, factory);
+                }
+
+                foreach (var texture in state.PipelineState.TextureList)
+                {
+                    texture.UpdateDeviceBuffers(device, factory);
+                }
             }
 
             device.UpdateBuffer(_projectionBuffer, 0, _camera.ProjectionMatrix);

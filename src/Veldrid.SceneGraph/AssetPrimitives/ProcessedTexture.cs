@@ -50,12 +50,15 @@ namespace Veldrid.SceneGraph.AssetPrimitives
         public uint ArrayLayers { get; set; }
         public byte[] TextureData { get; set; }
 
+        private Texture _deviceTexture;
+        private Texture _stagingTexture;
+
         public unsafe Texture CreateDeviceTexture(GraphicsDevice gd, ResourceFactory rf, TextureUsage usage)
         {
-            var texture = rf.CreateTexture(new TextureDescription(
+            _deviceTexture = rf.CreateTexture(new TextureDescription(
                 Width, Height, Depth, MipLevels, ArrayLayers, Format, usage, Type));
 
-            var staging = rf.CreateTexture(new TextureDescription(
+            _stagingTexture = rf.CreateTexture(new TextureDescription(
                 Width, Height, Depth, MipLevels, ArrayLayers, Format, TextureUsage.Staging, Type));
 
             ulong offset = 0;
@@ -71,7 +74,7 @@ namespace Veldrid.SceneGraph.AssetPrimitives
                     for (uint layer = 0; layer < ArrayLayers; layer++)
                     {
                         gd.UpdateTexture(
-                            staging, (IntPtr) (texDataPtr + offset), subresourceSize,
+                            _stagingTexture, (IntPtr) (texDataPtr + offset), subresourceSize,
                             0, 0, 0, mipWidth, mipHeight, mipDepth,
                             level, layer);
                         offset += subresourceSize;
@@ -81,11 +84,43 @@ namespace Veldrid.SceneGraph.AssetPrimitives
 
             var cl = rf.CreateCommandList();
             cl.Begin();
-            cl.CopyTexture(staging, texture);
+            cl.CopyTexture(_stagingTexture, _deviceTexture);
             cl.End();
             gd.SubmitCommands(cl);
 
-            return texture;
+            return _deviceTexture;
+        }
+
+        public unsafe void UpdateDeviceTexture(GraphicsDevice gd, ResourceFactory rf)
+        {
+            if (null == _deviceTexture || null == _stagingTexture) return;
+            
+            ulong offset = 0;
+            fixed (byte* texDataPtr = &TextureData[0])
+            {
+                for (uint level = 0; level < MipLevels; level++)
+                {
+                    var mipWidth = GetDimension(Width, level);
+                    var mipHeight = GetDimension(Height, level);
+                    var mipDepth = GetDimension(Depth, level);
+                    var subresourceSize = mipWidth * mipHeight * mipDepth * GetFormatSize(Format);
+
+                    for (uint layer = 0; layer < ArrayLayers; layer++)
+                    {
+                        gd.UpdateTexture(
+                            _stagingTexture, (IntPtr) (texDataPtr + offset), subresourceSize,
+                            0, 0, 0, mipWidth, mipHeight, mipDepth,
+                            level, layer);
+                        offset += subresourceSize;
+                    }
+                }
+            }
+
+            var cl = rf.CreateCommandList();
+            cl.Begin();
+            cl.CopyTexture(_stagingTexture, _deviceTexture);
+            cl.End();
+            gd.SubmitCommands(cl);
         }
 
         private uint GetFormatSize(PixelFormat format)

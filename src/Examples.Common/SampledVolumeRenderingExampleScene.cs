@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using System.Reflection;
 using Veldrid;
 using Veldrid.SceneGraph;
@@ -156,6 +157,76 @@ namespace Examples.Common
             return base.Constrain(command);
         }
     }
+    
+    internal class UpdateVolumeColormapCallback : NodeCallback, INodeCallback
+    {
+        private ILevoyCabralTechnique _technique;
+        private DateTime _lastUpdate;
+
+        internal UpdateVolumeColormapCallback(ILevoyCabralTechnique technique)
+        {
+            _technique = technique;
+            _lastUpdate = DateTime.Now;
+        }
+
+        private static byte[] GenerateColormap(uint colormapSize)
+        {
+            var random = new Random();
+            var rgbaData = new byte[colormapSize * 4];
+
+            for (var i = 0; i < colormapSize; ++i)
+            {
+                var val = i / ((float) colormapSize - 1);
+
+                var index = 4 * i;
+
+                rgbaData[index + 0] = (byte) random.Next(127,255); // R
+                rgbaData[index + 1] = (byte) random.Next(127,255);; // G
+                rgbaData[index + 2] = (byte) random.Next(127,255);; // B
+                rgbaData[index + 3] = 255; // A
+
+                // rgbaData[index] = 0x10000FF;  // RGBA ... A is the 4th component ... solid blue
+                if (val > 0.9)
+                {
+                    rgbaData[index + 0] = (byte) random.Next(127,255);; // R
+                    rgbaData[index + 1] = (byte) random.Next(127,255);; // G
+                    rgbaData[index + 2] = (byte) random.Next(127,255);; // B
+                    rgbaData[index + 3] = 0; // A
+                }
+                else if (val < 0.1)
+                {
+                    // rgbaData[index] = 0xFFFF0000;  // RGBA ... A is the 4th component ... solid blue
+                    rgbaData[index + 0] = (byte) random.Next(127,255);;
+                    rgbaData[index + 1] = (byte) random.Next(127,255);;
+                    rgbaData[index + 2] = (byte) random.Next(127,255);;
+                    rgbaData[index + 3] = 255;
+                }
+            }
+
+            return rgbaData;
+        }
+
+        public override bool Run(IObject obj, IObject data)
+        {
+            var curTime = DateTime.Now;
+            var span = curTime - _lastUpdate;
+            if (span.TotalSeconds < 1) return false;
+            
+            var textureData = _technique.ColormapData?.ProcessedTexture?.TextureData;
+            if (null != textureData)
+            {
+                var colormapSize = (uint)(textureData.Length / 4);
+                var newData = GenerateColormap(colormapSize);
+
+                _technique.ColormapData.ProcessedTexture.TextureData = newData;
+                _technique.ColormapData.Dirty();
+            }
+
+            _lastUpdate = curTime;
+            
+            return true;
+        }
+    }
 
     public class SampledVolumeRenderingExampleScene
     {
@@ -168,12 +239,16 @@ namespace Examples.Common
             
             var volume = Volume.Create();
             var tile1 = VolumeTile.Create();
+            
             volume.AddChild(tile1);
 
             var layer = VoxelVolumeLayer.Create(voxelVolume);
             tile1.Layer = layer;
             tile1.Locator = layer.GetLocator();
-            tile1.SetVolumeTechnique(LevoyCabralTechnique.Create(builder(), volumeTextureGenerator, colormapTextureGenerator));
+            var technique = LevoyCabralTechnique.Create(builder(), volumeTextureGenerator, colormapTextureGenerator);
+            tile1.SetVolumeTechnique(technique);
+            
+            tile1.SetUpdateCallback(new UpdateVolumeColormapCallback(technique));
 
             var dragger1 = TabBoxDragger.Create();
             dragger1.SetupDefaultGeometry();

@@ -30,6 +30,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 {
     public interface ILevoyCabralTechnique : IVolumeTechnique
     {
+        ITexture1D ColormapData { get; }
     }
 
     public class LevoyCabralTechnique : VolumeTechnique, ILevoyCabralTechnique, ILocator.ILocatorCallback
@@ -62,7 +63,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
         protected IVoxelVolume VoxelVolume { get; set; }
         protected ITexture3D TextureData { get; set; }
-        protected ITexture1D ColormapData { get; set; }
+        public ITexture1D ColormapData { get; protected set; }
         protected VolumeTextureGenerator VolumeTexture3DGenerator { get; set; }
         protected ColormapTextureGenerator ColormapTexture3DGenerator { get; set; }
         protected IGeometry<Position3TexCoord3Color4> Geometry { get; set; }

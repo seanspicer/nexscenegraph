@@ -18,6 +18,19 @@ using Veldrid.SceneGraph.AssetPrimitives;
 
 namespace Veldrid.SceneGraph
 {
+    public interface ITexture
+    {
+        ProcessedTexture ProcessedTexture { get; }
+        SamplerDescription SamplerDescription { get; }
+        
+        uint ResourceSetNo { get; set; }
+        string TextureName { get; set; }
+        string SamplerName { get; set; }
+        
+        void Dirty();
+        void UpdateDeviceBuffers(GraphicsDevice device, ResourceFactory factory);
+    }
+    
     public abstract class TextureBase : ITexture
     {
         public ProcessedTexture ProcessedTexture { get; protected set; }
@@ -28,6 +41,8 @@ namespace Veldrid.SceneGraph
         public string TextureName { get; set; }
         public string SamplerName { get; set; }
 
+        private uint _modifiedCount;
+        
         protected TextureBase(uint resourceSetNo, string textureName, string samplerName)
         {
             SamplerDescription = SamplerDescription.Aniso4x;
@@ -43,6 +58,20 @@ namespace Veldrid.SceneGraph
             TextureName = textureName;
             SamplerName = samplerName;
             ProcessedTexture = processedTexture;
+        }
+        
+        public void Dirty()
+        {
+            _modifiedCount++;
+        }
+        
+        public virtual void UpdateDeviceBuffers(GraphicsDevice device, ResourceFactory factory)
+        {
+            if (_modifiedCount == 0 || null == ProcessedTexture.TextureData) return;
+            
+            ProcessedTexture.UpdateDeviceTexture(device, factory);
+
+            _modifiedCount = 0;
         }
     }
 }
