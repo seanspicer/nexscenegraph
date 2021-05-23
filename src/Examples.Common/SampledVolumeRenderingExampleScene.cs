@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using Serilog;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
@@ -82,8 +84,18 @@ namespace Examples.Common
 
                     // Get the LocalToWorld and WorldToLocal matrix for this node.
                     var nodePathToRoot = Util.ComputeNodePathToRoot(_volumeTile);
-                    _localToWorld = _startMotionMatrix * Transform.ComputeLocalToWorld(nodePathToRoot);
-                    if (Matrix4x4.Invert(_localToWorld, out var worldToLocal)) _worldToLocal = worldToLocal;
+
+                    var unrotate =
+                        //Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f) *
+                        Matrix4x4.CreateFromQuaternion(
+                            Quaternion.CreateFromAxisAngle(Vector3.UnitZ, (float) System.Math.PI / 4));
+                    
+                    _localToWorld = _startMotionMatrix * Transform.ComputeLocalToWorld(nodePathToRoot) * unrotate;
+                    if (Matrix4x4.Invert(_localToWorld, out var worldToLocal))
+                    {
+                        _worldToLocal = worldToLocal;
+                    }
+                        
 
                     return true;
                 }
@@ -93,7 +105,7 @@ namespace Examples.Common
                     var localMotionMatrix = _localToWorld * command.GetWorldToLocal()
                                                           * command.GetMotionMatrix()
                                                           * command.GetLocalToWorld() * _worldToLocal;
-
+                    
                     var matrix = localMotionMatrix.PostMultiply(_startMotionMatrix);
 
                     var xMin = matrix.M41;
@@ -162,14 +174,16 @@ namespace Examples.Common
     {
         private ILevoyCabralTechnique _technique;
         private DateTime _lastUpdate;
-
+        private DateTime _startTime;
+        
         internal UpdateVolumeColormapCallback(ILevoyCabralTechnique technique)
         {
             _technique = technique;
             _lastUpdate = DateTime.Now;
+            _startTime = DateTime.Now;
         }
 
-        private static byte[] GenerateColormap(uint colormapSize)
+        private static byte[] GenerateColormap(uint colormapSize, long ticks)
         {
             var random = new Random();
             var rgbaData = new byte[colormapSize * 4];
@@ -191,7 +205,9 @@ namespace Examples.Common
                     rgbaData[index + 0] = (byte) random.Next(127,255);; // R
                     rgbaData[index + 1] = (byte) random.Next(127,255);; // G
                     rgbaData[index + 2] = (byte) random.Next(127,255);; // B
-                    rgbaData[index + 3] = 0; // A
+                    
+                    
+                    rgbaData[index + 3] = 255; // A
                 }
                 else if (val < 0.1)
                 {
@@ -199,7 +215,9 @@ namespace Examples.Common
                     rgbaData[index + 0] = (byte) random.Next(127,255);;
                     rgbaData[index + 1] = (byte) random.Next(127,255);;
                     rgbaData[index + 2] = (byte) random.Next(127,255);;
-                    rgbaData[index + 3] = 255;
+                    
+                    var alpha = (byte)(ticks % 128);
+                    rgbaData[index + 3] = alpha;
                 }
             }
 
@@ -210,19 +228,46 @@ namespace Examples.Common
         {
             var curTime = DateTime.Now;
             var span = curTime - _lastUpdate;
-            if (span.TotalSeconds < 1) return false;
-            
-            var textureData = _technique.ColormapData?.ProcessedTexture?.TextureData;
-            if (null != textureData)
+            var totalSecs = (long)System.Math.Ceiling((curTime - _startTime).TotalMilliseconds/20);
+            if (span.TotalSeconds > 1)
             {
-                var colormapSize = (uint)(textureData.Length / 4);
-                var newData = GenerateColormap(colormapSize);
+                var textureData = _technique.ColormapData?.ProcessedTexture?.TextureData;
+                if (null != textureData)
+                {
+                    var colormapSize = (uint)(textureData.Length / 4);
+                    var newData = GenerateColormap(colormapSize, totalSecs);
 
-                _technique.ColormapData.ProcessedTexture.TextureData = newData;
-                _technique.ColormapData.Dirty();
+                    _technique.ColormapData.ProcessedTexture.TextureData = newData;
+                    _technique.ColormapData.Dirty();
+                }
+
+                _lastUpdate = curTime;
             }
+            else
+            {
+                var rgbaData = _technique.ColormapData?.ProcessedTexture?.TextureData.ToArray();
+                if (null != rgbaData)
+                {
+                    var colormapSize = (uint) (rgbaData.Length / 4);
+                    
+                    for (var i = 0; i < colormapSize; ++i)
+                    {
+                        var val = i / ((float) colormapSize - 1);
 
-            _lastUpdate = curTime;
+                        var index = 4 * i;
+
+                        if (val < 0.1)
+                        {
+                            var alpha = (byte)(totalSecs % 128);
+                            rgbaData[index + 3] = alpha;
+                        }
+                    }
+                    _technique.ColormapData.ProcessedTexture.TextureData = rgbaData;
+                    _technique.ColormapData.Dirty();
+                }
+                
+            }
+            
             
             return true;
         }
@@ -248,16 +293,23 @@ namespace Examples.Common
             var technique = LevoyCabralTechnique.Create(builder(), volumeTextureGenerator, colormapTextureGenerator);
             tile1.SetVolumeTechnique(technique);
             
-            tile1.SetUpdateCallback(new UpdateVolumeColormapCallback(technique));
+            //tile1.SetUpdateCallback(new UpdateVolumeColormapCallback(technique));
 
             var dragger1 = TabBoxDragger.Create();
             dragger1.SetupDefaultGeometry();
             dragger1.ActivationModKeyMask = IUiEventAdapter.ModKeyMaskType.ModKeyCtl;
             dragger1.HandleEvents = true;
             dragger1.DraggerCallbacks.Add(new DraggerVolumeTileCallback(tile1, tile1.Locator));
-            dragger1.Matrix = Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f)
-                .PostMultiply(tile1.Locator.Transform);
+            dragger1.Matrix =
+                Matrix4x4.CreateFromQuaternion(
+                    Quaternion.CreateFromAxisAngle(Vector3.UnitZ, (float) System.Math.PI / 4)) *
+                Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f)
+                    .PostMultiply(tile1.Locator.Transform);
 
+            // dragger1.Matrix =
+            //     Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f)
+            //         .PostMultiply(tile1.Locator.Transform);
+            
             /////////////////
 
             // var tile2 = VolumeTile.Create();

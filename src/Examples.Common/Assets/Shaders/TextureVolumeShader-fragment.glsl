@@ -17,7 +17,7 @@ vec4 CalculateColor(FragmentInput input_, texture3D volumeTexture, sampler volum
     
     vec4 color = texture(sampler1D(colormapTexture, colormapSampler), clamped_intensity).rgba;
     
-    vec4 output_ = vec4(color.r, color.g, color.b, clamped_intensity); 
+    vec4 output_ = vec4(color.r, color.g, color.b, color.a); 
     
     if (input_.TexCoord.x > 1.0 || input_.TexCoord.y > 1.0 || input_.TexCoord.z > 1.0
     || input_.TexCoord.x < 0.0 || input_.TexCoord.y < 0.0 || input_.TexCoord.z < 0.0)
