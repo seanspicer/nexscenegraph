@@ -107,13 +107,11 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         public double MaxDist { get; private set; }
 
         private Matrix4x4 Rotation { get; } =
-            Matrix4x4.CreateFromQuaternion(Quaternion.CreateFromAxisAngle(Vector3.UnitZ, (float) System.Math.PI / 4));
+            Matrix4x4.CreateFromQuaternion(Quaternion.CreateFromAxisAngle(Vector3.UnitZ, (float) System.Math.PI / 8));
 
         private Matrix4x4 TranslateToCenter { get; set; } = Matrix4x4.Identity;
         private Matrix4x4 TranslateToCenterInv { get; set; } = Matrix4x4.Identity;
         
-        private Matrix4x4 Scale { get; set; } = Matrix4x4.Identity;
-        private Matrix4x4 ScaleInv { get; set; } = Matrix4x4.Identity;
         
         public virtual Vector3 TexGen(Vector3 point)
         {
@@ -131,44 +129,24 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             {
                 _inverse = inverse;
             }
-
-
             
-            Vector3 lowerLeft = Vector3.Transform(Vector3.Zero, Matrix4x4.Identity);
-            Vector3 upperRight = Vector3.Transform(Vector3.One, Matrix4x4.Identity);
             
-            XMin = lowerLeft.X;
-            YMin = lowerLeft.Y;
-            ZMin = lowerLeft.Z;
+            XMin = 0;
+            YMin = 0;
+            ZMin = 0;
 
-            XMax = upperRight.X;
-            YMax = upperRight.Y;
-            ZMax = upperRight.Z;
+            XMax = 1;
+            YMax = 1;
+            ZMax = 1;
 
-            var center = Vector3.Transform(new Vector3(0.5f, 0.5f, 0.5f), transform);
+            var center = new Vector3(0.5f, 0.5f, 0.5f);
 
             TranslateToCenter = Matrix4x4.CreateTranslation(center);
-
             
             if (Matrix4x4.Invert(TranslateToCenter, out var tInv))
             {
                 TranslateToCenterInv = tInv;
             }
-            
-            Scale = Matrix4x4.CreateScale(transform.M11, transform.M22, transform.M33);
-            
-            if (Matrix4x4.Invert(Scale, out var sInv))
-            {
-                ScaleInv = sInv;
-            }
-            
-
-            // TranslateToCenter = Matrix4x4.CreateTranslation(
-            //      (float)((XMax - XMin) / 2.0), 
-            //      (float)((YMax - YMin) / 2.0), 
-            //      (float)((ZMax - ZMin) / 2.0));
-            
-
             
             UpdateDistances(_lastEyePoint);
 
@@ -223,9 +201,8 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
                     (float) YValues[x, y, z],
                     (float) ZValues[x, y, z]);
 
-
-                pos = Vector3.Transform(pos, _transform*TranslateToCenterInv*Rotation*TranslateToCenter);
-
+                pos = Vector3.Transform(pos, TranslateToCenterInv*Rotation*TranslateToCenter*_transform);
+                
                 var dist = System.Math.Abs((pos - eyePoint).Length());
 
                 if (dist < MinDist) MinDist = dist;

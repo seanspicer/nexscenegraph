@@ -78,18 +78,6 @@ namespace Examples.Common
         public override bool Receive(IMotionCommand command)
         {
             if (null == _locator) return false;
-
-            var rotate = 
-                Matrix4x4.CreateFromQuaternion(
-                    Quaternion.CreateFromAxisAngle(Vector3.UnitZ, (float) (float) System.Math.PI / 4));
-
-            var rotateInv = Matrix4x4.Identity;
-            if (Matrix4x4.Invert(rotate, out var inv))
-            {
-                rotateInv = inv;
-            }
-
-                
             
             switch (command.Stage)
             {
@@ -117,10 +105,8 @@ namespace Examples.Common
                 case IMotionCommand.MotionStage.Move:
                 {
                     var cmdWorldToLocal = command.GetWorldToLocal();
-                    var cmdWorldToLocalRot = cmdWorldToLocal * rotateInv;
                     var cmdMotion = command.GetMotionMatrix();
                     var cmdLocalToWorld = command.GetLocalToWorld();
-                    var cmdLocalToWorldRot = cmdLocalToWorld * rotateInv;
                     
                     // Transform the command's motion matrix into local motion matrix.
                     var motion = cmdWorldToLocal * cmdMotion * cmdLocalToWorld;
@@ -323,7 +309,7 @@ namespace Examples.Common
             dragger1.DraggerCallbacks.Add(new DraggerVolumeTileCallback(tile1, tile1.Locator, dragger1));
             dragger1.Matrix =
                 Matrix4x4.CreateFromQuaternion(
-                    Quaternion.CreateFromAxisAngle(Vector3.UnitZ, (float) Math.PI / 4)) *
+                    Quaternion.CreateFromAxisAngle(Vector3.UnitZ, (float) Math.PI / 8)) *
                 Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f) *
                     tile1.Locator.Transform;
 
