@@ -12,6 +12,7 @@ using Veldrid.SceneGraph.Math.IsoSurface;
 using Veldrid.SceneGraph.NodeKits.DirectVolumeRendering;
 using Veldrid.SceneGraph.Shaders;
 using Veldrid.SceneGraph.Util;
+using Math = System.Math;
 
 namespace Examples.Common
 {
@@ -65,16 +66,31 @@ namespace Examples.Common
         private readonly IVolumeTile _volumeTile;
         private Matrix4x4 _worldToLocal;
 
-        public DraggerVolumeTileCallback(IVolumeTile volumeTile, ILocator locator)
+        private IDragger _dragger;
+        
+        public DraggerVolumeTileCallback(IVolumeTile volumeTile, ILocator locator, IDragger dragger)
         {
             _volumeTile = volumeTile;
             _locator = locator;
+            _dragger = dragger;
         }
 
         public override bool Receive(IMotionCommand command)
         {
             if (null == _locator) return false;
 
+            var rotate = 
+                Matrix4x4.CreateFromQuaternion(
+                    Quaternion.CreateFromAxisAngle(Vector3.UnitZ, (float) (float) System.Math.PI / 4));
+
+            var rotateInv = Matrix4x4.Identity;
+            if (Matrix4x4.Invert(rotate, out var inv))
+            {
+                rotateInv = inv;
+            }
+
+                
+            
             switch (command.Stage)
             {
                 case IMotionCommand.MotionStage.Start:
@@ -85,12 +101,11 @@ namespace Examples.Common
                     // Get the LocalToWorld and WorldToLocal matrix for this node.
                     var nodePathToRoot = Util.ComputeNodePathToRoot(_volumeTile);
 
-                    var unrotate =
-                        //Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f) *
-                        Matrix4x4.CreateFromQuaternion(
-                            Quaternion.CreateFromAxisAngle(Vector3.UnitZ, (float) System.Math.PI / 4));
+                    var transformLocalToWorld = Transform.ComputeLocalToWorld(nodePathToRoot);
                     
-                    _localToWorld = _startMotionMatrix * Transform.ComputeLocalToWorld(nodePathToRoot) * unrotate;
+                    _localToWorld = _startMotionMatrix * transformLocalToWorld;
+                    
+                    
                     if (Matrix4x4.Invert(_localToWorld, out var worldToLocal))
                     {
                         _worldToLocal = worldToLocal;
@@ -101,10 +116,16 @@ namespace Examples.Common
                 }
                 case IMotionCommand.MotionStage.Move:
                 {
+                    var cmdWorldToLocal = command.GetWorldToLocal();
+                    var cmdWorldToLocalRot = cmdWorldToLocal * rotateInv;
+                    var cmdMotion = command.GetMotionMatrix();
+                    var cmdLocalToWorld = command.GetLocalToWorld();
+                    var cmdLocalToWorldRot = cmdLocalToWorld * rotateInv;
+                    
                     // Transform the command's motion matrix into local motion matrix.
-                    var localMotionMatrix = _localToWorld * command.GetWorldToLocal()
-                                                          * command.GetMotionMatrix()
-                                                          * command.GetLocalToWorld() * _worldToLocal;
+                    var motion = cmdWorldToLocal * cmdMotion * cmdLocalToWorld;
+                    
+                    var localMotionMatrix = _localToWorld * motion * _worldToLocal;
                     
                     var matrix = localMotionMatrix.PostMultiply(_startMotionMatrix);
 
@@ -299,12 +320,12 @@ namespace Examples.Common
             dragger1.SetupDefaultGeometry();
             dragger1.ActivationModKeyMask = IUiEventAdapter.ModKeyMaskType.ModKeyCtl;
             dragger1.HandleEvents = true;
-            dragger1.DraggerCallbacks.Add(new DraggerVolumeTileCallback(tile1, tile1.Locator));
+            dragger1.DraggerCallbacks.Add(new DraggerVolumeTileCallback(tile1, tile1.Locator, dragger1));
             dragger1.Matrix =
                 Matrix4x4.CreateFromQuaternion(
-                    Quaternion.CreateFromAxisAngle(Vector3.UnitZ, (float) System.Math.PI / 4)) *
-                Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f)
-                    .PostMultiply(tile1.Locator.Transform);
+                    Quaternion.CreateFromAxisAngle(Vector3.UnitZ, (float) Math.PI / 4)) *
+                Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f) *
+                    tile1.Locator.Transform;
 
             // dragger1.Matrix =
             //     Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f)
