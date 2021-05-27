@@ -37,7 +37,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         public void UpdateDistances(Vector3 eyePoint);
         Vector3 TexGen(Vector3 point);
 
-        void SetRotation(Quaternion rotation);
+        void SetRotation(Matrix4x4 rotation);
     }
 
     public class LevoyCabralLocator : Locator, ILevoyCabralLocator
@@ -114,9 +114,9 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         private Matrix4x4 TranslateToCenter { get; set; } = Matrix4x4.Identity;
         private Matrix4x4 TranslateToCenterInv { get; set; } = Matrix4x4.Identity;
 
-        public virtual void SetRotation(Quaternion rotation)
+        public virtual void SetRotation(Matrix4x4 rotation)
         {
-            Rotation = Matrix4x4.CreateFromQuaternion(rotation);
+            Rotation = rotation;
             SetTransform(Transform);
         }
         
