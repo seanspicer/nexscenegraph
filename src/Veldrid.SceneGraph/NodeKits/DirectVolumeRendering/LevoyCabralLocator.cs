@@ -36,6 +36,8 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         public double ZMax { get; }
         public void UpdateDistances(Vector3 eyePoint);
         Vector3 TexGen(Vector3 point);
+
+        void SetRotation(Quaternion rotation);
     }
 
     public class LevoyCabralLocator : Locator, ILevoyCabralLocator
@@ -106,12 +108,17 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         public double MinDist { get; private set; }
         public double MaxDist { get; private set; }
 
-        private Matrix4x4 Rotation { get; } =
-            Matrix4x4.CreateFromQuaternion(Quaternion.CreateFromAxisAngle(Vector3.UnitZ, (float) System.Math.PI / 8));
+        private Matrix4x4 Rotation { get; set; } =
+            Matrix4x4.CreateFromQuaternion(Quaternion.CreateFromAxisAngle(new Vector3(0.0f, 0.0f, 1.0f), (float) 0 / 8));
 
         private Matrix4x4 TranslateToCenter { get; set; } = Matrix4x4.Identity;
         private Matrix4x4 TranslateToCenterInv { get; set; } = Matrix4x4.Identity;
-        
+
+        public virtual void SetRotation(Quaternion rotation)
+        {
+            Rotation = Matrix4x4.CreateFromQuaternion(rotation);
+            SetTransform(Transform);
+        }
         
         public virtual Vector3 TexGen(Vector3 point)
         {

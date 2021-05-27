@@ -719,7 +719,8 @@ namespace Veldrid.SceneGraph
 		            ** hi = (lo+1)%3; lo = (lo+2)%3; */
                     if (hi == (int) QuatPart.W)
                     {
-                        hi = "\001\002\000"[(int)lo]; lo = 3-hi-lo;
+                        hi = (lo+1)%3; lo = (lo+2)%3;
+                        //hi = "\001\002\000"[(int)lo]; lo = 3-hi-lo;
                     }
 
                     swap(ka, (int) hi, (int) lo);

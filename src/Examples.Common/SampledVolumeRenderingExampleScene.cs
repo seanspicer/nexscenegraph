@@ -12,6 +12,7 @@ using Veldrid.SceneGraph.Math.IsoSurface;
 using Veldrid.SceneGraph.NodeKits.DirectVolumeRendering;
 using Veldrid.SceneGraph.Shaders;
 using Veldrid.SceneGraph.Util;
+using EventHandler = System.EventHandler;
 using Math = System.Math;
 
 namespace Examples.Common
@@ -280,11 +281,77 @@ namespace Examples.Common
         }
     }
 
+    public class RotateDraggerEventHandler : UiEventHandler
+    {
+        private readonly ILogger _logger;
+        private ITabBoxDragger _dragger;
+        private ILevoyCabralLocator _locator;
+
+        private int zDegrees = 0;
+        private int yDegrees = 0;
+        private int xDegrees = 0;
+        
+        public RotateDraggerEventHandler(ITabBoxDragger dragger, ILevoyCabralLocator locator)
+        {
+            _dragger = dragger;
+            _locator = locator;
+        }
+
+        public override bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter uiActionAdapter)
+        {
+            switch (eventAdapter.Key)
+            {
+                case IUiEventAdapter.KeySymbol.KeyX:
+                    xDegrees++;
+                    var rotX = 
+                        new Quaternion(Vector3.UnitX, (float) (xDegrees * Math.PI / 180)) *  
+                        new Quaternion(Vector3.UnitY, (float) (yDegrees * Math.PI / 180)) *
+                        new Quaternion(Vector3.UnitZ, (float) (zDegrees * Math.PI / 180));
+                    _dragger.Matrix = Matrix4x4.CreateFromQuaternion(rotX) *
+                                      Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f) *
+                                      _locator.Transform;
+                    _locator.SetRotation(rotX);
+                    return true;
+                    break;
+                
+                case IUiEventAdapter.KeySymbol.KeyY:
+                    yDegrees++;
+                    var rotY = 
+                        new Quaternion(Vector3.UnitX, (float) (xDegrees * Math.PI / 180)) *  
+                        new Quaternion(Vector3.UnitY, (float) (yDegrees * Math.PI / 180)) *
+                        new Quaternion(Vector3.UnitZ, (float) (zDegrees * Math.PI / 180));
+                    _dragger.Matrix = Matrix4x4.CreateFromQuaternion(rotY) *
+                                      Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f) *
+                                      _locator.Transform;
+                    _locator.SetRotation(rotY);
+                    return true;
+                    break;
+                
+                case IUiEventAdapter.KeySymbol.KeyZ:
+                    zDegrees++;
+                    var rotZ = 
+                        new Quaternion(Vector3.UnitX, (float) (xDegrees * Math.PI / 180)) *  
+                            new Quaternion(Vector3.UnitY, (float) (yDegrees * Math.PI / 180)) *
+                                new Quaternion(Vector3.UnitZ, (float) (zDegrees * Math.PI / 180));
+                    _dragger.Matrix = Matrix4x4.CreateFromQuaternion(rotZ) *
+                                      Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f) *
+                                      _locator.Transform;
+                    _locator.SetRotation(rotZ);
+                    return true;
+                    break;
+                default:
+                    return false;
+            }
+
+            return true;
+        }
+    }
+
     public class SampledVolumeRenderingExampleScene
     {
         public delegate IShaderSet ShaderSetBuilder();
 
-        public static IGroup Build(ShaderSetBuilder builder, IVoxelVolume voxelVolume,
+        public static (IGroup, IUiEventHandler) Build(ShaderSetBuilder builder, IVoxelVolume voxelVolume,
             LevoyCabralTechnique.VolumeTextureGenerator volumeTextureGenerator,
             LevoyCabralTechnique.ColormapTextureGenerator colormapTextureGenerator)
         {
@@ -309,7 +376,7 @@ namespace Examples.Common
             dragger1.DraggerCallbacks.Add(new DraggerVolumeTileCallback(tile1, tile1.Locator, dragger1));
             dragger1.Matrix =
                 Matrix4x4.CreateFromQuaternion(
-                    Quaternion.CreateFromAxisAngle(Vector3.UnitZ, (float) Math.PI / 8)) *
+                    Quaternion.CreateFromAxisAngle(new Vector3(0.0f, 0.0f, 0.0f), (float) 0 / 8)) *
                 Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f) *
                     tile1.Locator.Transform;
 
@@ -338,13 +405,18 @@ namespace Examples.Common
             var root = Group.Create();
             root.AddChild(volume);
             root.AddChild(dragger1);
+
+            
+            var eventHandler = new RotateDraggerEventHandler(dragger1, (ILevoyCabralLocator)tile1.Locator);
+            
             //root.AddChild(dragger2);
-            return root;
+            return (root, eventHandler);
         }
 
         public static IGroup Build()
         {
-            return Build(CreateShaderSet, new CornerVoxelVolume(), null, null);
+            var (root, handler) = Build(CreateShaderSet, new CornerVoxelVolume(), null, null);
+            return root;
         }
 
         public static IShaderSet CreateShaderSet()
