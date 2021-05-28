@@ -37,7 +37,6 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         public void UpdateDistances(Vector3 eyePoint);
         Vector3 TexGen(Vector3 point);
 
-        void SetRotation(Matrix4x4 rotation);
     }
 
     public class LevoyCabralLocator : Locator, ILevoyCabralLocator
@@ -107,19 +106,6 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
         public double MinDist { get; private set; }
         public double MaxDist { get; private set; }
-
-        private Matrix4x4 Rotation { get; set; } =
-            Matrix4x4.CreateFromQuaternion(Quaternion.CreateFromAxisAngle(new Vector3(0.0f, 0.0f, 1.0f), (float) 0 / 8));
-
-        private Matrix4x4 UnitToWorld { get; set; } = Matrix4x4.Identity;
-        private Matrix4x4 TranslateToZero { get; set; } = Matrix4x4.Identity;
-        private Matrix4x4 TranslateFromZero { get; set; } = Matrix4x4.Identity;
-
-        public virtual void SetRotation(Matrix4x4 rotation)
-        {
-            Rotation = rotation;
-            SetTransform(Transform);
-        }
         
         public virtual Vector3 TexGen(Vector3 point)
         {
@@ -146,29 +132,6 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             XMax = 0.5f;
             YMax = 0.5f;
             ZMax = 0.5f;
-
-            UnitToWorld = Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f) *
-                              Transform;
-            
-            var zeroInWorld = Vector3.Transform(Vector3.Zero, UnitToWorld);
-            //var tl = Vector3.Transform(Vector3.One, translateToCenter);
-            TranslateToZero = Matrix4x4.CreateTranslation(zeroInWorld);
-
-            
-            if (Matrix4x4.Invert(TranslateToZero, out var inv))
-            {
-                //_above.Matrix = tInv*rot*unTranslate;
-                TranslateFromZero = inv;
-            }
-            
-            // var center = new Vector3(0.5f, 0.5f, 0.5f);
-            //
-            // TranslateToCenter = Matrix4x4.CreateTranslation(center);
-            //
-            // if (Matrix4x4.Invert(TranslateToCenter, out var tInv))
-            // {
-            //     TranslateToCenterInv = tInv;
-            // }
             
             UpdateDistances(_lastEyePoint);
 
@@ -223,7 +186,6 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
                     (float) YValues[x, y, z],
                     (float) ZValues[x, y, z]);
 
-                //pos = Vector3.Transform(pos, UnitToWorld * TranslateFromZero * Rotation * TranslateToZero);
                 pos = Vector3.Transform(pos, Transform);
                 
                 var dist = System.Math.Abs((pos - eyePoint).Length());
