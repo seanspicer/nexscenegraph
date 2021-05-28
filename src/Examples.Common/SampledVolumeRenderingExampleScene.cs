@@ -67,9 +67,9 @@ namespace Examples.Common
         private readonly IVolumeTile _volumeTile;
         private Matrix4x4 _worldToLocal;
 
-        private IDragger _dragger;
+        private ITabBoxDragger _dragger;
         
-        public DraggerVolumeTileCallback(IVolumeTile volumeTile, ILocator locator, IDragger dragger)
+        public DraggerVolumeTileCallback(IVolumeTile volumeTile, ILocator locator, ITabBoxDragger dragger)
         {
             _volumeTile = volumeTile;
             _locator = locator;
@@ -91,8 +91,8 @@ namespace Examples.Common
                     var nodePathToRoot = Util.ComputeNodePathToRoot(_volumeTile);
 
                     var transformLocalToWorld = Transform.ComputeLocalToWorld(nodePathToRoot);
-                    
-                    _localToWorld = _startMotionMatrix * transformLocalToWorld;
+
+                    _localToWorld = _startMotionMatrix;
                     
                     
                     if (Matrix4x4.Invert(_localToWorld, out var worldToLocal))
@@ -111,8 +111,21 @@ namespace Examples.Common
                     
                     // Transform the command's motion matrix into local motion matrix.
                     var motion = cmdWorldToLocal * cmdMotion * cmdLocalToWorld;
+
+                    var localMotionMatrix = _localToWorld *
+                                            motion *
+                                            _worldToLocal;
                     
-                    var localMotionMatrix = _localToWorld * motion * _worldToLocal;
+                    var zeroInWorld = Vector3.Transform(Vector3.Zero, _dragger.Matrix);
+                    var translateToZero = Matrix4x4.CreateTranslation(zeroInWorld);
+                    var translateFromZero = Matrix4x4.Identity;
+                    if (Matrix4x4.Invert(translateToZero, out var inv))
+                    {
+                        //_above.Matrix = tInv*rot*unTranslate;
+                        translateFromZero = inv;
+                    }
+
+                    //localMotionMatrix = localMotionMatrix * translateFromZero * _dragger.InverseRotation * translateToZero;
                     
                     var matrix = localMotionMatrix.PostMultiply(_startMotionMatrix);
 
@@ -139,7 +152,9 @@ namespace Examples.Common
 
                     // Transform by the localMotionMatrix
                     _locator.SetTransform(localMotionMatrix.PostMultiply(_startMotionMatrix));
-
+                    _locator.SetTransform(_dragger.Matrix);
+                    //_locator.SetTransform(localMotionMatrix);
+                    
                     return true;
                 }
                 case IMotionCommand.MotionStage.Finish:
@@ -153,6 +168,135 @@ namespace Examples.Common
         }
     }
 
+    public class RotateDraggerEventHandler : UiEventHandler
+    {
+        private readonly ILogger _logger;
+        private ITabBoxDragger _dragger;
+        private IMatrixTransform _above;
+        private ILevoyCabralLocator _locator;
+
+        private int zDegrees = 0;
+        private int yDegrees = 0;
+        private int xDegrees = 0;
+        
+        public RotateDraggerEventHandler(IMatrixTransform above, ITabBoxDragger dragger, ILevoyCabralLocator locator)
+        {
+            _dragger = dragger;
+            _locator = locator;
+            _above = above;
+        }
+
+        public override bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter uiActionAdapter)
+        {
+            switch (eventAdapter.Key)
+            {
+                case IUiEventAdapter.KeySymbol.KeyR:
+                    xDegrees+=30;
+                    
+                    var rot =
+                        Matrix4x4.CreateFromAxisAngle(Vector3.UnitY, (float) (xDegrees * Math.PI / 180));
+
+                    var unitToWorld = //Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f) *
+                                            _locator.Transform;
+                    
+                    //if (Matrix4x4.Invert(translateToCenter, out var inv))
+                    //{
+                        //var startMotionMatrix = _locator.Transform;
+
+                        //_dragger.Matrix = translateToCenter;
+
+                        var zeroInWorld = Vector3.Transform(Vector3.Zero, _locator.Transform);
+                        //var tl = Vector3.Transform(Vector3.One, translateToCenter);
+                        var translateToZero = Matrix4x4.CreateTranslation(zeroInWorld);
+
+                        if (Matrix4x4.Invert(translateToZero, out var translateFromZero))
+                        {
+                            //_above.Matrix = tInv*rot*unTranslate;
+                            
+                            _dragger.Rotation = rot;
+                            Matrix4x4.Decompose(_dragger.Matrix, out var scale, out var curRot, out var translation);
+                            var inverseRotation = Matrix4x4.CreateFromQuaternion(Quaternion.Inverse(curRot));
+                            
+                            
+                            _dragger.Matrix = unitToWorld * translateFromZero * inverseRotation*rot * translateToZero;
+                            
+                        }
+
+                        //_above.Matrix =
+                         //   Matrix4x4.CreateFromAxisAngle(Vector3.UnitX, (float) (xDegrees * Math.PI / 180));
+
+                        //_locator.SetRotation(rot);
+                        _locator.SetTransform(_dragger.Matrix);
+                    //}
+                    
+                    
+                    return true;
+                
+                // case IUiEventAdapter.KeySymbol.KeyT:
+                //     xDegrees--;
+                //     var rotN =
+                //         Matrix4x4.CreateFromAxisAngle(Vector3.UnitX, (float) (xDegrees * Math.PI / 180));
+                //
+                //     if (Matrix4x4.Invert(_dragger.Matrix, out var invN))
+                //     {
+                //         _dragger.Matrix = rotN*
+                //                           Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f) *
+                //                           _locator.Transform;
+                //         
+                //         _locator.SetRotation(rotN);
+                //         
+                //         //_locator.SetTransform(_dragger.Matrix);
+                //     }
+                //     
+                //     
+                //     return true;
+                
+                // case IUiEventAdapter.KeySymbol.KeyX:
+                //     xDegrees++;
+                //     var rotX = 
+                //         new Quaternion(Vector3.UnitX, (float) (xDegrees * Math.PI / 180)) *  
+                //         new Quaternion(Vector3.UnitY, (float) (yDegrees * Math.PI / 180)) *
+                //         new Quaternion(Vector3.UnitZ, (float) (zDegrees * Math.PI / 180));
+                //     _dragger.Matrix = Matrix4x4.CreateFromQuaternion(rotX) *
+                //                       Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f) *
+                //                       _locator.Transform;
+                //     _locator.SetRotation(rotX);
+                //     return true;
+                //     break;
+                //
+                // case IUiEventAdapter.KeySymbol.KeyY:
+                //     yDegrees++;
+                //     var rotY = 
+                //         new Quaternion(Vector3.UnitX, (float) (xDegrees * Math.PI / 180)) *  
+                //         new Quaternion(Vector3.UnitY, (float) (yDegrees * Math.PI / 180)) *
+                //         new Quaternion(Vector3.UnitZ, (float) (zDegrees * Math.PI / 180));
+                //     _dragger.Matrix = Matrix4x4.CreateFromQuaternion(rotY) *
+                //                       Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f) *
+                //                       _locator.Transform;
+                //     _locator.SetRotation(rotY);
+                //     return true;
+                //     break;
+                //
+                // case IUiEventAdapter.KeySymbol.KeyZ:
+                //     zDegrees++;
+                //     var rotZ = 
+                //         new Quaternion(Vector3.UnitX, (float) (xDegrees * Math.PI / 180)) *  
+                //             new Quaternion(Vector3.UnitY, (float) (yDegrees * Math.PI / 180)) *
+                //                 new Quaternion(Vector3.UnitZ, (float) (zDegrees * Math.PI / 180));
+                //     _dragger.Matrix = Matrix4x4.CreateFromQuaternion(rotZ) *
+                //                       Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f) *
+                //                       _locator.Transform;
+                //     _locator.SetRotation(rotZ);
+                //     return true;
+                //     break;
+                default:
+                    return false;
+            }
+
+            return true;
+        }
+    }
+    
     public class VolumeExtentsConstraint : Constraint
     {
         private float _xmax;
@@ -281,125 +425,7 @@ namespace Examples.Common
         }
     }
 
-    public class RotateDraggerEventHandler : UiEventHandler
-    {
-        private readonly ILogger _logger;
-        private ITabBoxDragger _dragger;
-        private IMatrixTransform _above;
-        private ILevoyCabralLocator _locator;
-
-        private int zDegrees = 0;
-        private int yDegrees = 0;
-        private int xDegrees = 0;
-        
-        public RotateDraggerEventHandler(IMatrixTransform above, ITabBoxDragger dragger, ILevoyCabralLocator locator)
-        {
-            _dragger = dragger;
-            _locator = locator;
-            _above = above;
-        }
-
-        public override bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter uiActionAdapter)
-        {
-            switch (eventAdapter.Key)
-            {
-                case IUiEventAdapter.KeySymbol.KeyR:
-                    xDegrees++;
-                    var rot =
-                        Matrix4x4.CreateFromAxisAngle(Vector3.UnitY, (float) (xDegrees * Math.PI / 180));
-
-                    var unitToWorld = Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f) *
-                                            _locator.Transform;
-                    
-                    //if (Matrix4x4.Invert(translateToCenter, out var inv))
-                    //{
-                        //var startMotionMatrix = _locator.Transform;
-
-                        //_dragger.Matrix = translateToCenter;
-
-                        var zeroInWorld = Vector3.Transform(Vector3.Zero, unitToWorld);
-                        //var tl = Vector3.Transform(Vector3.One, translateToCenter);
-                        var translateToZero = Matrix4x4.CreateTranslation(zeroInWorld);
-
-                        if (Matrix4x4.Invert(translateToZero, out var translateFromZero))
-                        {
-                            //_above.Matrix = tInv*rot*unTranslate;
-                            _dragger.Matrix = unitToWorld * translateFromZero * rot * translateToZero;
-                        }
-
-                        //_above.Matrix =
-                         //   Matrix4x4.CreateFromAxisAngle(Vector3.UnitX, (float) (xDegrees * Math.PI / 180));
-
-                        _locator.SetRotation(rot);
-                    //}
-                    
-                    
-                    return true;
-                
-                // case IUiEventAdapter.KeySymbol.KeyT:
-                //     xDegrees--;
-                //     var rotN =
-                //         Matrix4x4.CreateFromAxisAngle(Vector3.UnitX, (float) (xDegrees * Math.PI / 180));
-                //
-                //     if (Matrix4x4.Invert(_dragger.Matrix, out var invN))
-                //     {
-                //         _dragger.Matrix = rotN*
-                //                           Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f) *
-                //                           _locator.Transform;
-                //         
-                //         _locator.SetRotation(rotN);
-                //         
-                //         //_locator.SetTransform(_dragger.Matrix);
-                //     }
-                //     
-                //     
-                //     return true;
-                
-                // case IUiEventAdapter.KeySymbol.KeyX:
-                //     xDegrees++;
-                //     var rotX = 
-                //         new Quaternion(Vector3.UnitX, (float) (xDegrees * Math.PI / 180)) *  
-                //         new Quaternion(Vector3.UnitY, (float) (yDegrees * Math.PI / 180)) *
-                //         new Quaternion(Vector3.UnitZ, (float) (zDegrees * Math.PI / 180));
-                //     _dragger.Matrix = Matrix4x4.CreateFromQuaternion(rotX) *
-                //                       Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f) *
-                //                       _locator.Transform;
-                //     _locator.SetRotation(rotX);
-                //     return true;
-                //     break;
-                //
-                // case IUiEventAdapter.KeySymbol.KeyY:
-                //     yDegrees++;
-                //     var rotY = 
-                //         new Quaternion(Vector3.UnitX, (float) (xDegrees * Math.PI / 180)) *  
-                //         new Quaternion(Vector3.UnitY, (float) (yDegrees * Math.PI / 180)) *
-                //         new Quaternion(Vector3.UnitZ, (float) (zDegrees * Math.PI / 180));
-                //     _dragger.Matrix = Matrix4x4.CreateFromQuaternion(rotY) *
-                //                       Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f) *
-                //                       _locator.Transform;
-                //     _locator.SetRotation(rotY);
-                //     return true;
-                //     break;
-                //
-                // case IUiEventAdapter.KeySymbol.KeyZ:
-                //     zDegrees++;
-                //     var rotZ = 
-                //         new Quaternion(Vector3.UnitX, (float) (xDegrees * Math.PI / 180)) *  
-                //             new Quaternion(Vector3.UnitY, (float) (yDegrees * Math.PI / 180)) *
-                //                 new Quaternion(Vector3.UnitZ, (float) (zDegrees * Math.PI / 180));
-                //     _dragger.Matrix = Matrix4x4.CreateFromQuaternion(rotZ) *
-                //                       Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f) *
-                //                       _locator.Transform;
-                //     _locator.SetRotation(rotZ);
-                //     return true;
-                //     break;
-                default:
-                    return false;
-            }
-
-            return true;
-        }
-    }
+    
 
     public class SampledVolumeRenderingExampleScene
     {
@@ -429,10 +455,10 @@ namespace Examples.Common
             dragger1.HandleEvents = true;
             dragger1.DraggerCallbacks.Add(new DraggerVolumeTileCallback(tile1, tile1.Locator, dragger1));
             dragger1.Matrix =
-                // Matrix4x4.CreateFromQuaternion(
-                //     Quaternion.CreateFromAxisAngle(new Vector3(0.0f, 0.0f, 0.0f), (float) 0 / 8)) *
                 Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f) *
                     tile1.Locator.Transform;
+            
+            tile1.Locator.SetTransform(dragger1.Matrix);
 
             // dragger1.Matrix =
             //     Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f)

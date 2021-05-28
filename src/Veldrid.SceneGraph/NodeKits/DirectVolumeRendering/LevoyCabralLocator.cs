@@ -223,7 +223,8 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
                     (float) YValues[x, y, z],
                     (float) ZValues[x, y, z]);
 
-                pos = Vector3.Transform(pos, UnitToWorld * TranslateFromZero * Rotation * TranslateToZero);
+                //pos = Vector3.Transform(pos, UnitToWorld * TranslateFromZero * Rotation * TranslateToZero);
+                pos = Vector3.Transform(pos, Transform);
                 
                 var dist = System.Math.Abs((pos - eyePoint).Length());
 
