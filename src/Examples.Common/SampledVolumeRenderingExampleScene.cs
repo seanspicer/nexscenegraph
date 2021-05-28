@@ -306,55 +306,54 @@ namespace Examples.Common
                 case IUiEventAdapter.KeySymbol.KeyR:
                     xDegrees++;
                     var rot =
-                        Matrix4x4.CreateFromAxisAngle(Vector3.UnitX, (float) (xDegrees * Math.PI / 180));
+                        Matrix4x4.CreateFromAxisAngle(Vector3.UnitY, (float) (xDegrees * Math.PI / 180));
 
-                    var translateToCenter = Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f) *
+                    var unitToWorld = Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f) *
                                             _locator.Transform;
                     
-                    if (Matrix4x4.Invert(translateToCenter, out var inv))
-                    {
+                    //if (Matrix4x4.Invert(translateToCenter, out var inv))
+                    //{
                         //var startMotionMatrix = _locator.Transform;
 
-                        _dragger.Matrix = translateToCenter;
+                        //_dragger.Matrix = translateToCenter;
 
-                        var br = Vector3.Transform(Vector3.Zero, _locator.Transform);
-                        var tl = Vector3.Transform(Vector3.One, _locator.Transform);
-                        var unTranslate = Matrix4x4.CreateTranslation(0.5f*(tl - br));
+                        var zeroInWorld = Vector3.Transform(Vector3.Zero, unitToWorld);
+                        //var tl = Vector3.Transform(Vector3.One, translateToCenter);
+                        var translateToZero = Matrix4x4.CreateTranslation(zeroInWorld);
 
-                        if (Matrix4x4.Invert(unTranslate, out var tInv))
+                        if (Matrix4x4.Invert(translateToZero, out var translateFromZero))
                         {
-                            _above.Matrix = tInv*rot*unTranslate;
+                            //_above.Matrix = tInv*rot*unTranslate;
+                            _dragger.Matrix = unitToWorld * translateFromZero * rot * translateToZero;
                         }
-                        
-                        
-                        
+
                         //_above.Matrix =
                          //   Matrix4x4.CreateFromAxisAngle(Vector3.UnitX, (float) (xDegrees * Math.PI / 180));
 
                         _locator.SetRotation(rot);
-                    }
+                    //}
                     
                     
                     return true;
                 
-                case IUiEventAdapter.KeySymbol.KeyT:
-                    xDegrees--;
-                    var rotN =
-                        Matrix4x4.CreateFromAxisAngle(Vector3.UnitX, (float) (xDegrees * Math.PI / 180));
-
-                    if (Matrix4x4.Invert(_dragger.Matrix, out var invN))
-                    {
-                        _dragger.Matrix = rotN*
-                                          Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f) *
-                                          _locator.Transform;
-                        
-                        _locator.SetRotation(rotN);
-                        
-                        //_locator.SetTransform(_dragger.Matrix);
-                    }
-                    
-                    
-                    return true;
+                // case IUiEventAdapter.KeySymbol.KeyT:
+                //     xDegrees--;
+                //     var rotN =
+                //         Matrix4x4.CreateFromAxisAngle(Vector3.UnitX, (float) (xDegrees * Math.PI / 180));
+                //
+                //     if (Matrix4x4.Invert(_dragger.Matrix, out var invN))
+                //     {
+                //         _dragger.Matrix = rotN*
+                //                           Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f) *
+                //                           _locator.Transform;
+                //         
+                //         _locator.SetRotation(rotN);
+                //         
+                //         //_locator.SetTransform(_dragger.Matrix);
+                //     }
+                //     
+                //     
+                //     return true;
                 
                 // case IUiEventAdapter.KeySymbol.KeyX:
                 //     xDegrees++;
