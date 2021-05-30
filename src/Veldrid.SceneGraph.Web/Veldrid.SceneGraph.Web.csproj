@@ -1,0 +1,44 @@
+<Project Sdk="Mono.WebAssembly.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <MonoWasmLinkMode>Full</MonoWasmLinkMode>
+        <LangVersion>7.3</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Reference Include="WebAssembly.Bindings">
+            <HintPath>$(RepositoryRootDirectory)\wasm-deps\WebAssembly.Bindings.dll</HintPath>
+        </Reference>
+        <Reference Include="WebGLDotNET">
+            <HintPath>$(RepositoryRootDirectory)\wasm-deps\WebGLDotNET.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+    
+<!--    <ItemGroup>-->
+<!--      <PackageReference Include="Mono.WebAssembly.Build" Version="0.1.0" />-->
+<!--      <PackageReference Include="Mono.WebAssembly.Framework" Version="0.1.0" />-->
+<!--      <PackageReference Include="Mono.WebAssembly.Runtime" Version="0.1.0" />-->
+<!--      <PackageReference Include="WebAssembly.Bindings" Version="3.0.2" />-->
+<!--      <PackageReference Include="WebAssembly.Net.Http" Version="3.0.2" />-->
+<!--      <PackageReference Include="WebAssembly.Net.WebSockets" Version="3.0.2" />-->
+<!--    </ItemGroup>-->
+
+    <ItemGroup>
+        <None Remove="Scripts\mono_support.js" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="server.py">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Include="run.cmd">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Veldrid.SceneGraph\Veldrid.SceneGraph.csproj" />
+    </ItemGroup>
+    
+</Project>

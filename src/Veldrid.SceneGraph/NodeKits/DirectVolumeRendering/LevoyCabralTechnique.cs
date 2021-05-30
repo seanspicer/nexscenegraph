@@ -478,22 +478,26 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             // Convert into a value between 0 and 1023.
             int int_value = (int)(1023 * normalizedValue);
 
-            switch (int_value)
+            // Map different color bands.
+            if (int_value < 256)
             {
-                // Map different color bands.
-                case < 256:
-                    // Red to yellow. (255, 0, 0) to (255, 255, 0).
-                    return System.Drawing.Color.FromArgb(255, int_value, 0);
-                case < 512:
-                    // Yellow to green. (255, 255, 0) to (0, 255, 0).
-                    int_value -= 256;
-                    return System.Drawing.Color.FromArgb(255 - int_value, 255, 0);
-                case < 768:
-                    // Green to aqua. (0, 255, 0) to (0, 255, 255).
-                    int_value -= 512;
-                    return System.Drawing.Color.FromArgb(0, 255, int_value);
-                default:
-                    // Aqua to blue. (0, 255, 255) to (0, 0, 255).
+                // Red to yellow. (255, 0, 0) to (255, 255, 0).
+                return System.Drawing.Color.FromArgb(255, int_value, 0);
+            }
+            else if (int_value < 512)
+            {
+                // Yellow to green. (255, 255, 0) to (0, 255, 0).
+                int_value -= 256;
+                return System.Drawing.Color.FromArgb(255 - int_value, 255, 0);
+            }
+            else if (int_value < 768)
+            {
+                // Green to aqua. (0, 255, 0) to (0, 255, 255).
+                int_value -= 512;
+                return System.Drawing.Color.FromArgb(0, 255, int_value);
+            }
+            else {
+                // Aqua to blue. (0, 255, 255) to (0, 0, 255).
                     int_value -= 768;
                     return System.Drawing.Color.FromArgb(0, 255 - int_value, 255);
             }

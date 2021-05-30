@@ -25,7 +25,7 @@ namespace Veldrid.SceneGraph.Util.Shape
     {
     }
 
-    public class ShapeDrawable<T> : Geometry<T>, IShapeDrawable<T> where T : struct, ISettablePrimitiveElement
+    public class ShapeDrawable<T> : Geometry<T>, IShapeDrawable<T> where T : unmanaged, ISettablePrimitiveElement
     {
         private Vector3[] _colors;
         private ITessellationHints _hints;

@@ -179,7 +179,7 @@ namespace Veldrid.SceneGraph
         /// <summary>
         ///     Returns whether the matrix is the identity matrix.
         /// </summary>
-        public readonly bool IsIdentity =>
+        public bool IsIdentity =>
             M11 == 1d && M22 == 1d && M33 == 1d && M44 == 1d && // Check diagonal element first for early out.
             M12 == 0d && M13 == 0d && M14 == 0d &&
             M21 == 0d && M23 == 0d && M24 == 0d &&

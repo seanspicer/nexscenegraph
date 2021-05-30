@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Reactive.Subjects;
 using System.Windows;
 using SharpDX;
-using SharpDX.D3DCompiler;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using Veldrid.SceneGraph.InputAdapter;
