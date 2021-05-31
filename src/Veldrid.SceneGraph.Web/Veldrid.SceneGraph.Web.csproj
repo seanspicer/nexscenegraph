@@ -40,5 +40,9 @@
     <ItemGroup>
       <ProjectReference Include="..\Veldrid.SceneGraph\Veldrid.SceneGraph.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Veldrid.InputPrimitives" Version="4.9.0-g4eb49021a9" />
+    </ItemGroup>
     
 </Project>

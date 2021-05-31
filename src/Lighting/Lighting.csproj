@@ -8,6 +8,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Examples.Common\Examples.Common.csproj" />
       <ProjectReference Include="..\Veldrid.SceneGraph.IO\Veldrid.SceneGraph.IO.csproj" />
+      <ProjectReference Include="..\Veldrid.SceneGraph.SdlViewer\Veldrid.SceneGraph.SdlViewer.csproj" />
     </ItemGroup>
 
     <ItemGroup>
