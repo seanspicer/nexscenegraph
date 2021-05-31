@@ -35,6 +35,8 @@ namespace Veldrid.SceneGraph.Viewer
         private readonly ICamera _camera;
         private CommandList _commandList;
 
+        private IList<CommandBuffer> _commandBuffers = new List<CommandBuffer>();
+
         private readonly List<Tuple<uint, ResourceSet>> _defaultResourceSets = new List<Tuple<uint, ResourceSet>>();
         private bool _doFrameCapture;
         private Fence _fence;
@@ -56,6 +58,12 @@ namespace Veldrid.SceneGraph.Viewer
         private readonly Stopwatch _stopWatch = new Stopwatch();
         private DeviceBuffer _viewBuffer;
 
+        private uint _maxFramesInFlight;
+        public Fence[] _fences;
+        public Semaphore[] _imageAcquiredSems;
+        public Semaphore[] _renderCompleteSems;
+        private uint _frameIndex;
+        
         public Renderer(ICamera camera)
         {
             _camera = camera;
@@ -76,7 +84,7 @@ namespace Veldrid.SceneGraph.Viewer
         public void HandleOperation(GraphicsDevice device, ResourceFactory factory)
         {
             // TODO - this doesn't work on Metal
-            if (null != _fence) device.WaitForFence(_fence);
+            //if (null != _fence) device.WaitForFence(_fence);
 
             if (!_initialized) Initialize(device, factory);
 
@@ -114,15 +122,15 @@ namespace Veldrid.SceneGraph.Viewer
 
             var postUpdateUniforms = _stopWatch.ElapsedMilliseconds;
 
-            Record(device, factory);
+            //RecordCommandBuffers(device, factory);
 
             var postRecord = _stopWatch.ElapsedMilliseconds;
 
-            Draw(device);
+            DrawCommandBuffers(device, factory);
 
             var postDraw = _stopWatch.ElapsedMilliseconds;
 
-            SwapBuffers(device);
+            //SwapBuffers(device);
 
             var postSwap = _stopWatch.ElapsedMilliseconds;
 
@@ -192,6 +200,20 @@ namespace Veldrid.SceneGraph.Viewer
 
             _defaultResourceSets.Add(Tuple.Create((uint) 0, _resourceSet));
 
+            _maxFramesInFlight = device.MainSwapchain.BufferCount;
+            _frameIndex = _maxFramesInFlight - 1;
+
+            _fences = new Fence[_maxFramesInFlight];
+            _imageAcquiredSems = new Semaphore[_maxFramesInFlight];
+            _renderCompleteSems = new Semaphore[_maxFramesInFlight];
+            for (uint i = 0; i < _maxFramesInFlight; i++)
+            {
+                _fences[i] = device.ResourceFactory.CreateFence(signaled: true);
+                _fences[i].Name = $"Renderer Fence {i}";
+                _imageAcquiredSems[i] = device.ResourceFactory.CreateSemaphore();
+                _renderCompleteSems[i] = device.ResourceFactory.CreateSemaphore();
+            }
+            
             _initialized = true;
         }
 
@@ -294,12 +316,148 @@ namespace Veldrid.SceneGraph.Viewer
             _commandList.End();
         }
 
+        private void RecordCommandBuffers(GraphicsDevice device, ResourceFactory factory, Framebuffer framebuffer)
+        {
+            foreach (var buffer in _commandBuffers)
+            {
+                buffer.Dispose();
+            }
+
+            _commandBuffers.Clear();
+            
+            _commandBuffers = new List<CommandBuffer>();
+            
+            if (!_initialized) Initialize(device, factory);
+
+            CommandBuffer cb = factory.CreateCommandBuffer(CommandBufferFlags.Reusable);
+            cb.Name = $"Veldrid.SceneGraph Command Buffer";
+            
+            if (SceneContext.MainSceneColorTexture.SampleCount == TextureSampleCount.Count1)
+            {
+                //var framebuffer = SceneContext.OutputFramebuffer;
+
+                cb.BeginRenderPass(
+                    framebuffer, 
+                    LoadAction.Clear, 
+                    StoreAction.Store, 
+                    _camera.ClearColor, 
+                    1f);
+                //
+                // Draw Opaque Geometry
+                // 
+                DrawOpaqueRenderGroups(device, factory, framebuffer, cb);
+
+                // 
+                // Draw Transparent Geometry
+                //
+                if (_cullVisitor.TransparentRenderGroup.HasDrawableElements())
+                    DrawTransparentRenderGroups(device, factory, framebuffer, cb);
+
+                cb.EndRenderPass();
+                
+                _commandBuffers.Add(cb);
+            }
+            else
+            {
+                //var framebuffer = SceneContext.MainSceneFramebuffer;
+
+                cb.BeginRenderPass(
+                    framebuffer, 
+                    LoadAction.Clear, 
+                    StoreAction.Store, 
+                    _camera.ClearColor, 
+                    1f);
+
+                //
+                // Draw Opaque Geometry
+                // 
+                DrawOpaqueRenderGroups(device, factory, framebuffer, cb);
+
+                // 
+                // Draw Transparent Geometry
+                //
+                if (_cullVisitor.TransparentRenderGroup.HasDrawableElements())
+                    DrawTransparentRenderGroups(device, factory, framebuffer,cb);
+
+                cb.EndRenderPass();
+                
+                _commandBuffers.Add(cb);
+                
+                CommandBuffer blitter = factory.CreateCommandBuffer(CommandBufferFlags.Reusable);
+                blitter.Name = $"Veldrid.SceneGraph Blit Buffer";
+                
+                blitter.BeginRenderPass(
+                    SceneContext.OutputFramebuffer,
+                    LoadAction.Clear, 
+                    StoreAction.Store, 
+                    _camera.ClearColor, 
+                    1f);
+                
+                //
+                // Resolve the texture
+                //
+                cb.BlitTexture(
+                    SceneContext.MainSceneColorTexture,
+                    0, 
+                    0, 
+                    SceneContext.MainSceneColorTexture.Width, 
+                    SceneContext.MainSceneColorTexture.Height,
+                    SceneContext.OutputFramebuffer, 
+                    0, 
+                    0, 
+                    SceneContext.MainSceneColorTexture.Width, 
+                    SceneContext.MainSceneColorTexture.Height, 
+                    true);
+
+                blitter.EndRenderPass();
+                _commandBuffers.Add(blitter);
+            }
+        }
+        
         private void Draw(GraphicsDevice device)
         {
             device.ResetFence(_fence);
             device.SubmitCommands(_commandList, _fence);
             device.WaitForFence(_fence);
             device.WaitForIdle();
+        }
+
+        private void DrawCommandBuffers(GraphicsDevice device, ResourceFactory factory)
+        {
+            var sc = device.MainSwapchain;
+            uint nextFrame = (sc.LastAcquiredImage + 1) % _maxFramesInFlight;
+            _fences[nextFrame].Wait();
+            _fences[nextFrame].Reset();
+
+            AcquireResult acquireResult = device.AcquireNextImage(
+                sc,
+                _imageAcquiredSems[nextFrame],
+                null,
+                out _frameIndex);
+            if (acquireResult == AcquireResult.OutOfDate)
+            {
+                sc.Resize(sc.Width, sc.Height);
+
+                nextFrame = 0;
+                acquireResult = device.AcquireNextImage(
+                    sc,
+                    _imageAcquiredSems[nextFrame],
+                    null,
+                    out _frameIndex);
+                if (acquireResult != AcquireResult.Success)
+                {
+                    throw new VeldridException($"Failed to acquire Swapchain image.");
+                }
+            } 
+            
+            RecordCommandBuffers(device, factory, sc.Framebuffers[_frameIndex]);
+            CommandBuffer[] cbs = _commandBuffers.ToArray();
+            device.SubmitCommands(
+                cbs,
+                _imageAcquiredSems[_frameIndex],
+                _renderCompleteSems[_frameIndex],
+                _fences[_frameIndex]);
+            device.Present(sc, _renderCompleteSems[_frameIndex], _frameIndex);
         }
 
         private void DrawOpaqueRenderGroups(GraphicsDevice device, ResourceFactory factory, Framebuffer framebuffer)
@@ -336,6 +494,41 @@ namespace Veldrid.SceneGraph.Viewer
             }
         }
 
+        private void DrawOpaqueRenderGroups(GraphicsDevice device, ResourceFactory factory, Framebuffer framebuffer, CommandBuffer cb)
+        {
+            foreach (var state in _cullVisitor.OpaqueRenderGroup.GetStateList())
+            {
+                if (state.Elements.Count == 0) continue;
+
+                var ri = state.GetPipelineAndResources(device, factory, _resourceLayout, framebuffer);
+
+                cb.BindPipeline(ri.Pipeline);
+
+                var nDrawables = (uint) state.Elements.Count;
+
+                for (var i = 0; i < nDrawables; ++i)
+                    ri.ModelViewMatrixBuffer[i * _hostBufferStride] = state.Elements[i].ModelViewMatrix;
+                device.UpdateBuffer(ri.ModelViewBuffer, 0, ri.ModelViewMatrixBuffer);
+
+                for (var i = 0; i < nDrawables; ++i)
+                {
+                    var element = state.Elements[i];
+
+                    for (var vboIdx = 0; vboIdx < element.VertexBuffers.Count; ++vboIdx)
+                        cb.BindVertexBuffer((uint) vboIdx, element.VertexBuffers[vboIdx]);
+
+                    cb.BindIndexBuffer(element.IndexBuffer, IndexFormat.UInt32);
+
+                    cb.BindGraphicsResourceSet(0, _resourceSet);
+
+                    cb.BindGraphicsResourceSet(1, ri.ResourceSet, ri.OffsetArrayList[i]);
+
+                    foreach (var primitiveSet in element.PrimitiveSets) 
+                        primitiveSet.Draw(cb);
+                }
+            }
+        }
+        
         private void DrawTransparentRenderGroups(GraphicsDevice device, ResourceFactory factory,
             Framebuffer framebuffer)
         {
@@ -459,14 +652,139 @@ namespace Veldrid.SceneGraph.Viewer
             }
         }
 
+        private void DrawTransparentRenderGroups(GraphicsDevice device, ResourceFactory factory,
+            Framebuffer framebuffer, CommandBuffer cb)
+        {
+            var alignment = device.UniformBufferMinOffsetAlignment;
+            var modelBuffStride = 64u;
+            var hostBuffStride = 1u;
+            if (alignment > 64u)
+            {
+                hostBuffStride = alignment / 64u;
+                modelBuffStride = alignment;
+            }
+
+            //
+            // First sort the transparent render elements by distance to eye point (if not culled).
+            //
+            var drawOrderMap =
+                new SortedList<float, List<Tuple<IRenderGroupState, RenderGroupElement, IPrimitiveSet, uint>>>();
+            drawOrderMap.Capacity = _cullVisitor.RenderElementCount;
+            var transparentRenderGroupStates = _cullVisitor.TransparentRenderGroup.GetStateList();
+
+            var stateToUniformDict = new Dictionary<IRenderGroupState, Matrix4x4[]>();
+
+            foreach (var state in transparentRenderGroupStates)
+            {
+                var nDrawables = (uint) state.Elements.Count;
+                var modelMatrixViewBuffer = new Matrix4x4[nDrawables * hostBuffStride];
+
+                //var renderInfo = state.GetPipelineAndResources(device, factory, _resourceLayout, framebuffer);
+
+                // Iterate over all elements in this state
+                for (var j = 0; j < nDrawables; ++j)
+                {
+                    var renderElement = state.Elements[j];
+                    modelMatrixViewBuffer[j * hostBuffStride] = state.Elements[j].ModelViewMatrix;
+                    //renderInfo.ModelViewMatrixBuffer[j*hostBuffStride] = state.Elements[j].ModelViewMatrix;
+
+                    // Iterate over all primitive sets in this state
+                    foreach (var pset in renderElement.PrimitiveSets)
+                    {
+                        var sortDist = 0.0f;
+
+                        // Compute distance eye point 
+                        var modelView = renderElement.ModelViewMatrix;
+                        if (Matrix4x4.Invert(modelView, out var modelViewInvese))
+                        {
+                            var eyeLocal = Vector3.Transform(Vector3.Zero, modelViewInvese);
+                            sortDist = pset.GetEyePointDistance(eyeLocal);
+                        }
+                        else
+                        {
+                            var ctr = pset.GetBoundingBox().Center;
+                            var ctrW = Vector3.Transform(ctr, modelView);
+                            sortDist = Vector3.Distance(ctrW, Vector3.Zero);
+                        }
+
+
+                        if (!drawOrderMap.TryGetValue(sortDist, out var renderList))
+                        {
+                            renderList = new List<Tuple<IRenderGroupState, RenderGroupElement, IPrimitiveSet, uint>>();
+                            drawOrderMap.Add(sortDist, renderList);
+                        }
+
+                        renderList.Add(Tuple.Create(state, renderElement, pset, (uint) j));
+                    }
+                }
+
+                stateToUniformDict.Add(state, modelMatrixViewBuffer);
+            }
+
+            List<DeviceBuffer> boundVertexBufferList = null;
+            DeviceBuffer boundIndexBuffer = null;
+
+            // Now draw transparent elements, back to front
+            IRenderGroupState lastState = null;
+            RenderGraph.RenderInfo ri = null;
+
+            foreach (var renderList in drawOrderMap.Reverse())
+            foreach (var element in renderList.Value)
+            {
+                var state = element.Item1;
+
+                if (null == lastState || state != lastState)
+                {
+                    ri = state.GetPipelineAndResources(device, factory, _resourceLayout, framebuffer);
+
+                    // Set this state's pipeline
+                    cb.BindPipeline(ri.Pipeline);
+
+                    device.UpdateBuffer(ri.ModelViewBuffer, 0, stateToUniformDict[state]);
+
+                    // Set the resources
+                    cb.BindGraphicsResourceSet(0, _resourceSet);
+                }
+
+                var offset = new Span<uint>(new uint[1] {element.Item4 * modelBuffStride});
+
+                // Set state-local resources
+                cb.BindGraphicsResourceSet(1, ri.ResourceSet, offset);
+
+                var renderGroupElement = element.Item2;
+
+                if (boundVertexBufferList != renderGroupElement.VertexBuffers)
+                {
+                    // Set vertex buffer
+                    for (var vboIdx = 0; vboIdx < renderGroupElement.VertexBuffers.Count; ++vboIdx)
+                        cb.BindVertexBuffer((uint) vboIdx, renderGroupElement.VertexBuffers[vboIdx]);
+
+                    boundVertexBufferList = renderGroupElement.VertexBuffers;
+                }
+
+                if (boundIndexBuffer != renderGroupElement.IndexBuffer)
+                {
+                    // Set index buffer
+                    cb.BindIndexBuffer(renderGroupElement.IndexBuffer, IndexFormat.UInt32);
+                    boundIndexBuffer = renderGroupElement.IndexBuffer;
+                }
+
+                element.Item3.Draw(cb);
+
+                lastState = state;
+            }
+        }
+        
         private void UpdateUniforms(GraphicsDevice device, ResourceFactory factory)
         {
             if (!_initialized) Initialize(device, factory);
 
             foreach (var state in _cullVisitor.OpaqueRenderGroup.GetStateList())
             {
-                if (state.Elements.Count == 0) continue;
+                var nDrawables = (uint) state.Elements.Count;
 
+                if (nDrawables == 0) continue;
+                
                 foreach (var uniform in state.PipelineState.UniformList)
                 {
                     uniform.UpdateDeviceBuffers(device, factory);
@@ -480,7 +798,10 @@ namespace Veldrid.SceneGraph.Viewer
             
             foreach (var state in _cullVisitor.TransparentRenderGroup.GetStateList())
             {
-                if (state.Elements.Count == 0) continue;
+                var nDrawables = (uint) state.Elements.Count;
+
+                if (nDrawables == 0) continue;
+                
 
                 foreach (var uniform in state.PipelineState.UniformList)
                 {

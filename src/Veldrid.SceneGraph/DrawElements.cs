@@ -74,6 +74,16 @@ namespace Veldrid.SceneGraph
                 _instanceStart);
         }
 
+        public override void Draw(CommandBuffer cb)
+        {
+            cb.DrawIndexed(
+                _indexCount,
+                _instanceCount,
+                _indexStart,
+                _vertexOffset,
+                _instanceStart);
+        }
+        
         protected override IBoundingBox ComputeBoundingBox()
         {
             var bb = BoundingBox.Create();

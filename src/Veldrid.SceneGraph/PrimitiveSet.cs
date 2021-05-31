@@ -29,6 +29,7 @@ namespace Veldrid.SceneGraph
         IBoundingBox GetBoundingBox();
         float GetEyePointDistance(Vector3 eyeLocal);
         void Draw(CommandList commandList);
+        void Draw(CommandBuffer cb);
         void Accept(IPrimitiveFunctor functor);
     }
 
@@ -94,6 +95,8 @@ namespace Veldrid.SceneGraph
         }
 
         public abstract void Draw(CommandList commandList);
+        
+        public abstract void Draw(CommandBuffer cb);
 
         public virtual void Accept(IPrimitiveFunctor functor)
         {

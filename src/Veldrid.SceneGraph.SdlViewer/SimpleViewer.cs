@@ -157,7 +157,7 @@ namespace Veldrid.SceneGraph.Viewer
                 Frame();
             };
 
-            _sceneContext = new SceneContext(fsaaCount);
+            _sceneContext = new SceneContext(TextureSampleCount.Count1);
             _window.KeyDown += OnKeyDown;
             GraphicsDeviceOperations += Camera.Renderer.HandleOperation;
             GraphicsDeviceResize += Camera.Renderer.HandleResize;
@@ -345,7 +345,7 @@ namespace Veldrid.SceneGraph.Viewer
                 ResourceBindingModel.Improved,
                 true,
                 true,
-                false);
+                false, true);
 
 #if DEBUG
             options.Debug = true;
