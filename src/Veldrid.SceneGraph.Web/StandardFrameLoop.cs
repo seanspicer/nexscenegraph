@@ -176,5 +176,7 @@ namespace Veldrid
         }
     }
 
-    public delegate CommandBuffer[] AdvancedFrameLoopHandler(uint frameIndex, Framebuffer fb);
+    public delegate CommandBuffer[] AdvancedFrameLoopHandler(
+        uint frameIndex, 
+        Framebuffer fb);
 }

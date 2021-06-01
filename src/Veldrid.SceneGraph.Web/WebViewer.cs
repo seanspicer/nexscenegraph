@@ -2,11 +2,12 @@ using System;
 using System.Diagnostics;
 using System.Numerics;
 using Veldrid;
+using Veldrid.SceneGraph.Viewer;
 using WebAssembly;
 
 namespace Veldrid.SceneGraph.Web
 {
-    public class WebViewer
+    public class WebViewer : Viewer.View, IViewer
     {
         const int CanvasWidth = 1280;
         const int CanvasHeight = 720;
@@ -22,8 +23,56 @@ namespace Veldrid.SceneGraph.Web
         private uint _height;
         private InputState _inputState = new InputState();
 
+        public Platform PlatformType { get; }
         public uint Width => MainSwapchain.Width;
         public uint Height => MainSwapchain.Height;
+        
+        private event Func<uint, GraphicsDevice, ResourceFactory, Framebuffer, CommandBuffer[]> HandleFrameDelegate;
+        private event Action<GraphicsDevice> GraphicsDeviceResize;
+        
+        public void SetBackgroundColor(RgbaFloat color)
+        {
+            Camera.SetClearColor(color);
+        }
+
+        public void ViewAll()
+        {
+            CameraManipulator?.ViewAll(this);
+        }
+
+        void IViewer.Run()
+        {
+            Run();
+        }
+
+        public override void SetCamera(ICamera camera)
+        {
+            HandleFrameDelegate -= Camera.Renderer.HandleFrame;
+            GraphicsDeviceResize -= Camera.Renderer.HandleResize;
+
+            base.SetCamera(camera);
+
+            HandleFrameDelegate += Camera.Renderer.HandleFrame;
+            GraphicsDeviceResize += Camera.Renderer.HandleResize;
+        }
+
+        public void SetCameraOrthographic()
+        {
+            var camera = OrthographicCamera.Create(
+                DisplaySettings.Instance(this).ScreenWidth,
+                DisplaySettings.Instance(this).ScreenHeight,
+                DisplaySettings.Instance(this).ScreenDistance);
+            SetCamera(camera);
+        }
+
+        public void SetCameraPerspective()
+        {
+            var camera = PerspectiveCamera.Create(
+                DisplaySettings.Instance(this).ScreenWidth,
+                DisplaySettings.Instance(this).ScreenHeight,
+                DisplaySettings.Instance(this).ScreenDistance);
+            SetCamera(camera);
+        }
 
         public GraphicsDevice Device { get; }
 
@@ -42,7 +91,12 @@ namespace Veldrid.SceneGraph.Web
         public event Action<double> Update;
         public event Func<double, CommandBuffer[]> Render;
 
-        public WebViewer()
+        public static IViewer Create(string title, TextureSampleCount fsSampleCount = TextureSampleCount.Count1)
+        {
+            return new WebViewer(title);
+        }
+        
+        public WebViewer(string title) : base(CanvasWidth, CanvasHeight, 1000.0f)
         {
             if (!IsWebGL2Supported())
             {
@@ -50,7 +104,7 @@ namespace Veldrid.SceneGraph.Web
                 return;
             }
 
-            HtmlHelper.AddHeader1("Veldrid Sample Gallery");
+            HtmlHelper.AddHeader1("This is a title!");
 
             string divCanvasName = $"div_canvas";
             string canvasName = $"canvas";
@@ -194,7 +248,8 @@ namespace Veldrid.SceneGraph.Web
 
         private CommandBuffer[] HandleFrame(uint frameIndex, Framebuffer fb)
         {
-            return Render?.Invoke(_deltaSeconds);
+            return HandleFrameDelegate?.Invoke(frameIndex, Device, Device.ResourceFactory, fb);
         }
+        
     }
 }

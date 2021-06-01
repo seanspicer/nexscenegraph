@@ -18,6 +18,8 @@ namespace Veldrid.SceneGraph
 {
     public interface IGraphicsDeviceOperation
     {
+        CommandBuffer[] HandleFrame(uint frameIndex, GraphicsDevice device, ResourceFactory factory, Framebuffer fb);
+        
         void HandleOperation(GraphicsDevice device, ResourceFactory factory);
 
         void HandleResize(GraphicsDevice device);

@@ -81,6 +81,19 @@ namespace Veldrid.SceneGraph.Viewer
             _doFrameCapture = true;
         }
 
+        public CommandBuffer[] HandleFrame(uint frameIndex, GraphicsDevice device, ResourceFactory factory, Framebuffer fb)
+        {
+            Event();
+            
+            Update();
+            
+            Cull(device, factory);
+            
+            UpdateUniforms(device, factory);
+            
+            return RecordCommandBuffers(device, factory, fb);
+        }
+        
         public void HandleOperation(GraphicsDevice device, ResourceFactory factory)
         {
             // TODO - this doesn't work on Metal
@@ -316,7 +329,7 @@ namespace Veldrid.SceneGraph.Viewer
             _commandList.End();
         }
 
-        private void RecordCommandBuffers(GraphicsDevice device, ResourceFactory factory, Framebuffer framebuffer)
+        private CommandBuffer[] RecordCommandBuffers(GraphicsDevice device, ResourceFactory factory, Framebuffer framebuffer)
         {
             foreach (var buffer in _commandBuffers)
             {
@@ -412,6 +425,8 @@ namespace Veldrid.SceneGraph.Viewer
                 blitter.EndRenderPass();
                 _commandBuffers.Add(blitter);
             }
+
+            return _commandBuffers.ToArray();
         }
         
         private void Draw(GraphicsDevice device)
@@ -450,8 +465,7 @@ namespace Veldrid.SceneGraph.Viewer
                 }
             } 
             
-            RecordCommandBuffers(device, factory, sc.Framebuffers[_frameIndex]);
-            CommandBuffer[] cbs = _commandBuffers.ToArray();
+            var cbs = RecordCommandBuffers(device, factory, sc.Framebuffers[_frameIndex]);
             device.SubmitCommands(
                 cbs,
                 _imageAcquiredSems[_frameIndex],
