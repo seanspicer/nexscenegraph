@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using Serilog;
 using Veldrid;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.InputAdapter;
@@ -10,6 +12,8 @@ using Veldrid.SceneGraph.Math.IsoSurface;
 using Veldrid.SceneGraph.NodeKits.DirectVolumeRendering;
 using Veldrid.SceneGraph.Shaders;
 using Veldrid.SceneGraph.Util;
+using EventHandler = System.EventHandler;
+using Math = System.Math;
 
 namespace Examples.Common
 {
@@ -63,63 +67,29 @@ namespace Examples.Common
         private readonly IVolumeTile _volumeTile;
         private Matrix4x4 _worldToLocal;
 
-        public DraggerVolumeTileCallback(IVolumeTile volumeTile, ILocator locator)
+        private ITabBoxDragger _dragger;
+        
+        public DraggerVolumeTileCallback(IVolumeTile volumeTile, ILocator locator, ITabBoxDragger dragger)
         {
             _volumeTile = volumeTile;
             _locator = locator;
+            _dragger = dragger;
         }
 
         public override bool Receive(IMotionCommand command)
         {
             if (null == _locator) return false;
-
+            
             switch (command.Stage)
             {
                 case IMotionCommand.MotionStage.Start:
                 {
-                    // Save the current matrix
-                    _startMotionMatrix = _locator.Transform;
-
-                    // Get the LocalToWorld and WorldToLocal matrix for this node.
-                    var nodePathToRoot = Util.ComputeNodePathToRoot(_volumeTile);
-                    _localToWorld = _startMotionMatrix * Transform.ComputeLocalToWorld(nodePathToRoot);
-                    if (Matrix4x4.Invert(_localToWorld, out var worldToLocal)) _worldToLocal = worldToLocal;
-
                     return true;
                 }
                 case IMotionCommand.MotionStage.Move:
                 {
-                    // Transform the command's motion matrix into local motion matrix.
-                    var localMotionMatrix = _localToWorld * command.GetWorldToLocal()
-                                                          * command.GetMotionMatrix()
-                                                          * command.GetLocalToWorld() * _worldToLocal;
-
-                    var matrix = localMotionMatrix.PostMultiply(_startMotionMatrix);
-
-                    var xMin = matrix.M41;
-                    var yMin = matrix.M42;
-                    var zMin = matrix.M43;
-
-                    var xMax = matrix.M11 + xMin;
-                    var yMax = matrix.M22 + yMin;
-                    var zMax = matrix.M33 + zMin;
-
-                    if (_volumeTile.Layer is IVoxelVolumeLayer layer)
-                    {
-                        var lcl = layer.BaseLocator;
-                        if (xMin >= lcl.XMin &&
-                            xMax <= lcl.XMax &&
-                            yMin >= lcl.YMin &&
-                            yMax <= lcl.YMax &&
-                            zMin >= lcl.ZMin &&
-                            zMax <= lcl.ZMax)
-                        {
-                        }
-                    }
-
-                    // Transform by the localMotionMatrix
-                    _locator.SetTransform(localMotionMatrix.PostMultiply(_startMotionMatrix));
-
+                    _locator.SetTransform(_dragger.Matrix);
+                    
                     return true;
                 }
                 case IMotionCommand.MotionStage.Finish:
@@ -133,6 +103,99 @@ namespace Examples.Common
         }
     }
 
+    public class RotateDraggerEventHandler : UiEventHandler
+    {
+        private readonly ILogger _logger;
+        private ITabBoxDragger _dragger;
+        private ILevoyCabralLocator _locator;
+
+        private int zDegrees = 0;
+        private int yDegrees = 0;
+        private int xDegrees = 0;
+        
+        public RotateDraggerEventHandler(ITabBoxDragger dragger, ILevoyCabralLocator locator)
+        {
+            _dragger = dragger;
+            _locator = locator;
+        }
+
+        public override bool Handle(IUiEventAdapter eventAdapter, IUiActionAdapter uiActionAdapter)
+        {
+            var unitToWorld = _locator.Transform;
+            var zeroInWorld = Vector3.Transform(Vector3.Zero, _locator.Transform);
+            var translateToZero = Matrix4x4.CreateTranslation(zeroInWorld);
+
+            var doRot = false;
+            
+            switch (eventAdapter.Key)
+            {
+                case IUiEventAdapter.KeySymbol.KeyX:
+                    if ((eventAdapter.ModKeyMask & IUiEventAdapter.ModKeyMaskType.ModKeyShift) != 0)
+                    {
+                        xDegrees -= 10;
+                    }
+                    else
+                    {
+                        xDegrees += 10;
+                    }
+
+                    doRot = true;
+                    break;
+                
+                case IUiEventAdapter.KeySymbol.KeyY:
+                    if ((eventAdapter.ModKeyMask & IUiEventAdapter.ModKeyMaskType.ModKeyShift) != 0)
+                    {
+                        yDegrees -= 10;
+                    }
+                    else
+                    {
+                        yDegrees += 10;
+                    }
+                    doRot = true;
+                    break;
+                
+                case IUiEventAdapter.KeySymbol.KeyZ:
+                    if ((eventAdapter.ModKeyMask & IUiEventAdapter.ModKeyMaskType.ModKeyShift) != 0)
+                    {
+                        zDegrees -= 10;
+                    }
+                    else
+                    {
+                        zDegrees += 10;
+                    }
+                    doRot = true;
+                    break;
+                default:
+                    break;
+            }
+
+            if (doRot)
+            {
+                var rot =
+                    Matrix4x4.CreateFromAxisAngle(Vector3.UnitX, (float) (xDegrees * Math.PI / 180)) *
+                    Matrix4x4.CreateFromAxisAngle(Vector3.UnitY, (float) (yDegrees * Math.PI / 180)) *
+                    Matrix4x4.CreateFromAxisAngle(Vector3.UnitZ, (float) (zDegrees * Math.PI / 180));
+            
+                if (Matrix4x4.Invert(translateToZero, out var translateFromZero))
+                {
+                    _dragger.Rotation = rot;
+                    Matrix4x4.Decompose(_dragger.Matrix, out var scale, out var curRot, out var translation);
+                    var inverseRotation = Matrix4x4.CreateFromQuaternion(Quaternion.Inverse(curRot));
+                        
+                        
+                    _dragger.Matrix = unitToWorld * translateFromZero * inverseRotation*rot * translateToZero;
+                        
+                }
+
+                _locator.SetTransform(_dragger.Matrix);
+            
+                return true;
+            }
+
+            return false;
+        }
+    }
+    
     public class VolumeExtentsConstraint : Constraint
     {
         private float _xmax;
@@ -162,14 +225,16 @@ namespace Examples.Common
     {
         private ILevoyCabralTechnique _technique;
         private DateTime _lastUpdate;
-
+        private DateTime _startTime;
+        
         internal UpdateVolumeColormapCallback(ILevoyCabralTechnique technique)
         {
             _technique = technique;
             _lastUpdate = DateTime.Now;
+            _startTime = DateTime.Now;
         }
 
-        private static byte[] GenerateColormap(uint colormapSize)
+        private static byte[] GenerateColormap(uint colormapSize, long ticks)
         {
             var random = new Random();
             var rgbaData = new byte[colormapSize * 4];
@@ -191,7 +256,9 @@ namespace Examples.Common
                     rgbaData[index + 0] = (byte) random.Next(127,255);; // R
                     rgbaData[index + 1] = (byte) random.Next(127,255);; // G
                     rgbaData[index + 2] = (byte) random.Next(127,255);; // B
-                    rgbaData[index + 3] = 0; // A
+                    
+                    
+                    rgbaData[index + 3] = 255; // A
                 }
                 else if (val < 0.1)
                 {
@@ -199,7 +266,9 @@ namespace Examples.Common
                     rgbaData[index + 0] = (byte) random.Next(127,255);;
                     rgbaData[index + 1] = (byte) random.Next(127,255);;
                     rgbaData[index + 2] = (byte) random.Next(127,255);;
-                    rgbaData[index + 3] = 255;
+                    
+                    var alpha = (byte)(ticks % 128);
+                    rgbaData[index + 3] = alpha;
                 }
             }
 
@@ -210,29 +279,58 @@ namespace Examples.Common
         {
             var curTime = DateTime.Now;
             var span = curTime - _lastUpdate;
-            if (span.TotalSeconds < 1) return false;
-            
-            var textureData = _technique.ColormapData?.ProcessedTexture?.TextureData;
-            if (null != textureData)
+            var totalSecs = (long)System.Math.Ceiling((curTime - _startTime).TotalMilliseconds/20);
+            if (span.TotalSeconds > 1)
             {
-                var colormapSize = (uint)(textureData.Length / 4);
-                var newData = GenerateColormap(colormapSize);
+                var textureData = _technique.ColormapData?.ProcessedTexture?.TextureData;
+                if (null != textureData)
+                {
+                    var colormapSize = (uint)(textureData.Length / 4);
+                    var newData = GenerateColormap(colormapSize, totalSecs);
 
-                _technique.ColormapData.ProcessedTexture.TextureData = newData;
-                _technique.ColormapData.Dirty();
+                    _technique.ColormapData.ProcessedTexture.TextureData = newData;
+                    _technique.ColormapData.Dirty();
+                }
+
+                _lastUpdate = curTime;
             }
+            else
+            {
+                var rgbaData = _technique.ColormapData?.ProcessedTexture?.TextureData.ToArray();
+                if (null != rgbaData)
+                {
+                    var colormapSize = (uint) (rgbaData.Length / 4);
+                    
+                    for (var i = 0; i < colormapSize; ++i)
+                    {
+                        var val = i / ((float) colormapSize - 1);
 
-            _lastUpdate = curTime;
+                        var index = 4 * i;
+
+                        if (val < 0.1)
+                        {
+                            var alpha = (byte)(totalSecs % 128);
+                            rgbaData[index + 3] = alpha;
+                        }
+                    }
+                    _technique.ColormapData.ProcessedTexture.TextureData = rgbaData;
+                    _technique.ColormapData.Dirty();
+                }
+                
+            }
+            
             
             return true;
         }
     }
 
+    
+
     public class SampledVolumeRenderingExampleScene
     {
         public delegate IShaderSet ShaderSetBuilder();
 
-        public static IGroup Build(ShaderSetBuilder builder, IVoxelVolume voxelVolume,
+        public static (IGroup, IUiEventHandler) Build(ShaderSetBuilder builder, IVoxelVolume voxelVolume,
             LevoyCabralTechnique.VolumeTextureGenerator volumeTextureGenerator,
             LevoyCabralTechnique.ColormapTextureGenerator colormapTextureGenerator)
         {
@@ -248,16 +346,23 @@ namespace Examples.Common
             var technique = LevoyCabralTechnique.Create(builder(), volumeTextureGenerator, colormapTextureGenerator);
             tile1.SetVolumeTechnique(technique);
             
-            tile1.SetUpdateCallback(new UpdateVolumeColormapCallback(technique));
+            //tile1.SetUpdateCallback(new UpdateVolumeColormapCallback(technique));
 
             var dragger1 = TabBoxDragger.Create();
             dragger1.SetupDefaultGeometry();
             dragger1.ActivationModKeyMask = IUiEventAdapter.ModKeyMaskType.ModKeyCtl;
             dragger1.HandleEvents = true;
-            dragger1.DraggerCallbacks.Add(new DraggerVolumeTileCallback(tile1, tile1.Locator));
-            dragger1.Matrix = Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f)
-                .PostMultiply(tile1.Locator.Transform);
+            dragger1.DraggerCallbacks.Add(new DraggerVolumeTileCallback(tile1, tile1.Locator, dragger1));
+            dragger1.Matrix =
+                Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f) *
+                    tile1.Locator.Transform;
+            
+            tile1.Locator.SetTransform(dragger1.Matrix);
 
+            // dragger1.Matrix =
+            //     Matrix4x4.CreateTranslation(0.5f, 0.5f, 0.5f)
+            //         .PostMultiply(tile1.Locator.Transform);
+            
             /////////////////
 
             // var tile2 = VolumeTile.Create();
@@ -278,14 +383,21 @@ namespace Examples.Common
 
             var root = Group.Create();
             root.AddChild(volume);
+
+            
             root.AddChild(dragger1);
+
+            
+            var eventHandler = new RotateDraggerEventHandler(dragger1, (ILevoyCabralLocator)tile1.Locator);
+            
             //root.AddChild(dragger2);
-            return root;
+            return (root, eventHandler);
         }
 
         public static IGroup Build()
         {
-            return Build(CreateShaderSet, new CornerVoxelVolume(), null, null);
+            var (root, handler) = Build(CreateShaderSet, new CornerVoxelVolume(), null, null);
+            return root;
         }
 
         public static IShaderSet CreateShaderSet()

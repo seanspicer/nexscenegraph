@@ -195,14 +195,14 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             OutlinesGeometry.PipelineState.RasterizerStateDescription = RasterizerStateDescription.CullNone;
 
             geode.AddDrawable(Geometry);
-            //geode.AddDrawable(OutlinesGeometry);
+            geode.AddDrawable(OutlinesGeometry);
             return geode;
         }
 
         private void BuildIsoSurfaces()
         {
             // TODO enable changing this.
-            var sampleRate = 200;
+            var sampleRate = 20;
             var sampleStep = (_levoyCabralLocator.MaxDist - _levoyCabralLocator.MinDist) / sampleRate;
 
             _isoSurfaces.Clear();

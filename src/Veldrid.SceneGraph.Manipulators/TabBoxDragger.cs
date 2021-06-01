@@ -23,10 +23,27 @@ namespace Veldrid.SceneGraph.Manipulators
 {
     public interface ITabBoxDragger : ICompositeDragger
     {
+        
+        Matrix4x4 Rotation { get; set; }
+        Matrix4x4 InverseRotation { get; }
     }
 
     public class TabBoxDragger : CompositeDragger, ITabBoxDragger
     {
+        private Matrix4x4 _rotation = Matrix4x4.Identity;
+        public Matrix4x4 Rotation
+        {
+            get => _rotation;
+            set { 
+                if (Matrix4x4.Invert(value, out var inv))
+                {
+                    InverseRotation = inv;
+                }
+            }
+        }
+
+        public Matrix4x4 InverseRotation { get; private set; } = Matrix4x4.Identity;
+        
         protected TabBoxDragger(Matrix4x4 matrix) : base(matrix)
         {
             for (var i = 0; i < 6; ++i)

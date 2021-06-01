@@ -27,11 +27,12 @@ namespace DirectVolRen3DTexture
             viewer.SetBackgroundColor(RgbaFloat.Black);
             viewer.SetCameraManipulator(TrackballManipulator.Create());
 
-            var root = SampledVolumeRenderingExampleScene.Build(CreateShaderSet, 
+            var (root, eventHandler) = SampledVolumeRenderingExampleScene.Build(CreateShaderSet, 
                 new TestVoxelVolume(256, 256, 256), GenerateVolume, 
                 GenerateColormap);
 
             viewer.SetSceneData(root);
+            viewer.AddInputEventHandler(eventHandler);
             viewer.ViewAll();
             viewer.Run();
         }

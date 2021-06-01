@@ -15,7 +15,9 @@
 //
 
 using System.Numerics;
+using System.Xml.Serialization;
 using Veldrid.SceneGraph.Math.IsoSurface;
+using Veldrid.SceneGraph.Util;
 
 namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 {
@@ -34,6 +36,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         public double ZMax { get; }
         public void UpdateDistances(Vector3 eyePoint);
         Vector3 TexGen(Vector3 point);
+
     }
 
     public class LevoyCabralLocator : Locator, ILevoyCabralLocator
@@ -103,7 +106,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
         public double MinDist { get; private set; }
         public double MaxDist { get; private set; }
-
+        
         public virtual Vector3 TexGen(Vector3 point)
         {
             return new Vector3(
@@ -116,16 +119,20 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         public override void SetTransform(Matrix4x4 transform)
         {
             _transform = transform;
-            if (Matrix4x4.Invert(_transform, out var inverse)) _inverse = inverse;
+            if (Matrix4x4.Invert(_transform, out var inverse))
+            {
+                _inverse = inverse;
+            }
+            
+            
+            XMin = -0.5f;
+            YMin = -0.5f;
+            ZMin = -0.5f;
 
-            XMin = Transform.M41;
-            YMin = Transform.M42;
-            ZMin = Transform.M43;
-
-            XMax = Transform.M11 + XMin;
-            YMax = Transform.M22 + YMin;
-            ZMax = Transform.M33 + ZMin;
-
+            XMax = 0.5f;
+            YMax = 0.5f;
+            ZMax = 0.5f;
+            
             UpdateDistances(_lastEyePoint);
 
             LocatorModified();
@@ -179,11 +186,16 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
                     (float) YValues[x, y, z],
                     (float) ZValues[x, y, z]);
 
+                pos = Vector3.Transform(pos, Transform);
+                
                 var dist = System.Math.Abs((pos - eyePoint).Length());
 
                 if (dist < MinDist) MinDist = dist;
                 if (dist > MaxDist) MaxDist = dist;
 
+                XValues[x, y, z] = pos.X;
+                YValues[x, y, z] = pos.Y;
+                ZValues[x, y, z] = pos.Z;
                 Values[x, y, z] = dist;
             }
         }
