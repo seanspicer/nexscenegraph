@@ -45,7 +45,7 @@ namespace Veldrid.SceneGraph
         
         protected TextureBase(uint resourceSetNo, string textureName, string samplerName)
         {
-            SamplerDescription = SamplerDescription.Aniso4x;
+            SamplerDescription = SamplerDescription.Linear;
             ResourceSetNo = resourceSetNo;
             TextureName = textureName;
             SamplerName = samplerName;
@@ -58,6 +58,7 @@ namespace Veldrid.SceneGraph
             TextureName = textureName;
             SamplerName = samplerName;
             ProcessedTexture = processedTexture;
+            SamplerDescription = samplerDescription;
         }
         
         public void Dirty()
