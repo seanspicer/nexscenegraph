@@ -404,7 +404,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             var allTexData = VolumeData(voxelVolume, xdim, ydim, zdim);
             
             var texData = new ProcessedTexture(
-                PixelFormat.R8_UInt, TextureType.Texture3D,
+                PixelFormat.R8_G8_B8_A8_UNorm, TextureType.Texture3D,
                 (uint) xdim, (uint) ydim, (uint) zdim,
                 (uint) 1, 1,
                 allTexData);
