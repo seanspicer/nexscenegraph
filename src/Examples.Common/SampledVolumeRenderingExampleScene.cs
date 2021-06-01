@@ -344,6 +344,8 @@ namespace Examples.Common
             tile1.Layer = layer;
             tile1.Locator = layer.GetLocator();
             var technique = LevoyCabralTechnique.Create(builder(), volumeTextureGenerator, colormapTextureGenerator);
+            technique.SetSampleRate(20);
+            technique.SetDrawOutlines(true);
             tile1.SetVolumeTechnique(technique);
             
             //tile1.SetUpdateCallback(new UpdateVolumeColormapCallback(technique));

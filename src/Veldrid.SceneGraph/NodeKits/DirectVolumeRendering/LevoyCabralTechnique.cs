@@ -31,6 +31,10 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
     public interface ILevoyCabralTechnique : IVolumeTechnique
     {
         ITexture1D ColormapData { get; }
+
+        void SetSampleRate(int sampleRate);
+
+        void SetDrawOutlines(bool drawOutlines);
     }
 
     public class LevoyCabralTechnique : VolumeTechnique, ILevoyCabralTechnique, ILocator.ILocatorCallback
@@ -59,7 +63,8 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
 
         protected IShaderSet ShaderSet { get; }
 
-        protected INode Node { get; set; }
+        private ISwitch GeomSwitch { get; set; } = null;
+        protected INode Node => GeomSwitch;
 
         protected IVoxelVolume VoxelVolume { get; set; }
         protected ITexture3D TextureData { get; set; }
@@ -70,6 +75,10 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
         protected IGeometry<Position3Color3> OutlinesGeometry { get; set; }
 
         private Vector3 _eyeLocal { get; set; }
+
+        private bool _drawOutlines = false;
+        
+        private int _sampleRate = 200;
 
         public override void Init()
         {
@@ -86,7 +95,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
                 ColormapData = ColormapTexture3DGenerator(1024u);
                 
                 // Create the Geometry Placeholder
-                Node = CreateSlices();
+                GeomSwitch = CreateSlices();
             }
             else
             {
@@ -94,6 +103,22 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             }
         }
 
+        public void SetSampleRate(int sampleRate)
+        {
+            _sampleRate = sampleRate;
+            _dirty = true;
+        }
+
+        public void SetDrawOutlines(bool drawOutlines)
+        {
+            _drawOutlines = drawOutlines;
+            if (null != GeomSwitch)
+            {
+                GeomSwitch.SetValue(1, _drawOutlines);
+            }
+            _dirty = true;
+        }
+        
         public void LocatorModified(ILocator locator)
         {
             _dirty = true;
@@ -106,6 +131,8 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             return new LevoyCabralTechnique(shaderSet, volumeTextureGenerator, colormapTextureGenerator);
         }
 
+        
+        
         public override void Update(IUpdateVisitor nv)
         {
             // Nothing to do here
@@ -153,7 +180,7 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             }
         }
 
-        protected IGeode CreateSlices()
+        protected ISwitch CreateSlices()
         {
             var geode = Geode.Create();
 
@@ -195,14 +222,21 @@ namespace Veldrid.SceneGraph.NodeKits.DirectVolumeRendering
             OutlinesGeometry.PipelineState.RasterizerStateDescription = RasterizerStateDescription.CullNone;
 
             geode.AddDrawable(Geometry);
-            geode.AddDrawable(OutlinesGeometry);
-            return geode;
+
+            var outlinesGeode = Geode.Create();
+            outlinesGeode.AddDrawable(OutlinesGeometry);
+
+            var geomSwitch = Switch.Create();
+            geomSwitch.AddChild(geode, true);
+            geomSwitch.AddChild(outlinesGeode, _drawOutlines);
+            
+            return geomSwitch;
         }
 
         private void BuildIsoSurfaces()
         {
             // TODO enable changing this.
-            var sampleRate = 20;
+            var sampleRate = _sampleRate;
             var sampleStep = (_levoyCabralLocator.MaxDist - _levoyCabralLocator.MinDist) / sampleRate;
 
             _isoSurfaces.Clear();
