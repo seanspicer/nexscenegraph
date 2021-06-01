@@ -104,7 +104,7 @@ namespace Veldrid.SceneGraph.Web
                 return;
             }
 
-            HtmlHelper.AddHeader1("This is a title!");
+            HtmlHelper.AddHeader1(title);
 
             string divCanvasName = $"div_canvas";
             string canvasName = $"canvas";
@@ -115,6 +115,9 @@ namespace Veldrid.SceneGraph.Web
             _frameLoop = new AdvancedFrameLoop(Device, MainSwapchain);
             _window = (JSObject)Runtime.GetGlobalObject();
 
+            HandleFrameDelegate += Camera.Renderer.HandleFrame;
+            GraphicsDeviceResize += Camera.Renderer.HandleResize;
+            
             canvas.Invoke("addEventListener", "mousemove", new Action<JSObject>((mouseEvent) =>
             {
                 int mX = (int)mouseEvent.GetObjectProperty("clientX");

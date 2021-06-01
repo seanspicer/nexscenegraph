@@ -21,7 +21,7 @@ namespace DirectVolRen3DTexture
         private static void Main(string[] args)
         {
             Bootstrapper.Configure();
-            LogManager.SetLogger(Bootstrapper.LoggerFactory);
+            //LogManager.SetLogger(Bootstrapper.LoggerFactory);
 
             var viewer = SimpleViewer.Create("Direct Volume Rendering w/ 3D Textures", TextureSampleCount.Count8);
             viewer.SetBackgroundColor(RgbaFloat.Black);

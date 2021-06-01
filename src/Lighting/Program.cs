@@ -27,7 +27,7 @@ namespace Lighting
         private static void Main(string[] args)
         {
             Bootstrapper.Configure();
-            LogManager.SetLogger(Bootstrapper.LoggerFactory);
+            //LogManager.SetLogger(Bootstrapper.LoggerFactory);
 
             var viewer = SimpleViewer.Create("Phong Shaded Dragon Scene Graph", TextureSampleCount.Count8);
             //viewer.SetCameraOrthographic();

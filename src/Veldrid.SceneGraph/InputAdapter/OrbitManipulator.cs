@@ -390,8 +390,8 @@ namespace Veldrid.SceneGraph.InputAdapter
             // Fallback - should really not be called.
             else
             {
-                LogManager.LoggerFactory.CreateLogger<OrbitManipulator>()
-                    .LogWarning("In ViewAll() fallback -- this should not be called.");
+                // LogManager.LoggerFactory.CreateLogger<OrbitManipulator>()
+                //     .LogWarning("In ViewAll() fallback -- this should not be called.");
                 ComputeHomePosition(null, (_flags & UserInteractionFlags.ComputeHomeUsingBoundingBox) != 0);
                 SetTransformation(_homeEye, _homeCenter, _homeUp, true);
             }

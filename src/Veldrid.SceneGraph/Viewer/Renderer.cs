@@ -69,7 +69,7 @@ namespace Veldrid.SceneGraph.Viewer
             _camera = camera;
             _updateVisitor = UpdateVisitor.Create();
             _cullVisitor = CullVisitor.Create();
-            _logger = LogManager.CreateLogger<Renderer>();
+            //_logger = LogManager.CreateLogger<Renderer>();
             _fullScreenQuadRenderer = new FullScreenQuadRenderer();
             SceneContext = null;
         }

@@ -13,7 +13,7 @@ namespace ExampleViewer
             // TODO - add argument parsing
 
             Bootstrapper.Configure();
-            LogManager.SetLogger(Bootstrapper.LoggerFactory);
+            //LogManager.SetLogger(Bootstrapper.LoggerFactory);
 
             var viewer = SimpleViewer.Create("ExampleViewer", TextureSampleCount.Count8);
 

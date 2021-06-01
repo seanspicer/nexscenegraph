@@ -11,7 +11,7 @@ namespace LargeSphereCount
         private static void Main(string[] args)
         {
             Bootstrapper.Configure();
-            LogManager.SetLogger(Bootstrapper.LoggerFactory);
+            //LogManager.SetLogger(Bootstrapper.LoggerFactory);
 
             var viewer = SimpleViewer.Create("LargeSphereCount Example Scene", TextureSampleCount.Count8);
             //viewer.SetCameraOrthographic();
