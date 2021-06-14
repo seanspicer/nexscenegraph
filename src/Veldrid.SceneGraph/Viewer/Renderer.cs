@@ -83,6 +83,21 @@ namespace Veldrid.SceneGraph.Viewer
 
         public CommandBuffer[] HandleFrame(uint frameIndex, GraphicsDevice device, ResourceFactory factory, Framebuffer fb)
         {
+            if (!_initialized) Initialize(device, factory);
+            
+            if (null == device)
+            {
+                throw new Exception("Graphics Device is not set!");
+            }
+            
+            if (null == factory)
+            {
+                throw new Exception("Resource Factory is not set!");
+            }
+            
+            _stopWatch.Reset();
+            _stopWatch.Start();
+            
             Event();
             
             Update();
@@ -178,7 +193,17 @@ namespace Veldrid.SceneGraph.Viewer
 
         private void Initialize(GraphicsDevice device, ResourceFactory factory)
         {
-            var alignment = device.UniformBufferMinOffsetAlignment;
+            if (null == device)
+            {
+                throw new Exception("Graphics Device is not set!");
+            }
+            
+            if (null == factory)
+            {
+                throw new Exception("Resource Factory is not set!");
+            }
+
+            var alignment = 256u; // TODO - fixme! device.UniformBufferMinOffsetAlignment;
             if (alignment > 64u) _hostBufferStride = alignment / 64u;
 
             _cullVisitor.GraphicsDevice = device;
@@ -200,7 +225,7 @@ namespace Veldrid.SceneGraph.Viewer
             _resourceSet = factory.CreateResourceSet(
                 new ResourceSetDescription(_resourceLayout, _projectionBuffer, _viewBuffer));
 
-            _commandList = factory.CreateCommandList();
+            //_commandList = factory.CreateCommandList();
 
             _renderInfo = new RenderInfo();
             _renderInfo.GraphicsDevice = device;
@@ -249,6 +274,8 @@ namespace Veldrid.SceneGraph.Viewer
         {
             using (var mcv = _cullVisitor.ToMutable())
             {
+                
+                
                 // Reset the visitor
                 mcv.Reset();
 
@@ -259,6 +286,16 @@ namespace Veldrid.SceneGraph.Viewer
                 mcv.Prepare();
             }
 
+            if (null == _cullVisitor.GraphicsDevice)
+            {
+                throw new Exception("Graphics Device is not set!");
+            }
+            
+            if (null == _cullVisitor.ResourceFactory)
+            {
+                throw new Exception("Resource Factory is not set!");
+            }
+            
             if (_camera.View is View viewerView) viewerView.SceneData?.Accept(_cullVisitor);
         }
 
@@ -344,8 +381,8 @@ namespace Veldrid.SceneGraph.Viewer
 
             CommandBuffer cb = factory.CreateCommandBuffer(CommandBufferFlags.Reusable);
             cb.Name = $"Veldrid.SceneGraph Command Buffer";
-            
-            if (SceneContext.MainSceneColorTexture.SampleCount == TextureSampleCount.Count1)
+
+            if (true) //SceneContext.MainSceneColorTexture.SampleCount == TextureSampleCount.Count1)
             {
                 //var framebuffer = SceneContext.OutputFramebuffer;
 

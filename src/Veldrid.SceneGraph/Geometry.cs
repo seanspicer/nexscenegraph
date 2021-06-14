@@ -101,6 +101,16 @@ namespace Veldrid.SceneGraph
 
         public override void ConfigureDeviceBuffers(GraphicsDevice device, ResourceFactory factory)
         {
+            if (null == device)
+            {
+                throw new Exception("Graphics Device is not set!");
+            }
+            
+            if (null == factory)
+            {
+                throw new Exception("Resource Factory is not set!");
+            }
+            
             if (_vertexBufferCache.ContainsKey(device) && _indexBufferCache.ContainsKey(device)) return;
 
             var vertexBuffers = new List<DeviceBuffer>();

@@ -76,7 +76,9 @@ namespace Veldrid.SceneGraph.RenderGraph
             IDrawable drawable)
         {
             var modelOffset = 64u;
-            if (device.UniformBufferMinOffsetAlignment > 64) modelOffset = device.UniformBufferMinOffsetAlignment;
+            //TODO: fixme!
+            //if (device.UniformBufferMinOffsetAlignment > 64) 
+            modelOffset = 256;
 
             var maxAllowedDrawables = 65536u / modelOffset;
 

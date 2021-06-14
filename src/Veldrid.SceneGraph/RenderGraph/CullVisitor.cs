@@ -372,6 +372,8 @@ namespace Veldrid.SceneGraph.RenderGraph
             //
             // This allocates / updates vbo/ibos
             //
+            
+            
             drawable.ConfigureDeviceBuffers(GraphicsDevice, ResourceFactory);
 
             var renderElementCache = new Dictionary<IRenderGroupState, RenderGroupElement>();

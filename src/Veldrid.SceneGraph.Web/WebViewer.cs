@@ -251,6 +251,11 @@ namespace Veldrid.SceneGraph.Web
 
         private CommandBuffer[] HandleFrame(uint frameIndex, Framebuffer fb)
         {
+            if (null == Device || null == Device.ResourceFactory)
+            {
+                throw new Exception("Graphics device is not set!");
+            }
+            
             return HandleFrameDelegate?.Invoke(frameIndex, Device, Device.ResourceFactory, fb);
         }
         

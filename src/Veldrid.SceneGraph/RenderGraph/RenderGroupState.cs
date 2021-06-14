@@ -81,7 +81,7 @@ namespace Veldrid.SceneGraph.RenderGraph
         public RenderInfo GetPipelineAndResources(GraphicsDevice graphicsDevice, ResourceFactory resourceFactory,
             ResourceLayout vpLayout, Framebuffer framebuffer)
         {
-            var alignment = graphicsDevice.UniformBufferMinOffsetAlignment;
+            var alignment = 256u; //TODO: fixme! graphicsDevice.UniformBufferMinOffsetAlignment;
             var hostBufferStride = 1u;
             var modelViewMatrixObjSizeInBytes = 64u;
             if (alignment > 64u)
