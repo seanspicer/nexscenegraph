@@ -558,7 +558,10 @@ namespace Veldrid.SceneGraph.Viewer
                 var nDrawables = (uint) state.Elements.Count;
 
                 for (var i = 0; i < nDrawables; ++i)
+                {
                     ri.ModelViewMatrixBuffer[i * _hostBufferStride] = state.Elements[i].ModelViewMatrix;
+                }
+                    
                 device.UpdateBuffer(ri.ModelViewBuffer, 0, ri.ModelViewMatrixBuffer);
 
                 for (var i = 0; i < nDrawables; ++i)

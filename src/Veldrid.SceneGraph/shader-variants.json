@@ -1,0 +1,51 @@
+[
+  {
+    "Name": "Vertex3Color4",
+    "Shaders": [
+      {
+        "Stage": "Vertex",
+        "FileName": "Vertex3Color4-vertex.glsl"
+      },
+      {
+        "Stage": "Fragment",
+        "FileName": "Vertex3Color4-fragment.glsl"
+      }
+    ],
+    "CrossCompileOptions": {
+      "FixClipSpaceZ": false,
+      "InvertVertexOutputY": false
+    },
+    "Targets": [
+      "MSL",
+      "HLSL"
+    ]
+  },
+  {
+    "Name": "Vertex3Color4",
+    "Shaders": [
+      {
+        "Stage": "Vertex",
+        "FileName": "Vertex3Color4-vertex.glsl"
+      },
+      {
+        "Stage": "Fragment",
+        "FileName": "Vertex3Color4-fragment.glsl"
+      }
+    ],
+    "CrossCompileOptions": {
+      "FixClipSpaceZ": false,
+      "InvertVertexOutputY": false,
+      "Specializations": [
+        {
+          "ID": "1",
+          "Type": "Bool",
+          "Data": 1
+        }
+      ]
+    },
+    "Targets": [
+      "ESSL",
+      "GLSL"
+    ]
+  }
+]

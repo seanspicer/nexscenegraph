@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
 using Veldrid.SceneGraph.Shaders;
+using Veldrid.SceneGraph.Util;
 using Veldrid.SPIRV;
 using Veldrid.Utilities;
 
@@ -150,8 +151,6 @@ namespace Veldrid.SceneGraph.RenderGraph
                 bindableResourceList.Add(textureView);
                 var sampler = resourceFactory.CreateSampler(tex2d.SamplerDescription);
                 bindableResourceList.Add(sampler);
-                
-                
             }
 
 
@@ -200,13 +199,31 @@ namespace Veldrid.SceneGraph.RenderGraph
             // TODO - cache based on the shader description and reuse shader objects
             if (null != PipelineState.ShaderSet)
             {
-                (var vs, var fs) = GetShaders(graphicsDevice, framebuffer, PipelineState.ShaderSet);
+                if (PipelineState.ShaderSet is IEmbeddedShaderSet embeddedShaderSet)
+                {
+                    (Shader[] shaders, SpirvReflection reflection) = ShaderTools.LoadEmbeddedShaderSet(
+                        embeddedShaderSet.Assembly, resourceFactory, embeddedShaderSet.Name);
+            
+                    ShaderSetDescription shaderSet = new ShaderSetDescription(
+                        VertexLayouts.ToArray(),
+                        //Array.Empty<VertexLayoutDescription>(),
+                        shaders);
 
-                pd.ShaderSet = new ShaderSetDescription(
-                    VertexLayouts.ToArray(),
-                    new[] {vs, fs});
+                    pd.ShaderSet = shaderSet;
+                    //pd.ReflectedVertexElements = reflection.VertexElements;
+                    //pd.ReflectedResourceLayouts = reflection.ResourceLayouts;
+                    
+                }
+                else
+                {
+                    (var vs, var fs) = GetShaders(graphicsDevice, framebuffer, PipelineState.ShaderSet);
+
+                    pd.ShaderSet = new ShaderSetDescription(
+                        VertexLayouts.ToArray(),
+                        new[] {vs, fs});
+                }
             }
-
+            
             pd.ResourceLayouts = new[] {vpLayout, ri.ResourceLayout};
 
             pd.Outputs = framebuffer.OutputDescription;

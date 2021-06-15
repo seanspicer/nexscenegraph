@@ -42,6 +42,12 @@ namespace Veldrid.SceneGraph.Shaders.Standard
             ShaderSet = Shaders.ShaderSet.Create(name, vertexShaderDescription, fragmentShaderDescription);
         }
 
+        internal StandardShaderBase(string name)
+        {
+            var asm = Assembly.GetAssembly(GetType());
+            ShaderSet = Shaders.EmbeddedShaderSet.Create(name, asm);
+        }
+        
         public IShaderSet ShaderSet { get; }
     }
 }

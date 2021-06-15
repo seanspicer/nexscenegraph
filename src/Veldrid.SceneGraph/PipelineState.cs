@@ -22,6 +22,7 @@ namespace Veldrid.SceneGraph
     public interface IPipelineState
     {
         IShaderSet ShaderSet { get; set; }
+        string EmbeddedShaderName { get; set; }
         IReadOnlyList<ITexture> TextureList { get; }
         IReadOnlyList<IUniform> UniformList { get; }
         IReadOnlyList<IVertexBuffer> VertexBufferList { get; }
@@ -48,8 +49,8 @@ namespace Veldrid.SceneGraph
         }
 
         public Dictionary<IDrawable, IUniform> UniformDictionary { get; } = new Dictionary<IDrawable, IUniform>();
-
         public IShaderSet ShaderSet { get; set; }
+        public string EmbeddedShaderName { get; set; }
         public IReadOnlyList<ITexture> TextureList => _textureList;
         public IReadOnlyList<IUniform> UniformList => _uniformList;
         public IReadOnlyList<IVertexBuffer> VertexBufferList => _vertexBufferList;

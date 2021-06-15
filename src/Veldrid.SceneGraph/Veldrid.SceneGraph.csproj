@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <ShaderOutputPath>$(BaseIntermediateOutputPath)Shaders</ShaderOutputPath>
-    <ShaderContentIncludePath>Shaders</ShaderContentIncludePath>
+    <ShaderVariantDef>shader-variants.json</ShaderVariantDef>
+    <EmbedGeneratedShaders>true</EmbedGeneratedShaders>
     <LangVersion>8</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
@@ -15,6 +15,11 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <ShaderSourceDir Include="$(MSBuildThisFileDirectory)\Assets\Shaders" />
+  </ItemGroup>
+  
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.2" />
     <PackageReference Include="NativeLibraryLoader" Version="1.0.12" />
@@ -26,6 +31,7 @@
     <PackageReference Include="Veldrid" Version="4.9.0-g4eb49021a9" />
     <PackageReference Include="Veldrid.InputPrimitives" Version="4.9.0-g4eb49021a9" />
     <PackageReference Include="Veldrid.SPIRV" Version="1.0.14" />
+    <PackageReference Include="Veldrid.SPIRV.BuildTools" Version="1.0.14" />
     <PackageReference Include="Veldrid.Utilities" Version="4.9.0-g4eb49021a9" />
   </ItemGroup>
   <ItemGroup>
