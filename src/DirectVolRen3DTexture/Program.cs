@@ -137,7 +137,7 @@ namespace DirectVolRen3DTexture
             for (var y = 0; y < ydim; ++y)
             for (var z = 0; z < zdim; ++z)
             {
-                var index = (z + ydim * (y + xdim * x));
+                var index = (y * xdim + x) + (z*xdim*ydim);
                 volData[index] = (byte) (System.Math.Floor(voxelVolume.Values[x, y, z]*255.0));
                 
                 // if (voxelVolume.Values[x, y, z] > 0.6) // inner sphere

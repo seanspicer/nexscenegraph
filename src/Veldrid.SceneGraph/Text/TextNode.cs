@@ -382,6 +382,7 @@ namespace Veldrid.SceneGraph.Text
 
             PipelineState.AddTexture(
                 Texture2D.Create(BuildTexture(),
+                    SamplerDescription.Aniso4x, 
                     1,
                     "SurfaceTexture",
                     "SurfaceSampler"));

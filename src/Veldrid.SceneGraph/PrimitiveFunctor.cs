@@ -90,6 +90,10 @@ namespace Veldrid.SceneGraph
                     // Not implemented
                     break;
 
+                case PrimitiveTopology.LineList:
+                    // Not implemented
+                    break;
+                
                 default:
                     throw new NotImplementedException($"TODO: Implement me! PrimitiveTopology = {topology}.");
                     break;
