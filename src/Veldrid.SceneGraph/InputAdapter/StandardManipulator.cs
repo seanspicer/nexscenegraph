@@ -422,7 +422,7 @@ namespace Veldrid.SceneGraph.InputAdapter
             return 1.0f;
         }
 
-        protected abstract (Vector3, Vector3, Vector3) GetTransformation();
+        public abstract (Vector3, Vector3, Vector3) GetTransformation();
 
         protected bool SetCenterByMousePointerIntersection(IUiEventAdapter eventAdapter,
             IUiActionAdapter actionAdapter)

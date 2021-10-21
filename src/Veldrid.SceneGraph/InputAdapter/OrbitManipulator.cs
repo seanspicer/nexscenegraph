@@ -82,7 +82,7 @@ namespace Veldrid.SceneGraph.InputAdapter
             if (VerticalAxisFixed) throw new NotImplementedException();
         }
 
-        protected override (Vector3, Vector3, Vector3) GetTransformation()
+        public override (Vector3, Vector3, Vector3) GetTransformation()
         {
             var eye = _center + _rotation.RotateVector(Distance * Vector3.UnitZ);
             var up = _rotation.RotateVector(Vector3.UnitY);
