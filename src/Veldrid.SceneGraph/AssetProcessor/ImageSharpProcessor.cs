@@ -95,7 +95,7 @@ namespace Veldrid.SceneGraph.AssetProcessor
             return texData;
         }
 
-        private static Image<T>[] GenerateMipmaps<T>(Image<T> baseImage, out int totalSize) where T : struct, IPixel<T>
+        private static Image<T>[] GenerateMipmaps<T>(Image<T> baseImage, out int totalSize) where T : unmanaged, IPixel<T>
         {
             var mipLevelCount = ComputeMipLevels(baseImage.Width, baseImage.Height);
             var mipLevels = new Image<T>[mipLevelCount];
