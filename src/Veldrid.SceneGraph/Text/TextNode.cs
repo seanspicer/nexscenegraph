@@ -21,7 +21,7 @@ using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using SixLabors.Primitives;
+using SixLabors.ImageSharp.Drawing.Processing;
 using Veldrid.SceneGraph.AssetPrimitives;
 using Veldrid.SceneGraph.AssetProcessor;
 using Veldrid.SceneGraph.Shaders.Standard;
@@ -292,8 +292,8 @@ namespace Veldrid.SceneGraph.Text
             return new TextNode(
                 text,
                 fontSize,
-                Rgba32.White,
-                Rgba32.Transparent,
+                SixLabors.ImageSharp.Color.White,
+                SixLabors.ImageSharp.Color.Transparent,
                 verticalAlignment,
                 horizontalAlignment,
                 padding,
@@ -470,10 +470,10 @@ namespace Veldrid.SceneGraph.Text
                         throw new ArgumentOutOfRangeException();
                 }
 
-                var center = new PointF(hCenter, vCenter);
+                var center = new SixLabors.ImageSharp.PointF(hCenter, vCenter);
 
 
-                var textGraphicOptions = new TextGraphicsOptions(true)
+                var textGraphicOptions = new SixLabors.ImageSharp.Drawing.Processing.TextOptions()
                 {
                     HorizontalAlignment = HorizontalAlignment,
                     VerticalAlignment = VerticalAlignment,
@@ -481,8 +481,13 @@ namespace Veldrid.SceneGraph.Text
                     DpiY = 72 * FontResolution
                 };
 
+                var drawingOptions = new DrawingOptions()
+                {
+                    TextOptions = textGraphicOptions
+                };
+
                 img.Mutate(i => i.BackgroundColor(BackgroundColor));
-                img.Mutate(i => i.DrawText(textGraphicOptions, Text, scaledFont, TextColor, center));
+                img.Mutate(i => i.DrawText(drawingOptions, Text, scaledFont, TextColor, center));
 
                 var imageProcessor = new ImageSharpProcessor();
                 return imageProcessor.ProcessT(img);

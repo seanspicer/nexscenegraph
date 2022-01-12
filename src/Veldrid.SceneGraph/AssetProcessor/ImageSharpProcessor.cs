@@ -32,7 +32,8 @@ namespace Veldrid.SceneGraph.AssetProcessor
     {
         // Taken from Veldrid.ImageSharp
 
-        private static readonly IResampler s_resampler = new Lanczos3Resampler();
+        // private static readonly IResampler s_resampler = new Lanczos3Resampler();
+        private static readonly IResampler s_resampler = LanczosResampler.Lanczos3;
 
         public unsafe ProcessedTexture ProcessT(Image<Rgba32> image)
         {
@@ -45,11 +46,17 @@ namespace Veldrid.SceneGraph.AssetProcessor
                 foreach (var mipmap in mipmaps)
                 {
                     long mipSize = mipmap.Width * mipmap.Height * sizeof(Rgba32);
-                    fixed (Rgba32* pixelPtr =
-                        &MemoryMarshal.GetReference(mipmap.GetPixelSpan())
-                    ) //&mipmap.DangerousGetPinnableReferenceToPixelBuffer()))
+                    // [GetPixelSpan is removed without any release note? · Discussion #1263 · SixLabors/ImageSharp · GitHub]
+                    // (https://github.com/SixLabors/ImageSharp/discussions/1263)
+                    if ( mipmap.TryGetSinglePixelSpan(out var pixels))
                     {
-                        Buffer.MemoryCopy(pixelPtr, allTexDataPtr + offset, mipSize, mipSize);
+                        fixed (Rgba32* pixelPtr =
+                                   // &MemoryMarshal.GetReference(mipmap.GetPixelSpan())
+                                   &MemoryMarshal.GetReference(pixels)
+                              ) //&mipmap.DangerousGetPinnableReferenceToPixelBuffer()))
+                        {
+                            Buffer.MemoryCopy(pixelPtr, allTexDataPtr + offset, mipSize, mipSize);
+                        }
                     }
 
                     offset += mipSize;
@@ -67,6 +74,9 @@ namespace Veldrid.SceneGraph.AssetProcessor
         public override unsafe ProcessedTexture ProcessT(Stream stream, string extension)
         {
             var image = (Image<Rgba32>) Image.Load(stream);
+#if true
+            return ProcessT(image);
+#else
             var mipmaps = GenerateMipmaps(image, out var totalSize);
 
             var allTexData = new byte[totalSize];
@@ -93,9 +103,10 @@ namespace Veldrid.SceneGraph.AssetProcessor
                 (uint) mipmaps.Length, 1,
                 allTexData);
             return texData;
+#endif
         }
 
-        private static Image<T>[] GenerateMipmaps<T>(Image<T> baseImage, out int totalSize) where T : struct, IPixel<T>
+        private static Image<T>[] GenerateMipmaps<T>(Image<T> baseImage, out int totalSize) where T : unmanaged, IPixel<T>
         {
             var mipLevelCount = ComputeMipLevels(baseImage.Width, baseImage.Height);
             var mipLevels = new Image<T>[mipLevelCount];
