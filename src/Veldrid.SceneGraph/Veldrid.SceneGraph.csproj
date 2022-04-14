@@ -18,9 +18,10 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.2" />
     <PackageReference Include="NativeLibraryLoader" Version="1.0.10" />
-    <PackageReference Include="SixLabors.Fonts" Version="1.0.0-beta0009" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0007" />
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0007" />
+    <PackageReference Include="SixLabors.Core" Version="1.0.0-beta0008" />
+    <PackageReference Include="SixLabors.Fonts" Version="1.0.0-beta16" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.0" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta14" />
     <PackageReference Include="SixLabors.Shapes.Text" Version="1.0.0-beta0009" />
     <PackageReference Include="System.Reactive" Version="4.1.6" />
     <PackageReference Include="Veldrid" Version="4.8.0" />

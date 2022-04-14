@@ -19,9 +19,10 @@ using System.Collections.Generic;
 using System.Numerics;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Drawing;
+using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using SixLabors.Primitives;
 using Veldrid.SceneGraph.AssetPrimitives;
 using Veldrid.SceneGraph.AssetProcessor;
 using Veldrid.SceneGraph.Shaders.Standard;
@@ -292,8 +293,8 @@ namespace Veldrid.SceneGraph.Text
             return new TextNode(
                 text,
                 fontSize,
-                Rgba32.White,
-                Rgba32.Transparent,
+                SixLabors.ImageSharp.Color.White,
+                SixLabors.ImageSharp.Color.Transparent,
                 verticalAlignment,
                 horizontalAlignment,
                 padding,
@@ -407,7 +408,7 @@ namespace Veldrid.SceneGraph.Text
 
         internal void CalculateTextMetrics()
         {
-            var size = TextMeasurer.Measure(Text, new RendererOptions(Font, 72 * FontResolution));
+            var size = TextMeasurer.Measure(Text, new TextOptions(Font){Dpi = 72 * FontResolution, KerningMode = KerningMode.Auto});
 
             var padding = Padding * FontResolution;
 
@@ -432,7 +433,7 @@ namespace Veldrid.SceneGraph.Text
                 var targetHeight = img.Height - padding * 2;
 
                 // measure the text size
-                var size = TextMeasurer.Measure(Text, new RendererOptions(Font));
+                var size = TextMeasurer.Measure(Text, new TextOptions(Font));
 
                 //find out how much we need to scale the text to allow for alignment
                 var scalingFactor = System.Math.Min(targetWidth / img.Width, targetHeight / img.Height);
@@ -472,17 +473,25 @@ namespace Veldrid.SceneGraph.Text
 
                 var center = new PointF(hCenter, vCenter);
 
+                img.Mutate(i => i.BackgroundColor(BackgroundColor));
 
-                var textGraphicOptions = new TextGraphicsOptions(true)
+                var textOptions = new TextOptions(scaledFont)
                 {
+                    Origin = center,
                     HorizontalAlignment = HorizontalAlignment,
                     VerticalAlignment = VerticalAlignment,
-                    DpiX = 72 * FontResolution,
-                    DpiY = 72 * FontResolution
+                    Dpi = 72 * FontResolution
                 };
 
-                img.Mutate(i => i.BackgroundColor(BackgroundColor));
-                img.Mutate(i => i.DrawText(textGraphicOptions, Text, scaledFont, TextColor, center));
+                var drawingOptions = new DrawingOptions
+                {
+                    GraphicsOptions =
+                    {
+                        Antialias = true
+                    }
+                };
+                
+                img.Mutate(i => i.DrawText(drawingOptions, textOptions, Text, new SolidBrush(TextColor), null));
 
                 var imageProcessor = new ImageSharpProcessor();
                 return imageProcessor.ProcessT(img);
