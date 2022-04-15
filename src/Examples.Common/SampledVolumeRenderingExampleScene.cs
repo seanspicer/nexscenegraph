@@ -60,12 +60,12 @@ namespace Examples.Common
 
     public class DraggerVolumeTileCallback : DraggerCallback
     {
-        private Matrix4x4 _localToWorld;
+        //private Matrix4x4 _localToWorld;
         private readonly ILocator _locator;
 
-        private Matrix4x4 _startMotionMatrix;
+        //private Matrix4x4 _startMotionMatrix;
         private readonly IVolumeTile _volumeTile;
-        private Matrix4x4 _worldToLocal;
+        //private Matrix4x4 _worldToLocal;
 
         private ITabBoxDragger _dragger;
         
@@ -105,7 +105,7 @@ namespace Examples.Common
 
     public class RotateDraggerEventHandler : UiEventHandler
     {
-        private readonly ILogger _logger;
+        //private readonly ILogger _logger;
         private ITabBoxDragger _dragger;
         private ILevoyCabralLocator _locator;
 

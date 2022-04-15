@@ -308,7 +308,7 @@ namespace Veldrid.SceneGraph.InputAdapter
             if (eventTimeDelta < 0)
             {
                 throw new Exception($"Event Time Delta is Wrong? EventTimeDelta={eventTimeDelta} seconds");
-                eventTimeDelta = 0;
+                //eventTimeDelta = 0;
             }
 
             // Get Delta X and Delta Y

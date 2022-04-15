@@ -96,7 +96,6 @@ namespace Veldrid.SceneGraph
                 
                 default:
                     throw new NotImplementedException($"TODO: Implement me! PrimitiveTopology = {topology}.");
-                    break;
             }
         }
     }
