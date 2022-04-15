@@ -19,11 +19,15 @@ trigger: none  # Do not trigger automagically
 pool:
   vmImage: 'windows-latest'
 
-- task: GitVersion@5
+steps:
+- task: gitversion/setup@0
   inputs:
-    runtime: 'core'
+    versionSpec: '5.x'
+
+- task: gitversion/execute@0
+  inputs:
+    useConfigFile: true
     configFilePath: '$(System.DefaultWorkingDirectory)/GitVersion.yml'
-      updateAssemblyInfo: false
 
 - script: echo %Action%%BuildVersion%
   displayName: 'Set build version'
