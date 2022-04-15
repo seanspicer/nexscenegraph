@@ -20,9 +20,10 @@ pool:
   vmImage: 'windows-latest'
 
 steps:
-- task: GitVersion@5
+- task: UseGitVersion@5
   displayName: 'GitVersion'
   inputs:
+    versionSpec:'5.x'
     configFilePath: $(System.DefaultWorkingDirectory)/GitVersion.yml
     updateAssemblyInfo: false
 
