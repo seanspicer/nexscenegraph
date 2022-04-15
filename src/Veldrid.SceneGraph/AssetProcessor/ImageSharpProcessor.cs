@@ -17,6 +17,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using SixLabors.ImageSharp;
@@ -32,7 +33,7 @@ namespace Veldrid.SceneGraph.AssetProcessor
     {
         // Taken from Veldrid.ImageSharp
 
-        private static readonly IResampler s_resampler = new Lanczos3Resampler();
+        private static readonly IResampler s_resampler = new LanczosResampler(3);
 
         public unsafe ProcessedTexture ProcessT(Image<Rgba32> image)
         {
@@ -46,7 +47,7 @@ namespace Veldrid.SceneGraph.AssetProcessor
                 {
                     long mipSize = mipmap.Width * mipmap.Height * sizeof(Rgba32);
                     fixed (Rgba32* pixelPtr =
-                        &MemoryMarshal.GetReference(mipmap.GetPixelSpan())
+                        &MemoryMarshal.GetReference(mipmap.GetPixelMemoryGroup().Single().Span)
                     ) //&mipmap.DangerousGetPinnableReferenceToPixelBuffer()))
                     {
                         Buffer.MemoryCopy(pixelPtr, allTexDataPtr + offset, mipSize, mipSize);
@@ -77,7 +78,7 @@ namespace Veldrid.SceneGraph.AssetProcessor
                 {
                     long mipSize = mipmap.Width * mipmap.Height * sizeof(Rgba32);
                     fixed (Rgba32* pixelPtr =
-                        &MemoryMarshal.GetReference(mipmap.GetPixelSpan())
+                        &MemoryMarshal.GetReference(mipmap.GetPixelMemoryGroup().Single().Span)
                     ) //&mipmap.DangerousGetPinnableReferenceToPixelBuffer())
                     {
                         Buffer.MemoryCopy(pixelPtr, allTexDataPtr + offset, mipSize, mipSize);
@@ -95,7 +96,7 @@ namespace Veldrid.SceneGraph.AssetProcessor
             return texData;
         }
 
-        private static Image<T>[] GenerateMipmaps<T>(Image<T> baseImage, out int totalSize) where T : struct, IPixel<T>
+        private static Image<T>[] GenerateMipmaps<T>(Image<T> baseImage, out int totalSize) where T : unmanaged, IPixel<T>
         {
             var mipLevelCount = ComputeMipLevels(baseImage.Width, baseImage.Height);
             var mipLevels = new Image<T>[mipLevelCount];
