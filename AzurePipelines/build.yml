@@ -18,7 +18,7 @@ trigger: none  # Do not trigger automagically
 
 pool:
   vmImage: 'windows-latest'
-      
+
 - task: GitVersion@5
   inputs:
     runtime: 'core'
