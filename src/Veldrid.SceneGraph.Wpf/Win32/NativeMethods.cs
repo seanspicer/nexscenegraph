@@ -124,7 +124,7 @@ namespace Veldrid.SceneGraph.Wpf.Win32
             IntPtr hwndParent,
             IntPtr hMenu,
             IntPtr hInstance,
-            [MarshalAs(UnmanagedType.AsAny)] object pvParam);
+            IntPtr pvParam);
 
         [DllImport("user32.dll", EntryPoint = "DestroyWindow", CharSet = CharSet.Auto)]
         public static extern bool DestroyWindow(IntPtr hwnd);

@@ -356,7 +356,7 @@ namespace Veldrid.SceneGraph.Wpf.Controls
             // Create the window
             return Win32.NativeMethods.CreateWindowEx(0, WindowClass, "",
                Win32.NativeMethods.WS_CHILD | Win32.NativeMethods.WS_VISIBLE,
-               0, 0, (int) Width, (int) Height, hWndParent, IntPtr.Zero, IntPtr.Zero, 0);
+               0, 0, (int) Width, (int) Height, hWndParent, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
         }
 
         /// <summary>

@@ -453,7 +453,7 @@ namespace Veldrid.SceneGraph
             for (i=0; i<3; i++) for (j=i; j<3; j++)
                 S[i][j] = S[j][i] = 0.5f*(S[i][j]+S[j][i]);
             return (det);
-            return 1;
+            //return 1;
         }
         
         /******* Spectral Decomposition *******/
