@@ -57,7 +57,7 @@ namespace Veldrid.SceneGraph.Text
     {
         private Rgba32 _backgroundColor;
         private Rgba32 _outlineColor;
-        private int _outlineStrokeWidth;
+        private float _outlineStrokeWidth;
 
         private CharacterSizeModes _characterSizeMode;
         private float _charAspectRatio;
@@ -91,7 +91,7 @@ namespace Veldrid.SceneGraph.Text
             Rgba32 textColor,
             Rgba32 backgroundColor,
             Rgba32 outlineColor,
-            int outlineStrokeWidth,
+            float outlineStrokeWidth,
             VerticalAlignment verticalAlignment,
             HorizontalAlignment horizontalAlignment,
             int padding,
@@ -177,7 +177,7 @@ namespace Veldrid.SceneGraph.Text
             }
         }
 
-        public int OutlineStrokeWidth
+        public float OutlineStrokeWidth
         {
             get => _outlineStrokeWidth;
             set
@@ -303,7 +303,7 @@ namespace Veldrid.SceneGraph.Text
                 textColor,
                 backgroundColor,
                 SixLabors.ImageSharp.Color.Transparent,
-                0,
+                0.0f,
                 verticalAlignment,
                 horizontalAlignment,
                 padding,
@@ -315,7 +315,7 @@ namespace Veldrid.SceneGraph.Text
             float fontSize,
             Rgba32 textColor,
             Rgba32 outlineColor,
-            int outlineStrokeWidth,
+            float outlineStrokeWidth,
             Rgba32 backgroundColor,
             VerticalAlignment verticalAlignment = VerticalAlignment.Center,
             HorizontalAlignment horizontalAlignment = HorizontalAlignment.Center,
@@ -349,7 +349,7 @@ namespace Veldrid.SceneGraph.Text
                 SixLabors.ImageSharp.Color.White,
                 SixLabors.ImageSharp.Color.Transparent,
                 SixLabors.ImageSharp.Color.Transparent,
-                0,
+                0.0f,
                 verticalAlignment,
                 horizontalAlignment,
                 padding,
