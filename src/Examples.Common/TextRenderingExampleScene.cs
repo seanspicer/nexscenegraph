@@ -34,7 +34,7 @@ namespace Examples.Common
             // Left Justified Text 
             {
                 var leftJustifiedXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(0f, 60f, 0f));
-                var leftJustifiedText = TextNode.Create(text, 20f, Color.White, Color.Red, VerticalAlignment.Top,
+                var leftJustifiedText = TextNode.Create(text, SystemFonts.CreateFont("Arial", 20), Color.White, Color.Red, VerticalAlignment.Top,
                     HorizontalAlignment.Left, 4, 0.75f);
                 leftJustifiedText.AutoRotateToScreen = true;
                 leftJustifiedText.CharacterSizeMode = CharacterSizeModes.ObjectCoords;
@@ -47,8 +47,8 @@ namespace Examples.Common
             // Center Justified Text 
             {
                 var centerJustifiedXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(0f, 0f, 0f));
-                var centerJustifiedText = TextNode.Create(text, 40f, Color.Yellow, Color.Red, 2, Color.Blue,
-                    VerticalAlignment.Center, HorizontalAlignment.Center, 4, 1.5f);
+                var centerJustifiedText = TextNode.Create(text, SystemFonts.CreateFont("Arial", 40, FontStyle.Bold), Color.Yellow, Color.Red, 2, Color.Blue,
+                    VerticalAlignment.Center, HorizontalAlignment.Center, 4, 2f);
                 centerJustifiedText.AutoRotateToScreen = false;
                 centerJustifiedText.CharacterSizeMode = CharacterSizeModes.ObjectCoords;
                 var centerJustifiedGeode = Geode.Create();
@@ -60,7 +60,7 @@ namespace Examples.Common
             // Right Justified, Screen coordinate scaled Text 
             {
                 var rightJustifiedXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(0f, -60f, 0f));
-                var rightJustifiedText = TextNode.Create(text, 20f, Color.Black, Color.Green,
+                var rightJustifiedText = TextNode.Create(text, SystemFonts.CreateFont("Arial", 20), Color.Black, Color.Green,
                     VerticalAlignment.Bottom, HorizontalAlignment.Right, 4, 3);
                 rightJustifiedText.AutoRotateToScreen = true;
                 rightJustifiedText.CharacterSizeMode = CharacterSizeModes.ScreenCoords;

@@ -43,8 +43,8 @@ namespace Veldrid.SceneGraph.Text
         VerticalAlignment VerticalAlignment { get; set; }
 
         HorizontalAlignment HorizontalAlignment { get; set; }
-
-        float FontSize { get; set; }
+        
+        Font Font { get; }
 
         bool AutoRotateToScreen { get; set; }
 

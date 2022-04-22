@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing;
@@ -67,8 +68,6 @@ namespace Veldrid.SceneGraph.Text
 
         private float _fontResolution;
 
-        private float _fontSize;
-
         private HorizontalAlignment _horizontalAlignment;
 
         private Matrix4x4 _matrix;
@@ -87,7 +86,7 @@ namespace Veldrid.SceneGraph.Text
         private VerticalAlignment _verticalAlignment;
 
         protected TextNode(string text,
-            float fontSize,
+            Font font,
             Rgba32 textColor,
             Rgba32 backgroundColor,
             Rgba32 outlineColor,
@@ -98,7 +97,6 @@ namespace Veldrid.SceneGraph.Text
             float fontResolution)
         {
             _text = text;
-            _fontSize = fontSize;
             _verticalAlignment = verticalAlignment;
             _horizontalAlignment = horizontalAlignment;
             _padding = padding;
@@ -111,11 +109,13 @@ namespace Veldrid.SceneGraph.Text
             AutoRotateToScreen = true;
             _characterSizeMode = CharacterSizeModes.ScreenCoords;
 
+            Font = font;
+            
             ComputeTextRepresentation();
         }
         //private bool _dirty = true;
 
-        private Font Font { get; set; }
+        public Font Font { get; protected set; }
 
         public string Text
         {
@@ -193,16 +193,6 @@ namespace Veldrid.SceneGraph.Text
             set
             {
                 _verticalAlignment = value;
-                Dirty();
-            }
-        }
-
-        public float FontSize
-        {
-            get => _fontSize;
-            set
-            {
-                _fontSize = value;
                 Dirty();
             }
         }
@@ -289,7 +279,7 @@ namespace Veldrid.SceneGraph.Text
         }
 
         public static ITextNode Create(string text,
-            float fontSize,
+            Font font,
             Rgba32 textColor,
             Rgba32 backgroundColor,
             VerticalAlignment verticalAlignment = VerticalAlignment.Center,
@@ -299,7 +289,7 @@ namespace Veldrid.SceneGraph.Text
         {
             return new TextNode(
                 text,
-                fontSize,
+                font,
                 textColor,
                 backgroundColor,
                 SixLabors.ImageSharp.Color.Transparent,
@@ -312,7 +302,7 @@ namespace Veldrid.SceneGraph.Text
         }
         
         public static ITextNode Create(string text,
-            float fontSize,
+            Font font,
             Rgba32 textColor,
             Rgba32 outlineColor,
             float outlineStrokeWidth,
@@ -324,7 +314,7 @@ namespace Veldrid.SceneGraph.Text
         {
             return new TextNode(
                 text,
-                fontSize,
+                font,
                 textColor,
                 backgroundColor,
                 outlineColor,
@@ -337,7 +327,7 @@ namespace Veldrid.SceneGraph.Text
         }
 
         public static ITextNode Create(string text,
-            float fontSize = 20f,
+            Font font,
             VerticalAlignment verticalAlignment = VerticalAlignment.Center,
             HorizontalAlignment horizontalAlignment = HorizontalAlignment.Center,
             int padding = 4,
@@ -345,7 +335,7 @@ namespace Veldrid.SceneGraph.Text
         {
             return new TextNode(
                 text,
-                fontSize,
+                font,
                 SixLabors.ImageSharp.Color.White,
                 SixLabors.ImageSharp.Color.Transparent,
                 SixLabors.ImageSharp.Color.Transparent,
@@ -366,13 +356,10 @@ namespace Veldrid.SceneGraph.Text
         {
             _matrix = Matrix4x4.Identity;
 
-            // Create default Font
-            Font = SystemFonts.CreateFont("Arial", FontSize);
-
             CalculateTextMetrics();
 
-            var w = (float) _textAspectRatio * FontSize;
-            var h = 1.0f * FontSize;
+            var w = (float) _textAspectRatio * Font.Size;
+            var h = 1.0f * Font.Size;
 
             Vector4 widthVec;
             Vector4 heightVec;

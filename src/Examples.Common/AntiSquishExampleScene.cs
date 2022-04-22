@@ -93,7 +93,7 @@ namespace Examples.Common
 
         private static IMatrixTransform CreateText(string text)
         {
-            var textNode = TextNode.Create(text, 10, padding: 5, fontResolution: 3,
+            var textNode = TextNode.Create(text, SystemFonts.CreateFont("Arial", 10), padding: 5, fontResolution: 3,
                 horizontalAlignment: HorizontalAlignment.Left);
             textNode.AutoRotateToScreen = false;
             textNode.CharacterSizeMode = CharacterSizeModes.ObjectCoords;
