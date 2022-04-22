@@ -47,7 +47,7 @@ namespace Examples.Common
             // Center Justified Text 
             {
                 var centerJustifiedXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(0f, 0f, 0f));
-                var centerJustifiedText = TextNode.Create(text, 40f, Color.Yellow, Color.Blue,
+                var centerJustifiedText = TextNode.Create(text, 40f, Color.Yellow, Color.Red, 2, Color.Blue,
                     VerticalAlignment.Center, HorizontalAlignment.Center, 4, 1.5f);
                 centerJustifiedText.AutoRotateToScreen = false;
                 centerJustifiedText.CharacterSizeMode = CharacterSizeModes.ObjectCoords;

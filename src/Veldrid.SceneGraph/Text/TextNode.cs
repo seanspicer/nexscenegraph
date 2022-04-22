@@ -56,6 +56,8 @@ namespace Veldrid.SceneGraph.Text
     public class TextNode : Geometry<VertexPositionTexture>, ITextNode
     {
         private Rgba32 _backgroundColor;
+        private Rgba32 _outlineColor;
+        private int _outlineStrokeWidth;
 
         private CharacterSizeModes _characterSizeMode;
         private float _charAspectRatio;
@@ -88,6 +90,8 @@ namespace Veldrid.SceneGraph.Text
             float fontSize,
             Rgba32 textColor,
             Rgba32 backgroundColor,
+            Rgba32 outlineColor,
+            int outlineStrokeWidth,
             VerticalAlignment verticalAlignment,
             HorizontalAlignment horizontalAlignment,
             int padding,
@@ -100,6 +104,8 @@ namespace Veldrid.SceneGraph.Text
             _padding = padding;
             _textColor = textColor;
             _backgroundColor = backgroundColor;
+            _outlineColor = outlineColor;
+            _outlineStrokeWidth = outlineStrokeWidth;
             _fontResolution = fontResolution;
 
             AutoRotateToScreen = true;
@@ -160,7 +166,27 @@ namespace Veldrid.SceneGraph.Text
                 Dirty();
             }
         }
+        
+        public Rgba32 OutlineColor
+        {
+            get => _outlineColor;
+            set
+            {
+                _outlineColor = value;
+                Dirty();
+            }
+        }
 
+        public int OutlineStrokeWidth
+        {
+            get => _outlineStrokeWidth;
+            set
+            {
+                _outlineStrokeWidth = value;
+                Dirty();
+            }
+        }
+        
         public VerticalAlignment VerticalAlignment
         {
             get => _verticalAlignment;
@@ -276,6 +302,33 @@ namespace Veldrid.SceneGraph.Text
                 fontSize,
                 textColor,
                 backgroundColor,
+                SixLabors.ImageSharp.Color.Transparent,
+                0,
+                verticalAlignment,
+                horizontalAlignment,
+                padding,
+                fontResolution
+            );
+        }
+        
+        public static ITextNode Create(string text,
+            float fontSize,
+            Rgba32 textColor,
+            Rgba32 outlineColor,
+            int outlineStrokeWidth,
+            Rgba32 backgroundColor,
+            VerticalAlignment verticalAlignment = VerticalAlignment.Center,
+            HorizontalAlignment horizontalAlignment = HorizontalAlignment.Center,
+            int padding = 4,
+            float fontResolution = 1)
+        {
+            return new TextNode(
+                text,
+                fontSize,
+                textColor,
+                backgroundColor,
+                outlineColor,
+                outlineStrokeWidth,
                 verticalAlignment,
                 horizontalAlignment,
                 padding,
@@ -295,6 +348,8 @@ namespace Veldrid.SceneGraph.Text
                 fontSize,
                 SixLabors.ImageSharp.Color.White,
                 SixLabors.ImageSharp.Color.Transparent,
+                SixLabors.ImageSharp.Color.Transparent,
+                0,
                 verticalAlignment,
                 horizontalAlignment,
                 padding,
@@ -490,8 +545,18 @@ namespace Veldrid.SceneGraph.Text
                         Antialias = true
                     }
                 };
+
+                if (_outlineStrokeWidth > 0)
+                {
+                    img.Mutate(i => i.DrawText(drawingOptions, textOptions, Text, new SolidBrush(TextColor), Pens.Solid(_outlineColor, _outlineStrokeWidth)));
+                }
+                else
+                {
+                    img.Mutate(i => i.DrawText(drawingOptions, textOptions, Text, new SolidBrush(TextColor), null));
+                }
                 
-                img.Mutate(i => i.DrawText(drawingOptions, textOptions, Text, new SolidBrush(TextColor), null));
+
+                
 
                 var imageProcessor = new ImageSharpProcessor();
                 return imageProcessor.ProcessT(img);

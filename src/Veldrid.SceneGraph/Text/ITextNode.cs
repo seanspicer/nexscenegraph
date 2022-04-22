@@ -34,6 +34,9 @@ namespace Veldrid.SceneGraph.Text
         float FontResolution { get; set; }
 
         Rgba32 TextColor { get; set; }
+        
+        Rgba32 OutlineColor { get; set; }
+        int OutlineStrokeWidth { get; set; }
 
         Rgba32 BackgroundColor { get; set; }
 
