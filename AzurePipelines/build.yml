@@ -35,6 +35,13 @@ steps:
     Action: '##vso[build.updatebuildnumber]'
     BuildVersion: $(GitVersion.NuGetVersionV2)
 
+- task: UseDotNet@2
+  displayName: 'Install .net6'
+  inputs:
+    packageType: sdk
+    version: '6.0.x'
+    #installationPath: $(Agent.ToolsDirectory)/dotnet
+
 - task: NuGetToolInstaller@1
   displayName: 'Install NuGet Tools'
   inputs:
@@ -51,17 +58,28 @@ steps:
   displayName: 'Build Solution'
   inputs:
     solution: '**\*.sln'
+    vsVersion: 17.0
+    platform: x64
+    configuration: $(BuildConfiguration)
     clean: true
 
-- task: VSTest@2
-  displayName: 'Run Unit Tests'
+- task: DotNetCoreCLI@2
+  displayName: 'Run .NET Tests'
   inputs:
-    testSelector: 'testAssemblies'
-    testAssemblyVer2: |
-      **\*Test*.dll
-      !**\*TestAdapter.dll
-      !**\obj\**
-    searchFolder: '$(System.DefaultWorkingDirectory)'
+    command: 'test'
+    arguments: '/property:Configuration=Release /property:Platform=x64'
+    projects: '$(Agent.BuildDirectory)/src/NexSceneGraph.sln'
+    publishTestResults: true
+
+# - task: VSTest@2
+  # displayName: 'Run Unit Tests'
+  # inputs:
+    # testSelector: 'testAssemblies'
+    # testAssemblyVer2: |
+      # **\*Test*.dll
+      # !**\*TestAdapter.dll
+      # !**\obj\**
+    # searchFolder: '$(System.DefaultWorkingDirectory)'
 
 - task: DotNetCoreCLI@2 
   displayName: 'Create NuGet Packages'
