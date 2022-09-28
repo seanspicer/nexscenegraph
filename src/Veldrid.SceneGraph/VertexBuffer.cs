@@ -70,7 +70,12 @@ namespace Veldrid.SceneGraph
         {
             if (false == _dirtyFlag) return;
 
-            if (_vertexBufferCache.TryGetValue(device, out var vbo)) device.UpdateBuffer(vbo, 0, VertexData);
+            if (_vertexBufferCache.TryGetValue(device, out var vbo))
+            {
+                device.UpdateBuffer(vbo, 0, VertexData);
+            }
+
+            _dirtyFlag = false;
         }
 
         public static IVertexBuffer<T> Create()
