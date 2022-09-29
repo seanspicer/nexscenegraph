@@ -59,8 +59,7 @@ steps:
   inputs:
     solution: '**\*.sln'
     vsVersion: 17.0
-    platform: x64
-    configuration: $(BuildConfiguration)
+    configuration: Release
     clean: true
 
 - task: DotNetCoreCLI@2
