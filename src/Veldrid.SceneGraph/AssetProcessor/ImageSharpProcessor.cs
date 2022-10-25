@@ -22,6 +22,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
+using SixLabors.ImageSharp.Memory;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
@@ -33,6 +34,14 @@ namespace Veldrid.SceneGraph.AssetProcessor
     {
         // Taken from Veldrid.ImageSharp
 
+        private Configuration _imConfig;
+        
+        public ImageSharpProcessor()
+        {
+            _imConfig = Configuration.Default.Clone();
+            _imConfig.PreferContiguousImageBuffers = true;
+        }
+        
         private static readonly IResampler s_resampler = new LanczosResampler(3);
 
         public unsafe ProcessedTexture ProcessT(Image<Rgba32> image)
@@ -67,7 +76,7 @@ namespace Veldrid.SceneGraph.AssetProcessor
 
         public override unsafe ProcessedTexture ProcessT(Stream stream, string extension)
         {
-            var image = (Image<Rgba32>) Image.Load(stream);
+            var image = Image.Load<Rgba32>(_imConfig, stream);
             var mipmaps = GenerateMipmaps(image, out var totalSize);
 
             var allTexData = new byte[totalSize];
@@ -77,8 +86,11 @@ namespace Veldrid.SceneGraph.AssetProcessor
                 foreach (var mipmap in mipmaps)
                 {
                     long mipSize = mipmap.Width * mipmap.Height * sizeof(Rgba32);
+
+                    var pixelMemoryGroup = mipmap.GetPixelMemoryGroup();
+                    
                     fixed (Rgba32* pixelPtr =
-                        &MemoryMarshal.GetReference(mipmap.GetPixelMemoryGroup().Single().Span)
+                        &MemoryMarshal.GetReference(pixelMemoryGroup.First().Span)
                     ) //&mipmap.DangerousGetPinnableReferenceToPixelBuffer())
                     {
                         Buffer.MemoryCopy(pixelPtr, allTexDataPtr + offset, mipSize, mipSize);

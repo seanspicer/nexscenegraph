@@ -17,7 +17,7 @@ namespace Veldrid.SceneGraph
         T[] VertexData { get; set; }
     }
 
-    public class VertexBuffer<T> : IVertexBuffer<T> where T : struct
+    public class VertexBuffer<T> : IVertexBuffer<T> where T : unmanaged
     {
         private bool _dirtyFlag;
 

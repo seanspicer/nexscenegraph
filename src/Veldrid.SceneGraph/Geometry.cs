@@ -34,7 +34,7 @@ namespace Veldrid.SceneGraph
         IVertexBuffer InstanceVertexBuffer { get; set; }
     }
 
-    public class Geometry<T> : Drawable, IGeometry<T> where T : struct, IPrimitiveElement
+    public class Geometry<T> : Drawable, IGeometry<T> where T : unmanaged, IPrimitiveElement
     {
         private readonly Dictionary<GraphicsDevice, DeviceBuffer> _indexBufferCache
             = new Dictionary<GraphicsDevice, DeviceBuffer>();
