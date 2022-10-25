@@ -1,19 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reactive.Subjects;
-using System.Windows;
-using SharpDX;
-using SharpDX.D3DCompiler;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Util;
 using Veldrid.SceneGraph.Viewer;
 using Veldrid.SceneGraph.Wpf.Element;
 using Veldrid.Utilities;
-using Buffer = SharpDX.Direct3D11.Buffer;
-using Device = SharpDX.DXGI.Device;
-using Math = System.Math;
 
 namespace Veldrid.SceneGraph.Wpf
 {
