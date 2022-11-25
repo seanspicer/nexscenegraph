@@ -43,6 +43,10 @@ namespace Veldrid.SceneGraph
         Matrix4x4 ProjectionMatrix { get; }
         Matrix4x4 ViewMatrix { get; }
 
+        uint Width { get; }
+        uint Height { get; }
+        float Distance { get; }
+        
         ProjectionResizePolicy ProjectionResizePolicy { get; }
 
         IViewport Viewport { get; }
@@ -134,9 +138,9 @@ namespace Veldrid.SceneGraph
             ProjectionResizePolicy = ProjectionResizePolicy.Fixed;
         }
 
-        protected uint Width { get; set; }
-        protected uint Height { get; set; }
-        protected float Distance { get; set; }
+        public uint Width { get; protected set; }
+        public uint Height { get; protected set; }
+        public float Distance { get; protected set; }
 
         public IGraphicsContext GraphicsContext
         {

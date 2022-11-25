@@ -80,7 +80,7 @@ namespace WpfDemo
             CameraManipulator = TrackballManipulator.Create();
             EventHandler = new WpfDemo.PickEventHandler();
             ClearColor = RgbaFloat.Blue;
-            FsaaCount = TextureSampleCount.Count16;
+            FsaaCount = TextureSampleCount.Count1;
             
             CameraManipulator.SetHomePosition(
                 new Vector3(0, 0, 20),

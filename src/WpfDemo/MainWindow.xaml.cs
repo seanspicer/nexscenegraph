@@ -16,6 +16,7 @@
 
 using System;
 using System.Windows;
+using Veldrid.SceneGraph;
 
 namespace WpfDemo
 {
@@ -25,6 +26,7 @@ namespace WpfDemo
     public partial class MainWindow
     {
         private MainWindowViewModel _viewModel;
+        private bool _isOrthoGraphic = false;
         
         public MainWindow()
         {
@@ -34,6 +36,25 @@ namespace WpfDemo
         }
 
         private void ChangeCameraButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            var camera = VSGElement.GetCamera();
+            
+            var width = camera.Width;
+            var height = camera.Height;
+            var dist = camera.Distance;
+            if (!_isOrthoGraphic)
+            {
+                VSGElement.SetCamera(OrthographicCamera.Create(width, height, dist));
+                _isOrthoGraphic = true;
+            }
+            else
+            {
+                VSGElement.SetCamera(PerspectiveCamera.Create(width, height, dist));
+                _isOrthoGraphic = false;
+            }
+        }
+        
+        private void ChangeCameraViewButton_OnClick(object sender, RoutedEventArgs e)
         {
             _viewModel.ChangeCamera(VSGElement.GetUiActionAdapter(), VSGElement.GetCamera());
         }

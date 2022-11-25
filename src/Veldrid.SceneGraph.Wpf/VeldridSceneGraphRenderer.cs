@@ -234,7 +234,17 @@ namespace Veldrid.SceneGraph.Wpf
 
             _initialized = true;
         }
-        
+
+        public void SetCamera(ICamera camera)
+        {
+            GraphicsDeviceOperations -= _view.Camera.Renderer.HandleOperation;
+            GraphicsDeviceResize -= _view.Camera.Renderer.HandleResize;
+            
+            _view.SetCamera(camera);
+            
+            GraphicsDeviceOperations += _view.Camera.Renderer.HandleOperation;
+            GraphicsDeviceResize += _view.Camera.Renderer.HandleResize;
+        }
 
         public void HandleInput(IUiEventAdapter eventAdapter)
         {

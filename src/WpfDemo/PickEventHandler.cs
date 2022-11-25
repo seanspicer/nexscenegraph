@@ -29,6 +29,8 @@ namespace WpfDemo
 {
     public class PickEventHandler : FrameCaptureEventHandler
     {
+        private bool _isOrthoGraphic = false;
+        
         public PickEventHandler()
         {
         }
@@ -43,8 +45,33 @@ namespace WpfDemo
             switch (eventAdapter.Key)
             {
                 case IUiEventAdapter.KeySymbol.KeyP:
-                    DoPick(eventAdapter, uiActionAdapter as Veldrid.SceneGraph.Viewer.IView);;
+                    DoPick(eventAdapter, uiActionAdapter as Veldrid.SceneGraph.Viewer.IView);
                     return true;
+                case IUiEventAdapter.KeySymbol.KeyO:
+                    if (!_isOrthoGraphic)
+                    {
+                        var view = uiActionAdapter as Veldrid.SceneGraph.Viewer.IView;
+                        var camera = view.Camera;
+                        var width = camera.Width;
+                        var height = camera.Height;
+                        var dist = camera.Distance;
+                        view.SetCamera(OrthographicCamera.Create(width, height, dist));
+                        _isOrthoGraphic = true;
+                    }
+                    return true;
+                case IUiEventAdapter.KeySymbol.KeyR:
+                    if (_isOrthoGraphic)
+                    {
+                        var view = uiActionAdapter as Veldrid.SceneGraph.Viewer.IView;
+                        var camera = view.Camera;
+                        var width = camera.Width;
+                        var height = camera.Height;
+                        var dist = camera.Distance;
+                        view.SetCamera(PerspectiveCamera.Create(width, height, dist));
+                        _isOrthoGraphic = false;
+                    }
+                    return true;
+                
                 default:
                     return false;
             }

@@ -62,6 +62,7 @@ namespace ColoredCube
             root.AddChild(cube);
 
             viewer.SetSceneData(root);
+            viewer.AddInputEventHandler(new CameraInputHandler(viewer));
 
             viewer.ViewAll();
 

@@ -10,16 +10,22 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Button
+            x:Name="ChangeCameraViewButton"
+            Grid.Row="1" 
+            Content="Change Camera View"
+            Click="ChangeCameraViewButton_OnClick"/>
+        <Button
             x:Name="ChangeCameraButton"
             Grid.Row="0" 
-            Content="Change Camera"
+            Content="Change Camera (Ortho/Persp)"
             Click="ChangeCameraButton_OnClick"/>
         <wpf1:VeldridSceneGraphControl 
             x:Name="VSGElement"
-            Grid.Row="1"
+            Grid.Row="2"
             SceneRoot="{Binding SceneRoot}"
             CameraManipulator="{Binding CameraManipulator}"
             EventHandler="{Binding EventHandler}"
