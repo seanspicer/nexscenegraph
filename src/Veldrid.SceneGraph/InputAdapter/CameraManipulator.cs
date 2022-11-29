@@ -88,11 +88,12 @@ namespace Veldrid.SceneGraph.InputAdapter
         // Update a camera
         public virtual void UpdateCamera(ICamera camera)
         {
-            if (camera is IOrthographicCamera orthographicCamera)
+            if (camera.Projection == ProjectionMatrixType.Orthographic)
             {
                 float left = 0, right = 0, bottom = 0, top = 0, zNear = 0, zFar = 0;
 
-                orthographicCamera.GetProjectionMatrixAsOrtho(
+                OrthographicCameraOperations.GetProjectionMatrixAsOrtho(
+                    camera,
                     ref left, ref right,
                     ref bottom, ref top,
                     ref zNear, ref zFar);
@@ -112,7 +113,7 @@ namespace Veldrid.SceneGraph.InputAdapter
                 var width = radius * winScale * aspectRatio * ZoomScale;
                 var height = radius * winScale * ZoomScale;
 
-                orthographicCamera.SetProjectionMatrixAsOrthographic(width, height, winScale * radius,
+                OrthographicCameraOperations.SetProjectionMatrixAsOrthographic(camera, width, height, winScale * radius,
                     -winScale * radius);
 
                 inverseMatrix.M43 = 0;
@@ -156,17 +157,19 @@ namespace Veldrid.SceneGraph.InputAdapter
             if (null != camera)
             {
                 float left = 0, right = 0, bottom = 0, top = 0, zNear = 0, zFar = 0;
-                switch (camera)
+                switch (camera.Projection)
                 {
-                    case IPerspectiveCamera perspectiveCamera:
-                        perspectiveCamera.GetProjectionMatrixAsFrustum(
+                    case ProjectionMatrixType.Perspective:
+                        PerspectiveCameraOperations.GetProjectionMatrixAsFrustum(
+                            camera,
                             ref left, ref right,
                             ref bottom, ref top,
                             ref zNear, ref zFar);
                         break;
 
-                    case IOrthographicCamera orthographicCamera:
-                        orthographicCamera.GetProjectionMatrixAsOrtho(
+                    case ProjectionMatrixType.Orthographic:
+                        OrthographicCameraOperations.GetProjectionMatrixAsOrtho(
+                            camera,
                             ref left, ref right,
                             ref bottom, ref top,
                             ref zNear, ref zFar);

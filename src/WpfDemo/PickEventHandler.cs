@@ -55,7 +55,7 @@ namespace WpfDemo
                         var width = camera.Width;
                         var height = camera.Height;
                         var dist = camera.Distance;
-                        view.SetCamera(OrthographicCamera.Create(width, height, dist));
+                        view.SetCamera(OrthographicCameraOperations.CreateOrthographicCamera(width, height, dist));
                         _isOrthoGraphic = true;
                     }
                     return true;
@@ -67,7 +67,7 @@ namespace WpfDemo
                         var width = camera.Width;
                         var height = camera.Height;
                         var dist = camera.Distance;
-                        view.SetCamera(PerspectiveCamera.Create(width, height, dist));
+                        view.SetCamera(PerspectiveCameraOperations.CreatePerspectiveCamera(width, height, dist));
                         _isOrthoGraphic = false;
                     }
                     return true;
