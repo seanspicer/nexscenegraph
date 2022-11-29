@@ -1,10 +1,15 @@
-mode: ContinuousDelivery
+mode: ContinuousDeployment
 next-version: 0.4.8
 branches: 
-  v4.8:
+  main:
+    regex: ^v4.8$
     tag: alpha
+    is-release-branch: false
   development:
+    regex: ^development$
     tag: alpha
+    source-branches: [ 'develop' ]
+    is-release-branch: false
 ignore:
   sha: []
 merge-message-formats: {}
