@@ -34,7 +34,7 @@ namespace Veldrid.SceneGraph
             float zNear, float zFar)
         {
             GuardOrthographic(camera);
-            camera.SetProjectionMatrix(Matrix4x4.CreateOrthographicOffCenter(left, right, bottom, top, zFar, zNear));
+            camera.SetProjectionMatrix(Matrix4x4.CreateOrthographicOffCenter(left, right, bottom, top, zNear, zFar));
         }
 
         public static void SetProjectionMatrixAsOrthographic(ICamera camera, float width, float height, float zNear, float zFar)
@@ -72,7 +72,7 @@ namespace Veldrid.SceneGraph
             }
             
             camera.SetProjection(ProjectionMatrixType.Orthographic);
-            SetProjectionMatrixAsOrthographic(camera, camera.Width, camera.Height, camera.Distance, -camera.Distance);
+            SetProjectionMatrixAsOrthographic(camera, camera.Width, camera.Height, -camera.Distance, camera.Distance);
         }
         
         public static void ResizeProjection(ICamera camera, int width, int height,

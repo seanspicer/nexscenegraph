@@ -108,13 +108,13 @@ namespace Veldrid.SceneGraph.InputAdapter
 
                 var aspectRatio = camera.Viewport.AspectRatio;
 
-                const float winScale = 2.0f;
+                const float winScale = 1.0f;
 
                 var width = radius * winScale * aspectRatio * ZoomScale;
                 var height = radius * winScale * ZoomScale;
 
-                OrthographicCameraOperations.SetProjectionMatrixAsOrthographic(camera, width, height, winScale * radius,
-                    -winScale * radius);
+                OrthographicCameraOperations.SetProjectionMatrixAsOrthographic(camera, width, height, -winScale * radius,
+                    winScale * radius);
 
                 inverseMatrix.M43 = 0;
                 camera.SetViewMatrix(inverseMatrix);
