@@ -64,6 +64,17 @@ namespace Veldrid.SceneGraph
             return newCamera;
         }
 
+        public static void ConvertFromPerspectiveToOrthographic(ICamera camera)
+        {
+            if (camera.Projection == ProjectionMatrixType.Orthographic)
+            {
+                throw new ArgumentException("Expected Perspective Camera, but got Orthographic Camera");
+            }
+            
+            camera.SetProjection(ProjectionMatrixType.Orthographic);
+            SetProjectionMatrixAsOrthographic(camera, camera.Width, camera.Height, camera.Distance, -camera.Distance);
+        }
+        
         public static void ResizeProjection(ICamera camera, int width, int height,
             ResizeMask resizeMask = ResizeMask.ResizeDefault)
         {

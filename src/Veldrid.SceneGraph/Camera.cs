@@ -86,6 +86,8 @@ namespace Veldrid.SceneGraph
         Vector3 NormalizedScreenToWorld(Vector3 screenCoords);
 
         void SetClearColor(RgbaFloat color);
+
+        void SetProjection(ProjectionMatrixType projectionMatrixType);
     }
 
     // public interface IPerspectiveCamera : ICamera
@@ -167,7 +169,11 @@ namespace Veldrid.SceneGraph
             }
         }
 
-
+        public void SetProjection(ProjectionMatrixType projectionMatrixType)
+        {
+            Projection = projectionMatrixType;
+        }
+        
         public IView View { get; private set; }
 
         public void SetView(IView view)

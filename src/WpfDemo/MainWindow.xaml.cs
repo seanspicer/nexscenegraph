@@ -44,12 +44,12 @@ namespace WpfDemo
             var dist = camera.Distance;
             if (!_isOrthoGraphic)
             {
-                VSGElement.SetCamera(OrthographicCameraOperations.CreateOrthographicCamera(width, height, dist));
+                OrthographicCameraOperations.ConvertFromPerspectiveToOrthographic(VSGElement.GetCamera());
                 _isOrthoGraphic = true;
             }
             else
             {
-                VSGElement.SetCamera(PerspectiveCameraOperations.CreatePerspectiveCamera(width, height, dist));
+                PerspectiveCameraOperations.ConvertFromOrthographicToPerspective(VSGElement.GetCamera());
                 _isOrthoGraphic = false;
             }
         }
