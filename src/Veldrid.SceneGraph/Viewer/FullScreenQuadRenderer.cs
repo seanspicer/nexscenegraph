@@ -81,6 +81,11 @@ namespace Veldrid.SceneGraph.Viewer
 
         public void Render(GraphicsDevice gd, CommandList cl, SceneContext sc)
         {
+            if (null == _pipeline)
+            {
+                CreateDeviceObjects(gd, sc);
+            }
+            
             cl.SetPipeline(_pipeline);
             cl.SetGraphicsResourceSet(0, sc.MainSceneViewResourceSet);
             cl.SetVertexBuffer(0, _vb);

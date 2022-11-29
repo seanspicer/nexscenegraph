@@ -51,7 +51,7 @@ namespace ColoredCube
         {
             Bootstrapper.Configure();
 
-            var viewer = SimpleViewer.Create("Colored Cube Scene Graph");
+            var viewer = SimpleViewer.Create("Colored Cube Scene Graph", TextureSampleCount.Count8);
             viewer.SetCameraOrthographic();
 
             viewer.SetCameraManipulator(TrackballManipulator.Create());
