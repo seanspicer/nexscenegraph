@@ -1,6 +1,10 @@
 mode: ContinuousDelivery
 next-version: 0.4.8
-branches: {}
+branches: 
+  v4.8:
+    tag: alpha
+  development:
+    tag: alpha
 ignore:
   sha: []
 merge-message-formats: {}
