@@ -69,9 +69,9 @@ namespace Veldrid.SceneGraph
             }
             
             camera.SetProjection(ProjectionMatrixType.Perspective);
-            var fov = GetVerticalFov(camera);
+            //var fov = GetVerticalFov(camera);
             
-            SetProjectionMatrixAsPerspective(camera, fov, (float)camera.Width / camera.Height, 1.0f, 100.0f);
+            //SetProjectionMatrixAsPerspective(camera, fov, (float)camera.Width / camera.Height, 1.0f, 100.0f);
         }
         
         internal static void ResizeProjection(ICamera camera, int width, int height,

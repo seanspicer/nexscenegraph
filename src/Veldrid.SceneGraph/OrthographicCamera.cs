@@ -72,7 +72,7 @@ namespace Veldrid.SceneGraph
             }
             
             camera.SetProjection(ProjectionMatrixType.Orthographic);
-            SetProjectionMatrixAsOrthographic(camera, camera.Width, camera.Height, -camera.Distance, camera.Distance);
+            //SetProjectionMatrixAsOrthographic(camera, camera.Width, camera.Height, -camera.Distance, camera.Distance);
         }
         
         public static void ResizeProjection(ICamera camera, int width, int height,
@@ -121,8 +121,8 @@ namespace Veldrid.SceneGraph
                             case ProjectionResizePolicy.Fixed:
 
                                 camera.SetProjectionMatrix(camera.ProjectionMatrix *
-                                                           Matrix4x4.CreateScale(1.0f / (float) widthChangeRatio,
-                                                               1.0f / (float) heightChangeRatio, 1.0f));
+                                                           Matrix4x4.CreateScale(1.0f * (float) widthChangeRatio,
+                                                               1.0f * (float) heightChangeRatio, 1.0f));
                                 break;
                         }
                 }
