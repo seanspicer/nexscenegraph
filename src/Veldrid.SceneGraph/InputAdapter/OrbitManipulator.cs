@@ -47,7 +47,7 @@ namespace Veldrid.SceneGraph.InputAdapter
             Matrix4x4.CreateFromQuaternion(Quaternion.Inverse(_rotation)) *
             Matrix4x4.CreateTranslation(new Vector3(0.0f, 0.0f, -Distance));
 
-        protected override float ZoomScale => _zoomScale;
+        public override float ZoomScale => _zoomScale;
 
         public static ICameraManipulator Create()
         {
@@ -320,9 +320,9 @@ namespace Veldrid.SceneGraph.InputAdapter
                 var radius = bSphere.Radius;
                 var center = bSphere.Center;
 
-                switch (view.Camera)
+                switch (view.Camera.Projection)
                 {
-                    case IPerspectiveCamera perspectiveCamera:
+                    case ProjectionMatrixType.Perspective:
                     {
                         // Compute an aspect-radius to ensure that the 
                         // scene will be inside the viewing volume
@@ -335,7 +335,7 @@ namespace Veldrid.SceneGraph.InputAdapter
                         Vector3 camCenter;
                         Vector3 camUp;
 
-                        perspectiveCamera.ProjectionMatrix.GetLookAt(out camEye, out camCenter, out camUp, 1);
+                        view.Camera.ProjectionMatrix.GetLookAt(out camEye, out camCenter, out camUp, 1);
 
                         // Compute the direction of motion for the camera
                         // between it's current position and the scene center
@@ -344,7 +344,7 @@ namespace Veldrid.SceneGraph.InputAdapter
 
                         // Compute the length to move the camera by examining
                         // the tangent to the bounding sphere
-                        var moveLen = radius + aspectRadius / System.Math.Tan(perspectiveCamera.VerticalFov / 2.0);
+                        var moveLen = radius + aspectRadius / System.Math.Tan(PerspectiveCameraOperations.GetVerticalFov(view.Camera) / 2.0);
 
                         // Compute the new camera position
                         var moveDirection = normDirection * (float) moveLen;
@@ -359,11 +359,11 @@ namespace Veldrid.SceneGraph.InputAdapter
                         _center = center;
                         Distance = distToMid;
 
-                        perspectiveCamera.SetProjectionMatrixAsPerspective(perspectiveCamera.VerticalFov,
-                            perspectiveCamera.Viewport.AspectRatio, zNear, zFar);
+                        PerspectiveCameraOperations.SetProjectionMatrixAsPerspective(view.Camera, PerspectiveCameraOperations.GetVerticalFov(view.Camera),
+                            view.Camera.Viewport.AspectRatio, zNear, zFar);
                         break;
                     }
-                    case IOrthographicCamera orthoCamera:
+                    case ProjectionMatrixType.Orthographic:
                     {
                         _zoomScale = 1.0f;
                         const float winScale = 2.0f;
@@ -378,7 +378,7 @@ namespace Veldrid.SceneGraph.InputAdapter
                         var viewAngle = System.Math.Atan2(dim, 1f);
                         var dist = (float) (radius / System.Math.Sin(viewAngle));
 
-                        orthoCamera.SetProjectionMatrixAsOrthographic(width, height, zNear, zFar);
+                        OrthographicCameraOperations.SetProjectionMatrixAsOrthographic(view.Camera, width, height, zNear, zFar);
 
                         _center = center;
                         Distance = dist;

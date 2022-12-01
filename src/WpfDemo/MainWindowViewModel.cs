@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -224,6 +224,17 @@ namespace WpfDemo
 
             _camPosIdx++;
             if (_camPosIdx > 2) _camPosIdx = 0;
+        }
+
+        public void SetCameraOrthographic(ICamera camera)
+        {
+            CameraManipulator.SetCameraOrthographic(camera);
+            
+        }
+
+        public void SetCameraPerspective(ICamera camera)
+        {
+            CameraManipulator.SetCameraPerspective(camera);
         }
     }
 }

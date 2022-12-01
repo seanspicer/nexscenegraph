@@ -85,9 +85,9 @@ namespace Gnomon
             var radius = bSphere.Radius*2; // don't want the center; 
             var center = new Vector3(); //  origin
                 
-            switch (camera)
+            switch (camera.Projection)
             {
-                case IPerspectiveCamera perspectiveCamera:
+                case ProjectionMatrixType.Perspective:
                 {
                     // Compute an aspect-radius to ensure that the 
                     // scene will be inside the viewing volume
@@ -103,7 +103,7 @@ namespace Gnomon
                     Vector3 camCenter;
                     Vector3 camUp;
 
-                    perspectiveCamera.ProjectionMatrix.GetLookAt(out camEye, out camCenter, out camUp, 1);
+                    camera.ProjectionMatrix.GetLookAt(out camEye, out camCenter, out camUp, 1);
 
                     // Compute the direction of motion for the camera
                     // between it's current position and the scene center
@@ -112,7 +112,7 @@ namespace Gnomon
 
                     // Compute the length to move the camera by examining
                     // the tangent to the bounding sphere
-                    var moveLen = radius + aspectRadius / ( System.Math.Tan(perspectiveCamera.VerticalFov / 2.0));
+                    var moveLen = radius + aspectRadius / ( System.Math.Tan(PerspectiveCameraOperations.GetVerticalFov(camera) / 2.0));
 
                     // Compute the new camera position
                     var moveDirection = normDirection * (float) moveLen;
@@ -127,11 +127,11 @@ namespace Gnomon
                     // _center = center;
                     // _distance = distToMid;
 
-                    perspectiveCamera.SetProjectionMatrixAsPerspective(perspectiveCamera.VerticalFov,
-                        perspectiveCamera.Viewport.AspectRatio, zNear, zFar);
+                    PerspectiveCameraOperations.SetProjectionMatrixAsPerspective(camera, PerspectiveCameraOperations.GetVerticalFov(camera),
+                        camera.Viewport.AspectRatio, zNear, zFar);
                     return distToMid;
                 }
-                case IOrthographicCamera orthoCamera:
+                case ProjectionMatrixType.Orthographic:
                 {
                     return 10.0f;
                 }

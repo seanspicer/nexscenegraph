@@ -20,6 +20,12 @@ using Veldrid.SceneGraph.Util;
 
 namespace Veldrid.SceneGraph
 {
+    public enum ProjectionMatrixType
+    {
+        Perspective,
+        Orthographic
+    }
+    
     public enum ProjectionResizePolicy
     {
         Horizontal,
@@ -40,6 +46,8 @@ namespace Veldrid.SceneGraph
     {
         IView View { get; }
 
+        ProjectionMatrixType Projection { get; }
+        
         Matrix4x4 ProjectionMatrix { get; }
         Matrix4x4 ViewMatrix { get; }
 
@@ -78,54 +86,56 @@ namespace Veldrid.SceneGraph
         Vector3 NormalizedScreenToWorld(Vector3 screenCoords);
 
         void SetClearColor(RgbaFloat color);
+
+        void SetProjection(ProjectionMatrixType projectionMatrixType);
     }
 
-    public interface IPerspectiveCamera : ICamera
-    {
-        float VerticalFov { get; }
+    // public interface IPerspectiveCamera : ICamera
+    // {
+    //     float VerticalFov { get; }
+    //
+    //     /// <summary>
+    //     ///     Create a symmetrical perspective projection.
+    //     /// </summary>
+    //     /// <param name="vfov"></param>
+    //     /// <param name="aspectRatio"></param>
+    //     /// <param name="zNear"></param>
+    //     /// <param name="zFar"></param>
+    //     void SetProjectionMatrixAsPerspective(float vfov, float aspectRatio, float zNear, float zFar);
+    //
+    //     bool GetProjectionMatrixAsFrustum(
+    //         ref float left, ref float right,
+    //         ref float bottom, ref float top,
+    //         ref float zNear, ref float zFar);
+    // }
+    //
+    // public interface IOrthographicCamera : ICamera
+    // {
+    //     void SetProjectionMatrixAsOrthographicOffCenter(
+    //         float left,
+    //         float right,
+    //         float bottom,
+    //         float top,
+    //         float zNear,
+    //         float zFar);
+    //
+    //     void SetProjectionMatrixAsOrthographic(
+    //         float width,
+    //         float height,
+    //         float zNearPlane,
+    //         float zFarPlane);
+    //
+    //     bool GetProjectionMatrixAsOrtho(
+    //         ref float left, ref float right,
+    //         ref float bottom, ref float top,
+    //         ref float zNear, ref float zFar);
+    // }
 
-        /// <summary>
-        ///     Create a symmetrical perspective projection.
-        /// </summary>
-        /// <param name="vfov"></param>
-        /// <param name="aspectRatio"></param>
-        /// <param name="zNear"></param>
-        /// <param name="zFar"></param>
-        void SetProjectionMatrixAsPerspective(float vfov, float aspectRatio, float zNear, float zFar);
-
-        bool GetProjectionMatrixAsFrustum(
-            ref float left, ref float right,
-            ref float bottom, ref float top,
-            ref float zNear, ref float zFar);
-    }
-
-    public interface IOrthographicCamera : ICamera
-    {
-        void SetProjectionMatrixAsOrthographicOffCenter(
-            float left,
-            float right,
-            float bottom,
-            float top,
-            float zNear,
-            float zFar);
-
-        void SetProjectionMatrixAsOrthographic(
-            float width,
-            float height,
-            float zNearPlane,
-            float zFarPlane);
-
-        bool GetProjectionMatrixAsOrtho(
-            ref float left, ref float right,
-            ref float bottom, ref float top,
-            ref float zNear, ref float zFar);
-    }
-
-    public abstract class Camera : Transform, ICamera
+    public class Camera : Transform, ICamera
     {
         private IGraphicsContext _graphicsContext;
 
-        protected Camera(uint width, uint height, float distance)
+        internal Camera(uint width, uint height, float distance, ProjectionMatrixType projection)
         {
             Width = width;
             Height = height;
@@ -136,11 +146,13 @@ namespace Veldrid.SceneGraph
             ProjectionMatrix = Matrix4x4.Identity;
             ViewMatrix = Matrix4x4.Identity;
             ProjectionResizePolicy = ProjectionResizePolicy.Fixed;
+            Projection = projection;
         }
 
         public uint Width { get; protected set; }
         public uint Height { get; protected set; }
         public float Distance { get; protected set; }
+        public ProjectionMatrixType Projection { get; protected set; }
 
         public IGraphicsContext GraphicsContext
         {
@@ -157,7 +169,11 @@ namespace Veldrid.SceneGraph
             }
         }
 
-
+        public void SetProjection(ProjectionMatrixType projectionMatrixType)
+        {
+            Projection = projectionMatrixType;
+        }
+        
         public IView View { get; private set; }
 
         public void SetView(IView view)
@@ -259,7 +275,17 @@ namespace Veldrid.SceneGraph
 //            Resize(resizedEvent.Width, resizedEvent.Height);
 //        }
 
-        protected abstract void ResizeProjection(int width, int height,
-            ResizeMask resizeMask = ResizeMask.ResizeDefault);
+        protected void ResizeProjection(int width, int height,
+            ResizeMask resizeMask = ResizeMask.ResizeDefault)
+        {
+            if (Projection == ProjectionMatrixType.Orthographic)
+            {
+                OrthographicCameraOperations.ResizeProjection(this, width, height, resizeMask);
+            }
+            else
+            {
+                PerspectiveCameraOperations.ResizeProjection(this, width, height, resizeMask);
+            }
+        }
     }
 }
