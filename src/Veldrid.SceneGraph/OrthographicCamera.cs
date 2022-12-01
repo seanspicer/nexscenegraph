@@ -100,6 +100,7 @@ namespace Veldrid.SceneGraph
 
             if (previousWidth > 1e-6 && System.Math.Abs(previousWidth - newWidth) > 1e-6 ||
                 previousHeight > 1e-6 && System.Math.Abs(previousHeight - newHeight) > 1e-6)
+            {
                 if ((resizeMask & ResizeMask.ResizeProjectionMatrix) != 0)
                 {
                     var widthChangeRatio = newWidth / previousWidth;
@@ -111,21 +112,24 @@ namespace Veldrid.SceneGraph
                         {
                             case ProjectionResizePolicy.Horizontal:
                                 camera.SetProjectionMatrix(camera.ProjectionMatrix *
-                                                           Matrix4x4.CreateScale(1.0f / (float) aspectRatioChange, 1.0f,
+                                                           Matrix4x4.CreateScale(1.0f / (float)aspectRatioChange, 1.0f,
                                                                1.0f));
                                 break;
                             case ProjectionResizePolicy.Vertical:
                                 camera.SetProjectionMatrix(camera.ProjectionMatrix *
-                                                           Matrix4x4.CreateScale(1.0f, (float) aspectRatioChange, 1.0f));
+                                                           Matrix4x4.CreateScale(1.0f, (float)aspectRatioChange, 1.0f));
                                 break;
                             case ProjectionResizePolicy.Fixed:
 
                                 camera.SetProjectionMatrix(camera.ProjectionMatrix *
-                                                           Matrix4x4.CreateScale(1.0f * (float) widthChangeRatio,
-                                                               1.0f * (float) heightChangeRatio, 1.0f));
+                                                           Matrix4x4.CreateScale(1.0f * (float)widthChangeRatio,
+                                                               1.0f * (float)heightChangeRatio, 1.0f));
                                 break;
                         }
                 }
+
+                if ((resizeMask & ResizeMask.ResizeViewport) != 0) camera.SetViewport(0, 0, width, height);
+            }
         }
     }
 }

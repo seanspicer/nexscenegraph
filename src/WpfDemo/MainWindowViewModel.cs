@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright 2018-2019 Sean Spicer 
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -259,7 +259,7 @@ namespace WpfDemo
             
             PerspectiveCameraOperations.SetProjectionMatrixAsPerspective(camera, 
                 fov,
-                (float)camera.Width / camera.Height, 
+                (float)camera.Viewport.Width / camera.Viewport.Height, 
                 1.0f, 
                 100.0f);;
             
