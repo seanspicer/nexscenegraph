@@ -47,7 +47,7 @@ namespace Veldrid.SceneGraph.InputAdapter
             Matrix4x4.CreateFromQuaternion(Quaternion.Inverse(_rotation)) *
             Matrix4x4.CreateTranslation(new Vector3(0.0f, 0.0f, -Distance));
 
-        protected override float ZoomScale => _zoomScale;
+        public override float ZoomScale => _zoomScale;
 
         public static ICameraManipulator Create()
         {

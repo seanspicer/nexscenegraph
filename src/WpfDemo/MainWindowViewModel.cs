@@ -228,41 +228,13 @@ namespace WpfDemo
 
         public void SetCameraOrthographic(ICamera camera)
         {
-            var lookDistance = 1f;
-            if (CameraManipulator is TrackballManipulator trackballManipulator)
-            {
-                lookDistance = trackballManipulator.Distance;
-            }
-
-            var ar = camera.Viewport.AspectRatio;
-            var width = 0.2f*lookDistance * ar;
-            var height = 0.2f*lookDistance;
-
-            OrthographicCameraOperations.ConvertFromPerspectiveToOrthographic(camera);
-            OrthographicCameraOperations.SetProjectionMatrixAsOrthographic(camera, 
-                width,
-                height,
-                -10*lookDistance,
-                10*lookDistance);
+            CameraManipulator.SetCameraOrthographic(camera);
+            
         }
 
         public void SetCameraPerspective(ICamera camera)
         {
-            var lookDistance = 1f;
-            if (CameraManipulator is TrackballManipulator trackballManipulator)
-            {
-                lookDistance = trackballManipulator.Distance;
-            }
-            PerspectiveCameraOperations.ConvertFromOrthographicToPerspective(camera);
-            
-            var fov = PerspectiveCameraOperations.GetVerticalFov(camera);
-            
-            PerspectiveCameraOperations.SetProjectionMatrixAsPerspective(camera, 
-                fov,
-                (float)camera.Viewport.Width / camera.Viewport.Height, 
-                1.0f, 
-                100.0f);;
-            
+            CameraManipulator.SetCameraPerspective(camera);
         }
     }
 }
