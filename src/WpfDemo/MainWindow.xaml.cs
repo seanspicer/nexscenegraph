@@ -17,6 +17,7 @@
 using System;
 using System.Windows;
 using Veldrid.SceneGraph;
+using Veldrid.SceneGraph.InputAdapter;
 
 namespace WpfDemo
 {
@@ -57,6 +58,11 @@ namespace WpfDemo
         private void ChangeCameraViewButton_OnClick(object sender, RoutedEventArgs e)
         {
             _viewModel.ChangeCamera(VSGElement.GetUiActionAdapter(), VSGElement.GetCamera());
+        }
+
+        private void ViewAllButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            VSGElement.CameraManipulator.ViewAll(VSGElement.GetUiActionAdapter());
         }
     }
 }
