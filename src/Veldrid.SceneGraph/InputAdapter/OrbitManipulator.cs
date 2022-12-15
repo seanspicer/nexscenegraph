@@ -365,11 +365,13 @@ namespace Veldrid.SceneGraph.InputAdapter
                     }
                     case ProjectionMatrixType.Orthographic:
                     {
-                        _zoomScale = 1.0f;
+                        
+                        
+                        _zoomScale = 3.0f;
                         const float winScale = 2.0f;
                         var width = radius * winScale * view.Camera.Viewport.AspectRatio * ZoomScale;
                         var height = radius * winScale * ZoomScale;
-                        var zNear = -winScale * radius;
+                        var zNear = -winScale * radius; 
                         var zFar = winScale * radius;
 
                         var vertical2 = System.Math.Abs(width) / zNear / 2f;
@@ -379,7 +381,9 @@ namespace Veldrid.SceneGraph.InputAdapter
                         
                         var dist = (float) (radius / System.Math.Sin(viewAngle));
 
-                        OrthographicCameraOperations.SetProjectionMatrixAsOrthographic(view.Camera, width, height, zNear, zFar);
+                        UpdateCameraOrthographic(view.Camera, width, height, dist*20);
+                        
+                        //OrthographicCameraOperations.SetProjectionMatrixAsOrthographic(view.Camera, width, height, zNear, zFar);
 
                         _center = center;
                         Distance = dist;

@@ -123,7 +123,7 @@ namespace Veldrid.SceneGraph.InputAdapter
             var vertical2 = System.Math.Abs(width) / dist / 2f;
             var horizontal2 = System.Math.Abs(height) / dist / 2f;
             var dim = horizontal2 < vertical2 ? horizontal2 : vertical2;
-            var viewAngle = System.Math.Atan2(dim, 1f);
+            var viewAngle = System.Math.Abs(System.Math.Atan2(dim, 1f));
             
             var inverseMatrix = InverseMatrix;
             var radius = -inverseMatrix.M43 * (float) System.Math.Sin(viewAngle);
@@ -155,7 +155,7 @@ namespace Veldrid.SceneGraph.InputAdapter
                     ref bottom, ref top,
                     ref zNear, ref zFar);
             
-                UpdateCameraOrthographic(camera, right-left, top-bottom, zNear);
+                UpdateCameraOrthographic(camera, right-left, top-bottom, zNear-zFar);
             }
             else
             {
