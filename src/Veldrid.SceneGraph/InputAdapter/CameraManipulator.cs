@@ -129,16 +129,7 @@ namespace Veldrid.SceneGraph.InputAdapter
         // Update a camera
         public virtual void UpdateCamera(ICamera camera)
         {
-            if (camera.Projection == ProjectionMatrixType.Orthographic)
-            {
-                var inverseMatrix = InverseMatrix;
-                inverseMatrix.M43 = 0; // Okay --- why do I have to do this.  Doesn't seem right.
-                camera.SetViewMatrix(inverseMatrix);
-            }
-            else
-            {
-                camera.SetViewMatrix(InverseMatrix);
-            }
+            camera.SetViewMatrix(InverseMatrix);
         }
 
         public void ComputeHomePosition(ICamera camera, bool useBoundingBox)
