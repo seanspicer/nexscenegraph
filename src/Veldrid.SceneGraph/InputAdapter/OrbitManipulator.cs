@@ -365,28 +365,40 @@ namespace Veldrid.SceneGraph.InputAdapter
                     }
                     case ProjectionMatrixType.Orthographic:
                     {
-                        
-                        
-                        _zoomScale = 3.0f;
-                        const float winScale = 2.0f;
-                        var width = radius * winScale * view.Camera.Viewport.AspectRatio * ZoomScale;
-                        var height = radius * winScale * ZoomScale;
-                        var zNear = -winScale * radius; 
-                        var zFar = winScale * radius;
+                        var aspect = view.Camera.Viewport.AspectRatio;
+                        var height = 1.0f;
+                        if (aspect < 1.0f)
+                        {
+                            height = 2.0f * radius / aspect;
+                        }
+                        else
+                        {
+                            height = 2.0f * radius;
+                        }
 
-                        var vertical2 = System.Math.Abs(width) / zNear / 2f;
-                        var horizontal2 = System.Math.Abs(height) / zNear / 2f;
-                        var dim = horizontal2 < vertical2 ? horizontal2 : vertical2;
-                        var viewAngle = System.Math.Atan2(dim, 1f);
-                        
-                        var dist = (float) (radius / System.Math.Sin(viewAngle));
+                        var xRadius = height * aspect;
+                        var yRadius = height;
 
-                        UpdateCameraOrthographic(view.Camera, width, height, dist*20);
+                        //     _zoomScale = 3.0f;
+                        // const float winScale = 2.0f;
+                        // var width = radius * winScale * view.Camera.Viewport.AspectRatio * ZoomScale;
+                        // //var height = radius * winScale * ZoomScale;
+                        // var zNear = -winScale * radius; 
+                        // var zFar = winScale * radius;
+                        //
+                        // var vertical2 = System.Math.Abs(width) / zNear / 2f;
+                        // var horizontal2 = System.Math.Abs(height) / zNear / 2f;
+                        // var dim = horizontal2 < vertical2 ? horizontal2 : vertical2;
+                        // var viewAngle = System.Math.Atan2(dim, 1f);
+                        //
+                        // var dist = (float) (radius / System.Math.Sin(viewAngle));
+
+                        UpdateCameraOrthographic(view.Camera, xRadius, yRadius, 2*radius);
                         
                         //OrthographicCameraOperations.SetProjectionMatrixAsOrthographic(view.Camera, width, height, zNear, zFar);
 
                         _center = center;
-                        Distance = dist;
+                        Distance = 2*radius;
 
                         break;
                     }

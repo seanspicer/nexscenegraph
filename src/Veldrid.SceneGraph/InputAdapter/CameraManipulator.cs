@@ -120,23 +120,23 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         protected virtual void UpdateCameraOrthographic(ICamera camera, float width, float height, float dist)
         {
-            var vertical2 = System.Math.Abs(width) / dist / 2f;
-            var horizontal2 = System.Math.Abs(height) / dist / 2f;
-            var dim = horizontal2 < vertical2 ? horizontal2 : vertical2;
-            var viewAngle = System.Math.Abs(System.Math.Atan2(dim, 1f));
-            
+            // var vertical2 = System.Math.Abs(width) / dist / 2f;
+            // var horizontal2 = System.Math.Abs(height) / dist / 2f;
+            // var dim = horizontal2 < vertical2 ? horizontal2 : vertical2;
+            // var viewAngle = System.Math.Abs(System.Math.Atan2(dim, 1f));
+            //
             var inverseMatrix = InverseMatrix;
-            var radius = -inverseMatrix.M43 * (float) System.Math.Sin(viewAngle);
-            
-            var aspectRatio = camera.Viewport.AspectRatio;
-            
-            const float winScale = 1.0f;
-            
-            var scaleWidth = radius * winScale * aspectRatio * ZoomScale;
-            var scaleHeight = radius * winScale * ZoomScale;
+            // var radius = -inverseMatrix.M43 * (float) System.Math.Sin(viewAngle);
+            //
+            // var aspectRatio = camera.Viewport.AspectRatio;
+            //
+            // const float winScale = 1.0f;
+            //
+            // var scaleWidth = radius * winScale * aspectRatio * ZoomScale;
+            // var scaleHeight = radius * winScale * ZoomScale;
 
-            OrthographicCameraOperations.SetProjectionMatrixAsOrthographic(camera, scaleWidth, scaleHeight, -winScale * radius,
-                winScale * radius);
+            OrthographicCameraOperations.SetProjectionMatrixAsOrthographic(camera, width, height, -dist/2,
+                dist/2);
             
             inverseMatrix.M43 = 0;
             camera.SetViewMatrix(inverseMatrix);
