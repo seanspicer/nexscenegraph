@@ -123,12 +123,38 @@ namespace Veldrid.SceneGraph.InputAdapter
             OrthographicCameraOperations.SetProjectionMatrixAsOrthographic(camera, width, height, -dist/2,
                 dist/2);
             
-            UpdateCamera(camera);
+            camera.SetViewMatrix(InverseMatrix);
         }
         
         // Update a camera
         public virtual void UpdateCamera(ICamera camera)
         {
+            var inverseMatrix = InverseMatrix;
+            
+            if (camera.Projection == ProjectionMatrixType.Orthographic)
+            {
+                var currentLookDistance = -camera.ViewMatrix.M43;
+                
+                if (System.Math.Abs(-inverseMatrix.M43 - currentLookDistance) > 1e-5)
+                {
+                    var aspect = camera.Viewport.AspectRatio;
+                    var height = 1.0f;
+                    if (aspect < 1.0f)
+                    {
+                        height = 2.0f * currentLookDistance / aspect;
+                    }
+                    else
+                    {
+                        height = 2.0f * currentLookDistance;
+                    }
+
+                    var xRadius = height * aspect;
+                    var yRadius = height;
+                    
+                    UpdateCameraOrthographic(camera, xRadius, yRadius, 100*currentLookDistance);
+                }
+            }
+            
             camera.SetViewMatrix(InverseMatrix);
         }
 

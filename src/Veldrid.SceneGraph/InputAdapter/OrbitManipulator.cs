@@ -393,7 +393,7 @@ namespace Veldrid.SceneGraph.InputAdapter
                         //
                         // var dist = (float) (radius / System.Math.Sin(viewAngle));
 
-                        UpdateCameraOrthographic(view.Camera, xRadius, yRadius, 4*radius);
+                        UpdateCameraOrthographic(view.Camera, xRadius, yRadius, 100*radius);
                         
                         //OrthographicCameraOperations.SetProjectionMatrixAsOrthographic(view.Camera, width, height, zNear, zFar);
 
