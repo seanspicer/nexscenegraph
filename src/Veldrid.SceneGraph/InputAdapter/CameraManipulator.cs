@@ -120,26 +120,10 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         protected virtual void UpdateCameraOrthographic(ICamera camera, float width, float height, float dist)
         {
-            // var vertical2 = System.Math.Abs(width) / dist / 2f;
-            // var horizontal2 = System.Math.Abs(height) / dist / 2f;
-            // var dim = horizontal2 < vertical2 ? horizontal2 : vertical2;
-            // var viewAngle = System.Math.Abs(System.Math.Atan2(dim, 1f));
-            //
-            var inverseMatrix = InverseMatrix;
-            // var radius = -inverseMatrix.M43 * (float) System.Math.Sin(viewAngle);
-            //
-            // var aspectRatio = camera.Viewport.AspectRatio;
-            //
-            // const float winScale = 1.0f;
-            //
-            // var scaleWidth = radius * winScale * aspectRatio * ZoomScale;
-            // var scaleHeight = radius * winScale * ZoomScale;
-
             OrthographicCameraOperations.SetProjectionMatrixAsOrthographic(camera, width, height, -dist/2,
                 dist/2);
             
-            inverseMatrix.M43 = 0;
-            camera.SetViewMatrix(inverseMatrix);
+            UpdateCamera(camera);
         }
         
         // Update a camera
@@ -147,15 +131,9 @@ namespace Veldrid.SceneGraph.InputAdapter
         {
             if (camera.Projection == ProjectionMatrixType.Orthographic)
             {
-                float left = 0, right = 0, bottom = 0, top = 0, zNear = 0, zFar = 0;
-            
-                OrthographicCameraOperations.GetProjectionMatrixAsOrtho(
-                    camera,
-                    ref left, ref right,
-                    ref bottom, ref top,
-                    ref zNear, ref zFar);
-            
-                UpdateCameraOrthographic(camera, right-left, top-bottom, zNear-zFar);
+                var inverseMatrix = InverseMatrix;
+                inverseMatrix.M43 = 0; // Okay --- why do I have to do this.  Doesn't seem right.
+                camera.SetViewMatrix(inverseMatrix);
             }
             else
             {
