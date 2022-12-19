@@ -45,12 +45,12 @@ namespace WpfDemo
             var dist = camera.Distance;
             if (!_isOrthoGraphic)
             {
-                _viewModel.SetCameraOrthographic(VSGElement.GetCamera());//OrthographicCameraOperations.ConvertFromPerspectiveToOrthographic(VSGElement.GetCamera()));
+                _viewModel.SetCameraOrthographic(VSGElement.GetUiActionAdapter(), VSGElement.GetCamera());//OrthographicCameraOperations.ConvertFromPerspectiveToOrthographic(VSGElement.GetCamera()));
                 _isOrthoGraphic = true;
             }
             else
             {
-                _viewModel.SetCameraPerspective(VSGElement.GetCamera());//PerspectiveCameraOperations.ConvertFromOrthographicToPerspective(VSGElement.GetCamera()));
+                _viewModel.SetCameraPerspective(VSGElement.GetUiActionAdapter(), VSGElement.GetCamera());//PerspectiveCameraOperations.ConvertFromOrthographicToPerspective(VSGElement.GetCamera()));
                 _isOrthoGraphic = false;
             }
         }

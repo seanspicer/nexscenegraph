@@ -226,15 +226,15 @@ namespace WpfDemo
             if (_camPosIdx > 2) _camPosIdx = 0;
         }
 
-        public void SetCameraOrthographic(ICamera camera)
+        public void SetCameraOrthographic(IUiActionAdapter uiActionAdapter, ICamera camera)
         {
-            CameraManipulator.SetCameraOrthographic(camera);
+            CameraManipulator.SetCameraOrthographic(camera, uiActionAdapter);
             
         }
 
-        public void SetCameraPerspective(ICamera camera)
+        public void SetCameraPerspective(IUiActionAdapter uiActionAdapter, ICamera camera)
         {
-            CameraManipulator.SetCameraPerspective(camera);
+            CameraManipulator.SetCameraPerspective(camera, uiActionAdapter);
         }
     }
 }

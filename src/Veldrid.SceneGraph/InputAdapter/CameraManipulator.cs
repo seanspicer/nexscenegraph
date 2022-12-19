@@ -36,8 +36,8 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         void UpdateCamera(ICamera camera);
 
-        void SetCameraOrthographic(ICamera camera);
-        void SetCameraPerspective(ICamera camera);
+        void SetCameraOrthographic(ICamera camera, IUiActionAdapter aa);
+        void SetCameraPerspective(ICamera camera, IUiActionAdapter aa);
         
         void ComputeHomePosition(ICamera camera = null, bool useBoundingBox = false);
 
@@ -92,7 +92,7 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         public abstract void ViewAll(IUiActionAdapter aa, float slack = 20);
 
-        public virtual void SetCameraOrthographic(ICamera camera)
+        public virtual void SetCameraOrthographic(ICamera camera, IUiActionAdapter aa)
         {
             var lookDistance = 1f;
             if (this is TrackballManipulator trackballManipulator)
@@ -103,9 +103,11 @@ namespace Veldrid.SceneGraph.InputAdapter
             OrthographicCameraOperations.ConvertFromPerspectiveToOrthographic(camera);
             
             UpdateCameraOrthographic(camera, camera.Viewport.Width, camera.Viewport.Height, lookDistance);
+            
+            ViewAll(aa);
         }
 
-        public virtual void SetCameraPerspective(ICamera camera)
+        public virtual void SetCameraPerspective(ICamera camera, IUiActionAdapter aa)
         {
             PerspectiveCameraOperations.ConvertFromOrthographicToPerspective(camera);
             
@@ -115,7 +117,9 @@ namespace Veldrid.SceneGraph.InputAdapter
                 fov,
                 (float)camera.Viewport.Width / camera.Viewport.Height, 
                 1.0f, 
-                100.0f);;
+                100.0f);
+            
+            ViewAll(aa);
         }
 
         protected virtual void UpdateCameraOrthographic(ICamera camera, float width, float height, float dist)
@@ -134,8 +138,9 @@ namespace Veldrid.SceneGraph.InputAdapter
             if (camera.Projection == ProjectionMatrixType.Orthographic)
             {
                 var currentLookDistance = -camera.ViewMatrix.M43;
+                var newLookDistance = inverseMatrix.M43;
                 
-                if (System.Math.Abs(-inverseMatrix.M43 - currentLookDistance) > 1e-5)
+                if (System.Math.Abs(newLookDistance - currentLookDistance) > 1e-5)
                 {
                     var aspect = camera.Viewport.AspectRatio;
                     var height = 1.0f;
@@ -151,7 +156,7 @@ namespace Veldrid.SceneGraph.InputAdapter
                     var xRadius = height * aspect;
                     var yRadius = height;
                     
-                    UpdateCameraOrthographic(camera, xRadius, yRadius, 100*currentLookDistance);
+                    UpdateCameraOrthographic(camera, xRadius, yRadius, 100*newLookDistance);
                 }
             }
             
