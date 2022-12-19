@@ -36,8 +36,8 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         void UpdateCamera(ICamera camera);
 
-        void SetCameraOrthographic(ICamera camera);
-        void SetCameraPerspective(ICamera camera);
+        void SetCameraOrthographic(ICamera camera, IUiActionAdapter aa);
+        void SetCameraPerspective(ICamera camera, IUiActionAdapter aa);
         
         void ComputeHomePosition(ICamera camera = null, bool useBoundingBox = false);
 
@@ -92,7 +92,7 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         public abstract void ViewAll(IUiActionAdapter aa, float slack = 20);
 
-        public virtual void SetCameraOrthographic(ICamera camera)
+        public virtual void SetCameraOrthographic(ICamera camera, IUiActionAdapter aa)
         {
             var lookDistance = 1f;
             if (this is TrackballManipulator trackballManipulator)
@@ -103,9 +103,11 @@ namespace Veldrid.SceneGraph.InputAdapter
             OrthographicCameraOperations.ConvertFromPerspectiveToOrthographic(camera);
             
             UpdateCameraOrthographic(camera, camera.Viewport.Width, camera.Viewport.Height, lookDistance);
+            
+            ViewAll(aa);
         }
 
-        public virtual void SetCameraPerspective(ICamera camera)
+        public virtual void SetCameraPerspective(ICamera camera, IUiActionAdapter aa)
         {
             PerspectiveCameraOperations.ConvertFromOrthographicToPerspective(camera);
             
@@ -115,52 +117,50 @@ namespace Veldrid.SceneGraph.InputAdapter
                 fov,
                 (float)camera.Viewport.Width / camera.Viewport.Height, 
                 1.0f, 
-                100.0f);;
+                100.0f);
+            
+            ViewAll(aa);
         }
 
         protected virtual void UpdateCameraOrthographic(ICamera camera, float width, float height, float dist)
         {
-            var vertical2 = System.Math.Abs(width) / dist / 2f;
-            var horizontal2 = System.Math.Abs(height) / dist / 2f;
-            var dim = horizontal2 < vertical2 ? horizontal2 : vertical2;
-            var viewAngle = System.Math.Atan2(dim, 1f);
+            OrthographicCameraOperations.SetProjectionMatrixAsOrthographic(camera, width, height, -dist/2,
+                dist/2);
             
-            var inverseMatrix = InverseMatrix;
-            var radius = -inverseMatrix.M43 * (float) System.Math.Sin(viewAngle);
-            
-            var aspectRatio = camera.Viewport.AspectRatio;
-            
-            const float winScale = 1.0f;
-            
-            var scaleWidth = radius * winScale * aspectRatio * ZoomScale;
-            var scaleHeight = radius * winScale * ZoomScale;
-
-            OrthographicCameraOperations.SetProjectionMatrixAsOrthographic(camera, scaleWidth, scaleHeight, -winScale * radius,
-                winScale * radius);
-            
-            inverseMatrix.M43 = 0;
-            camera.SetViewMatrix(inverseMatrix);
+            camera.SetViewMatrix(InverseMatrix);
         }
         
         // Update a camera
         public virtual void UpdateCamera(ICamera camera)
         {
+            var inverseMatrix = InverseMatrix;
+            
             if (camera.Projection == ProjectionMatrixType.Orthographic)
             {
-                float left = 0, right = 0, bottom = 0, top = 0, zNear = 0, zFar = 0;
-            
-                OrthographicCameraOperations.GetProjectionMatrixAsOrtho(
-                    camera,
-                    ref left, ref right,
-                    ref bottom, ref top,
-                    ref zNear, ref zFar);
-            
-                UpdateCameraOrthographic(camera, right-left, top-bottom, zNear);
+                var currentLookDistance = -camera.ViewMatrix.M43;
+                var newLookDistance = inverseMatrix.M43;
+                
+                if (System.Math.Abs(newLookDistance - currentLookDistance) > 1e-5)
+                {
+                    var aspect = camera.Viewport.AspectRatio;
+                    var height = 1.0f;
+                    if (aspect < 1.0f)
+                    {
+                        height = 2.0f * currentLookDistance / aspect;
+                    }
+                    else
+                    {
+                        height = 2.0f * currentLookDistance;
+                    }
+
+                    var xRadius = height * aspect;
+                    var yRadius = height;
+                    
+                    UpdateCameraOrthographic(camera, xRadius, yRadius, 100*newLookDistance);
+                }
             }
-            else
-            {
-                camera.SetViewMatrix(InverseMatrix);
-            }
+            
+            camera.SetViewMatrix(InverseMatrix);
         }
 
         public void ComputeHomePosition(ICamera camera, bool useBoundingBox)

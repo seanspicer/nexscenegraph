@@ -17,6 +17,7 @@
 using System;
 using System.Windows;
 using Veldrid.SceneGraph;
+using Veldrid.SceneGraph.InputAdapter;
 
 namespace WpfDemo
 {
@@ -44,12 +45,12 @@ namespace WpfDemo
             var dist = camera.Distance;
             if (!_isOrthoGraphic)
             {
-                _viewModel.SetCameraOrthographic(VSGElement.GetCamera());//OrthographicCameraOperations.ConvertFromPerspectiveToOrthographic(VSGElement.GetCamera()));
+                _viewModel.SetCameraOrthographic(VSGElement.GetUiActionAdapter(), VSGElement.GetCamera());//OrthographicCameraOperations.ConvertFromPerspectiveToOrthographic(VSGElement.GetCamera()));
                 _isOrthoGraphic = true;
             }
             else
             {
-                _viewModel.SetCameraPerspective(VSGElement.GetCamera());//PerspectiveCameraOperations.ConvertFromOrthographicToPerspective(VSGElement.GetCamera()));
+                _viewModel.SetCameraPerspective(VSGElement.GetUiActionAdapter(), VSGElement.GetCamera());//PerspectiveCameraOperations.ConvertFromOrthographicToPerspective(VSGElement.GetCamera()));
                 _isOrthoGraphic = false;
             }
         }
@@ -57,6 +58,11 @@ namespace WpfDemo
         private void ChangeCameraViewButton_OnClick(object sender, RoutedEventArgs e)
         {
             _viewModel.ChangeCamera(VSGElement.GetUiActionAdapter(), VSGElement.GetCamera());
+        }
+
+        private void ViewAllButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            VSGElement.CameraManipulator.ViewAll(VSGElement.GetUiActionAdapter());
         }
     }
 }
