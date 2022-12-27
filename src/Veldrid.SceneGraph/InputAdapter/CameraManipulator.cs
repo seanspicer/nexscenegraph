@@ -124,8 +124,8 @@ namespace Veldrid.SceneGraph.InputAdapter
 
         protected virtual void UpdateCameraOrthographic(ICamera camera, float width, float height, float dist)
         {
-            OrthographicCameraOperations.SetProjectionMatrixAsOrthographic(camera, width, height, -dist/2,
-                dist/2);
+            OrthographicCameraOperations.SetProjectionMatrixAsOrthographic(camera, width, height, dist/2,
+                -dist/2);
             
             camera.SetViewMatrix(InverseMatrix);
         }
