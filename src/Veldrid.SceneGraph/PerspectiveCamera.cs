@@ -15,6 +15,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Veldrid.SceneGraph.Util;
 
@@ -22,6 +23,13 @@ namespace Veldrid.SceneGraph
 {
     public static class PerspectiveCameraOperations
     {
+        private static readonly Dictionary<ICamera, Tuple<float, float>> NearFarPlaneCache;
+
+        static PerspectiveCameraOperations()
+        {
+            NearFarPlaneCache = new Dictionary<ICamera, Tuple<float, float>>();
+        }
+
         public static void GuardPerspective(ICamera camera)
         {
             if (camera.Projection != ProjectionMatrixType.Perspective)
@@ -40,6 +48,15 @@ namespace Veldrid.SceneGraph
         {
             GuardPerspective(camera);
             camera.SetProjectionMatrix(Matrix4x4.CreatePerspectiveFieldOfView(vfov, aspectRatio, zNear, zFar));
+
+            if (NearFarPlaneCache.ContainsKey(camera))
+            {
+                NearFarPlaneCache[camera] = Tuple.Create(zNear, zFar);
+            }
+            else
+            {
+                NearFarPlaneCache.Add(camera, Tuple.Create(zNear, zFar));
+            }
         }
 
         public static bool GetProjectionMatrixAsFrustum(ICamera camera, ref float left, ref float right, ref float bottom, ref float top,
@@ -83,7 +100,14 @@ namespace Veldrid.SceneGraph
             double previousHeight = camera.Viewport.Height;
             double newWidth = width;
             double newHeight = height;
-
+            
+            float zNear = 0.0f;
+            float zFar = 100.0f;
+            if (NearFarPlaneCache.ContainsKey(camera))
+            {
+                (zNear, zFar) = NearFarPlaneCache[camera];
+            }
+            
             // TODO -- THIS NEEDS TO BE MOVED, it shouldn't be necessary.
             if (System.Math.Abs(previousWidth) < 1e-6 && System.Math.Abs(previousHeight) < 1e-6)
             {
@@ -91,7 +115,7 @@ namespace Veldrid.SceneGraph
                 var vfov = (float) System.Math.Atan2(height / 2.0f, camera.Distance) * 2.0f;
 
                 var aspectRatio = width / (float) height;
-                SetProjectionMatrixAsPerspective(camera, vfov, aspectRatio, 1.0f, 100.0f);
+                SetProjectionMatrixAsPerspective(camera, vfov, aspectRatio, zNear, zFar);
 
 
                 if ((resizeMask & ResizeMask.ResizeViewport) != 0) camera.SetViewport(0, 0, width, height);
@@ -121,7 +145,7 @@ namespace Veldrid.SceneGraph
                             case ProjectionResizePolicy.Fixed:
 
                                 var aspectRatio = width / (float) height;
-                                SetProjectionMatrixAsPerspective(camera, GetVerticalFov(camera), aspectRatio, 1.0f, 100.0f);
+                                SetProjectionMatrixAsPerspective(camera, GetVerticalFov(camera), aspectRatio, zNear, zFar);
 
                                 break;
                         }
