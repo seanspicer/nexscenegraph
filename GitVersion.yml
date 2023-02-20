@@ -1,8 +1,8 @@
 mode: ContinuousDeployment
-next-version: 0.4.8
+next-version: 0.4.9
 branches: 
   main:
-    regex: ^v4.8$
+    regex: ^v4.9$
     tag: alpha
     is-release-branch: false
   development:
