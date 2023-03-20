@@ -50,6 +50,30 @@ namespace Veldrid.SceneGraph
         {
         }
 
+        protected Geometry(Geometry<T> other)
+        {
+            foreach (var i in other._indexBufferCache)
+            {
+                _indexBufferCache.Add(i.Key, i.Value);
+            }
+
+            foreach (var v in other._vertexBufferCache)
+            {
+                _vertexBufferCache.Add(v.Key, v.Value);
+            }
+
+            _vertexData = new T[other.VertexData.Length];
+            for (var i=0; i<_vertexData.Length; ++i)
+            {
+                _vertexData[i] = other._vertexData[i];
+            }
+        }
+
+        public override INode DeepCopy()
+        {
+            return new Geometry<T>(this);
+        }
+        
         private int SizeOfVertexData => Marshal.SizeOf(default(T));
 
         public T[] VertexData
