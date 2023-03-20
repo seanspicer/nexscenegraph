@@ -33,6 +33,7 @@ namespace Veldrid.SceneGraph
         void ChildRemoved(int index, int count);
         int GetNumChildren();
         INode GetChild(int index);
+        INode DeepCopy();
     }
 
     public class Group : Node, IGroup
@@ -45,7 +46,20 @@ namespace Veldrid.SceneGraph
         {
             //_logger = LogManager.GetLogger<Group>();
         }
-        
+
+        protected Group(Group other)
+        {
+            foreach (var child in other._children )
+            {
+                _children.Add(Tuple.Create(child.Item1.DeepCopy(), child.Item2));
+            }
+        }
+
+        public override INode DeepCopy()
+        {
+            return new Group(this);
+        }
+
         public override void Accept(INodeVisitor nv)
         {
             if (nv.ValidNodeMask(this))

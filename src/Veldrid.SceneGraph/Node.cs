@@ -94,11 +94,13 @@ namespace Veldrid.SceneGraph
         void Accept(INodeVisitor nv);
         void Ascend(INodeVisitor nv);
         void Traverse(INodeVisitor nv);
+        INode DeepCopy();
     }
 
     public abstract class Node : Object, INode
     {
         protected IBoundingSphere _boundingSphere = BoundingSphere.Create();
+        
         protected bool _boundingSphereComputed;
 
         private ICallback _cullCallback;
@@ -126,11 +128,27 @@ namespace Veldrid.SceneGraph
         protected Node()
         {
             Id = Guid.NewGuid();
+            
             _updateCallback = null;
 
             _parents = new List<IGroup>();
         }
 
+        protected Node(Node other)
+        {
+            Id = Guid.NewGuid();
+
+            _updateCallback = other._updateCallback;
+
+            _parents = new List<IGroup>();
+            foreach (var g in other._parents)
+            {
+                _parents.Add(g.DeepCopy() as IGroup);
+            }
+        }
+
+        public abstract INode DeepCopy();
+        
         // Public Fields
         public Guid Id { get; }
         public uint NodeMask { get; set; } = 0xffffffff;
