@@ -51,8 +51,8 @@ namespace ColoredCube
         {
             Bootstrapper.Configure();
 
-            var viewer = SimpleViewer.Create("Colored Cube Scene Graph", TextureSampleCount.Count8);
-            viewer.SetCameraOrthographic();
+            var viewer = SimpleViewer.Create("Colored Cube Copy Scene Graph", TextureSampleCount.Count8);
+            //viewer.SetCameraOrthographic();
 
             viewer.SetCameraManipulator(TrackballManipulator.Create());
 
@@ -61,8 +61,9 @@ namespace ColoredCube
 
             root.AddChild(cube);
 
-            viewer.SetSceneData(root);
-            viewer.AddInputEventHandler(new CameraInputHandler(viewer));
+            var rootCopy = root.DeepCopy();
+            
+            viewer.SetSceneData(rootCopy);
 
             viewer.ViewAll();
 
@@ -156,6 +157,8 @@ namespace ColoredCube
             geometry.PipelineState.ShaderSet = Vertex3Color4Shader.Instance.ShaderSet;
 
             var geode = Geode.Create();
+            geode.NameString = "Cube Geode";
+            geometry.Name = "Colored Cube";
             geode.AddDrawable(geometry);
 
             return geode;

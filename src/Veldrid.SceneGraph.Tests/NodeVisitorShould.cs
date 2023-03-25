@@ -33,6 +33,11 @@ namespace Veldrid.SceneGraph.Tests
             base.Accept(nv);
             AcceptCount++;
         }
+
+        public override INode DeepCopy()
+        {
+            throw new System.NotImplementedException();
+        }
     }
     
     public class TestNodeVisitor : NodeVisitor {}

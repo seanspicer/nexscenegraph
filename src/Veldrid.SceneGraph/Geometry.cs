@@ -52,6 +52,14 @@ namespace Veldrid.SceneGraph
 
         protected Geometry(Geometry<T> other)
         {
+            VertexLayouts = other.VertexLayouts;
+            PipelineState = other.PipelineState;
+            
+            foreach (var pSet in other.PrimitiveSets)
+            {
+                PrimitiveSets.Add(pSet.DeepCopy());
+            }
+            
             foreach (var i in other._indexBufferCache)
             {
                 _indexBufferCache.Add(i.Key, i.Value);
@@ -62,6 +70,13 @@ namespace Veldrid.SceneGraph
                 _vertexBufferCache.Add(v.Key, v.Value);
             }
 
+            // TODO - speed this with block copy
+            _indexData = new uint[other.IndexData.Length];
+            for (var i=0; i<_indexData.Length; ++i)
+            {
+                _indexData[i] = other._indexData[i];
+            }
+            
             _vertexData = new T[other.VertexData.Length];
             for (var i=0; i<_vertexData.Length; ++i)
             {

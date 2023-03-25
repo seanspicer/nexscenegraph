@@ -30,6 +30,7 @@ namespace Veldrid.SceneGraph
         float GetEyePointDistance(Vector3 eyeLocal);
         void Draw(CommandList commandList);
         void Accept(IPrimitiveFunctor functor);
+        IPrimitiveSet DeepCopy();
     }
 
     public abstract class PrimitiveSet : Object, IPrimitiveSet
@@ -45,6 +46,8 @@ namespace Veldrid.SceneGraph
             Drawable = drawable;
         }
 
+        public abstract IPrimitiveSet DeepCopy();
+        
         public IBoundingBox InitialBoundingBox
         {
             get => _initialBoundingBox;

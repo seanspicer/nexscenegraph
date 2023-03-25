@@ -44,7 +44,7 @@ namespace Veldrid.SceneGraph
             _vertexOffset = vertexOffset;
             _instanceStart = instanceStart;
         }
-
+        
         public static IPrimitiveSet Create(
             IGeometry<T> geometry,
             PrimitiveTopology primitiveTopology,
@@ -64,6 +64,18 @@ namespace Veldrid.SceneGraph
                 instanceStart);
         }
 
+        public override IPrimitiveSet DeepCopy()
+        {
+            return new DrawElements<T>(
+                this._geometry,
+                this.PrimitiveTopology,
+                this._indexCount,
+                this._instanceCount,
+                this._indexStart,
+                this._vertexOffset,
+                this._instanceStart);
+        }
+        
         public override void Draw(CommandList commandList)
         {
             commandList.DrawIndexed(
@@ -105,5 +117,7 @@ namespace Veldrid.SceneGraph
                 _vertexOffset,
                 _instanceStart);
         }
+
+
     }
 }
