@@ -57,7 +57,7 @@ namespace Veldrid.SceneGraph
             
             foreach (var pSet in other.PrimitiveSets)
             {
-                PrimitiveSets.Add(pSet.DeepCopy());
+                PrimitiveSets.Add(pSet.DeepCopy(this));
             }
             
             foreach (var i in other._indexBufferCache)

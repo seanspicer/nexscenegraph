@@ -33,7 +33,6 @@ namespace Veldrid.SceneGraph
         void ChildRemoved(int index, int count);
         int GetNumChildren();
         INode GetChild(int index);
-        INode DeepCopy();
     }
 
     public class Group : Node, IGroup

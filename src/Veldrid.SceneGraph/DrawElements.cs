@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 
+using System;
 using System.Numerics;
 
 namespace Veldrid.SceneGraph
@@ -64,16 +65,21 @@ namespace Veldrid.SceneGraph
                 instanceStart);
         }
 
-        public override IPrimitiveSet DeepCopy()
+        public override IPrimitiveSet DeepCopy(IGeometry newGeometry)
         {
-            return new DrawElements<T>(
-                this._geometry,
-                this.PrimitiveTopology,
-                this._indexCount,
-                this._instanceCount,
-                this._indexStart,
-                this._vertexOffset,
-                this._instanceStart);
+            if (newGeometry is IGeometry<T> specificNewGeometry)
+            {
+                return new DrawElements<T>(
+                    specificNewGeometry,
+                    this.PrimitiveTopology,
+                    this._indexCount,
+                    this._instanceCount,
+                    this._indexStart,
+                    this._vertexOffset,
+                    this._instanceStart);
+            }
+
+            throw new ArgumentException("New Geometry is not the correct type");
         }
         
         public override void Draw(CommandList commandList)
