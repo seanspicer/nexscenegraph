@@ -198,7 +198,7 @@ namespace Veldrid.SceneGraph.Viewer
 
         public void SetCameraOrthographic()
         {
-            var camera = OrthographicCamera.Create(
+            var camera = OrthographicCameraOperations.CreateOrthographicCamera(
                 DisplaySettings.Instance(this).ScreenWidth,
                 DisplaySettings.Instance(this).ScreenHeight,
                 DisplaySettings.Instance(this).ScreenDistance);
@@ -207,7 +207,7 @@ namespace Veldrid.SceneGraph.Viewer
 
         public void SetCameraPerspective()
         {
-            var camera = PerspectiveCamera.Create(
+            var camera = PerspectiveCameraOperations.CreatePerspectiveCamera(
                 DisplaySettings.Instance(this).ScreenWidth,
                 DisplaySettings.Instance(this).ScreenHeight,
                 DisplaySettings.Instance(this).ScreenDistance);

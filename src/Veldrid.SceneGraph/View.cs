@@ -25,7 +25,7 @@ namespace Veldrid.SceneGraph
     {
         protected View(uint width, uint height, float distance)
         {
-            Camera = PerspectiveCamera.Create(width, height, distance);
+            Camera = PerspectiveCameraOperations.CreatePerspectiveCamera(width, height, distance);
             Camera.SetViewport(0, 0, (int) width, (int) height);
             Camera.SetView(this);
         }

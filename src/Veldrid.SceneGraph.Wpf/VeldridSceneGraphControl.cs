@@ -109,6 +109,11 @@ namespace Veldrid.SceneGraph.Wpf
         {
             return _vsgRenderer.View.Camera;
         }
+
+        public void SetCamera(ICamera camera)
+        {
+            _vsgRenderer.SetCamera(camera);
+        }
         
         protected override void OnMouseEnter(MouseEventArgs e)
         {
