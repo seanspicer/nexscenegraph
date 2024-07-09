@@ -1,5 +1,5 @@
 <Project>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <FrameworkReference
         Update="Microsoft.WindowsDesktop.App;Microsoft.WindowsDesktop.App.WPF;Microsoft.WindowsDesktop.App.WindowsForms"
         TargetingPackVersion="6.0.0" />

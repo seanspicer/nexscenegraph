@@ -450,7 +450,8 @@ namespace Veldrid.SceneGraph.Text
 
         internal void CalculateTextMetrics()
         {
-            var size = TextMeasurer.Measure(Text, new TextOptions(Font){Dpi = 72 * FontResolution, KerningMode = KerningMode.Auto});
+            
+            var size = TextMeasurer.MeasureSize(Text, new TextOptions(Font){Dpi = 72 * FontResolution, KerningMode = KerningMode.Auto});
 
             var padding = Padding * FontResolution;
 
@@ -475,7 +476,7 @@ namespace Veldrid.SceneGraph.Text
                 var targetHeight = img.Height - padding * 2;
 
                 // measure the text size
-                var size = TextMeasurer.Measure(Text, new TextOptions(Font));
+                var size = TextMeasurer.MeasureSize(Text, new TextOptions(Font));
 
                 //find out how much we need to scale the text to allow for alignment
                 var scalingFactor = System.Math.Min(targetWidth / img.Width, targetHeight / img.Height);
@@ -535,11 +536,13 @@ namespace Veldrid.SceneGraph.Text
 
                 if (_outlineStrokeWidth > 0)
                 {
-                    img.Mutate(i => i.DrawText(drawingOptions, textOptions, Text, new SolidBrush(TextColor), Pens.Solid(_outlineColor, _outlineStrokeWidth)));
+                    img.Mutate<Rgba32>(i => i.DrawText(Text, scaledFont, new SolidBrush(TextColor), Pens.Solid(_outlineColor, _outlineStrokeWidth), center));
+                    //img.Mutate(i => i.DrawText(drawingOptions, textOptions, Text, new SolidBrush(TextColor), Pens.Solid(_outlineColor, _outlineStrokeWidth)));
                 }
                 else
                 {
-                    img.Mutate(i => i.DrawText(drawingOptions, textOptions, Text, new SolidBrush(TextColor), null));
+                    img.Mutate<Rgba32>(i => i.DrawText(Text, scaledFont, new SolidBrush(TextColor), Pens.Solid(_outlineColor, _outlineStrokeWidth), center));
+                    //img.Mutate<Rgba32>(i => i.DrawText(drawingOptions, textOptions, Text, new SolidBrush(TextColor), null));
                 }
                 
 
