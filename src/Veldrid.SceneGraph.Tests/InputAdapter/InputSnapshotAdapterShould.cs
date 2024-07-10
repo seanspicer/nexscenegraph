@@ -19,7 +19,7 @@ namespace Veldrid.SceneGraph.Tests.InputAdapter
 
             Assert.That(sut.MapKey(Key.Q), Is.EqualTo(IUiEventAdapter.KeySymbol.KeyQ));
             Assert.That(sut.MapKey(Key.F13), Is.EqualTo(IUiEventAdapter.KeySymbol.KeyF13));
-            Assert.That(sut.MapKey(Key.Number6), Is.EqualTo(IUiEventAdapter.KeySymbol.Key6));
+            Assert.That(sut.MapKey(Key.Num6), Is.EqualTo(IUiEventAdapter.KeySymbol.Key6));
             Assert.That(sut.MapKey(Key.Comma), Is.EqualTo(IUiEventAdapter.KeySymbol.Unknown));
         }
     }

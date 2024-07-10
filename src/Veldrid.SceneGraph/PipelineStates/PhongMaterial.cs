@@ -170,7 +170,7 @@ namespace Veldrid.SceneGraph.PipelineStates
         {
             var lightSourceUniform = Uniform<LightSource>.Create(
                 "LightSource",
-                BufferUsage.UniformBuffer | BufferUsage.Dynamic,
+                BufferUsage.UniformBuffer | BufferUsage.DynamicReadWrite,
                 ShaderStages.Vertex | ShaderStages.Fragment);
 
             lightSourceUniform.UniformData = new[]
@@ -194,7 +194,7 @@ namespace Veldrid.SceneGraph.PipelineStates
         {
             var materialDescriptionUniform = Uniform<Material>.Create(
                 "MaterialDescription",
-                BufferUsage.UniformBuffer | BufferUsage.Dynamic,
+                BufferUsage.UniformBuffer | BufferUsage.DynamicReadWrite,
                 ShaderStages.Vertex | ShaderStages.Fragment);
 
             materialDescriptionUniform.UniformData = new[]

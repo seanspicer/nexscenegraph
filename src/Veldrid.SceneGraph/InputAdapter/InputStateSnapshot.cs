@@ -14,24 +14,27 @@
 // limitations under the License.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Text;
 
 namespace Veldrid.SceneGraph.InputAdapter
 {
-    internal class EmptyInputSnapshot : InputSnapshot
-    {
-        public bool IsMouseDown(MouseButton button)
-        {
-            return false;
-        }
-
-        public IReadOnlyList<KeyEvent> KeyEvents { get; } = new List<KeyEvent>();
-        public IReadOnlyList<MouseEvent> MouseEvents { get; } = new List<MouseEvent>();
-        public IReadOnlyList<char> KeyCharPresses { get; } = new List<char>();
-        public Vector2 MousePosition { get; } = Vector2.Zero;
-        public float WheelDelta { get; } = 0;
-    }
+    // internal class EmptyInputSnapshot : InputSnapshot
+    // {
+    //     public EmptyInputSnapshot(ReadOnlySpan<Rune> inputEvents)
+    //     {
+    //         InputEvents = inputEvents;
+    //     }
+    //
+    //     public ReadOnlySpan<Rune> InputEvents { get; }
+    //     public ReadOnlySpan<KeyEvent> KeyEvents { get; }
+    //     public ReadOnlySpan<MouseButtonEvent> MouseEvents { get; }
+    //     public Vector2 MousePosition { get; }
+    //     public Vector2 WheelDelta { get; }
+    //     public MouseButton MouseDown { get; }
+    // }
 
     public class InputStateSnapshot : InputSnapshot, IInputStateSnapshot
     {
@@ -52,21 +55,19 @@ namespace Veldrid.SceneGraph.InputAdapter
         public Matrix4x4 ProjectionMatrix { get; }
         public Matrix4x4 ViewMatrix { get; }
 
-        public bool IsMouseDown(MouseButton button)
-        {
-            return _snapshot.IsMouseDown(button);
-        }
+        public MouseButton MouseDown => _snapshot.MouseDown;
 
-        public IReadOnlyList<KeyEvent> KeyEvents => _snapshot.KeyEvents;
-        public IReadOnlyList<MouseEvent> MouseEvents => _snapshot.MouseEvents;
-        public IReadOnlyList<char> KeyCharPresses => _snapshot.KeyCharPresses;
+        public ReadOnlySpan<KeyEvent> KeyEvents => _snapshot.KeyEvents;
+        public ReadOnlySpan<MouseButtonEvent> MouseEvents => _snapshot.MouseEvents;
+        public ReadOnlySpan<Rune> InputEvents => _snapshot.InputEvents;
         public Vector2 MousePosition => _snapshot.MousePosition;
-        public float WheelDelta => _snapshot.WheelDelta;
+        public Vector2 WheelDelta => _snapshot.WheelDelta;
 
         public static InputStateSnapshot CreateEmpty(int width = 0, int height = 0)
         {
-            return new InputStateSnapshot(new EmptyInputSnapshot(), width, height, Matrix4x4.Identity,
-                Matrix4x4.Identity);
+            throw new NotImplementedException();
+            // return new InputStateSnapshot(new EmptyInputSnapshot(), width, height, Matrix4x4.Identity,
+            //     Matrix4x4.Identity);
         }
 
         public static IInputStateSnapshot Create(InputSnapshot snapshot, int width, int height,

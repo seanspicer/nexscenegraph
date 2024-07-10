@@ -164,9 +164,9 @@ namespace Veldrid.SceneGraph.Viewer
             _cullVisitor.ResourceFactory = factory;
 
             _projectionBuffer =
-                factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
+                factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.DynamicReadWrite));
             _viewBuffer =
-                factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.Dynamic));
+                factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.DynamicReadWrite));
 
             // TODO - combine view and projection matrices on host
             _resourceLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(
@@ -433,7 +433,8 @@ namespace Veldrid.SceneGraph.Viewer
                 var offset = element.Item4 * modelBuffStride;
 
                 // Set state-local resources
-                _commandList.SetGraphicsResourceSet(1, ri.ResourceSet, 1, ref offset);
+                ReadOnlySpan<uint> offsetSpan = new uint[] {offset};
+                _commandList.SetGraphicsResourceSet(1, ri.ResourceSet, offsetSpan);
 
                 var renderGroupElement = element.Item2;
 

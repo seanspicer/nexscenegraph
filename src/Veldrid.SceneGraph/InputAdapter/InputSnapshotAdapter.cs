@@ -134,12 +134,12 @@ namespace Veldrid.SceneGraph.InputAdapter
                 adaptedEvents.Add(adaptedEvent);
             }
 
-            if (snapshot.WheelDelta != 0)
+            if (snapshot.WheelDelta.Y != 0)
             {
                 var adaptedEvent = UiEventAdapter.Create();
                 adaptedEvent.EventType = IUiEventAdapter.EventTypeValue.Scroll;
                 adaptedEvent.ModKeyMask = ModKeyMask;
-                if (snapshot.WheelDelta > 0)
+                if (snapshot.WheelDelta.Y > 0)
                     adaptedEvent.ScrollingMotion = IUiEventAdapter.ScrollingMotionType.ScrollUp;
                 else
                     adaptedEvent.ScrollingMotion = IUiEventAdapter.ScrollingMotionType.ScrollDown;
@@ -200,16 +200,16 @@ namespace Veldrid.SceneGraph.InputAdapter
             LastMousePosition = MousePosition;
             MousePosition = snapshot.MousePosition;
 
-            for (var i = 0; i < snapshot.KeyEvents.Count; i++)
+            for (var i = 0; i < snapshot.KeyEvents.Length; i++)
             {
                 var ke = snapshot.KeyEvents[i];
                 if (ke.Down)
-                    KeyDown(ke.Key);
+                    KeyDown(ke.Physical);
                 else
-                    KeyUp(ke.Key);
+                    KeyUp(ke.Physical);
             }
 
-            for (var i = 0; i < snapshot.MouseEvents.Count; i++)
+            for (var i = 0; i < snapshot.MouseEvents.Length; i++)
             {
                 var me = snapshot.MouseEvents[i];
                 if (me.Down)
@@ -240,22 +240,22 @@ namespace Veldrid.SceneGraph.InputAdapter
 
             switch (key)
             {
-                case Key.ShiftLeft:
+                case Key.LeftShift:
                     ModKeyMask &= ~IUiEventAdapter.ModKeyMaskType.ModKeyLeftShift;
                     break;
-                case Key.ShiftRight:
+                case Key.RightShift:
                     ModKeyMask &= ~IUiEventAdapter.ModKeyMaskType.ModKeyRightShift;
                     break;
-                case Key.ControlLeft:
+                case Key.LeftControl:
                     ModKeyMask &= ~IUiEventAdapter.ModKeyMaskType.ModKeyLeftCtl;
                     break;
-                case Key.ControlRight:
+                case Key.RightControl:
                     ModKeyMask &= ~IUiEventAdapter.ModKeyMaskType.ModKeyRightCtl;
                     break;
-                case Key.AltLeft:
+                case Key.LeftAlt:
                     ModKeyMask &= ~IUiEventAdapter.ModKeyMaskType.ModKeyLeftAlt;
                     break;
-                case Key.AltRight:
+                case Key.RightAlt:
                     ModKeyMask &= ~IUiEventAdapter.ModKeyMaskType.ModKeyRightAlt;
                     break;
             }
@@ -267,22 +267,22 @@ namespace Veldrid.SceneGraph.InputAdapter
 
             switch (key)
             {
-                case Key.ShiftLeft:
+                case Key.LeftShift:
                     ModKeyMask |= IUiEventAdapter.ModKeyMaskType.ModKeyLeftShift;
                     break;
-                case Key.ShiftRight:
+                case Key.RightShift:
                     ModKeyMask |= IUiEventAdapter.ModKeyMaskType.ModKeyRightShift;
                     break;
-                case Key.ControlLeft:
+                case Key.LeftControl:
                     ModKeyMask |= IUiEventAdapter.ModKeyMaskType.ModKeyLeftCtl;
                     break;
-                case Key.ControlRight:
+                case Key.RightControl:
                     ModKeyMask |= IUiEventAdapter.ModKeyMaskType.ModKeyRightCtl;
                     break;
-                case Key.AltLeft:
+                case Key.LeftAlt:
                     ModKeyMask |= IUiEventAdapter.ModKeyMaskType.ModKeyLeftAlt;
                     break;
-                case Key.AltRight:
+                case Key.RightAlt:
                     ModKeyMask |= IUiEventAdapter.ModKeyMaskType.ModKeyRightAlt;
                     break;
             }
@@ -347,12 +347,12 @@ namespace Veldrid.SceneGraph.InputAdapter
         private void BuildKeyMap()
         {
             KeyMap.Add(Key.Unknown, IUiEventAdapter.KeySymbol.Unknown);
-            KeyMap.Add(Key.ShiftLeft, IUiEventAdapter.KeySymbol.KeyShiftL);
-            KeyMap.Add(Key.ShiftRight, IUiEventAdapter.KeySymbol.KeyShiftR);
-            KeyMap.Add(Key.ControlLeft, IUiEventAdapter.KeySymbol.KeyControlL);
-            KeyMap.Add(Key.ControlRight, IUiEventAdapter.KeySymbol.KeyControlR);
-            KeyMap.Add(Key.AltLeft, IUiEventAdapter.KeySymbol.KeyAltL);
-            KeyMap.Add(Key.AltRight, IUiEventAdapter.KeySymbol.KeyAltR);
+            KeyMap.Add(Key.LeftShift, IUiEventAdapter.KeySymbol.KeyShiftL);
+            KeyMap.Add(Key.RightShift, IUiEventAdapter.KeySymbol.KeyShiftR);
+            KeyMap.Add(Key.LeftControl, IUiEventAdapter.KeySymbol.KeyControlL);
+            KeyMap.Add(Key.RightControl, IUiEventAdapter.KeySymbol.KeyControlR);
+            KeyMap.Add(Key.LeftAlt, IUiEventAdapter.KeySymbol.KeyAltL);
+            KeyMap.Add(Key.RightAlt, IUiEventAdapter.KeySymbol.KeyAltR);
             KeyMap.Add(Key.Menu, IUiEventAdapter.KeySymbol.KeyMenu);
             KeyMap.Add(Key.Space, IUiEventAdapter.KeySymbol.KeySpace);
 
@@ -363,7 +363,8 @@ namespace Veldrid.SceneGraph.InputAdapter
             for (var i = 0; i < 26; ++i) KeyMap.Add(Key.A + i, IUiEventAdapter.KeySymbol.KeyA + i);
 
             // Add Number Keys
-            for (var i = 0; i < 10; ++i) KeyMap.Add(Key.Number0 + i, IUiEventAdapter.KeySymbol.Key0 + i);
+            KeyMap.Add(Key.Num0, IUiEventAdapter.KeySymbol.Key0);
+            for (var i = 1; i < 9; ++i) KeyMap.Add(Key.Num1 + i, IUiEventAdapter.KeySymbol.Key1 + i);
         }
     }
 }

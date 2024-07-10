@@ -1,0 +1,3 @@
+[submodule "modules/veldrid"]
+	path = modules/veldrid
+	url = https://github.com/seanspicer/veldrid.git

@@ -57,16 +57,16 @@ namespace Veldrid.SceneGraph.Viewer
             _newMouseButtonsThisFrame.Clear();
 
             MousePosition = snapshot.MousePosition;
-            for (var i = 0; i < snapshot.KeyEvents.Count; i++)
+            for (var i = 0; i < snapshot.KeyEvents.Length; i++)
             {
                 var ke = snapshot.KeyEvents[i];
                 if (ke.Down)
-                    KeyDown(ke.Key);
+                    KeyDown(ke.Physical);
                 else
-                    KeyUp(ke.Key);
+                    KeyUp(ke.Physical);
             }
 
-            for (var i = 0; i < snapshot.MouseEvents.Count; i++)
+            for (var i = 0; i < snapshot.MouseEvents.Length; i++)
             {
                 var me = snapshot.MouseEvents[i];
                 if (me.Down)

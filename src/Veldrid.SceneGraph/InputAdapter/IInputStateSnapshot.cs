@@ -14,23 +14,25 @@
 // limitations under the License.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Text;
 
 namespace Veldrid.SceneGraph.InputAdapter
 {
     public interface IInputStateSnapshot
     {
-        IReadOnlyList<KeyEvent> KeyEvents { get; }
-        IReadOnlyList<MouseEvent> MouseEvents { get; }
-        IReadOnlyList<char> KeyCharPresses { get; }
+        ReadOnlySpan<KeyEvent> KeyEvents { get; }
+        ReadOnlySpan<MouseButtonEvent> MouseEvents { get; }
+        ReadOnlySpan<Rune> InputEvents { get; }
         Vector2 MousePosition { get; }
-        float WheelDelta { get; }
+        Vector2 WheelDelta { get; }
         int WindowWidth { get; }
         int WindowHeight { get; }
 
         Matrix4x4 ProjectionMatrix { get; }
         Matrix4x4 ViewMatrix { get; }
-        bool IsMouseDown(MouseButton button);
+        MouseButton MouseDown { get; }
     }
 }
