@@ -10,7 +10,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="AssimpNet" Version="4.1.0" />
+      <PackageReference Include="StirlingLabs.Assimp.Net" Version="23.4.1" />
     </ItemGroup>
 
 </Project>

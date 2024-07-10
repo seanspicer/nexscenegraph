@@ -19,6 +19,7 @@ using Veldrid;
 using Veldrid.SceneGraph.InputAdapter;
 using Veldrid.SceneGraph.Logging;
 using Veldrid.SceneGraph.Viewer;
+using TextureSampleCount = Veldrid.TextureSampleCount;
 
 namespace Lighting
 {
@@ -30,7 +31,7 @@ namespace Lighting
             LogManager.SetLogger(Bootstrapper.LoggerFactory);
 
             var viewer = SimpleViewer.Create("Phong Shaded Dragon Scene Graph", TextureSampleCount.Count8);
-            //viewer.SetCameraOrthographic();
+
             viewer.SetCameraManipulator(TrackballManipulator.Create());
 
             var root = LightingExampleScene.Build();

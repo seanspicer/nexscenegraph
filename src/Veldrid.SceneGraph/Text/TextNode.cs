@@ -293,7 +293,7 @@ namespace Veldrid.SceneGraph.Text
                 textColor,
                 backgroundColor,
                 SixLabors.ImageSharp.Color.Transparent,
-                0.0f,
+                1.0f,
                 verticalAlignment,
                 horizontalAlignment,
                 padding,
