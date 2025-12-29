@@ -12,5 +12,5 @@
     <ItemGroup>
       <PackageReference Include="StirlingLabs.Assimp.Net" Version="23.4.1" />
     </ItemGroup>
-
+    
 </Project>

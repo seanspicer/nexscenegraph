@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFrameworks>net48;net8.0</TargetFrameworks>
+        <TargetFramework>net8.0-windows</TargetFramework>
         <UseWPF>true</UseWPF>
-        <LangVersion>8</LangVersion>
+        <LangVersion>latest</LangVersion>
         <ApplicationManifest>app.manifest</ApplicationManifest>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
