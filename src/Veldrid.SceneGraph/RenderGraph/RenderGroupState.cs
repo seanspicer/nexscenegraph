@@ -118,7 +118,7 @@ namespace Veldrid.SceneGraph.RenderGraph
 
             ri.ModelViewBuffer =
                 resourceFactory.CreateBuffer(new BufferDescription(modelViewMatrixObjSizeInBytes * nDrawables,
-                    BufferUsage.UniformBuffer | BufferUsage.DynamicReadWrite));
+                    BufferUsage.UniformBuffer | BufferUsage.DynamicWrite));
 
             resourceLayoutElementDescriptionList.Add(
                 new ResourceLayoutElementDescription("Model", ResourceKind.UniformBuffer, ShaderStages.Vertex,

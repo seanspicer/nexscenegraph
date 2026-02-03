@@ -22,6 +22,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
+using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Memory;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
@@ -34,12 +35,13 @@ namespace Veldrid.SceneGraph.AssetProcessor
     {
         // Taken from Veldrid.ImageSharp
 
-        private Configuration _imConfig;
-        
+        private DecoderOptions _decoderOptions;
+
         public ImageSharpProcessor()
         {
-            _imConfig = Configuration.Default.Clone();
-            _imConfig.PreferContiguousImageBuffers = true;
+            var config = Configuration.Default.Clone();
+            config.PreferContiguousImageBuffers = true;
+            _decoderOptions = new DecoderOptions { Configuration = config };
         }
         
         private static readonly IResampler s_resampler = new LanczosResampler(3);
@@ -76,7 +78,7 @@ namespace Veldrid.SceneGraph.AssetProcessor
 
         public override unsafe ProcessedTexture ProcessT(Stream stream, string extension)
         {
-            var image = Image.Load<Rgba32>(_imConfig, stream);
+            var image = Image.Load<Rgba32>(_decoderOptions, stream);
             var mipmaps = GenerateMipmaps(image, out var totalSize);
 
             var allTexData = new byte[totalSize];
