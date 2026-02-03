@@ -356,8 +356,11 @@ namespace Veldrid.SceneGraph.InputAdapter
             KeyMap.Add(Key.Menu, IUiEventAdapter.KeySymbol.KeyMenu);
             KeyMap.Add(Key.Space, IUiEventAdapter.KeySymbol.KeySpace);
 
-            // Add Function Keys
-            for (var i = 0; i < 35; ++i) KeyMap.Add(Key.F1 + i, IUiEventAdapter.KeySymbol.KeyF1 + i);
+            // Add Function Keys F1-F12
+            for (var i = 0; i < 12; ++i) KeyMap.Add(Key.F1 + i, IUiEventAdapter.KeySymbol.KeyF1 + i);
+
+            // Add Function Keys F13-F24
+            for (var i = 0; i < 12; ++i) KeyMap.Add(Key.F13 + i, IUiEventAdapter.KeySymbol.KeyF13 + i);
 
             // Add Letter Keys
             for (var i = 0; i < 26; ++i) KeyMap.Add(Key.A + i, IUiEventAdapter.KeySymbol.KeyA + i);

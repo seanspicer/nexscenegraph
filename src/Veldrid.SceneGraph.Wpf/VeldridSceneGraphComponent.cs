@@ -191,7 +191,7 @@ namespace Veldrid.SceneGraph.Wpf
 
         private void OnMouseWheel(object sender, HwndMouseEventArgs e)
         {
-            _inputState.WheelDelta += e.WheelDelta;
+            _inputState.WheelDelta += new Vector2(0, e.WheelDelta);
             ProcessEvents();
         }
 
@@ -207,8 +207,8 @@ namespace Veldrid.SceneGraph.Wpf
             var pos = e.GetPosition(this);
             _inputState.MousePosition = new Vector2((float)pos.X, (float)pos.Y);
             
-            var mouseEvent = new MouseEvent(MouseButton.Left, true);
-            _inputState.MouseDown[(int) MouseButton.Left] = true;
+            var mouseEvent = new MouseButtonEvent(0, 0, MouseButton.Left, true, 1);
+            _inputState.SetMouseDown(MouseButton.Left, true);
             _inputState.MouseEventList.Add(mouseEvent);
              ProcessEvents();
         }
@@ -218,8 +218,8 @@ namespace Veldrid.SceneGraph.Wpf
             var pos = e.GetPosition(this);
             _inputState.MousePosition = new Vector2((float)pos.X, (float)pos.Y);
             
-            var mouseEvent = new MouseEvent(MouseButton.Left, false);
-            _inputState.MouseDown[(int) MouseButton.Left] = false;
+            var mouseEvent = new MouseButtonEvent(0, 0, MouseButton.Left, false, 1);
+            _inputState.SetMouseDown(MouseButton.Left, false);
             _inputState.MouseEventList.Add(mouseEvent);
             ProcessEvents();
         }
@@ -229,8 +229,8 @@ namespace Veldrid.SceneGraph.Wpf
             var pos = e.GetPosition(this);
             _inputState.MousePosition = new Vector2((float)pos.X, (float)pos.Y);
             
-            var mouseEvent = new MouseEvent(MouseButton.Right, true);
-            _inputState.MouseDown[(int) MouseButton.Right] = true;
+            var mouseEvent = new MouseButtonEvent(0, 0, MouseButton.Right, true, 1);
+            _inputState.SetMouseDown(MouseButton.Right, true);
             _inputState.MouseEventList.Add(mouseEvent);
             ProcessEvents();
         }
@@ -240,8 +240,8 @@ namespace Veldrid.SceneGraph.Wpf
             var pos = e.GetPosition(this);
             _inputState.MousePosition = new Vector2((float)pos.X, (float)pos.Y);
 
-            var mouseEvent = new MouseEvent(MouseButton.Right, false);
-            _inputState.MouseDown[(int) MouseButton.Right] = false;
+            var mouseEvent = new MouseButtonEvent(0, 0, MouseButton.Right, false, 1);
+            _inputState.SetMouseDown(MouseButton.Right, false);
             _inputState.MouseEventList.Add(mouseEvent);
             ProcessEvents();
         }
@@ -263,7 +263,7 @@ namespace Veldrid.SceneGraph.Wpf
             
             _inputState.MouseEventList.Clear();
             _inputState.KeyEventList.Clear();
-            _inputState.WheelDelta = 0;
+            _inputState.WheelDelta = Vector2.Zero;
         }
 
         private ModifierKeys _modifierKeys = ModifierKeys.None;
@@ -282,19 +282,19 @@ namespace Veldrid.SceneGraph.Wpf
             {
                 case System.Windows.Input.Key.LeftShift:
                 case System.Windows.Input.Key.RightShift:
-                    _modifierKeys |= ModifierKeys.Shift;
+                    _modifierKeys |= ModifierKeys.LeftShift;
                     break;
                 case System.Windows.Input.Key.LeftCtrl:
                 case System.Windows.Input.Key.RightCtrl:
-                    _modifierKeys |= ModifierKeys.Control;
+                    _modifierKeys |= ModifierKeys.LeftControl;
                     break;
                 case System.Windows.Input.Key.LeftAlt:
                 case System.Windows.Input.Key.RightAlt:
-                    _modifierKeys |= ModifierKeys.Alt;
+                    _modifierKeys |= ModifierKeys.LeftAlt;
                     break;
                 default:
                 {
-                    var keyEvent = new KeyEvent(MapKey(e), e.IsDown, _modifierKeys);
+                    var keyEvent = new KeyEvent(0, 0, e.IsDown, false, MapKey(e), VKey.Unknown, _modifierKeys);
                     _inputState.KeyEventList.Add(keyEvent);
                     ProcessEvents();
                     break;
@@ -316,19 +316,19 @@ namespace Veldrid.SceneGraph.Wpf
             {
                 case System.Windows.Input.Key.LeftShift:
                 case System.Windows.Input.Key.RightShift:
-                    _modifierKeys &= ~ModifierKeys.Shift;
+                    _modifierKeys &= ~ModifierKeys.LeftShift;
                     break;
                 case System.Windows.Input.Key.LeftCtrl:
                 case System.Windows.Input.Key.RightCtrl:
-                    _modifierKeys &= ~ModifierKeys.Control;
+                    _modifierKeys &= ~ModifierKeys.LeftControl;
                     break;
                 case System.Windows.Input.Key.LeftAlt:
                 case System.Windows.Input.Key.RightAlt:
-                    _modifierKeys &= ~ModifierKeys.Alt;
+                    _modifierKeys &= ~ModifierKeys.LeftAlt;
                     break;
                 default:
                 {
-                    var keyEvent = new KeyEvent(MapKey(e), e.IsDown, _modifierKeys);
+                    var keyEvent = new KeyEvent(0, 0, e.IsDown, false, MapKey(e), VKey.Unknown, _modifierKeys);
                     _inputState.KeyEventList.Add(keyEvent);
                     ProcessEvents();
                     break;
@@ -423,7 +423,7 @@ namespace Veldrid.SceneGraph.Wpf
             Module mainModule = typeof(VeldridSceneGraphComponent).Module;
             IntPtr hinstance = Marshal.GetHINSTANCE(mainModule);
             return SwapchainSource.CreateWin32(Hwnd, hinstance);
-//            SwapchainDescription scDesc = new SwapchainDescription(win32Source, width, height, PixelFormat.R32_Float, true);
+//            SwapchainDescription scDesc = new SwapchainDescription(win32Source, width, height, PixelFormat.R32_Float, true, 1);
 //
 //            _sc = _gd.ResourceFactory.CreateSwapchain(scDesc);
         }

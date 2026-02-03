@@ -164,9 +164,9 @@ namespace Veldrid.SceneGraph.Viewer
             _cullVisitor.ResourceFactory = factory;
 
             _projectionBuffer =
-                factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.DynamicReadWrite));
+                factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.DynamicWrite));
             _viewBuffer =
-                factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.DynamicReadWrite));
+                factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer | BufferUsage.DynamicWrite));
 
             // TODO - combine view and projection matrices on host
             _resourceLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(

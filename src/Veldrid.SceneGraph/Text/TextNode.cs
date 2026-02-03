@@ -293,7 +293,7 @@ namespace Veldrid.SceneGraph.Text
                 textColor,
                 backgroundColor,
                 SixLabors.ImageSharp.Color.Transparent,
-                1.0f,
+                0.0f,
                 verticalAlignment,
                 horizontalAlignment,
                 padding,
@@ -450,19 +450,25 @@ namespace Veldrid.SceneGraph.Text
 
         internal void CalculateTextMetrics()
         {
-            
-            var size = TextMeasurer.MeasureSize(Text, new TextOptions(Font){Dpi = 72 * FontResolution, KerningMode = KerningMode.Auto});
+            var dpi = 72 * FontResolution;
+            var textOptions = new TextOptions(Font) { Dpi = dpi, KerningMode = KerningMode.Auto };
+
+            var bounds = TextMeasurer.MeasureBounds(Text, textOptions);
+            var size = TextMeasurer.MeasureSize(Text, textOptions);
 
             var padding = Padding * FontResolution;
 
-            _charHeight = size.Height;
-            _charWidth = size.Width;
+            var outlineExtra = _outlineStrokeWidth > 0 ? _outlineStrokeWidth : 0;
+
+            var effectiveHeight = System.Math.Max(size.Height, bounds.Height + bounds.Y) + outlineExtra;
+            var effectiveWidth = System.Math.Max(size.Width, bounds.Width + bounds.X) + outlineExtra;
+
+            _charHeight = effectiveHeight;
+            _charWidth = effectiveWidth;
             _charAspectRatio = _charWidth / _charHeight;
 
-            //var texSize = (int)NextPowerOfTwo((uint)  System.Math.Round(rawSize));
-            _textWidth = (int) (size.Width + padding * 2); //(int)NextPowerOfTwo((uint)  System.Math.Round(size.Width));
-            _textHeight =
-                (int) (size.Height + padding * 2); //(int)NextPowerOfTwo((uint)  System.Math.Round(size.Height));
+            _textWidth = (int)System.Math.Ceiling(effectiveWidth + padding * 2);
+            _textHeight = (int)System.Math.Ceiling(effectiveHeight + padding * 2);
 
             _textAspectRatio = _textWidth / (double) _textHeight;
         }
@@ -471,17 +477,18 @@ namespace Veldrid.SceneGraph.Text
         {
             using (var img = new Image<Rgba32>(_textWidth, _textHeight))
             {
+                var dpi = 72 * FontResolution;
                 var padding = Padding * FontResolution;
                 var targetWidth = img.Width - padding * 2;
                 var targetHeight = img.Height - padding * 2;
 
-                // measure the text size
-                var size = TextMeasurer.MeasureSize(Text, new TextOptions(Font));
+                var measureOptions = new TextOptions(Font) { Dpi = dpi };
+                var size = TextMeasurer.MeasureSize(Text, measureOptions);
 
                 //find out how much we need to scale the text to allow for alignment
                 var scalingFactor = System.Math.Min(targetWidth / img.Width, targetHeight / img.Height);
 
-                //create a new font 
+                //create a new font
                 var scaledFont = new Font(Font, scalingFactor * Font.Size);
 
                 var hCenter = img.Width / 2f;
@@ -518,35 +525,23 @@ namespace Veldrid.SceneGraph.Text
 
                 img.Mutate(i => i.BackgroundColor(BackgroundColor));
 
-                var textOptions = new TextOptions(scaledFont)
+                var richTextOptions = new RichTextOptions(scaledFont)
                 {
                     Origin = center,
                     HorizontalAlignment = HorizontalAlignment,
                     VerticalAlignment = VerticalAlignment,
-                    Dpi = 72 * FontResolution
-                };
-
-                var drawingOptions = new DrawingOptions
-                {
-                    GraphicsOptions =
-                    {
-                        Antialias = true
-                    }
+                    Dpi = dpi
                 };
 
                 if (_outlineStrokeWidth > 0)
                 {
-                    img.Mutate<Rgba32>(i => i.DrawText(Text, scaledFont, new SolidBrush(TextColor), Pens.Solid(_outlineColor, _outlineStrokeWidth), center));
-                    //img.Mutate(i => i.DrawText(drawingOptions, textOptions, Text, new SolidBrush(TextColor), Pens.Solid(_outlineColor, _outlineStrokeWidth)));
+                    img.Mutate<Rgba32>(i => i.DrawText(richTextOptions, Text, Pens.Solid(_outlineColor, _outlineStrokeWidth)));
+                    img.Mutate<Rgba32>(i => i.DrawText(richTextOptions, Text, new SolidBrush(TextColor)));
                 }
                 else
                 {
-                    img.Mutate<Rgba32>(i => i.DrawText(Text, scaledFont, new SolidBrush(TextColor), Pens.Solid(_outlineColor, _outlineStrokeWidth), center));
-                    //img.Mutate<Rgba32>(i => i.DrawText(drawingOptions, textOptions, Text, new SolidBrush(TextColor), null));
+                    img.Mutate<Rgba32>(i => i.DrawText(richTextOptions, Text, TextColor));
                 }
-                
-
-                
 
                 var imageProcessor = new ImageSharpProcessor();
                 return imageProcessor.ProcessT(img);

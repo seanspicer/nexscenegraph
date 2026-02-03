@@ -283,7 +283,7 @@ namespace Veldrid.SceneGraph.Wpf
                 PixelFormat.B8_G8_R8_A8_UNorm,
                 TextureUsage.RenderTarget);
 
-            _offscreenColor = _factory.CreateTexture(ref mainColorDesc);
+            _offscreenColor = _factory.CreateTexture(mainColorDesc);
             
             _offscreenDepth = _factory.CreateTexture(TextureDescription.Texture2D(
                 width, 
