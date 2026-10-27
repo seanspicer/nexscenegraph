@@ -15,11 +15,9 @@
 //
 
 using System.Numerics;
-using SixLabors.Fonts;
-using SixLabors.ImageSharp.PixelFormats;
 using Veldrid.SceneGraph;
 using Veldrid.SceneGraph.Text;
-using Color = SixLabors.ImageSharp.Color;
+using Veldrid;
 
 namespace Examples.Common
 {
@@ -34,7 +32,7 @@ namespace Examples.Common
             // Left Justified Text 
             {
                 var leftJustifiedXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(0f, 60f, 0f));
-                var leftJustifiedText = TextNode.Create(text, SystemFonts.CreateFont("Arial", 20), Color.White, Color.Red, VerticalAlignment.Top,
+                var leftJustifiedText = TextNode.Create(text, new TextFont("Arial", 20), new RgbaByte(255, 255, 255, 255), new RgbaByte(255, 0, 0, 255), VerticalAlignment.Top,
                     HorizontalAlignment.Left, 4, 0.75f);
                 leftJustifiedText.AutoRotateToScreen = true;
                 leftJustifiedText.CharacterSizeMode = CharacterSizeModes.ObjectCoords;
@@ -47,7 +45,7 @@ namespace Examples.Common
             // Center Justified Text 
             {
                 var centerJustifiedXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(0f, 0f, 0f));
-                var centerJustifiedText = TextNode.Create(text, SystemFonts.CreateFont("Arial", 40, FontStyle.Bold), Color.Yellow, Color.Red, 2, Color.Blue,
+                var centerJustifiedText = TextNode.Create(text, new TextFont("Arial", 40, Bold: true), new RgbaByte(255, 255, 0, 255), new RgbaByte(255, 0, 0, 255), 2, new RgbaByte(0, 0, 255, 255),
                     VerticalAlignment.Center, HorizontalAlignment.Center, 4, 2f);
                 centerJustifiedText.AutoRotateToScreen = false;
                 centerJustifiedText.CharacterSizeMode = CharacterSizeModes.ObjectCoords;
@@ -60,7 +58,7 @@ namespace Examples.Common
             // Right Justified, Screen coordinate scaled Text 
             {
                 var rightJustifiedXForm = MatrixTransform.Create(Matrix4x4.CreateTranslation(0f, -60f, 0f));
-                var rightJustifiedText = TextNode.Create(text, SystemFonts.CreateFont("Arial", 20), Color.Black, Color.Green,
+                var rightJustifiedText = TextNode.Create(text, new TextFont("Arial", 20), new RgbaByte(0, 0, 0, 255), new RgbaByte(0, 128, 0, 255),
                     VerticalAlignment.Bottom, HorizontalAlignment.Right, 4, 3);
                 rightJustifiedText.AutoRotateToScreen = true;
                 rightJustifiedText.CharacterSizeMode = CharacterSizeModes.ScreenCoords;

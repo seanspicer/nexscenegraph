@@ -14,8 +14,6 @@
 // limitations under the License.
 //
 
-using SixLabors.Fonts;
-using SixLabors.ImageSharp.PixelFormats;
 
 namespace Veldrid.SceneGraph.Text
 {
@@ -33,18 +31,18 @@ namespace Veldrid.SceneGraph.Text
 
         float FontResolution { get; set; }
 
-        Rgba32 TextColor { get; set; }
+        RgbaByte TextColor { get; set; }
         
-        Rgba32 OutlineColor { get; set; }
+        RgbaByte OutlineColor { get; set; }
         float OutlineStrokeWidth { get; set; }
 
-        Rgba32 BackgroundColor { get; set; }
+        RgbaByte BackgroundColor { get; set; }
 
         VerticalAlignment VerticalAlignment { get; set; }
 
         HorizontalAlignment HorizontalAlignment { get; set; }
         
-        Font Font { get; }
+        TextFont Font { get; }
 
         bool AutoRotateToScreen { get; set; }
 

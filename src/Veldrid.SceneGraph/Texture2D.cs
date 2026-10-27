@@ -52,7 +52,7 @@ namespace Veldrid.SceneGraph
 
             if (null != ImageBytes)
             {
-                var texProcessor = new ImageSharpProcessor();
+                var texProcessor = new SkiaImageProcessor();
                 using (var stream = new MemoryStream(ImageBytes))
                 {
                     switch (ImageFormat)

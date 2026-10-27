@@ -18,12 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using SixLabors.Fonts;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Drawing;
-using SixLabors.ImageSharp.Drawing.Processing;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
+using SkiaSharp;
 using Veldrid.SceneGraph.AssetPrimitives;
 using Veldrid.SceneGraph.AssetProcessor;
 using Veldrid.SceneGraph.Shaders.Standard;
@@ -56,8 +51,11 @@ namespace Veldrid.SceneGraph.Text
 
     public class TextNode : Geometry<VertexPositionTexture>, ITextNode
     {
-        private Rgba32 _backgroundColor;
-        private Rgba32 _outlineColor;
+        private static readonly RgbaByte White = new RgbaByte(255, 255, 255, 255);
+        private static readonly RgbaByte Transparent = new RgbaByte(0, 0, 0, 0);
+
+        private RgbaByte _backgroundColor;
+        private RgbaByte _outlineColor;
         private float _outlineStrokeWidth;
 
         private CharacterSizeModes _characterSizeMode;
@@ -78,7 +76,7 @@ namespace Veldrid.SceneGraph.Text
 
         private double _textAspectRatio;
 
-        private Rgba32 _textColor;
+        private RgbaByte _textColor;
 
         private int _textHeight;
         private int _textWidth;
@@ -86,10 +84,10 @@ namespace Veldrid.SceneGraph.Text
         private VerticalAlignment _verticalAlignment;
 
         protected TextNode(string text,
-            Font font,
-            Rgba32 textColor,
-            Rgba32 backgroundColor,
-            Rgba32 outlineColor,
+            TextFont font,
+            RgbaByte textColor,
+            RgbaByte backgroundColor,
+            RgbaByte outlineColor,
             float outlineStrokeWidth,
             VerticalAlignment verticalAlignment,
             HorizontalAlignment horizontalAlignment,
@@ -115,7 +113,7 @@ namespace Veldrid.SceneGraph.Text
         }
         //private bool _dirty = true;
 
-        public Font Font { get; protected set; }
+        public TextFont Font { get; protected set; }
 
         public string Text
         {
@@ -147,7 +145,7 @@ namespace Veldrid.SceneGraph.Text
             }
         }
 
-        public Rgba32 TextColor
+        public RgbaByte TextColor
         {
             get => _textColor;
             set
@@ -157,7 +155,7 @@ namespace Veldrid.SceneGraph.Text
             }
         }
 
-        public Rgba32 BackgroundColor
+        public RgbaByte BackgroundColor
         {
             get => _backgroundColor;
             set
@@ -167,7 +165,7 @@ namespace Veldrid.SceneGraph.Text
             }
         }
         
-        public Rgba32 OutlineColor
+        public RgbaByte OutlineColor
         {
             get => _outlineColor;
             set
@@ -279,9 +277,9 @@ namespace Veldrid.SceneGraph.Text
         }
 
         public static ITextNode Create(string text,
-            Font font,
-            Rgba32 textColor,
-            Rgba32 backgroundColor,
+            TextFont font,
+            RgbaByte textColor,
+            RgbaByte backgroundColor,
             VerticalAlignment verticalAlignment = VerticalAlignment.Center,
             HorizontalAlignment horizontalAlignment = HorizontalAlignment.Center,
             int padding = 4,
@@ -292,7 +290,7 @@ namespace Veldrid.SceneGraph.Text
                 font,
                 textColor,
                 backgroundColor,
-                SixLabors.ImageSharp.Color.Transparent,
+                Transparent,
                 0.0f,
                 verticalAlignment,
                 horizontalAlignment,
@@ -302,11 +300,11 @@ namespace Veldrid.SceneGraph.Text
         }
         
         public static ITextNode Create(string text,
-            Font font,
-            Rgba32 textColor,
-            Rgba32 outlineColor,
+            TextFont font,
+            RgbaByte textColor,
+            RgbaByte outlineColor,
             float outlineStrokeWidth,
-            Rgba32 backgroundColor,
+            RgbaByte backgroundColor,
             VerticalAlignment verticalAlignment = VerticalAlignment.Center,
             HorizontalAlignment horizontalAlignment = HorizontalAlignment.Center,
             int padding = 4,
@@ -327,7 +325,7 @@ namespace Veldrid.SceneGraph.Text
         }
 
         public static ITextNode Create(string text,
-            Font font,
+            TextFont font,
             VerticalAlignment verticalAlignment = VerticalAlignment.Center,
             HorizontalAlignment horizontalAlignment = HorizontalAlignment.Center,
             int padding = 4,
@@ -336,9 +334,9 @@ namespace Veldrid.SceneGraph.Text
             return new TextNode(
                 text,
                 font,
-                SixLabors.ImageSharp.Color.White,
-                SixLabors.ImageSharp.Color.Transparent,
-                SixLabors.ImageSharp.Color.Transparent,
+                White,
+                Transparent,
+                Transparent,
                 0.0f,
                 verticalAlignment,
                 horizontalAlignment,
@@ -450,8 +448,7 @@ namespace Veldrid.SceneGraph.Text
 
         internal void CalculateTextMetrics()
         {
-            
-            var size = TextMeasurer.MeasureSize(Text, new TextOptions(Font){Dpi = 72 * FontResolution, KerningMode = KerningMode.Auto});
+            var size = MeasureText(Font.Size * FontResolution);
 
             var padding = Padding * FontResolution;
 
@@ -460,98 +457,127 @@ namespace Veldrid.SceneGraph.Text
             _charAspectRatio = _charWidth / _charHeight;
 
             //var texSize = (int)NextPowerOfTwo((uint)  System.Math.Round(rawSize));
-            _textWidth = (int) (size.Width + padding * 2); //(int)NextPowerOfTwo((uint)  System.Math.Round(size.Width));
-            _textHeight =
-                (int) (size.Height + padding * 2); //(int)NextPowerOfTwo((uint)  System.Math.Round(size.Height));
+            // Round up so the last (antialiased) column/row of the glyphs is not cut off.
+            _textWidth = (int) System.Math.Ceiling(size.Width + padding * 2);
+            _textHeight = (int) System.Math.Ceiling(size.Height + padding * 2);
 
             _textAspectRatio = _textWidth / (double) _textHeight;
         }
 
+        private SKTypeface CreateTypeface()
+        {
+            return SKTypeface.FromFamilyName(Font.Family,
+                       Font.Bold ? SKFontStyleWeight.Bold : SKFontStyleWeight.Normal,
+                       SKFontStyleWidth.Normal,
+                       Font.Italic ? SKFontStyleSlant.Italic : SKFontStyleSlant.Upright)
+                   ?? SKTypeface.Default;
+        }
+
+        private SKPaint CreatePaint(SKTypeface typeface, float pixelSize)
+        {
+            return new SKPaint
+            {
+                Typeface = typeface,
+                TextSize = pixelSize,
+                IsAntialias = true,
+                SubpixelText = true
+            };
+        }
+
+        // Antialiasing can put partial coverage up to a pixel outside the glyph outlines.
+        private const float AntialiasMargin = 1f;
+
+        // Width: the larger of the advance and the ink width, plus an antialiasing margin on each side.
+        // Height: line height (ascent + descent + leading).
+        private (float Width, float Height) MeasureText(float pixelSize)
+        {
+            using var typeface = CreateTypeface();
+            using var paint = CreatePaint(typeface, pixelSize);
+            var metrics = paint.FontMetrics;
+            var inkBounds = new SKRect();
+            var advance = paint.MeasureText(Text ?? string.Empty, ref inkBounds);
+            var width = System.Math.Max(advance, inkBounds.Width) + 2 * AntialiasMargin;
+            return (width, metrics.Descent - metrics.Ascent + metrics.Leading);
+        }
+
         private ProcessedTexture BuildTexture()
         {
-            using (var img = new Image<Rgba32>(_textWidth, _textHeight))
+            var width = System.Math.Max(1, _textWidth);
+            var height = System.Math.Max(1, _textHeight);
+
+            using var bitmap = new SKBitmap(new SKImageInfo(width, height, SKColorType.Rgba8888, SKAlphaType.Premul));
+            using (var canvas = new SKCanvas(bitmap))
             {
                 var padding = Padding * FontResolution;
-                var targetWidth = img.Width - padding * 2;
-                var targetHeight = img.Height - padding * 2;
+                var targetWidth = width - padding * 2;
+                var targetHeight = height - padding * 2;
 
-                // measure the text size
-                var size = TextMeasurer.MeasureSize(Text, new TextOptions(Font));
+                // Shrink the text so it fits inside the padding.
+                var scalingFactor = System.Math.Min(targetWidth / width, targetHeight / height);
 
-                //find out how much we need to scale the text to allow for alignment
-                var scalingFactor = System.Math.Min(targetWidth / img.Width, targetHeight / img.Height);
+                using var typeface = CreateTypeface();
+                using var paint = CreatePaint(typeface, scalingFactor * Font.Size * FontResolution);
+                var metrics = paint.FontMetrics;
+                var lineHeight = metrics.Descent - metrics.Ascent + metrics.Leading;
 
-                //create a new font 
-                var scaledFont = new Font(Font, scalingFactor * Font.Size);
-
-                var hCenter = img.Width / 2f;
-                var vCenter = img.Height / 2f;
+                float x;
                 switch (HorizontalAlignment)
                 {
                     case HorizontalAlignment.Left:
-                        hCenter = padding;
+                        x = padding + AntialiasMargin;
+                        paint.TextAlign = SKTextAlign.Left;
                         break;
                     case HorizontalAlignment.Right:
-                        hCenter = img.Width - padding;
+                        x = width - padding - AntialiasMargin;
+                        paint.TextAlign = SKTextAlign.Right;
                         break;
                     case HorizontalAlignment.Center:
+                        x = width / 2f;
+                        paint.TextAlign = SKTextAlign.Center;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
 
+                float lineTop;
                 switch (VerticalAlignment)
                 {
                     case VerticalAlignment.Top:
-                        vCenter = padding;
+                        lineTop = padding;
                         break;
                     case VerticalAlignment.Bottom:
-                        vCenter = img.Height - padding;
+                        lineTop = height - padding - lineHeight;
                         break;
                     case VerticalAlignment.Center:
+                        lineTop = (height - lineHeight) / 2f;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
 
-                var center = new PointF(hCenter, vCenter);
+                var baseline = lineTop - metrics.Ascent;
 
-                img.Mutate(i => i.BackgroundColor(BackgroundColor));
+                canvas.Clear(ToSkColor(BackgroundColor));
 
-                var textOptions = new TextOptions(scaledFont)
-                {
-                    Origin = center,
-                    HorizontalAlignment = HorizontalAlignment,
-                    VerticalAlignment = VerticalAlignment,
-                    Dpi = 72 * FontResolution
-                };
-
-                var drawingOptions = new DrawingOptions
-                {
-                    GraphicsOptions =
-                    {
-                        Antialias = true
-                    }
-                };
-
+                // Outline first so it forms a halo behind the fill instead of eating into thin glyphs.
                 if (_outlineStrokeWidth > 0)
                 {
-                    img.Mutate<Rgba32>(i => i.DrawText(Text, scaledFont, new SolidBrush(TextColor), Pens.Solid(_outlineColor, _outlineStrokeWidth), center));
-                    //img.Mutate(i => i.DrawText(drawingOptions, textOptions, Text, new SolidBrush(TextColor), Pens.Solid(_outlineColor, _outlineStrokeWidth)));
+                    paint.Style = SKPaintStyle.Stroke;
+                    paint.StrokeWidth = _outlineStrokeWidth;
+                    paint.StrokeJoin = SKStrokeJoin.Round;
+                    paint.Color = ToSkColor(_outlineColor);
+                    canvas.DrawText(Text ?? string.Empty, x, baseline, paint);
                 }
-                else
-                {
-                    img.Mutate<Rgba32>(i => i.DrawText(Text, scaledFont, new SolidBrush(TextColor), Pens.Solid(_outlineColor, _outlineStrokeWidth), center));
-                    //img.Mutate<Rgba32>(i => i.DrawText(drawingOptions, textOptions, Text, new SolidBrush(TextColor), null));
-                }
-                
 
-                
-
-                var imageProcessor = new ImageSharpProcessor();
-                return imageProcessor.ProcessT(img);
+                paint.Style = SKPaintStyle.Fill;
+                paint.Color = ToSkColor(TextColor);
+                canvas.DrawText(Text ?? string.Empty, x, baseline, paint);
             }
+
+            return SkiaImageProcessor.CreateTexture(bitmap);
         }
+
+        private static SKColor ToSkColor(RgbaByte color) => new SKColor(color.R, color.G, color.B, color.A);
 
         protected override IBoundingBox ComputeBoundingBox()
         {
