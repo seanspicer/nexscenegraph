@@ -86,7 +86,8 @@ namespace Veldrid.SceneGraph.Tests
             var v1 = m.PreMultiply(v);
             var v2 = Vector3.Transform(v, m);
 
-            Assert.That(v1, Is.EqualTo(v2));
+            // Vector3.Transform is vectorized on newer runtimes, so the last bit can differ.
+            Assert.That(Vector3.Distance(v1, v2), Is.LessThan(1e-5f));
         }
 
         [TestCase]

@@ -20,6 +20,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using NativeLibraryLoader;
+using NativeLibrary = NativeLibraryLoader.NativeLibrary;
 
 namespace Veldrid.SceneGraph.RenderDoc
 {
